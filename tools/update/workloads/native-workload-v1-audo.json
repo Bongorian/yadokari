@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "host_rate": 48000,
+  "tracks": 16,
+  "warmup_seconds": 2,
+  "measured_seconds_per_case": 6,
+  "cases": [
+    {
+      "case": 0,
+      "engine": "RESONATOR",
+      "model": 0,
+      "quality": 0,
+      "bytes": 1251005,
+      "sha256": "93abb9d9a2c68c5dd0d3a16ff09cb62e40b911758c330b21f978db5ecf734c3e"
+    },
+    {
+      "case": 1,
+      "engine": "RESONATOR",
+      "model": 1,
+      "quality": 0,
+      "bytes": 1251005,
+      "sha256": "70b08ddb4cc27bd637dd475b9c0805627c8cf367e469977d7042b5afe707eb21"
+    },
+    {
+      "case": 2,
+      "engine": "RESONATOR",
+      "model": 2,
+      "quality": 0,
+      "bytes": 1251005,
+      "sha256": "8f5d7669ba9d05717285b0edeb741a0d258c127f0979fa6da0bbd0cd6b48f0aa"
+    },
+    {
+      "case": 3,
+      "engine": "TEXTURE",
+      "model": 0,
+      "quality": 0,
+      "bytes": 1250973,
+      "sha256": "638fa714f02e5440b4e0edfab3fd258f3f117c7ec916be687715849c37aebcf6"
+    },
+    {
+      "case": 4,
+      "engine": "TEXTURE",
+      "model": 0,
+      "quality": 1,
+      "bytes": 1250973,
+      "sha256": "ecf6d18ef0add24d141be5aa9f50f45ed25889895f3e520fe20a767dcc71cbe8"
+    },
+    {
+      "case": 5,
+      "engine": "TEXTURE",
+      "model": 0,
+      "quality": 2,
+      "bytes": 1250973,
+      "sha256": "0cc083a40adc8b3ec9315d2014a97d9e91e13f3de2ebc08bd6bd4c7e75f5b35a"
+    },
+    {
+      "case": 6,
+      "engine": "TEXTURE",
+      "model": 0,
+      "quality": 3,
+      "bytes": 1250973,
+      "sha256": "52d9cdf463a206bd7b56dbede531849c8d16180d706c5813eeb7902e2b60ed57"
+    },
+    {
+      "case": 7,
+      "engine": "TEXTURE",
+      "model": 1,
+      "quality": 0,
+      "bytes": 1250973,
+      "sha256": "f84f11ebd6a2a84bd1780de10d98d24fe12819c040a8e7b52d53b9db89fae0be"
+    },
+    {
+      "case": 8,
+      "engine": "TEXTURE",
+      "model": 1,
+      "quality": 1,
+      "bytes": 1250973,
+      "sha256": "2a4c6d5a05cd7f9d5c7c6fc307ec289031346bf1fe5313853af11826ff5c931c"
+    },
+    {
+      "case": 9,
+      "engine": "TEXTURE",
+      "model": 1,
+      "quality": 2,
+      "bytes": 1250973,
+      "sha256": "c846fbf1da7d09714201e2b6787af6299428632c1898efb9c080ea667b680e6b"
+    },
+    {
+      "case": 10,
+      "engine": "TEXTURE",
+      "model": 1,
+      "quality": 3,
+      "bytes": 1250973,
+      "sha256": "1d43a632f07c7b0a9fad81d6a51a02679910a8d5b22de5a0a2e0790d710d37cf"
+    },
+    {
+      "case": 11,
+      "engine": "TEXTURE",
+      "model": 2,
+      "quality": 0,
+      "bytes": 1250973,
+      "sha256": "2ddf174f65bf66a327ea2319c2c501fc435a3319a84002a3bf0bd3d9d6dc7c5e"
+    },
+    {
+      "case": 12,
+      "engine": "TEXTURE",
+      "model": 2,
+      "quality": 1,
+      "bytes": 1250973,
+      "sha256": "96350e4759cc689b1e66fa75e96296dcc3239c3a477563db2c5d88773e9cd3d9"
+    },
+    {
+      "case": 13,
+      "engine": "TEXTURE",
+      "model": 2,
+      "quality": 2,
+      "bytes": 1250973,
+      "sha256": "8bafcc3ef1443e95a67e240fee6d13c00e6d24b3dedab78641c28ef2754e3b76"
+    },
+    {
+      "case": 14,
+      "engine": "TEXTURE",
+      "model": 2,
+      "quality": 3,
+      "bytes": 1250973,
+      "sha256": "8647ff9a0048915ac01ac20e514c919b5e363a0c5560011f1a69677563ca24fd"
+    },
+    {
+      "case": 15,
+      "engine": "TEXTURE",
+      "model": 3,
+      "quality": 0,
+      "bytes": 1250973,
+      "sha256": "34d95b94ec0f38b6e46af68e2bd5df4a93787e62cbe417d100f8de8804871ca2"
+    },
+    {
+      "case": 16,
+      "engine": "TEXTURE",
+      "model": 3,
+      "quality": 1,
+      "bytes": 1250973,
+      "sha256": "7aed0c89eccfdc6132b6caedf3a9e9670c42972ad27a383be8c4ae5d924f1959"
+    },
+    {
+      "case": 17,
+      "engine": "TEXTURE",
+      "model": 3,
+      "quality": 2,
+      "bytes": 1250973,
+      "sha256": "9bcf9193013f43137c7df13556b2568da7d8c491a27ee8829a74651da9b32526"
+    },
+    {
+      "case": 18,
+      "engine": "TEXTURE",
+      "model": 3,
+      "quality": 3,
+      "bytes": 1250973,
+      "sha256": "5aa6a2b86c68f0f207dec223a942d23f43d348b5ae135a44b527d1abb418e505"
+    }
+  ],
+  "encoding": "MGXC format 1 with AUDO revision 1; same musical workload v1; serialized hashes differ from pre-AUDO"
+}

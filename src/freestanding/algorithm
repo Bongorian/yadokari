@@ -1,0 +1,12 @@
+#pragma once
+// Subset used by Mutable DSP when Circle disables the C++ library.
+namespace std {
+template<class I> inline void reverse(I first,I last){while(first!=last && first!=--last){auto value=*first;*first++=*last;*last=value;}}
+template<class I> inline I rotate(I first,I middle,I last){I result=first+(last-middle);reverse(first,middle);reverse(middle,last);reverse(first,last);return result;}
+template<class I> inline I max_element(I first,I last){if(first==last)return last;I best=first;while(++first!=last)if(*best<*first)best=first;return best;}
+template<class T> inline const T& min(const T& a,const T& b) { return b<a?b:a; }
+template<class T> inline const T& max(const T& a,const T& b) { return a<b?b:a; }
+template<class I,class O> inline O copy(I a,I b,O out) { while(a!=b) *out++=*a++; return out; }
+template<class I,class T> inline void fill(I a,I b,const T& v) { while(a!=b) *a++=v; }
+template<class I> inline void sort(I first,I last) { if(first==last) return; for(I i=first+1;i!=last;++i) { auto value=*i; I j=i; while(j!=first && value<*(j-1)) { *j=*(j-1); --j; } *j=value; } }
+}

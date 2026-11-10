@@ -1,0 +1,8 @@
+{
+  "source_sha256": "c563c54f63bc2f8c206be1294585faab71513f5cf2307f18fea4478e683e454a",
+  "conversion": "Approved PNG at native 480x272 -> truncating RGB565; no resampling, redrawing, thresholding or baked version",
+  "left_packet_bytes": 32,
+  "right_packet_bytes": 31748,
+  "rgb565_sha256": "16aa30e993c387690dada7f91909fe0dee979ba8cc434d377a5e43c47147bd9d",
+  "right_packet_sha256": "27cbad6f95d1a1473c2d7b47deecfa4d04f092d8e6c6aba8252a87f8cbdc4dd8"
+}

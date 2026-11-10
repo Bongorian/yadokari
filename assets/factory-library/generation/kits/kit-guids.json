@@ -1,0 +1,170 @@
+{
+  "606 Acid": {
+    "guid": "bongorian.kit.606-acid",
+    "revision": 1,
+    "guid128": "f0c9dcb0db4e4cd0417129bca4388d35",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "707 House": {
+    "guid": "bongorian.kit.707-house",
+    "revision": 1,
+    "guid128": "f09b0008e313f85ec90087ccd4e752de",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "727 Latin": {
+    "guid": "bongorian.kit.727-latin",
+    "revision": 1,
+    "guid128": "f008b343603908180b34a27bb8f44f9e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "808 Classic": {
+    "guid": "bongorian.kit.808-classic",
+    "revision": 1,
+    "guid128": "f00046c5aa4b6a684f6b3d735feec079",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "909 Classic": {
+    "guid": "bongorian.kit.909-classic",
+    "revision": 1,
+    "guid128": "f0900c401c9084eba54c4b9e5388c55c",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Acoustic Jazz": {
+    "guid": "bongorian.kit.acoustic-jazz",
+    "revision": 1,
+    "guid128": "f00b547c6cd06e2df20c9f326177597e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Acoustic Studio": {
+    "guid": "bongorian.kit.acoustic-studio",
+    "revision": 1,
+    "guid128": "f0b204bfef51a055371af6dbc6a164f0",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Ambient Percussion": {
+    "guid": "bongorian.kit.ambient-percussion",
+    "revision": 1,
+    "guid128": "f02487d9ba76604ab1194a716de2d4fc",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Boom Bap": {
+    "guid": "bongorian.kit.boom-bap",
+    "revision": 1,
+    "guid128": "f017d6a5f6486f25a1e70ca16ae8afec",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Breakbeat Jungle": {
+    "guid": "bongorian.kit.breakbeat-jungle",
+    "revision": 1,
+    "guid128": "f04056dd07e6462c2974cb0a0fcc2173",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "CR-78 Vintage": {
+    "guid": "bongorian.kit.cr-78-vintage",
+    "revision": 1,
+    "guid128": "f018a5e2af8d6ba6a59bb2aa5c67d3c4",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DMX Drumtraks": {
+    "guid": "bongorian.kit.dmx-drumtraks",
+    "revision": 1,
+    "guid128": "f03667b6fa988f6ea0c440f2169b0bd0",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Deep House": {
+    "guid": "bongorian.kit.deep-house",
+    "revision": 1,
+    "guid128": "f092a157ec7fcfdb671d39dac486176b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Disco Funk": {
+    "guid": "bongorian.kit.disco-funk",
+    "revision": 1,
+    "guid128": "f05cccac3d971b1c843f0295563c66e6",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Electro": {
+    "guid": "bongorian.kit.electro",
+    "revision": 1,
+    "guid128": "f07dfd245c92a0751ac1f46b662e988d",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Glitch Experimental": {
+    "guid": "bongorian.kit.glitch-experimental",
+    "revision": 1,
+    "guid128": "f0ffa959c671df94c818465ae4fddbb5",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hard Techno": {
+    "guid": "bongorian.kit.hard-techno",
+    "revision": 1,
+    "guid128": "f0ad41f64365a6139699805bdad2aef4",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Industrial Techno": {
+    "guid": "bongorian.kit.industrial-techno",
+    "revision": 1,
+    "guid128": "f08db5731eea231334d07c6dda1ce569",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "LinnDrum LM-2": {
+    "guid": "bongorian.kit.linndrum-lm-2",
+    "revision": 1,
+    "guid128": "f0a4d563c95b214093ff71ce800dc15b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Lo-fi Hip-Hop": {
+    "guid": "bongorian.kit.lo-fi-hip-hop",
+    "revision": 1,
+    "guid128": "f0e5e2fcc39a2703c540f074db6d0fc2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Melodic Techno": {
+    "guid": "bongorian.kit.melodic-techno",
+    "revision": 1,
+    "guid128": "f01633bde71270bdcab63e7cdf7acedc",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Minimal Techno": {
+    "guid": "bongorian.kit.minimal-techno",
+    "revision": 1,
+    "guid128": "f0a4f1b6c5d9e7f679027b95453fc63a",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Psytrance": {
+    "guid": "bongorian.kit.psytrance",
+    "revision": 1,
+    "guid128": "f0ef48dbb41bbd70d2948ee052abcff2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Trap Drill": {
+    "guid": "bongorian.kit.trap-drill",
+    "revision": 1,
+    "guid128": "f067d63e73a816146b3138f244b53685",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  }
+}

@@ -1,0 +1,2975 @@
+{
+  "version": 1,
+  "repositories": {
+    "fischer808": {
+      "repo": "tidalcycles/sounds-tr808-fischer",
+      "commit": "85fbecf1bec32553395625ea659e2a56dfd7c0e1",
+      "license_evidence": [
+        {
+          "path": "LICENSE",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        }
+      ]
+    },
+    "octal": {
+      "repo": "octalmusic/octal-samples",
+      "commit": "22d222ce36e290ba3792c776811aa9c69dcc8776",
+      "license_evidence": [
+        {
+          "path": "LICENSE",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        },
+        {
+          "path": "LICENSES.md",
+          "sha256": "2e3b1f544630a4ad604ea30d83eb6279faac1ae23503bd8e1e96ba77861b76a2"
+        }
+      ]
+    },
+    "oramics": {
+      "repo": "oramics/sampled",
+      "commit": "84d3405e107ad52986e7ca99af6a4ed3efe205de",
+      "license_evidence": [
+        {
+          "path": "DM/CR-78/README.md",
+          "sha256": "6b7e8745dc236c809794ab831947913962eb6bd199d64387ce25511778a62b09"
+        },
+        {
+          "path": "DM/LM-2/README.md",
+          "sha256": "32bcb57f957861fb30e4d1ee0415c0df4d957910dd122480a7346c8579c5bf3c"
+        },
+        {
+          "path": "DM/TR-505/README.md",
+          "sha256": "ce4d9ec4b6845b13f883c294104941d0934f378d2866642b5df8116d9e9fbede"
+        }
+      ]
+    },
+    "vcsl": {
+      "repo": "sgossner/VCSL",
+      "commit": "c1ea7bcc3c7309650ab0da9d15c9cd1fbc4a4c7e",
+      "license_evidence": [
+        {
+          "path": "LICENSE",
+          "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+        }
+      ]
+    },
+    "vsco": {
+      "repo": "sgossner/VSCO-2-CE",
+      "commit": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+      "license_evidence": [
+        {
+          "path": "LICENSE",
+          "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+        },
+        {
+          "path": "Readme.txt",
+          "sha256": "101ddb88eb013900cc911834ecbdfbd49497bcd913bf09417160b9677952bb38"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD0000.WAV",
+      "git_blob": "5d1e58bef829a1c8d1e0cdf6e72c958fa8064716",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD0010.WAV",
+      "git_blob": "6a9ce56f8836a9961e67a4eb9f35f4b5d0b56a2f",
+      "bytes": 264646,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD0025.WAV",
+      "git_blob": "8dc3eff1916bfc4399a44b333e2f76515293ef53",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD0050.WAV",
+      "git_blob": "d5fdfab4659ff38867b9a9c541c24a255621b333",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD0075.WAV",
+      "git_blob": "3626af974bdc870f4f864999d7f91996c17e3ca2",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD1000.WAV",
+      "git_blob": "285b247059553d3c66c40059dd45a4a9e4906900",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD1010.WAV",
+      "git_blob": "49adfbdebe749947da84e4443fc68cae0edad9fa",
+      "bytes": 264646,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD1025.WAV",
+      "git_blob": "6b0bed756fffddb2adbaf3b23a95087f2687cdd7",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD1050.WAV",
+      "git_blob": "a660170280973533e606aea68bfa35f8546cd04d",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD1075.WAV",
+      "git_blob": "60122d1c9cb7a6e6fa97650e3a9dc35b9ba30ba4",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD2500.WAV",
+      "git_blob": "cf595b2b384ec776f7d49a534f4e99b2aabc6905",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD2510.WAV",
+      "git_blob": "1a3766352dd06aa4344c78bbe4a996169b568136",
+      "bytes": 264646,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD2525.WAV",
+      "git_blob": "f1732d070037579579f059339bae7fb92d8340fe",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD2550.WAV",
+      "git_blob": "5e310e2a0d849ecb88473698c249304f509e014e",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD2575.WAV",
+      "git_blob": "066fbca968b7c608e87e36fb227d78eaac9f460c",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD5000.WAV",
+      "git_blob": "27f40d12552a94be441740bf6768191b844f3b45",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD5010.WAV",
+      "git_blob": "bd930c6a2ee4ff82e2c147c2458a950f11aa0928",
+      "bytes": 264646,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD5025.WAV",
+      "git_blob": "5951d013301a7afba3203b4272a8ef2418060682",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD5050.WAV",
+      "git_blob": "b6743fdf412b8620611983df5ee211488a54f385",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD5075.WAV",
+      "git_blob": "800d123d0e7257bacb8fc1d39be2bd81573fb07d",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD7500.WAV",
+      "git_blob": "6dd895cb1ebf6bec36d0ff74c4e0228c3588b1c9",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD7510.WAV",
+      "git_blob": "09add1da9ee4303f6028cdc48801c35bcebd45b1",
+      "bytes": 264646,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD7525.WAV",
+      "git_blob": "cc3887f287d56c68230665464bcdb2638d1203c8",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD7550.WAV",
+      "git_blob": "bcb2b4890776e40f1bf9955a551a482ed4f005d9",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "bd8/BD7575.WAV",
+      "git_blob": "2c7d68ae6548b584ed88361e4ad0df0d4303a15b",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cb8/CB.WAV",
+      "git_blob": "78b5654608470f40e27ae0b54e40cedb4e6224be",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ch8/CH.WAV",
+      "git_blob": "ffc5951ddfc3801f947579f7994bcab2ca42edf1",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cl8/CL.WAV",
+      "git_blob": "2344a5872622373eab31f99e75477cf492b924cd",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cp8/CP.WAV",
+      "git_blob": "6e2b7ea108f87133fcaa31f7ae5c9eaa40ae1f4b",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY0000.WAV",
+      "git_blob": "9e0b76c1fc43afe908bad41e2f795b7fa867eedf",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY0010.WAV",
+      "git_blob": "20c218a7a417536c70781d4e75efd22ea2174027",
+      "bytes": 352846,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY0025.WAV",
+      "git_blob": "47ab6d2268ac96eccd64c1de60cf9a4ec533aaae",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY0050.WAV",
+      "git_blob": "9e971928bb86a19996bcd8083c1ed01a15d3f2ea",
+      "bytes": 220546,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY0075.WAV",
+      "git_blob": "5640f3627b61b50126f8a9cb7c6ae8e675a92228",
+      "bytes": 308746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY1000.WAV",
+      "git_blob": "55c077db9ebd92f8175832453f908e8400952879",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY1010.WAV",
+      "git_blob": "e762a61310e0ba50f403a0e4fb66008a501edf3f",
+      "bytes": 352846,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY1025.WAV",
+      "git_blob": "8b518ed92a1946e8e7b08672cdd520af28cd1f83",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY1050.WAV",
+      "git_blob": "92c72523024a40d7a8437491d4f50aa259450aa2",
+      "bytes": 220546,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY1075.WAV",
+      "git_blob": "78c2390d8b8e31d5c34f29216b6e009aed4b7b9f",
+      "bytes": 308746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY2500.WAV",
+      "git_blob": "b0e9c2f4d59d1878369717471579338e3bf98923",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY2510.WAV",
+      "git_blob": "f8c36dbbfa13b8df529bde61b514be571be1355e",
+      "bytes": 352846,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY2525.WAV",
+      "git_blob": "4e2afb8078c3e1f06cf3c89a000b8e2eb5b70cf3",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY2550.WAV",
+      "git_blob": "33f54a7d6bab622afe4d303e720bc6dd3a53d85f",
+      "bytes": 220546,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY2575.WAV",
+      "git_blob": "41858ee73c89296ea91a24f9d10fd83bfb68b4ad",
+      "bytes": 308746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY5000.WAV",
+      "git_blob": "083dad64dc3573e955dbf59c4f36868368b074fe",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY5010.WAV",
+      "git_blob": "e6f8bac3dfa2222899edf09a5960f20f913b2e89",
+      "bytes": 352846,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY5025.WAV",
+      "git_blob": "c649d3ea9ee6a1510ee4f381d2919b1c3609dfb0",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY5050.WAV",
+      "git_blob": "f94d6d5dafa13d0f388f074ae3c74b13406642ed",
+      "bytes": 220546,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY5075.WAV",
+      "git_blob": "51341fbd397cd6fb1a2ad7d7ff0a35e2e8869701",
+      "bytes": 308746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY7500.WAV",
+      "git_blob": "b19e1bcfb2d6b0fd4fb7274f4c62b419af157fef",
+      "bytes": 132346,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY7510.WAV",
+      "git_blob": "822866f376927d81f288dad3613b93491b4421fc",
+      "bytes": 352846,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY7525.WAV",
+      "git_blob": "fd2d469a67fdcdc60a11cc03e72002871e106450",
+      "bytes": 176446,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY7550.WAV",
+      "git_blob": "7429466d5e3212b6dc200bce855d441024728b3b",
+      "bytes": 220546,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "cy8/CY7575.WAV",
+      "git_blob": "d9dc0e2e084db5d163081501947fb6a653207e51",
+      "bytes": 308746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "hc8/HC00.WAV",
+      "git_blob": "873445c5cead3ff8db7ff0ea04ec96615c4607f3",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "hc8/HC10.WAV",
+      "git_blob": "fa282c888ce3f58ff4a039cd6c6ec1aab3ce3980",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "hc8/HC25.WAV",
+      "git_blob": "0c4270f972682c910ce062b0075abeed11ea790d",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "hc8/HC50.WAV",
+      "git_blob": "a83f5c17d54d64840dc8a8b53bd9ce1c9aeccf6d",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "hc8/HC75.WAV",
+      "git_blob": "fcaaccee0eb4c7e76164903f7f23ee69f6f5b93b",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ht8/HT00.WAV",
+      "git_blob": "2b5682eb4e50a7962c304a7323023e2c88b35fab",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ht8/HT10.WAV",
+      "git_blob": "d4eca1e11aa251a5a236d06716d55e884d0015f9",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ht8/HT25.WAV",
+      "git_blob": "748bd3996a99403520a15124092681c4d25c084e",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ht8/HT50.WAV",
+      "git_blob": "f924cbe477b119bcea85dec1d6afca613a17cf1c",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ht8/HT75.WAV",
+      "git_blob": "ad9fcf1f8e6221d25a08efc6f12290dc82688093",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lc8/LC00.WAV",
+      "git_blob": "b18d729253cdddc50801ee0145b635899681b1f6",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lc8/LC10.WAV",
+      "git_blob": "4446f763c274466be5da5225c02b80b050744f65",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lc8/LC25.WAV",
+      "git_blob": "9ef0c8e2e85cd7da26b1aa2799508ef3f5e37e79",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lc8/LC50.WAV",
+      "git_blob": "13b004c75bd73eeca9c82ae4fdd4db9ff32a41b0",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lc8/LC75.WAV",
+      "git_blob": "ea1338bdaea697929c32f65393ca154f48eb64cc",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lt8/LT00.WAV",
+      "git_blob": "e3395c5d9200e1a28125b75b86e05e5b9a4f2b93",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lt8/LT10.WAV",
+      "git_blob": "e3923425150acc1bfbe0535529e0ed59bc568ef0",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lt8/LT25.WAV",
+      "git_blob": "a92582a1d216bae40dd8a7e62baea96f09f873be",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lt8/LT50.WAV",
+      "git_blob": "b523e38c42b176bdeb02fa5ebe1ad9063bde36cf",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "lt8/LT75.WAV",
+      "git_blob": "4e963f0502eee25051b914a73d939970dacd28ec",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "ma8/MA.WAV",
+      "git_blob": "a83b006139aafaaf6a64a4215adaa6a59c85c5da",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mc8/MC00.WAV",
+      "git_blob": "8c2c6d384657583d7c6ea854d84e5f2d994a161f",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mc8/MC10.WAV",
+      "git_blob": "63e55db4d8cb58c91d301f245e10e85a9713bd17",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mc8/MC25.WAV",
+      "git_blob": "e7af5bfb9672155ca95897fbfd346a7b9a342660",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mc8/MC50.WAV",
+      "git_blob": "ef6982fb64cfd5bb9dae71edd8617e7595bb5305",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mc8/MC75.WAV",
+      "git_blob": "4c62555642bc6c5e376e61168fb2cdff9c824c27",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mt8/MT00.WAV",
+      "git_blob": "c9f599dde4e7e3b1d4f8b66c4e713d5802437a86",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mt8/MT10.WAV",
+      "git_blob": "9a6b9a1e0d183219466115548d1a4d98d60dd169",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mt8/MT25.WAV",
+      "git_blob": "ba7d7e4928b131ff6af1c56ddaa975879595f583",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mt8/MT50.WAV",
+      "git_blob": "e1a1213a9d40a9520f18e39106d5d4bd2423d5fa",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "mt8/MT75.WAV",
+      "git_blob": "58e6c03c60ae625c0395c7aef232f5368e2e6a4c",
+      "bytes": 88246,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "oh8/OH00.WAV",
+      "git_blob": "e8d81fc3c9e77943a3dc784193f0a6ecdad27214",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "oh8/OH10.WAV",
+      "git_blob": "09bef0beb015be23963b968e37696fc788d5ef98",
+      "bytes": 66196,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "oh8/OH25.WAV",
+      "git_blob": "8d7c2fae75ca37226b1cf71a480d414a4cc1e317",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "oh8/OH50.WAV",
+      "git_blob": "a0fde523e8b1a3142ddf70f806dd02422a8aad30",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "oh8/OH75.WAV",
+      "git_blob": "8a6b962572ebb4b8a87948c800562c3a7a1dcb65",
+      "bytes": 66196,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "rs8/RS.WAV",
+      "git_blob": "c5a54c77a27ed9776b74890b4ffe1016b1202e13",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD0000.WAV",
+      "git_blob": "1dad5d265b89c9a2d0622575d415815b6793fa31",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD0010.WAV",
+      "git_blob": "e022597e401ef95dae67bd46a5f4897bf3bee014",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD0025.WAV",
+      "git_blob": "dcc8ea387b3b729697c866406b633dd00f2e6081",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD0050.WAV",
+      "git_blob": "9b76b1de87476ac6244dc4a5941ceca603044127",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD0075.WAV",
+      "git_blob": "298f7b1643392ddaa9f247c09d5215c7282d3c69",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD1000.WAV",
+      "git_blob": "b52b618a2bf5d67484740d894499eaf4e6738cd9",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD1010.WAV",
+      "git_blob": "fc1ca09a68ed847ba12a4fe54f0bceb6177e854b",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD1025.WAV",
+      "git_blob": "642da811481eed1ccf6dc71bc739235bb7381d97",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD1050.WAV",
+      "git_blob": "a9589c1c34f549aef0de92e7b677b08b9e5e592a",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD1075.WAV",
+      "git_blob": "5daa0c2cf3cc179cd68876bdca9013da1b636607",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD2500.WAV",
+      "git_blob": "eaf3a627685309d2e6266c2738ecc9bf7425b974",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD2510.WAV",
+      "git_blob": "260814618ef08e013b4fdf2fedd2ca742616caa5",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD2525.WAV",
+      "git_blob": "479bf6f3ad7429bd19680ed6a0cb7310a526eded",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD2550.WAV",
+      "git_blob": "949196c6ef9247bc5b9fc19853d1973d540643fc",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD2575.WAV",
+      "git_blob": "86781a82d102175081f11bf6ab6e811771c5f53e",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD5000.WAV",
+      "git_blob": "3b4595b320eacf5f6268db4cecb0d03cf61ad393",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD5010.WAV",
+      "git_blob": "b55d7bafc57f09bf8479d789c46ffffbd27303fd",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD5025.WAV",
+      "git_blob": "98795aea6d8b50b6692645054f31f08b35368343",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD5050.WAV",
+      "git_blob": "0eb2dc0dcc112847b265af4046fca88f6d0bc287",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD5075.WAV",
+      "git_blob": "d395530a69647bb76447bfce0e7816b5216a6869",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD7500.WAV",
+      "git_blob": "52a082666b425241cdd585bddcc1c3c9f55e3244",
+      "bytes": 22096,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD7510.WAV",
+      "git_blob": "fed534dbd3ecd2e4250bfc8f307877359eb21e1a",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD7525.WAV",
+      "git_blob": "0cefa7eddb5bc6c440a49de55c3b945a143cd9e8",
+      "bytes": 22094,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD7550.WAV",
+      "git_blob": "cc9ff5d0fed5d9af73059bac8a654f90e597ff7a",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "fischer808",
+      "path": "sd8/SD7575.WAV",
+      "git_blob": "981538dd5ee1f29d1e1bf02e97e46370f37c5e71",
+      "bytes": 44146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/claps/classic-01.wav",
+      "git_blob": "3b6f1a44006fa2c96394e3c7030be702b0b34843",
+      "bytes": 22976,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/claps/classic-02.wav",
+      "git_blob": "fffee18e9bfa51b686084ae70de3ef7d61382efa",
+      "bytes": 30032,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/claps/classic-03.wav",
+      "git_blob": "5aa580bbd01a70ce29fc4934a9d03b0726610d34",
+      "bytes": 21212,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/cymbals/crash-01.wav",
+      "git_blob": "4716f0e0ca652ef8dace211e5d9676982b9014c1",
+      "bytes": 176444,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/cymbals/ride-01.wav",
+      "git_blob": "703a17dd1cf145da36cd600d03d16a08a2877e41",
+      "bytes": 81958,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/fx/noise-01.wav",
+      "git_blob": "b0194e870fb20300e71efe605596693795fde582",
+      "bytes": 176444,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/fx/riser-01.wav",
+      "git_blob": "39858cd482b7ee6b90a2963a69b09cb2266e9cd1",
+      "bytes": 264644,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-01.wav",
+      "git_blob": "c669b01363c5b21d5868bf158b2951757cd0b49e",
+      "bytes": 8864,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-02.wav",
+      "git_blob": "f6c0e89a3c5ad4a88a25f788ec7df360a5a93c0c",
+      "bytes": 9746,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-03.wav",
+      "git_blob": "a5676e2bc84d9c165333a6e34198c72b940489df",
+      "bytes": 10628,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-04.wav",
+      "git_blob": "972c096ff1ad8d1792ca1b486ff364d58735a2ac",
+      "bytes": 7100,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-05.wav",
+      "git_blob": "8bf3e38492fabfb6d63692afed39980e924363d3",
+      "bytes": 12392,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-06.wav",
+      "git_blob": "31c21eb01d0cefdfced065b5a3140e03910ff992",
+      "bytes": 8864,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-07.wav",
+      "git_blob": "f2a535fe29c4da2f56a7fabe620585d27eccf413",
+      "bytes": 8864,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-08.wav",
+      "git_blob": "7f3e7ac6496afe9ff251324b1104a9a4cf2e2ed6",
+      "bytes": 10628,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/closed-09.wav",
+      "git_blob": "b0b6d005b978b4dc4cfbf14556816b7bd1325fe2",
+      "bytes": 11510,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/open-01.wav",
+      "git_blob": "46d4b69c71b1eac272cde9fb526c7fa3601384f1",
+      "bytes": 33560,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/open-02.wav",
+      "git_blob": "b6aedaed434072abd4fcc77f9ea47c75e6bfe484",
+      "bytes": 44144,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/open-03.wav",
+      "git_blob": "af7fbe567bd1efb84f84e3a72f5b0da2449a567a",
+      "bytes": 51200,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/hats/open-04.wav",
+      "git_blob": "aaf4b9e9fbf8260d5f7449a2fa9760f097a92139",
+      "bytes": 37088,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/deep-01.wav",
+      "git_blob": "11eb3365cf104bca9acc399a0984c7ed6e6ec33f",
+      "bytes": 44144,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/deep-02.wav",
+      "git_blob": "f2e4f5ace372082343ed34e19d853f372d1de31d",
+      "bytes": 42380,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/punch-01.wav",
+      "git_blob": "d35618bb78014d62b94905912a6dccbabe69ae52",
+      "bytes": 40616,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/punch-02.wav",
+      "git_blob": "21e4cf4ee2eb799afbd8112db20f32e13629a0ed",
+      "bytes": 40616,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/punch-03.wav",
+      "git_blob": "493a80fc4b831d6f61574de502b5eec676d57181",
+      "bytes": 38852,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/punch-04.wav",
+      "git_blob": "db499cbe31405782e82780847efbbf7edb63fff3",
+      "bytes": 38852,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/sub-01.wav",
+      "git_blob": "2654c8a528bf29476797d74263f19480caa7d304",
+      "bytes": 54728,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/sub-02.wav",
+      "git_blob": "1a72d4c8b48407b08d30746d1cc928c519321d07",
+      "bytes": 52964,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/sub-03.wav",
+      "git_blob": "28ffd3752767390f1d8916e32e37c1e5cbcfe17d",
+      "bytes": 49436,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/tight-01.wav",
+      "git_blob": "9fa3acb65ab08347ab3e51075a6f1542f2ea4428",
+      "bytes": 26504,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/tight-02.wav",
+      "git_blob": "b4cf496a1a4894edf1cf3a73e8e7c8b46f93347c",
+      "bytes": 26504,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/kicks/tight-03.wav",
+      "git_blob": "042146c753a8df030762f5d241fb7b11c9941b1c",
+      "bytes": 24740,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/blip-01.wav",
+      "git_blob": "c173bfaa36871939e9c1adab254c1641e7c2279e",
+      "bytes": 15920,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/blip-02.wav",
+      "git_blob": "93bfe79b6fb80df5a5b6356b63ec7cfd44934322",
+      "bytes": 15920,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/blip-03.wav",
+      "git_blob": "6be854acb874b8a512aef1c8b4f07a6e2c4ec19f",
+      "bytes": 15920,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/shaker-01.wav",
+      "git_blob": "e4b8b48e0e113ef66658848fdec575d8dd009a18",
+      "bytes": 14156,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/shaker-02.wav",
+      "git_blob": "152070e4edf5a9846530fab03b1d5b5b4630e731",
+      "bytes": 11510,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/tick-01.wav",
+      "git_blob": "3360f55cd5d33b924fe10c30f9af88866ce3798b",
+      "bytes": 5336,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/tick-02.wav",
+      "git_blob": "d821ace2715c1ef18a662dad565ed5808418d376",
+      "bytes": 7100,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/tom-01.wav",
+      "git_blob": "c852e763dd70ea890a16d1239a29cbfb25dc173c",
+      "bytes": 30912,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/tom-02.wav",
+      "git_blob": "a0c4ef4574a3f20888b8a3024addf60ad52e7b89",
+      "bytes": 30912,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/percs/tom-03.wav",
+      "git_blob": "3732d75cb051a09f0c14f9433d0bfc8d7b447b17",
+      "bytes": 30912,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/snares/body-01.wav",
+      "git_blob": "5ae887f67b963f93f342f36796852b2c75502f1e",
+      "bytes": 30032,
+      "role": "one-shot"
+    },
+    {
+      "repo": "octal",
+      "path": "samples/snares/snap-01.wav",
+      "git_blob": "ac3d910b360e7622b1b13e096ca50f8ef0a53a84",
+      "bytes": 24740,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/bongo-h.wav",
+      "git_blob": "b475d8573bb93791eb8ce06bd68a649cafb30607",
+      "bytes": 18644,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/bongo-l.wav",
+      "git_blob": "9502d6bacf99250c275455e2fe8408d6c6ae5e9b",
+      "bytes": 19520,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/conga-l.wav",
+      "git_blob": "cb7dad32f79738ae64d06b15b974fc23285e942a",
+      "bytes": 60776,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/cowbell.wav",
+      "git_blob": "a01eeec0be4c60ed8b5a24c037955e1410edd963",
+      "bytes": 23052,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/cymbal.wav",
+      "git_blob": "9a9435dc66444bd70ecc6d8274613fe7e9e3af16",
+      "bytes": 90720,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/guiro-long.wav",
+      "git_blob": "d84a79848f15c3ae81c0f5c1cedfd054292a0739",
+      "bytes": 133608,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/guiro-short.wav",
+      "git_blob": "ca0041d379c98695077cec5657b5ab936581b40c",
+      "bytes": 63642,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/hihat-accent.wav",
+      "git_blob": "e938fc1c5d46c4fec7c77b17289a735c646339a7",
+      "bytes": 7568,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/hihat-metal.wav",
+      "git_blob": "cfe2dd9b190f8e03b402e11a8e5c225d1363756f",
+      "bytes": 21732,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/hihat.wav",
+      "git_blob": "d1f44a61afd85121d40dd971425348474a86f657",
+      "bytes": 5436,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/kick-accent.wav",
+      "git_blob": "c80e70709f5cd1d1b56e63ce7ddda3ee91d7dea7",
+      "bytes": 54756,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/kick.wav",
+      "git_blob": "83f96a3fac98bb56e24add0e2212cd3cbd0eff4f",
+      "bytes": 60378,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/rim.wav",
+      "git_blob": "eab24b50b8de96bffc88cf43de7e9f31beb7e306",
+      "bytes": 7314,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/snare-accent.wav",
+      "git_blob": "49315fd9585678afd2f9b8cd770826d1d2ac1ad7",
+      "bytes": 37652,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/snare.wav",
+      "git_blob": "7ca65b4dfecd94752c655ff08b000521430b607b",
+      "bytes": 32090,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/tamb-long.wav",
+      "git_blob": "5f21759c064cf40e7358907d2c7c1ffdcbf48c42",
+      "bytes": 46796,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/CR-78/samples/tamb-short.wav",
+      "git_blob": "ae496be9fcbb6f1a306a37971aa4b185f5829590",
+      "bytes": 41892,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/cabasa.wav",
+      "git_blob": "2aa9bb3b70ca11d47262c2d6ed4b184cb707e98c",
+      "bytes": 7174,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/clap.wav",
+      "git_blob": "ea9908300a66fd95e3f5ee2a96519f0a9902d37d",
+      "bytes": 17064,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-h.wav",
+      "git_blob": "7be1c4512ad47b81890db5fa329213af21655d34",
+      "bytes": 15554,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-hh.wav",
+      "git_blob": "118b9bbca44ed686745c6ddb3e96bc45738ca43d",
+      "bytes": 9900,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-l.wav",
+      "git_blob": "22dd3bf2001aeeb7d5d024dc1adc2a2cb397ced2",
+      "bytes": 40344,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-ll.wav",
+      "git_blob": "38c61ec6d7d7bc534531eff6f549c76df34f4a92",
+      "bytes": 61336,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-lll.wav",
+      "git_blob": "2a09cfea26b66d799089d1a8c52c8e13ff5499a9",
+      "bytes": 83814,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/conga-m.wav",
+      "git_blob": "bc47a212d89d2d3d8576b83a0d5772053a45a54e",
+      "bytes": 24354,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/cowb.wav",
+      "git_blob": "31a46f5f4581cc5c6f0af56b575b1bff908c32c3",
+      "bytes": 15674,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/crash.wav",
+      "git_blob": "6d554b1e39ff7caa0dddba044df210ba32e6e35f",
+      "bytes": 109012,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/hihat-closed-long.wav",
+      "git_blob": "388d20ad7bcdbf59d0e98ea46c487e47face1feb",
+      "bytes": 16554,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/hihat-closed-short.wav",
+      "git_blob": "514f6f669ae34efb8ff8d85313114040cbf0a23e",
+      "bytes": 4550,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/hihat-closed.wav",
+      "git_blob": "d6af579961edd017e5f102e2458823bb0b093f08",
+      "bytes": 10230,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/hihat-open.wav",
+      "git_blob": "b7f9a53b3e831f8ee4e90baa8cbadc8d5dc6087b",
+      "bytes": 54302,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/kick-alt.wav",
+      "git_blob": "f33d340d76d364a43927c74b456aa46594ac12c4",
+      "bytes": 10486,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/kick.wav",
+      "git_blob": "efad7cec52422861f70675dcf730ddd946db5005",
+      "bytes": 18090,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/ride.wav",
+      "git_blob": "495d7cba8be8bb8f44cbf960f9a8f82c263250f6",
+      "bytes": 111852,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/snare-h.wav",
+      "git_blob": "21a2289dde9a96bdf7196bb501e75ceb5c8e2217",
+      "bytes": 7696,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/snare-l.wav",
+      "git_blob": "fcdee72e706ff43d5262ce2b8b0a65a91839b7b3",
+      "bytes": 19502,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/snare-m.wav",
+      "git_blob": "d451d7ab2aacd5b9383301be4b5f61a82511cd96",
+      "bytes": 12444,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/stick-h.wav",
+      "git_blob": "6c7e602b1244cd66176fba1bdb6a58a3cae333ce",
+      "bytes": 5862,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/stick-l.wav",
+      "git_blob": "7eb6aa4a34110f25a72475d44f19abf480428efd",
+      "bytes": 19276,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/stick-m.wav",
+      "git_blob": "1bdcb40d438222912f290a9b0788dd096b3126a5",
+      "bytes": 9600,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tamb.wav",
+      "git_blob": "b7bc03dd4087302a7ded42a754bb61e7c63a3ac0",
+      "bytes": 14150,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tom-h.wav",
+      "git_blob": "1b62e979fc771d99b3b35b9eabd96ef99fd412fe",
+      "bytes": 26032,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tom-hh.wav",
+      "git_blob": "6cf259055653175bc83749878e0e5875c4b22564",
+      "bytes": 20774,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tom-l.wav",
+      "git_blob": "1fdda719f245aca90545d9df003618541cf436b1",
+      "bytes": 54778,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tom-ll.wav",
+      "git_blob": "2acf539ad8c386c88ce6cb3fb751d69a33430b30",
+      "bytes": 80082,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/LM-2/samples/tom-m.wav",
+      "git_blob": "47462e08537a9fccb56f60fa38a55f3f4e98f0e5",
+      "bytes": 36078,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-clap.wav",
+      "git_blob": "7e83039ed5fd69e287ede8e42f185b0a3a0abb40",
+      "bytes": 22344,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-conga-h.wav",
+      "git_blob": "6644071e8e4da323db67909e7170fdc31b711bdf",
+      "bytes": 13750,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-conga-l.wav",
+      "git_blob": "bfe58809ba2f77fe161e8f45efc52b21086cd352",
+      "bytes": 14576,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-cowb-h.wav",
+      "git_blob": "85344155dbf463ce350dde52539813d2ef30e6c8",
+      "bytes": 23876,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-cowb-l.wav",
+      "git_blob": "02f2354db6bea0f74af9dd6cfb6136f24226de85",
+      "bytes": 14922,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-crash.wav",
+      "git_blob": "46d5f4d99851f22dcb628e218a26a2c3ef6daea3",
+      "bytes": 114510,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-hihat-closed.wav",
+      "git_blob": "c25e599efab1915a861912e84eb3ddf6faf67a35",
+      "bytes": 10538,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-hihat-open.wav",
+      "git_blob": "6d54969bf66178e75dddbe488c366a51e246d112",
+      "bytes": 32146,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-kick.wav",
+      "git_blob": "4acc5b53a961d980fd563491b218b2441ad8bf60",
+      "bytes": 12600,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-ride.wav",
+      "git_blob": "f9d3e76b45b2d796a09ff9ede79460ad9d2297d2",
+      "bytes": 61470,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-rim.wav",
+      "git_blob": "771597d3ad955e19ba221895fb0abb1700180ded",
+      "bytes": 6982,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-snare.wav",
+      "git_blob": "4f8e55a7adb9b71755a5b56dcd858a73b05e7350",
+      "bytes": 14766,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-timbal.wav",
+      "git_blob": "34aae5a5c7f5ed66bd4e5d39771494e64006ac6d",
+      "bytes": 29432,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-tom-h.wav",
+      "git_blob": "86e1d45960cdf67d83f2461d9b6b07466a1c364e",
+      "bytes": 29596,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-tom-l.wav",
+      "git_blob": "98594e997a4866392524a63b8d3ab9560fbcd877",
+      "bytes": 28758,
+      "role": "one-shot"
+    },
+    {
+      "repo": "oramics",
+      "path": "DM/TR-505/samples/tr505-tom-m.wav",
+      "git_blob": "392a98fbd1afc39ad526a361dd9db1ff52859b69",
+      "bytes": 29366,
+      "role": "one-shot"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Aerophones/Edge-blown Aerophones/Pipe Organ/Quiet/NT5_Man3Quiet_C2_rr1.wav",
+      "git_blob": "2dc720c4f80f912ede3f3ac138b1f40e0215c450",
+      "bytes": 2202602,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Pipe-Organ",
+          "root": 36,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Aerophones/Edge-blown Aerophones/Pipe Organ/Quiet/NT5_Man3Quiet_C3_rr1.wav",
+      "git_blob": "862175f3f2ad7da84ba00509bbc63b1e72227d1a",
+      "bytes": 2140890,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Pipe-Organ",
+          "root": 48,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Aerophones/Edge-blown Aerophones/Pipe Organ/Quiet/NT5_Man3Quiet_C4_rr1.wav",
+      "git_blob": "aaf898acca4946752d6ef5ddde411638fa28784d",
+      "bytes": 2143034,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Pipe-Organ",
+          "root": 60,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Aerophones/Edge-blown Aerophones/Pipe Organ/Quiet/NT5_Man3Quiet_C5_rr1.wav",
+      "git_blob": "9c70ecaec5c14162da761be5c089fad1075db374",
+      "bytes": 2165234,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Pipe-Organ",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Composite Chordophones/Folk Harp/EWHarp_Normal_C2_v3_RR1.wav",
+      "git_blob": "3057eac4ed155dccb81b5a32b42a739a338850d1",
+      "bytes": 2269150,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Folk-Harp",
+          "root": 36,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Composite Chordophones/Folk Harp/EWHarp_Normal_C3_v3_RR1.wav",
+      "git_blob": "9ae53ecf5005f36ca7e603b3bee27c4c93f3eca8",
+      "bytes": 1694154,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Folk-Harp",
+          "root": 48,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Composite Chordophones/Folk Harp/EWHarp_Normal_C4_v3_RR1.wav",
+      "git_blob": "f2584887742dc41265f22144a5ad1b760ba74191",
+      "bytes": 1920290,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Folk-Harp",
+          "root": 60,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Composite Chordophones/Folk Harp/EWHarp_Normal_C5_v3_RR1.wav",
+      "git_blob": "f5717536f5240897ba3739a799d75bd3b9686a9c",
+      "bytes": 535838,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Folk-Harp",
+          "root": 72,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C2_v3_rr1_Player.wav",
+      "git_blob": "0ed4702b3c8c668a58acc27e2a87db7730032fcc",
+      "bytes": 5398316,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kawai-Piano",
+          "root": 36,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C3_v3_rr1_Player.wav",
+      "git_blob": "6235c862be7bd3bb1dce47822ef0bcdfb3a299b5",
+      "bytes": 3579752,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kawai-Piano",
+          "root": 48,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C4_v3_rr1_Player.wav",
+      "git_blob": "a8a644c488609ba0dbccc1eef9c1548c97fba4a3",
+      "bytes": 2600852,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kawai-Piano",
+          "root": 60,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Kawai/Sustains/GPiano_sus_C5_v3_rr1_Player.wav",
+      "git_blob": "b2c2002492e4bf9e2d58f6107a38b4ee1905b902",
+      "bytes": 1422884,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kawai-Piano",
+          "root": 72,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C2_vl2_rr1.wav",
+      "git_blob": "f341a21eec0e406b32de9ba94e2845991aa2536f",
+      "bytes": 7368994,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 36,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C2_vl4_rr1.wav",
+      "git_blob": "da4d4ced61048c90ec215329869a1b7ecfdeada8",
+      "bytes": 9405610,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 36,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C3_vl2_rr1.wav",
+      "git_blob": "8ef76a88e25aebe3d1f3dc26099289900b3650d8",
+      "bytes": 5150932,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 48,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C3_vl4_rr1.wav",
+      "git_blob": "ffdb3ee7cfc8fd9245ce2119b1f88c9b417b817a",
+      "bytes": 5856190,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 48,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C4_vl2_rr1.wav",
+      "git_blob": "5f80e0d82e670ab294d58ac9373b4156f2b6d611",
+      "bytes": 2260822,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 60,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C4_vl4_rr1.wav",
+      "git_blob": "c6331cee9fb168265b6817414030e8088383ddf1",
+      "bytes": 5748748,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 60,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C5_vl2_rr1.wav",
+      "git_blob": "d4e3e6c40762d902e249fe93aa4bd492962fb40c",
+      "bytes": 3389992,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Chordophones/Zithers/Grand Piano, Steinway B/NoSus/JHPiano_NoSus_Close_C5_vl4_rr1.wav",
+      "git_blob": "02be0749f71412fa093fa0ebbeccd91a21ec2f29",
+      "bytes": 4222816,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Grand-Piano",
+          "root": 72,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C2_vl1.wav",
+      "git_blob": "d5e0f7d9f96ef8f2926cb9fa34d5e11a23532cc2",
+      "bytes": 541426,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 36,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C2_vl3.wav",
+      "git_blob": "7f923857fc71ba33c12038a6922094ddd28ba41b",
+      "bytes": 878917,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 36,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C3_vl1.wav",
+      "git_blob": "759b6742ab90c5eb17137e4b90850cc4644f3c3e",
+      "bytes": 330214,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 48,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C3_vl3.wav",
+      "git_blob": "cb75ee2361460f9a1518622c8003d62b2950e9ff",
+      "bytes": 474865,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 48,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C4_vl1.wav",
+      "git_blob": "6cae0efc0e53ed954232bc5bd85afe78343ecd92",
+      "bytes": 161548,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 60,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C4_vl3.wav",
+      "git_blob": "d982c64203e6c726274695bfc5cd07291ee9763a",
+      "bytes": 259261,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 60,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C5_vl1.wav",
+      "git_blob": "0771d48159058de4bfdab18d4365c3a230cfbbc4",
+      "bytes": 83350,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 72,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Clavisynth/Clavisynth_C5_vl3.wav",
+      "git_blob": "9a67b55300d52b731929afb6916947734a27fa05",
+      "bytes": 131704,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Clavisynth",
+          "root": 72,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C2_vl1.wav",
+      "git_blob": "949e7e4f11fdaa536be9d12b304c434c5713cc9a",
+      "bytes": 1499146,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 36,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C2_vl3.wav",
+      "git_blob": "449f0e557518c369737615ccba492a7b166f74e1",
+      "bytes": 1596223,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 36,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C3_vl1.wav",
+      "git_blob": "f9d91bed8818e1327bed910423b82542ed344c63",
+      "bytes": 1202527,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 48,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C3_vl3.wav",
+      "git_blob": "0ba427c9ed2322dde1967b4cc7be643f629c609f",
+      "bytes": 1340008,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 48,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C4_vl1.wav",
+      "git_blob": "b3d755f581ee6c5fbb601dd94d8778b8670cd694",
+      "bytes": 864409,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 60,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C4_vl3.wav",
+      "git_blob": "b899a97dcea495f77dcddf28395938bb79b3aaed",
+      "bytes": 981337,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 60,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C5_vl1.wav",
+      "git_blob": "de3a8aaa700d7a368bdad067c529413bff5fe28c",
+      "bytes": 607390,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 72,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/FM Piano/FMPiano_C5_vl3.wav",
+      "git_blob": "209dea8f2d7d37f660e87593d074723923d2035e",
+      "bytes": 701536,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Electric-Piano",
+          "root": 72,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Piano 1/Piano 1_C2_vl2.wav",
+      "git_blob": "f6aa254b39d225b221acba74163162b61fa5c173",
+      "bytes": 550057,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "FM-Piano",
+          "root": 36,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Piano 1/Piano 1_C3_vl2.wav",
+      "git_blob": "0b0fb00300ac4475e352265b39e2d99aad46e399",
+      "bytes": 669646,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "FM-Piano",
+          "root": 48,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Piano 1/Piano 1_C4_vl2.wav",
+      "git_blob": "934b9bc821dd2a98932f4e06ecbcbcbae40d787f",
+      "bytes": 596533,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "FM-Piano",
+          "root": 60,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Electrophones/TX81Z/Piano 1/Piano 1_C5_vl2.wav",
+      "git_blob": "026c1d3732d1149569579c19076d97d4e9022c45",
+      "bytes": 597349,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "FM-Piano",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Plucked Idiophones/Kalimba, Tanzania/MBira3_pluck_Main_B4_k23_50_100_rr2.wav",
+      "git_blob": "746cf96eda13dc2a35a423bd254c6720ba33d816",
+      "bytes": 318232,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kalimba",
+          "root": 71,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Plucked Idiophones/Kalimba, Tanzania/MBira3_pluck_Main_C#3_k16_50_100_rr2.wav",
+      "git_blob": "2f54d3673ff420cf68a3e033852794cc4198d938",
+      "bytes": 925192,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kalimba",
+          "root": 49,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Plucked Idiophones/Kalimba, Tanzania/MBira3_pluck_Main_C#4_k5_50_100_rr2.wav",
+      "git_blob": "d5609bd3ca8d16fff82e4c380c189122a0d00484",
+      "bytes": 716518,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Kalimba",
+          "root": 61,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Claps/Clap_rr6.wav",
+      "git_blob": "41d7027fa1c4424e6af5e7a2f3981d5397759814",
+      "bytes": 89770,
+      "role": "percussion:Claps"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Claps/SoloClap_vl1.wav",
+      "git_blob": "60d03da6e15b999762166efce7a67ecef693cbcb",
+      "bytes": 81214,
+      "role": "percussion:Claps"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Claps/SoloClap_vl2.wav",
+      "git_blob": "d378d151a23ac302bf95b2030958f632cc5df4f7",
+      "bytes": 95536,
+      "role": "percussion:Claps"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Claps/SoloClap_vl4.wav",
+      "git_blob": "2c1ad5ace58be6418c2b410618a9ee98e1db696f",
+      "bytes": 119404,
+      "role": "percussion:Claps"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Cowbells/Cowbell1_Muted_v2_rr1_Mid.wav",
+      "git_blob": "cafa850c4ad1896542632270955f91102b4a5897",
+      "bytes": 186792,
+      "role": "percussion:Cowbell"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Cowbells/Cowbell1_Normal_v2_rr1_Mid.wav",
+      "git_blob": "4da038436cb5a3cbaf1e8531ce9bb310ff7f6d97",
+      "bytes": 174968,
+      "role": "percussion:Cowbell"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Cowbells/Cowbell1_Normal_v3_rr1_Mid.wav",
+      "git_blob": "4e709053cd70d06a74314e0a136f42137ecab435",
+      "bytes": 165900,
+      "role": "percussion:Cowbell"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Cowbells/Cowbell2_Muted_v2_rr1_Mid.wav",
+      "git_blob": "11bec4138a48c86b4ccadbb28f85e9f37921985f",
+      "bytes": 179500,
+      "role": "percussion:Cowbell"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_Close_rr1_Mid.wav",
+      "git_blob": "c4b2cdf0400e6b46f9dd2c59212adf44f4440775",
+      "bytes": 236820,
+      "role": "percussion:HiHat"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitC_v1_rr1_Mid.wav",
+      "git_blob": "3e4a102b031a342c58f59e9985ee6111e31b4077",
+      "bytes": 210708,
+      "role": "percussion:HiHat"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitC_v1_rr2_Mid.wav",
+      "git_blob": "544c9224faae29cbb09bca54575248105a9b9530",
+      "bytes": 234640,
+      "role": "percussion:HiHat"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitC_v3_rr1_Mid.wav",
+      "git_blob": "01ede5c05d228875c65e1542972f077df5ab2e2a",
+      "bytes": 218792,
+      "role": "percussion:HiHat"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_B2_loud_01.wav",
+      "git_blob": "e3b63f301191c679cea1eaa61a99d3baa9c3fbfe",
+      "bytes": 1585778,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 47,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_B2_soft_01.wav",
+      "git_blob": "a8d92ac62a6008d29c60d6fb39674f77cfe6ca57",
+      "bytes": 1406594,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 47,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_B4_loud_01.wav",
+      "git_blob": "cf36d9cae6614613c17069accbaa46594846c113",
+      "bytes": 694454,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 71,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_B4_soft_01.wav",
+      "git_blob": "e6935a398d8cec04a8e23c58c78d44a9ac066620",
+      "bytes": 492602,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 71,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_C4_loud_01.wav",
+      "git_blob": "fe3ec22b99ed4afdd007d0107d925669e7e1d4c9",
+      "bytes": 1016564,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 60,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Marimba/Marimba_hit_Outrigger_C4_soft_01.wav",
+      "git_blob": "6ccd29800db58963dd91136ea426b895d703bb22",
+      "bytes": 915446,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Marimba",
+          "root": 60,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Shaker, Small/Mid_ShakerDouble_Up_rr1.wav",
+      "git_blob": "5a815875b3459e384b65884fa863d2fe578e6ecb",
+      "bytes": 22352,
+      "role": "percussion:Shaker"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Shaker, Small/Mid_ShakerLowFaster_Down_rr2.wav",
+      "git_blob": "2ae540c44c8ae6606eff07d57817a7d3daf5b407",
+      "bytes": 20440,
+      "role": "percussion:Shaker"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Shaker, Small/Mid_ShakerLowFaster_Up_rr1.wav",
+      "git_blob": "bd5135b8f390e37b9ad65c39aa0b3a15b87c311e",
+      "bytes": 21020,
+      "role": "percussion:Shaker"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Shaker, Small/Mid_ShakerLowFaster_Up_rr2.wav",
+      "git_blob": "fd25af874cd4dd934faf670403182aa8a57d3a59",
+      "bytes": 14620,
+      "role": "percussion:Shaker"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Tambourine 1/Tamb1_Hit_v1_rr1_Mid.wav",
+      "git_blob": "11c538acc0aee9abfd5087d6ff4866753f388b29",
+      "bytes": 338496,
+      "role": "percussion:Tambourine"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Tambourine 1/Tamb1_Hit_v2_rr1_Mid.wav",
+      "git_blob": "aad955871ad59069036194cf73591a6930a91621",
+      "bytes": 293256,
+      "role": "percussion:Tambourine"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Tambourine 1/Tamb1_Shake_rr1_Mid.wav",
+      "git_blob": "9ded39c0bc5bcfb2580a3fe77f2db043478b4d26",
+      "bytes": 258948,
+      "role": "percussion:Tambourine"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Tambourine 1/Tamb1_Shake_rr2_Mid.wav",
+      "git_blob": "caa348100a957f734491c89d80fe8ad95192c97b",
+      "bytes": 237792,
+      "role": "percussion:Tambourine"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_B3_v1_rr1_Main.wav",
+      "git_blob": "bacab8cdb0f85f9f4f28a1654ded6811318bb9f8",
+      "bytes": 1850652,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 59,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_B3_v2_rr1_Main.wav",
+      "git_blob": "c2050a8979ad5673be81c0466833014736254977",
+      "bytes": 2851524,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 59,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_C3_v1_rr2_Main.wav",
+      "git_blob": "8413d99c880ff57e696be5ca4de5eb2b0774aabd",
+      "bytes": 1815048,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 48,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_C3_v2_rr1_Main.wav",
+      "git_blob": "750bf1b714d4435a11fc4f53226c0fc27e251541",
+      "bytes": 2117636,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 48,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_C5_v1_rr1_Main.wav",
+      "git_blob": "46a9c03a0ecfaee7246b10e2eec32908853ab860",
+      "bytes": 641932,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 72,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets/Vibes_soft_C5_v2_rr1_Main.wav",
+      "git_blob": "7896c7155ca938445cf59e16c779c4504e911630",
+      "bytes": 1161864,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Vibraphone",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Xylophone/Medium Mallets/Xylo_Medium_C4_pp_01_far.wav",
+      "git_blob": "5893163b30e2bf27f500034f9beb4bfea81ecab8",
+      "bytes": 586296,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Xylophone",
+          "root": 60,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Xylophone/Medium Mallets/Xylo_Medium_C5_pp_01_far.wav",
+      "git_blob": "3f32068b2fa2c59467414ca4bd5861bb9555337a",
+      "bytes": 496566,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Xylophone",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Idiophones/Struck Idiophones/Xylophone/Medium Mallets/Xylo_Medium_G3_pp_01_far.wav",
+      "git_blob": "895eca83eb3cf4f2a985007d934a4b22a834bfac",
+      "bytes": 883338,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Xylophone",
+          "root": 55,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Bongos/BongoH_Hit1_v1_rr1_Mid.wav",
+      "git_blob": "2c533d7e7e11dd706cf74e2fed9ef798b2819f0f",
+      "bytes": 146696,
+      "role": "percussion:Bongo"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Bongos/BongoL_Hit1_v2_rr1_Mid.wav",
+      "git_blob": "9e4675082fe4fe4944b662987c000c34c3718615",
+      "bytes": 168720,
+      "role": "percussion:Bongo"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Bongos/BongoL_HitMuted2_v1_rr1_Mid.wav",
+      "git_blob": "aa1488c2f44a31b7d83335b9dca98514884e5a54",
+      "bytes": 136228,
+      "role": "percussion:Bongo"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Bongos/BongoL_HitMuted2_v1_rr2_Mid.wav",
+      "git_blob": "428ff1a5b088680a327955d7fe2714856cccda5d",
+      "bytes": 145188,
+      "role": "percussion:Bongo"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Conga/Tumba_HitFM_v2_rr1_Sum.wav",
+      "git_blob": "fa214602ab5f851de644f219e9092c5aff0ce24b",
+      "bytes": 93556,
+      "role": "percussion:Conga"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Conga/Tumba_HitFM_v2_rr2_Sum.wav",
+      "git_blob": "d706825b84b43beab15314e991c490cc3778e065",
+      "bytes": 91088,
+      "role": "percussion:Conga"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Conga/Tumba_HitFM_v3_rr1_Sum.wav",
+      "git_blob": "1a33e84262c6e8802c20d04a637cff48284cfe3e",
+      "bytes": 92140,
+      "role": "percussion:Conga"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Conga/Tumba_HitFM_v3_rr2_Sum.wav",
+      "git_blob": "208e925a1f1a8dc615889d107c463671a2690103",
+      "bytes": 98268,
+      "role": "percussion:Conga"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_HitNS_v2_rr2_Mid.wav",
+      "git_blob": "5d0c09e973b96c13b5a8265b6a73cc42781a6e1d",
+      "bytes": 127576,
+      "role": "percussion:StudioSnare"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_HitNS_v5_rr2_Mid.wav",
+      "git_blob": "c078a61403358a2431ab278c21a516aecf795273",
+      "bytes": 148416,
+      "role": "percussion:StudioSnare"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_stick_v1_rr1_Mid.wav",
+      "git_blob": "9c4d6ddd95c68b9827701aea23609f4b88425e3c",
+      "bytes": 132812,
+      "role": "percussion:StudioSnare"
+    },
+    {
+      "repo": "vcsl",
+      "path": "Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_stick_v1_rr2_Mid.wav",
+      "git_blob": "a690f94ddce564005c1949ae5239230c95b83814",
+      "bytes": 150356,
+      "role": "percussion:StudioSnare"
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Tenor Trombone/sus/tenortbn_sus_A#1_v2_1.wav",
+      "git_blob": "bfed422b95827132a8cd27cdf5f6bc3073dbc293",
+      "bytes": 1658240,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trombone",
+          "root": 34,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Tenor Trombone/sus/tenortbn_sus_C3_v2_1.wav",
+      "git_blob": "dbb030c2fdcfddf56ec0cbd1cc9cc2c03eb3aa33",
+      "bytes": 1612016,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trombone",
+          "root": 48,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Tenor Trombone/sus/tenortbn_sus_F3_v2_1.wav",
+      "git_blob": "aad935618350cdffb0af783043d3b63e00b6092a",
+      "bytes": 2127892,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trombone",
+          "root": 53,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_A#3_v1_rr1.wav",
+      "git_blob": "685f2d59ac73190c90384112d889083bc37a33c0",
+      "bytes": 3398084,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 58,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_A#3_v3_rr1.wav",
+      "git_blob": "f6b2753da2ae19e4748a91b0ed412decf3973fda",
+      "bytes": 1667240,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 58,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_C3_v1_rr1.wav",
+      "git_blob": "efc0c148e06d6cf1b2c5e65efc568635e4fac38f",
+      "bytes": 2677040,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 48,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_C3_v3_rr1.wav",
+      "git_blob": "d5490467cf68db010843924b975fd71edfc41273",
+      "bytes": 1234136,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 48,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_C5_v1_rr1.wav",
+      "git_blob": "bff7f04cb34938be10dca3793e3bdae722f88aa2",
+      "bytes": 2568220,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 72,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Brass/Trumpet/sus/Sum_SHTrumpet_sus_C5_v3_rr1.wav",
+      "git_blob": "9e43868b7c7e47a8ee107c68c6072756ef0f6bc1",
+      "bytes": 1339832,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Trumpet",
+          "root": 72,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Cello Section/susvib/susvib_A2_v3_1.wav",
+      "git_blob": "ad696c6ad3cbacb37b6d9cf4f26da4a54521e7ce",
+      "bytes": 3082676,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Cello-Section",
+          "root": 45,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Cello Section/susvib/susvib_F4_v3_1.wav",
+      "git_blob": "074f12a91124e13ea0e4fb34d9ecbe7279ec0806",
+      "bytes": 2726342,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Cello-Section",
+          "root": 65,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Cello Section/susvib/susvib_G3_v3_1.wav",
+      "git_blob": "732d0c80596fdfc593f55b5a24f65c07cd3191cd",
+      "bytes": 3335768,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Cello-Section",
+          "root": 55,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A3_f.wav",
+      "git_blob": "82964f15bb0ca3d34dbdfdd43ad0148f9d8767af",
+      "bytes": 2864482,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 57,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A3_p.wav",
+      "git_blob": "7122b440f4dbd148a81319fca1d04a550710cef3",
+      "bytes": 2911130,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 57,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A4_f.wav",
+      "git_blob": "3155c72c1f9ea1518ddb6c1a20eb5c0a094bd537",
+      "bytes": 2488526,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 69,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A4_p.wav",
+      "git_blob": "e8667671328e1cfcd769a7624c26fac133ad7b0f",
+      "bytes": 2612122,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 69,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A5_f.wav",
+      "git_blob": "eebb9f220dc2a93557acc849d5dd3273b8f0ff8f",
+      "bytes": 1986834,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 81,
+          "velocity": 4
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Strings/Solo Violin/Arco Vib/LLVln_ArcoVib_A5_p.wav",
+      "git_blob": "5eb8185d8ca9b3f34110654c2779e587de513921",
+      "bytes": 2562122,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Solo-Violin",
+          "root": 81,
+          "velocity": 1
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Woodwinds/Flute/susNV/LDFlute_susNV_C4_v3_1.wav",
+      "git_blob": "850db1f598b5ba7a88ec2f929f8b832fb83cdd66",
+      "bytes": 2539512,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Flute",
+          "root": 60,
+          "velocity": 3
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Woodwinds/Flute/susNV/LDFlute_susNV_C5_v2_1.wav",
+      "git_blob": "c781084689262db0267e3b888ac9a9244f32dbd7",
+      "bytes": 2382720,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Flute",
+          "root": 72,
+          "velocity": 2
+        }
+      ]
+    },
+    {
+      "repo": "vsco",
+      "path": "Woodwinds/Flute/susNV/LDFlute_susNV_C6_v1_1.wav",
+      "git_blob": "8b69c3cd65834619ad9c1389b3c9f8d50fab15f5",
+      "bytes": 1618152,
+      "role": "zone",
+      "zones": [
+        {
+          "preset": "Flute",
+          "root": 84,
+          "velocity": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    "Grand-Piano",
+    "Kawai-Piano",
+    "Electric-Piano",
+    "FM-Piano",
+    "Clavisynth",
+    "Pipe-Organ",
+    "Vibraphone",
+    "Marimba",
+    "Xylophone",
+    "Folk-Harp",
+    "Kalimba",
+    "Solo-Violin",
+    "Cello-Section",
+    "Trumpet",
+    "Trombone",
+    "Flute"
+  ]
+}

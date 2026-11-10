@@ -1,0 +1,38 @@
+{
+  "source": "User approved YADOKARI artwork, received 2026-11-11; no external artwork or fonts added",
+  "design": "Exact approved 480x272 RGB PNG, black background, reversed white YADOKARI mark and wordmark, VIBE GROOVEBOX tagline; left LCD all black",
+  "version": "Runtime-only overlay from GrooveFirmwareVersion(), identical raw value to STATUS; never in the artwork or generated static packets",
+  "files": [
+    {
+      "path": "splash-yadokari-480x272.png",
+      "sha256": "c563c54f63bc2f8c206be1294585faab71513f5cf2307f18fea4478e683e454a",
+      "bytes": 14317
+    },
+    {
+      "path": "yadokari-swirl.svg",
+      "sha256": "ef3fde2f5e0be3b95b752c873bbfa0c7392f09563d5742be57426b399dc8a2bc",
+      "bytes": 7308
+    },
+    {
+      "path": "yadokari-swirl-reversed.svg",
+      "sha256": "b6e13459b7b43be54b2044c860cd871b72c77a85fa91d27c82f7864e9241d677",
+      "bytes": 7308
+    }
+  ],
+  "historical_sources": {
+    "source": "User attachments dated 2026-11-06. JPG files supplied; PNG files named in prompt were not supplied. No new external artwork or fonts.",
+    "design": "P1 / right screen centered GROOVE BOX + mk3 standalone + by bongorian, left black",
+    "files": [
+      {
+        "path": "splash-pair-s3.jpg",
+        "sha256": "cdb844ede2a92acad60cf8f19109b2a03f38b2f1759f988a5cbe0f3278831c47",
+        "bytes": 15191
+      },
+      {
+        "path": "splash-s3-signature.jpg",
+        "sha256": "f984d0eb5660b4fbcb534f3b985867f31a5c172ddb75eb6c0f1ff13fe55cd13d",
+        "bytes": 34286
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+#include "performance.h"
+#include <cassert>
+#include <cmath>
+#include <cstdio>
+#include <memory>
+int main(){using namespace groove;auto dry_project=std::make_unique<ProjectState>();make_empty_project(*dry_project);dry_project->tracks[0].instrument=Instrument::DaisyAnalogDrums;dry_project->routing.groups[0].members=1;dry_project->routing.groups[0].insert_fx[0]=11;dry_project->routing.groups[0].insert_fx[1]=.3f;track_at(*dry_project,0,0).level=.1f;track_at(*dry_project,0,0).delay_send=0;dry_project->effects.delay_mix=1;dry_project->effects.delay_feedback=0;dry_project->effects.delay_ms=20;auto wet_project=std::make_unique<ProjectState>(*dry_project);wet_project->routing.groups[0].send[0]=1;
+ auto dry=std::make_unique<Engine>(8000),wet=std::make_unique<Engine>(8000);assert(dry->stage_project(*dry_project) && wet->stage_project(*wet_project));float a[128],b[128];dry->render(a,0);wet->render(b,0);assert(dry->submit({CommandType::Trigger,0,0,127}) && wet->submit({CommandType::Trigger,0,0,127}));float diff=0;for(unsigned k=0;k<80;++k){dry->render(a,64);wet->render(b,64);for(unsigned i=0;i<128;++i){assert(std::isfinite(b[i]));diff+=fabsf(a[i]-b[i]);}}assert(diff>1);assert(wet->group_effect_target(0,8)==1);
+ auto ui=std::make_unique<Performance>(*wet,*wet_project);ui->set_mode(UiMode::Routing);assert(ui->soft_key(0) && ui->soft_key(3) && ui->group_send_page());assert(ui->knob(2,1000) && wet_project->routing.groups[0].send[1]>.0f);ui->set_shift(true);assert(ui->pad(15,0x10,3500) && ui->pad(15,0x20,0));assert(ui->knob(1,-1000));bool found=false;for(const auto& lock:track_at(*wet_project,0,0).steps[3].locks)if(lock.enabled && lock.id==448)found=true;assert(found);puts("group post-FX send, parameter path and UI lock passed");}

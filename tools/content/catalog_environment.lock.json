@@ -1,0 +1,32 @@
+{
+  "reference": "v556/56f78ea7 catalog243 unchanged; Ubuntu24.04 AArch64 GCC13.3 native generation",
+  "packages": [
+    "cpp-13\t13.3.0-6ubuntu2~24.04.1",
+    "g++-13\t13.3.0-6ubuntu2~24.04.1",
+    "gcc-13\t13.3.0-6ubuntu2~24.04.1",
+    "gcc-13-base:arm64\t13.3.0-6ubuntu2~24.04.1",
+    "libc6:arm64\t2.39-0ubuntu8.9",
+    "libgcc-13-dev:arm64\t13.3.0-6ubuntu2~24.04.1",
+    "libstdc++-13-dev:arm64\t13.3.0-6ubuntu2~24.04.1",
+    "libstdc++6:arm64\t14.2.0-4ubuntu2~24.04.1"
+  ],
+  "fingerprint": {
+    "machine": "aarch64",
+    "target": "aarch64-linux-gnu",
+    "gcc": "13.3.0",
+    "driver_sha256": "fc02363794280f404c6ca6f5da1c8fe469be902e9de140d35d8573bb3393f53b",
+    "frontend_sha256": "110b837d05f403bcd21a63eb1f2341338d613aaf3d977d7db6d2c1661c8afa7d",
+    "extra_compiler_arguments": [],
+    "libraries": {
+      "libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+      "libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a"
+    },
+    "profile": [
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Werror"
+    ]
+  }
+}

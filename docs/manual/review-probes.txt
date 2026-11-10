@@ -1,0 +1,3 @@
+Current code review probes; host only, no hardware or file writes
+Browser overwrite: queued=1 before_capture=1 after_capture=1
+Sampler ZONES SHIFT+encoder: accepted=1 (Warp dispatch reachable)

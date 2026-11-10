@@ -1,0 +1,1803 @@
+{
+  "version": 1,
+  "origin": "MGXC13 Factory normalization content/factory-normalization 2f1ab70d: 182 exact replacements (158 Preset + 24 Kit), 5 Presets unchanged; shared assets unchanged.",
+  "format": 13,
+  "codec_commit": "eda8742fa151b04d9891c1bdaf0d1aa466141e7f",
+  "presets": 163,
+  "kits": 24,
+  "files": [
+    {
+      "path": "KITS/606 Acid.mgxk",
+      "bytes": 13243,
+      "sha256": "ebe8eeb07cd11ab8eba3200a6b80505d1d06052839e5108923823c34fa19657f"
+    },
+    {
+      "path": "KITS/707 House.mgxk",
+      "bytes": 13244,
+      "sha256": "4c71556705baf44b38565540d2a1677bfa240c56bca0e698b70e216163b354ad"
+    },
+    {
+      "path": "KITS/727 Latin.mgxk",
+      "bytes": 13244,
+      "sha256": "8f7bf415d4240a0905c49cd4bfa17b97bc15c3d46cfb23be4cc26c6ce0f2d82c"
+    },
+    {
+      "path": "KITS/808 Classic.mgxk",
+      "bytes": 13246,
+      "sha256": "f9a0ee9e8ab9729928c217319e2d70ff89155cc9f6469624c2f67887608cdaec"
+    },
+    {
+      "path": "KITS/909 Classic.mgxk",
+      "bytes": 13246,
+      "sha256": "3986e559e46f2a5a3ef80ebc88968d71ef8137088b5246e0530ab747e3c0f115"
+    },
+    {
+      "path": "KITS/Acoustic Jazz.mgxk",
+      "bytes": 13248,
+      "sha256": "bc60749427ff692fc08e59b13881e91dfd8c94c0519e0c349d774d164323529a"
+    },
+    {
+      "path": "KITS/Acoustic Studio.mgxk",
+      "bytes": 13250,
+      "sha256": "cba7d4747cdb37683b03941a1cb2dec26ef8b2e113518ed950eb394984c8bf68"
+    },
+    {
+      "path": "KITS/Ambient Percussion.mgxk",
+      "bytes": 13253,
+      "sha256": "efe44c136a8def0c721b41cf8dfaff1637c6d1ab08665135de381ab486351bc3"
+    },
+    {
+      "path": "KITS/Boom Bap.mgxk",
+      "bytes": 13243,
+      "sha256": "abb7aabb2d7acf258d6e38200bfc8149ae16ea8c27fdf6473ffbe2ba73b88c39"
+    },
+    {
+      "path": "KITS/Breakbeat Jungle.mgxk",
+      "bytes": 13251,
+      "sha256": "b918b1ea136e4102642537940d350130c95589a08ee516ff7d2a86cb672c6979"
+    },
+    {
+      "path": "KITS/CR-78 Vintage.mgxk",
+      "bytes": 13248,
+      "sha256": "176f72d08d85f8021f62a077bb44f55721d758608ba0237b05f00e7a171e00c6"
+    },
+    {
+      "path": "KITS/DMX Drumtraks.mgxk",
+      "bytes": 13248,
+      "sha256": "20333d98823e6179ba54dc90dc0b57254ba407d33b7425908b60fa56637ab1f0"
+    },
+    {
+      "path": "KITS/Deep House.mgxk",
+      "bytes": 13245,
+      "sha256": "a2d009f8864e306f5f090c184106d38c12d9ca128ab9cbdec98033342207f1ce"
+    },
+    {
+      "path": "KITS/Disco Funk.mgxk",
+      "bytes": 13245,
+      "sha256": "31527a4a35ffa84d5671a2c843400f29d887dd8d366f37f3382832ce7fd70ce1"
+    },
+    {
+      "path": "KITS/Electro.mgxk",
+      "bytes": 13242,
+      "sha256": "afc70c4969f3b1861d398ca51957dad06e23f704f41142c7f8173cd63a214033"
+    },
+    {
+      "path": "KITS/Glitch Experimental.mgxk",
+      "bytes": 13254,
+      "sha256": "63e65ae6c0e656d4519441cc257fe6b53a2ebf062f35281751ccee700fd0c9df"
+    },
+    {
+      "path": "KITS/Hard Techno.mgxk",
+      "bytes": 13246,
+      "sha256": "4cf358246ff6dd2a834982c8c0b2c857098422e944004a5e7a43fee263ef57ca"
+    },
+    {
+      "path": "KITS/Industrial Techno.mgxk",
+      "bytes": 13252,
+      "sha256": "6d164a35aa380f4a9add7bab9a9e4f38aeb5093ccaa1f4d2d46bac58f4dde953"
+    },
+    {
+      "path": "KITS/LinnDrum LM-2.mgxk",
+      "bytes": 13248,
+      "sha256": "e594347cf4b03becc18cd14a795625d55a9552ebb404a159043429284f6401b6"
+    },
+    {
+      "path": "KITS/Lo-fi Hip-Hop.mgxk",
+      "bytes": 13248,
+      "sha256": "967acae27148476a4ffaba7cb65724789f447e565bd7493f91981cc0d1152d0f"
+    },
+    {
+      "path": "KITS/Melodic Techno.mgxk",
+      "bytes": 13249,
+      "sha256": "d5b8b6f1f81ebfaf9432d2bf0201db738b84cabe40dcfa1330008d041e26a343"
+    },
+    {
+      "path": "KITS/Minimal Techno.mgxk",
+      "bytes": 13249,
+      "sha256": "66c0fead4d35bc053dd09fc31ef33a8d94cf361aa7ab5fed78bc1e472483bcfb"
+    },
+    {
+      "path": "KITS/Psytrance.mgxk",
+      "bytes": 13244,
+      "sha256": "c8b70ac050cec89819092b4527c541653c552d50472d71eb02a737f0d65c5e8d"
+    },
+    {
+      "path": "KITS/Trap Drill.mgxk",
+      "bytes": 13245,
+      "sha256": "997aa10ddbc36abae220d794166935c4d11ed1517c42db13b06862758ef7b5d0"
+    },
+    {
+      "path": "PRESETS/808 Snare.mgxp",
+      "bytes": 7867,
+      "sha256": "1f48366c6e80111861014dd611ce25f5933ac55d596a525cfb9136764835297f"
+    },
+    {
+      "path": "PRESETS/8bit PWM Bass.mgxp",
+      "bytes": 7665,
+      "sha256": "2f425701d0565ace309e811b2e25fa004a30d621f7cb3eb550d94b843b28f12c"
+    },
+    {
+      "path": "PRESETS/909 Clap.mgxp",
+      "bytes": 7910,
+      "sha256": "065577d45032676be69e0c31737069c16fe93276bf7fdb5af6ff7d36a5706d2e"
+    },
+    {
+      "path": "PRESETS/Acid FM Lead.mgxp",
+      "bytes": 7775,
+      "sha256": "9e7905b6f775f701a71a5c06f81a0f9ec31fe77536d1f242995945d6ccb01b4b"
+    },
+    {
+      "path": "PRESETS/Additive Bell.mgxp",
+      "bytes": 7669,
+      "sha256": "a04752913ea487625e3d8a997bedd63b3488f48819a176d82f710eb360102e9f"
+    },
+    {
+      "path": "PRESETS/Alien Choir.mgxp",
+      "bytes": 7662,
+      "sha256": "a97aad03bab332f5e298e07a1acb246a266ea0bb7e9cc01fb982171217b8536f"
+    },
+    {
+      "path": "PRESETS/Alpha Juno Hoover.mgxp",
+      "bytes": 7729,
+      "sha256": "c95e4a8b1f6c758c306805ce75efc6a5461fe7f5e1944e837312dd996ab045de"
+    },
+    {
+      "path": "PRESETS/Ambient Bed 90.mgxp",
+      "bytes": 7969,
+      "sha256": "ae76d9d6d8e115967e83a749538491cae9785775af16896c2e64cfdc78f20e0a"
+    },
+    {
+      "path": "PRESETS/B-3 + Leslie.mgxp",
+      "bytes": 7721,
+      "sha256": "889271aa461890a751b680738a78e93b84a77b232238a99214d19cccdafff937"
+    },
+    {
+      "path": "PRESETS/Breakbeat Chops 132.mgxp",
+      "bytes": 8017,
+      "sha256": "d4125a28ac3d7bc33f3cd2001b3f1415f16dd0447a6dc562e7d2951cdc9057d0"
+    },
+    {
+      "path": "PRESETS/Buchla Bongo.mgxp",
+      "bytes": 7664,
+      "sha256": "55f1cf8d1de9f79cc5368c19c1d1312bdac2a841af076d80c94c16c43fa0f301"
+    },
+    {
+      "path": "PRESETS/Buchla Easel Lead.mgxp",
+      "bytes": 7669,
+      "sha256": "0c02169842022aa1996f4f5059fb847aa61104a507cac6fef33083482443a22e"
+    },
+    {
+      "path": "PRESETS/CS-80 Pad.mgxp",
+      "bytes": 7851,
+      "sha256": "6335385607c870ac606ff1b718221702a537a77c981fe420193a6ccd382d0c6f"
+    },
+    {
+      "path": "PRESETS/Casio CZ-101 Bass.mgxp",
+      "bytes": 7611,
+      "sha256": "92c8c10420f1f9ab6d0d47303128b49b436dc4b111d794e0fb43703f07e57291"
+    },
+    {
+      "path": "PRESETS/Casio CZ-101 Pad.mgxp",
+      "bytes": 7610,
+      "sha256": "134678e22e1d0602c4e5e25e628ead5f8f6c6ea3f5584ff83da8a93add6d6937"
+    },
+    {
+      "path": "PRESETS/Chip Arp Lead.mgxp",
+      "bytes": 7665,
+      "sha256": "7ca12426c3e28a813562413d6595f257c848117b9f83ba0bde2e5dce7d712263"
+    },
+    {
+      "path": "PRESETS/Chiptune Chord Arp.mgxp",
+      "bytes": 7594,
+      "sha256": "afe13c82cc8029ff7890189e7d004410291200eea12e41761b4190ec68941cc0"
+    },
+    {
+      "path": "PRESETS/Chord Organ.mgxp",
+      "bytes": 7587,
+      "sha256": "9425dd04ecac82c05a7746d19ebdd05d223beff3cb5b02af92501538bec97dfe"
+    },
+    {
+      "path": "PRESETS/Cinematic Sub Drop.mgxp",
+      "bytes": 7677,
+      "sha256": "d64cc13797ad217a71f74eaf9993d043c6373c599d5c495a68cce099fb391742"
+    },
+    {
+      "path": "PRESETS/Clavisynth.mgxp",
+      "bytes": 8013,
+      "sha256": "fa17ebfca98b9e42875c9b08b8d5407dcc40c5f86541087715273783e1bf66a1"
+    },
+    {
+      "path": "PRESETS/Clouds Texture Pad.mgxp",
+      "bytes": 7647,
+      "sha256": "9076b6622933516bd196a0547e47b81f6ce2c4c54663d2a1b65b9afc7e1c429e"
+    },
+    {
+      "path": "PRESETS/CrossMod Metal Bass.mgxp",
+      "bytes": 7678,
+      "sha256": "4968598e0e5f24cc32ecf21894350ad97dcd05b0e5623bbfce77054c46264d15"
+    },
+    {
+      "path": "PRESETS/D-50 Fantasia.mgxp",
+      "bytes": 8044,
+      "sha256": "0cf44a72fd192e3e7e7c708ddc529a564aad887af4bf70b2f569f0f6c0943ad7"
+    },
+    {
+      "path": "PRESETS/D-50 LA Piano.mgxp",
+      "bytes": 8111,
+      "sha256": "5ac3426d085ef0a3d4bc33d8e66dddc36448713ecbc2f70bc44b21c0f59ec324"
+    },
+    {
+      "path": "PRESETS/DX7 E.Piano.mgxp",
+      "bytes": 7774,
+      "sha256": "ed02ef0c86d664705da4b677622bd8d77b675e74846a906829f6ffb2b8561974"
+    },
+    {
+      "path": "PRESETS/DX7 Marimba.mgxp",
+      "bytes": 7774,
+      "sha256": "8c4938e1bc6eec32eda1b75746491a271d9d7d4dc8d7437e7b90b33183d607c3"
+    },
+    {
+      "path": "PRESETS/DX7 Metal Pad.mgxp",
+      "bytes": 7776,
+      "sha256": "2581d37556fc897346135ae1944bfb3eb68d8214a9574dac9a2cf5fa2c5bf9b2"
+    },
+    {
+      "path": "PRESETS/DX7 Tubular Bell.mgxp",
+      "bytes": 7779,
+      "sha256": "4a6c5f5c0b5991f3fd19081634e94a06145c7c3ef3252dd4f2ee8293bee93e31"
+    },
+    {
+      "path": "PRESETS/DX7 Wineglass.mgxp",
+      "bytes": 7776,
+      "sha256": "adb9f921c1583ab390c23d065ca8cd7bf8b19e51e30de1641102399953c05430"
+    },
+    {
+      "path": "PRESETS/Detroit Chord Stab.mgxp",
+      "bytes": 7594,
+      "sha256": "0768d16e0b8d34fada4b5d89ae729c8efa3d657cc4d5d140550af8006d26f83e"
+    },
+    {
+      "path": "PRESETS/Digital Glass Keys.mgxp",
+      "bytes": 7607,
+      "sha256": "88ace572e6fdbf97acc9bfdc93c99b1fffd33c52e554981407067703224b8e51"
+    },
+    {
+      "path": "PRESETS/Donk Stack.mgxp",
+      "bytes": 8117,
+      "sha256": "f1db95bc105446cbe3fe73c19522958355ac26451a78fd80ddc009f9c15e1fec"
+    },
+    {
+      "path": "PRESETS/Dub Chord Stab.mgxp",
+      "bytes": 7925,
+      "sha256": "7de575a2442f56cc582ef9c9294f21b7c8c062a5f2a88437d26ac9dd58302fa0"
+    },
+    {
+      "path": "PRESETS/Dubstep Growl.mgxp",
+      "bytes": 7829,
+      "sha256": "82695599a33d22751d5a2d431ff689bc2cd8a19418630e1230298d9ef109034b"
+    },
+    {
+      "path": "PRESETS/EBM Industrial Bass.mgxp",
+      "bytes": 7731,
+      "sha256": "0b1f2141d3e54daee916cb135930604f81a50b3bf63268ca0fd61ccd6a5d0b11"
+    },
+    {
+      "path": "PRESETS/Electric Piano.mgxp",
+      "bytes": 7964,
+      "sha256": "93e3ac9abd40ae10c59f94f57d1313d5ec8ce10379f85e1023f63bf0a164c2ce"
+    },
+    {
+      "path": "PRESETS/Electro Tom.mgxp",
+      "bytes": 7593,
+      "sha256": "8acf9a82855958139d54317d7b3509c2dd66bdb741fbd37d9469f916ee636053"
+    },
+    {
+      "path": "PRESETS/FM Clave.mgxp",
+      "bytes": 7580,
+      "sha256": "b5f650a5148db8254f3f2a0a8f90a928eef0f284f219ff3558b0a4143ed47dbe"
+    },
+    {
+      "path": "PRESETS/FM Cowbell.mgxp",
+      "bytes": 7582,
+      "sha256": "d62daad0c24bbfcef21e6449fc87f9af7ea3a174dff1e2e2659fa29de5644661"
+    },
+    {
+      "path": "PRESETS/FM Rimshot.mgxp",
+      "bytes": 7582,
+      "sha256": "50c56e18678df2d63fa679a415a888c501c868ee194891018097d514fd5e449a"
+    },
+    {
+      "path": "PRESETS/FM Rubber Bass.mgxp",
+      "bytes": 7777,
+      "sha256": "1ac32fab4972da13c6b26dccc8faaeb9d943c8b0899d60213c65b5a19538797d"
+    },
+    {
+      "path": "PRESETS/FM Tine EP.mgxp",
+      "bytes": 7773,
+      "sha256": "667bb279bed85f3cc3dbb003730c5b578ad720f3a9fbbe3cab6bb09a626ee463"
+    },
+    {
+      "path": "PRESETS/FM+VA Hybrid Keys.mgxp",
+      "bytes": 7979,
+      "sha256": "8aae30fa3913c1dc0c5db49b344b3036af41b3164241054f48a31b680b41b7d4"
+    },
+    {
+      "path": "PRESETS/FM-Metal Hit.mgxp",
+      "bytes": 7914,
+      "sha256": "ffd6d73ede09a4812d43f62e4a81c7e08a8a3c7a5032333119422f485c02ab76"
+    },
+    {
+      "path": "PRESETS/Feedback FM Bell.mgxp",
+      "bytes": 7592,
+      "sha256": "d9cb57b89c939f0bca2f0bbd53eee758eed195144cca20c5d0e4ff15a353650e"
+    },
+    {
+      "path": "PRESETS/Feedback Riser.mgxp",
+      "bytes": 7777,
+      "sha256": "69110b6e3c0ca554bfadcced68e7073173661c3f2ecf8afe24eab6f3e936b41e"
+    },
+    {
+      "path": "PRESETS/Fold Bass.mgxp",
+      "bytes": 7661,
+      "sha256": "5d6250c3cdb70c17202421be7e412407e81f48e320440ff48bfcc6a299bfc521"
+    },
+    {
+      "path": "PRESETS/Formant Growl.mgxp",
+      "bytes": 7604,
+      "sha256": "d4634877973ab6d55f3cdbb86723ee702a88ab496b759707c06110d6aa402762"
+    },
+    {
+      "path": "PRESETS/Formant Lead.mgxp",
+      "bytes": 7656,
+      "sha256": "46f3d1692b65f32fe1f49f6b609582ad1cdddb5edb05cab43c57dff456211708"
+    },
+    {
+      "path": "PRESETS/Frozen Cathedral.mgxp",
+      "bytes": 7853,
+      "sha256": "005743af8ca0442fb31b0d773d2726c83a838a223ef5cb407f8c34f7e44b06c5"
+    },
+    {
+      "path": "PRESETS/Frozen Choir.mgxp",
+      "bytes": 7663,
+      "sha256": "350fe8ce71fe20e43afcce319a0eba148db9d7c37c80f03794b91c0b4f79d91f"
+    },
+    {
+      "path": "PRESETS/Funk Chops 104.mgxp",
+      "bytes": 8012,
+      "sha256": "9528ab6dd28d24715740d7bc212441f0523a8b3f88aaa97d18647c2db5be597d"
+    },
+    {
+      "path": "PRESETS/GM Choir Aahs.mgxp",
+      "bytes": 7591,
+      "sha256": "860afb23af901181d421c9cf24b601c390312c755084bda8055eaaa5ae2ccf96"
+    },
+    {
+      "path": "PRESETS/GM Grand Piano.mgxp",
+      "bytes": 7592,
+      "sha256": "9eaf73a506f94ccebbff5f5da45e83d346c284bfa4a46aea9a4ad923978981d9"
+    },
+    {
+      "path": "PRESETS/GM Strings.mgxp",
+      "bytes": 7588,
+      "sha256": "3f857d7d570903fd690c5d9258da763a8245d510025f5acac9fe1e919bbee13a"
+    },
+    {
+      "path": "PRESETS/GM Synth Brass.mgxp",
+      "bytes": 7592,
+      "sha256": "31ef140a3b68d2476ceda1f5111d3f1c4d3f98a5e96b9c0babcbc2ec9030f226"
+    },
+    {
+      "path": "PRESETS/Game Boy Lead.mgxp",
+      "bytes": 7665,
+      "sha256": "4aae6bc8d3b209c9efd09e5470a7f1ff3ab3fa958df9e50663c073e36f30dee8"
+    },
+    {
+      "path": "PRESETS/Genesis FM Bass.mgxp",
+      "bytes": 7587,
+      "sha256": "2aa84f16c21b53b09ddb30bc8098db8c3c69b33baf4b19824196f276783ee2f1"
+    },
+    {
+      "path": "PRESETS/Glitch Percussion.mgxp",
+      "bytes": 7655,
+      "sha256": "f22a36f57a83e4cd3e3cff02ffdfc9790229ce112b474635fb68f9d8d8bf64ce"
+    },
+    {
+      "path": "PRESETS/Goa Lead.mgxp",
+      "bytes": 7667,
+      "sha256": "a901e820dd208f91bea3cc16a6a9fcf6887e294ffac58146af3d0e4d24097955"
+    },
+    {
+      "path": "PRESETS/Grand Piano.mgxp",
+      "bytes": 7961,
+      "sha256": "4c4bdfb95e9021113d2c5e57cf69cc633fba85e5a422bae90131e06280274b75"
+    },
+    {
+      "path": "PRESETS/Granular Choir.mgxp",
+      "bytes": 7652,
+      "sha256": "88f1a5396e7f9cba3f00d02cf9653f3cf61351800c0c4da4628e00afde98f8f1"
+    },
+    {
+      "path": "PRESETS/Granular Formant Voice.mgxp",
+      "bytes": 7598,
+      "sha256": "4354e5df26a0ea184efa8a0a49b6e2f81cb53d587abe25004470420fa2185fa6"
+    },
+    {
+      "path": "PRESETS/Granular Freeze Swell.mgxp",
+      "bytes": 7659,
+      "sha256": "fd87beb0b4e457049dd583fbd9bbb2df489620afacfcad3ed632e3b4a2f60594"
+    },
+    {
+      "path": "PRESETS/Granular Pad.mgxp",
+      "bytes": 7650,
+      "sha256": "a4ba7ac249616021f4d910575f1b41355345c07941f146bc6e4339e8275553ba"
+    },
+    {
+      "path": "PRESETS/Granular Vocal Pluck.mgxp",
+      "bytes": 7596,
+      "sha256": "8e1bfb3fcb5185e7eefd4c609b69f7afc2ca7b30ea13ce0a9b3b4c47068a14c8"
+    },
+    {
+      "path": "PRESETS/Granular Wash.mgxp",
+      "bytes": 7651,
+      "sha256": "6a2b5af3b0846a07d824e68a7a6e43901999cbecb548235cf9f952d16c4386aa"
+    },
+    {
+      "path": "PRESETS/Hammond B-3 Organ.mgxp",
+      "bytes": 7673,
+      "sha256": "33a2c17a4ffd6c8e6247b1eb63f8c92ad72b1f825101a5f7dd4c966e21ab92d0"
+    },
+    {
+      "path": "PRESETS/Hard Sync Lead.mgxp",
+      "bytes": 7673,
+      "sha256": "c68fe81acf60f8e6b684e9326c83cca07b7a10da29e2e52839d5ef1113db735f"
+    },
+    {
+      "path": "PRESETS/Hardbass Kick.mgxp",
+      "bytes": 7595,
+      "sha256": "c418f6ba7542b33efde7f2d62076e997e94c0279625074e777cbc18136e9bcff"
+    },
+    {
+      "path": "PRESETS/Hardbass Lead Stab.mgxp",
+      "bytes": 7898,
+      "sha256": "a6e0f627ba02ba35d4275255dfd1b6721fea86883d10e1bd4b87dd1ef8dddf40"
+    },
+    {
+      "path": "PRESETS/Hardstyle Kick.mgxp",
+      "bytes": 7649,
+      "sha256": "f0ba21727d9b48451290cea237c19fc86f31907840c585e64e58abd938af4bab"
+    },
+    {
+      "path": "PRESETS/Harmonic Keys.mgxp",
+      "bytes": 7589,
+      "sha256": "36a4fe2910cf4a239eec7a9d0a2340d69a7478fcf26341d9561b67b117c3910a"
+    },
+    {
+      "path": "PRESETS/Harmonic Morph Bell.mgxp",
+      "bytes": 7595,
+      "sha256": "72fe694f44ba096a7f9612b133f6ce232337458561dc3a9d77cf264043422632"
+    },
+    {
+      "path": "PRESETS/House Loop 124.mgxp",
+      "bytes": 7916,
+      "sha256": "f196666dffcf1d478ce6cd3ca487ebd41b02e3d0043f3d64d98e0277e5a9cb56"
+    },
+    {
+      "path": "PRESETS/House Piano Stab.mgxp",
+      "bytes": 7594,
+      "sha256": "0453f2382a308c5526dee017711261a73e14e5bd161935b7874cfcdb4e795bff"
+    },
+    {
+      "path": "PRESETS/Inharmonic Metal String.mgxp",
+      "bytes": 7599,
+      "sha256": "00e3ba4f902383c196138a68082a1ee38481d5d75a99f30c1488efca7781f962"
+    },
+    {
+      "path": "PRESETS/JP-8000 Hypersaw.mgxp",
+      "bytes": 7874,
+      "sha256": "5a527d2249d6bb753a3fb3e71a874069df63b9500239d536b34ab62c1954d285"
+    },
+    {
+      "path": "PRESETS/JP-8000 Supersaw.mgxp",
+      "bytes": 7874,
+      "sha256": "4b6563bcd4d374e923b0e1d1bafd150de120464ebd65a4f43062cf980b274633"
+    },
+    {
+      "path": "PRESETS/Jungle Chops 172.mgxp",
+      "bytes": 8014,
+      "sha256": "3feb92c39948724f0ae2e5f1e468e7146271f41b32f484db026195d4984870a5"
+    },
+    {
+      "path": "PRESETS/Juno-106 Bass.mgxp",
+      "bytes": 7672,
+      "sha256": "2d210e89edf5f0bd603206316c30a7241b6682b93cd4f7b58ec81945760be4b0"
+    },
+    {
+      "path": "PRESETS/Juno-106 Pad.mgxp",
+      "bytes": 7708,
+      "sha256": "f9c403232b2d8694cf11ea5c80e784033ed1d9b7088c98ffd88596a9f5f7b5ca"
+    },
+    {
+      "path": "PRESETS/Jupiter-8 Pad.mgxp",
+      "bytes": 7871,
+      "sha256": "0f75e9bced6b68b9baa9a876c27b02eb8d4dcefdc0b601cc1dac491946f3a47d"
+    },
+    {
+      "path": "PRESETS/K5000+CZ Glass Duo.mgxp",
+      "bytes": 7808,
+      "sha256": "e04f09524d01cda02292c48e429e9a537f75532d6f1c7c1948ef06ee7c8e1e20"
+    },
+    {
+      "path": "PRESETS/Kalimba.mgxp",
+      "bytes": 7927,
+      "sha256": "0ec28c166c6be8d594255abd1b218e10eef89eab901709aeefe5c860b616b414"
+    },
+    {
+      "path": "PRESETS/Karplus Pluck Lead.mgxp",
+      "bytes": 7641,
+      "sha256": "a16ea2651513266f0fb989010b2e18badb55385ba946a07b6a6f2649e478f248"
+    },
+    {
+      "path": "PRESETS/Kawai K5000 Glass.mgxp",
+      "bytes": 7673,
+      "sha256": "09d43534a2d2fb1377476f0369af08f2aaae2177727db38a1d25676c740c5e20"
+    },
+    {
+      "path": "PRESETS/Laser Zap.mgxp",
+      "bytes": 7668,
+      "sha256": "20f3ee166a8cd2c5d502e1e10ffc4b7808709f72ab3848ab0785dfd593bba12b"
+    },
+    {
+      "path": "PRESETS/MS-20 Scream.mgxp",
+      "bytes": 7724,
+      "sha256": "0edc79fdfd2fb8eaf3efd8e5ea3a32ecf462789569ab2a9813ceb678dea47de2"
+    },
+    {
+      "path": "PRESETS/Marimba.mgxp",
+      "bytes": 7945,
+      "sha256": "71beaae4dffcf0ebd99e2420fc6e3b83ca83f22f91d575d40ffdf610320a6b38"
+    },
+    {
+      "path": "PRESETS/Mega Moog.mgxp",
+      "bytes": 7867,
+      "sha256": "670c649b7652ca771863126d88fc2cefbba432482d33f4b9d916965118df7292"
+    },
+    {
+      "path": "PRESETS/Metallic Ambient Pad.mgxp",
+      "bytes": 7836,
+      "sha256": "89d13f09209bdbc83879b1d6b1b8f58e5fd6fe890546a4782127b19e81a25cac"
+    },
+    {
+      "path": "PRESETS/Metallic Ride.mgxp",
+      "bytes": 7776,
+      "sha256": "b8294995dde1bc0196a8ba38e2c417943a9ef4dd6abbccd5f14cefec434f12ba"
+    },
+    {
+      "path": "PRESETS/Microwave Bass.mgxp",
+      "bytes": 7603,
+      "sha256": "b727e336ea27d1eb8354048e3138d2a81bb54772dc494342990323f7b9260b9c"
+    },
+    {
+      "path": "PRESETS/Minimoog Bass.mgxp",
+      "bytes": 7672,
+      "sha256": "51e45c64f88ef2b156c0bb80e994571f3865dcb6c2945494bc23a2ae57a376a9"
+    },
+    {
+      "path": "PRESETS/Minimoog Lead.mgxp",
+      "bytes": 7672,
+      "sha256": "de7bbbd9112ae1d48b330fb51a06571aa47d5cd3857e1790c724735e1a4b9e9a"
+    },
+    {
+      "path": "PRESETS/Modal Woodblock.mgxp",
+      "bytes": 7591,
+      "sha256": "1fdc651ec86fd83c490e513d064f690baa233e573d15da01c5f12df17651c666"
+    },
+    {
+      "path": "PRESETS/Morph WT Lead.mgxp",
+      "bytes": 7602,
+      "sha256": "f8cb1512e8828c4b5dcbadc76bc1ba81c74c29b2a709583d2756ebaa8d6c9ab2"
+    },
+    {
+      "path": "PRESETS/Neuro Bass.mgxp",
+      "bytes": 7856,
+      "sha256": "ec84752842ac601343783ae84d9067d9805aa75b7f0c87fe727265040da67a08"
+    },
+    {
+      "path": "PRESETS/Noise Breath Pad.mgxp",
+      "bytes": 7791,
+      "sha256": "e9d6ef33c5b930b7bef4ebf965d01308da1e71ee0a33b6e51513145061256137"
+    },
+    {
+      "path": "PRESETS/Noise Hat.mgxp",
+      "bytes": 7668,
+      "sha256": "b59f1200d1c9d4d321b3c5e80b585be34abf1e0a1f14358adaf1d4383168e8e2"
+    },
+    {
+      "path": "PRESETS/Noise Riser.mgxp",
+      "bytes": 7587,
+      "sha256": "9a58719bebd13e3d367288ce64b9d1180e4eda33b0d88c0c4b3a9ec12da01104"
+    },
+    {
+      "path": "PRESETS/Oberheim Brass Stab.mgxp",
+      "bytes": 7877,
+      "sha256": "c62753541746579cb65b6a9e375eaff08fcc76e0e058269a9d5bd7e40e1d9967"
+    },
+    {
+      "path": "PRESETS/Oberheim SEM Pad.mgxp",
+      "bytes": 7675,
+      "sha256": "a7f9b6d6ecb7d49a0efb404ef4ed89005682f747533f95cbb454fa363cbd3b96"
+    },
+    {
+      "path": "PRESETS/Organ Percussion.mgxp",
+      "bytes": 7868,
+      "sha256": "9178ddac84bb1305fc3e3435ff6203b5c6c35f5755d33469ff1f7c25b8b78b40"
+    },
+    {
+      "path": "PRESETS/PPG Wave Bell.mgxp",
+      "bytes": 7602,
+      "sha256": "2b3f13b085fde24b3bf5d16fcf14ad5bd0d3d60a4a2d0e1aec5a60f18d977fe0"
+    },
+    {
+      "path": "PRESETS/PPG Wave Pad.mgxp",
+      "bytes": 7601,
+      "sha256": "6452a8a991cf480812cb99a0bb9b097e04e64f6da60dc56ed71f9a74490d3b08"
+    },
+    {
+      "path": "PRESETS/PWM Strings.mgxp",
+      "bytes": 7723,
+      "sha256": "e23dbe28cc3e14fac6251e65e1710afaae6461dd92166e8f484c4fc4e7846c2e"
+    },
+    {
+      "path": "PRESETS/Particle Rain.mgxp",
+      "bytes": 7589,
+      "sha256": "f26b0f2bc1477ca99165df7e7d7ce862b70d6fa85538b1e44bfb35fe140f8023"
+    },
+    {
+      "path": "PRESETS/Plaits Analog Kick.mgxp",
+      "bytes": 7594,
+      "sha256": "6974c1cd10f81ace727386664046aa9db76ba8b3fc8dd9909565f85a42fc43d5"
+    },
+    {
+      "path": "PRESETS/Plaits Analog Snare.mgxp",
+      "bytes": 7595,
+      "sha256": "76f95b22413a617d3291689e028cee84049b2691603d674f99aeb865b9353d7b"
+    },
+    {
+      "path": "PRESETS/Plaits Hit Stack.mgxp",
+      "bytes": 7860,
+      "sha256": "b2e0c17530f3ed6bddca840045946fffaf6898ea14751515d38f1f1f6c6abfc5"
+    },
+    {
+      "path": "PRESETS/Plaits Metallic Hat.mgxp",
+      "bytes": 7595,
+      "sha256": "a507b95f6671dd28269b7e3f37976faef1a0d3154629dd1853380fcfb5b589d3"
+    },
+    {
+      "path": "PRESETS/Prophet VS Vector Pad.mgxp",
+      "bytes": 7809,
+      "sha256": "c376f2b94a5bad99be9997b01bb9a3772138095c12ef9d1e6ff91e021eafe2d5"
+    },
+    {
+      "path": "PRESETS/Prophet-5 Brass.mgxp",
+      "bytes": 7674,
+      "sha256": "bb298a44db6debe62ea33ae1b6328ce470f8b037d43a18a9b5fa14a2e948e697"
+    },
+    {
+      "path": "PRESETS/Prophet-5 Poly Keys.mgxp",
+      "bytes": 7678,
+      "sha256": "a18e28b14f163f3433a83f8ab95154c25a48b549042405c12faa3311363a175e"
+    },
+    {
+      "path": "PRESETS/Psy Squelch.mgxp",
+      "bytes": 7585,
+      "sha256": "46168f30fcd0ee8957f1085e5f5612ba2efbd91d4e3881937780daf389bc4016"
+    },
+    {
+      "path": "PRESETS/Psytrance Bass.mgxp",
+      "bytes": 7673,
+      "sha256": "da45dd28bc72b0d7e5c04215f03f39a4da166857396da77fa3eddde0960a45dd"
+    },
+    {
+      "path": "PRESETS/Psytrance Kick.mgxp",
+      "bytes": 7596,
+      "sha256": "08e334b775edff3368c5ff145c505d2952e7287b9913811c895deec1ecc8e24c"
+    },
+    {
+      "path": "PRESETS/Pure Sub.mgxp",
+      "bytes": 7667,
+      "sha256": "076b2e86fffbad664bb084fbec3054ef120c05b9f5a391f1c088e8fe9c11e179"
+    },
+    {
+      "path": "PRESETS/Rave Stab.mgxp",
+      "bytes": 7721,
+      "sha256": "a0236bf32ee6551c7682ea609b8b0d0ffd98f76d07c0d0246d4fd6d1f2c818f1"
+    },
+    {
+      "path": "PRESETS/Reese Bass.mgxp",
+      "bytes": 7791,
+      "sha256": "1fcc8342a77a748bec368d02e478762ccf2638fe59053f9a90ae4d96338491f8"
+    },
+    {
+      "path": "PRESETS/Reese Wall.mgxp",
+      "bytes": 8095,
+      "sha256": "d803741ff3adf4f0b0fca1883ff30f36e4175aeb4bedca4910fccf68916e3aed"
+    },
+    {
+      "path": "PRESETS/Reverse Impact.mgxp",
+      "bytes": 7916,
+      "sha256": "e4504df2353757692db000b655526641776d06cf54879e1caabdd502e7c2b1de"
+    },
+    {
+      "path": "PRESETS/Rings Resonator.mgxp",
+      "bytes": 7638,
+      "sha256": "75535d011e00ec838d299c82d2f0354910e03cfa9d982917615891f05524d603"
+    },
+    {
+      "path": "PRESETS/Robot Chord Choir.mgxp",
+      "bytes": 7709,
+      "sha256": "cf596014c6e13f069f43474bdd0018ca0f20d425629c9e674550a1cc7d926669"
+    },
+    {
+      "path": "PRESETS/Robot Voice.mgxp",
+      "bytes": 7587,
+      "sha256": "a349b3818223d9f44812e8ab0e86092f27db6b687b0a644a85c5a0627ed5fd37"
+    },
+    {
+      "path": "PRESETS/Russian Hardbass Donk.mgxp",
+      "bytes": 7784,
+      "sha256": "09183be748aff359f171a31fa2b1647e1723788651b19304922981cff7c1c02c"
+    },
+    {
+      "path": "PRESETS/SH-101 Bass.mgxp",
+      "bytes": 7620,
+      "sha256": "d6e874145ca9ab8721a74aa66b2a12a0baad88d47c0b09859e715b807f603505"
+    },
+    {
+      "path": "PRESETS/SH-101 Sequence.mgxp",
+      "bytes": 7624,
+      "sha256": "d2f8457086cae6d77e6ab0a8bfea9412551e1ea78ef839e6e32b8455558dda7a"
+    },
+    {
+      "path": "PRESETS/Screech Lead.mgxp",
+      "bytes": 8028,
+      "sha256": "c80136f2803b4d618595003c3623e5647694ed58a38b3d0061f368362886381b"
+    },
+    {
+      "path": "PRESETS/Shimmer Reverb Pad.mgxp",
+      "bytes": 7730,
+      "sha256": "c62d01d944a58d3e3a92eb0289c6cca3ec03e3037540ff752bf6d603775b6651"
+    },
+    {
+      "path": "PRESETS/Simmons SDS Tom.mgxp",
+      "bytes": 7597,
+      "sha256": "5bdb94e613ca14bb9540e8dd15e797812d7b4d7046141bbcd033a5941a7fde3c"
+    },
+    {
+      "path": "PRESETS/Slap Bass.mgxp",
+      "bytes": 7587,
+      "sha256": "88e4d7ccc9c65dc2c4a85ac050c2f8f90445f14c93d2f56d7d0123a6712a426b"
+    },
+    {
+      "path": "PRESETS/Slices Loop.mgxp",
+      "bytes": 7913,
+      "sha256": "2af8a493d228052f7b9e5dad797116767b6181f1675429619e7b227690e4eb5c"
+    },
+    {
+      "path": "PRESETS/Solina String Ensemble.mgxp",
+      "bytes": 7651,
+      "sha256": "b6ec544d481a1b77486d1ee896df8e0b5b4c8243c89389faf089bf2a61133f0c"
+    },
+    {
+      "path": "PRESETS/Spectral Downlifter.mgxp",
+      "bytes": 7670,
+      "sha256": "a171a376bb9a28d749e5444ee52d4df8b3f3affdcf046cf073300600c944923e"
+    },
+    {
+      "path": "PRESETS/String Swarm.mgxp",
+      "bytes": 7757,
+      "sha256": "cffb35d823d6f0d12fe3875ddc0ebc11b1c77169dd8e8769fe505d038c7e6dc3"
+    },
+    {
+      "path": "PRESETS/Swarm Pad.mgxp",
+      "bytes": 7585,
+      "sha256": "e8bb610a23c3aa03ba8e8f5e34c0d90eeb0e9a4671347b42f3747a2759540cce"
+    },
+    {
+      "path": "PRESETS/Sync Sweep Lead.mgxp",
+      "bytes": 7674,
+      "sha256": "370ff3b9656a24f8445c94ab8c2fa9494819e1aa0f00fe228255f3e8ba190af9"
+    },
+    {
+      "path": "PRESETS/TB-303 Acid.mgxp",
+      "bytes": 7585,
+      "sha256": "469e262861222570c988cac7f5c28cb4a227d12d2a0d46d6943ddc2ed8534a0b"
+    },
+    {
+      "path": "PRESETS/TB-303 Square.mgxp",
+      "bytes": 7587,
+      "sha256": "fea40286d81ae3c31d036aa5d3a5d279d94dcca1b0e45256ecd76ae1274d530b"
+    },
+    {
+      "path": "PRESETS/TR-808 Kick.mgxp",
+      "bytes": 7593,
+      "sha256": "d09bb2a8d6b4e56c44a722ab655f126c98fc6fa93868b308b252711051e766d6"
+    },
+    {
+      "path": "PRESETS/TR-909 Kick.mgxp",
+      "bytes": 7577,
+      "sha256": "d2f0a57dfbc8c5720acb5427fe86d7a688cda8ed7ca74e8c8de642ab5c1670d4"
+    },
+    {
+      "path": "PRESETS/TX81z Lately Bass.mgxp",
+      "bytes": 7780,
+      "sha256": "ab6cc418f76342503b97678cabd4dbc8f1150609bf1043c1062552a1b5a67887"
+    },
+    {
+      "path": "PRESETS/Talking Formant Pad.mgxp",
+      "bytes": 7610,
+      "sha256": "e84f7d74fb018f5840e3a0d36870a083871c17aa9b369b3a478c74b30a854c7b"
+    },
+    {
+      "path": "PRESETS/Tape Microsound Loop.mgxp",
+      "bytes": 7998,
+      "sha256": "1adf0731ec8b1bb7fa6e20de608a11f928e55cbbaa158e9fa9cd311edde73de4"
+    },
+    {
+      "path": "PRESETS/Techno Loop 138.mgxp",
+      "bytes": 7917,
+      "sha256": "60269a49ffc3d0523ad2f4b9cc8722907c67f0a094755a3cf875dce826e59565"
+    },
+    {
+      "path": "PRESETS/Terrain Digital Bass.mgxp",
+      "bytes": 7596,
+      "sha256": "93c7a9398a9472c0ce44772fe852993ad9163887cf90286f734e9b255b0a545b"
+    },
+    {
+      "path": "PRESETS/Trance Gate Pad.mgxp",
+      "bytes": 7727,
+      "sha256": "4d14b1cf9ef284855e4512e7cb80f58e793285a9b3bcd862b2775b1b95a53997"
+    },
+    {
+      "path": "PRESETS/Trance Offbeat Bass.mgxp",
+      "bytes": 7628,
+      "sha256": "9cbfa45c1e341d042ced0a681dd92725c95273839443f2f0533b292f88b963bc"
+    },
+    {
+      "path": "PRESETS/Trance Pluck.mgxp",
+      "bytes": 7724,
+      "sha256": "9238c0b53e0cd84762b30b3b8a55bb927f06d72552c544c6e197c0c44c42e723"
+    },
+    {
+      "path": "PRESETS/Trance Rolling Bass.mgxp",
+      "bytes": 7678,
+      "sha256": "9fe5d3415425ab4929d81ef2a421cbe1c19351a9ab3e7453100b908ca4b067eb"
+    },
+    {
+      "path": "PRESETS/Uplifting Trance Lead.mgxp",
+      "bytes": 7867,
+      "sha256": "fc59c05bca3241827d57e481ad971e1e0ffc60972482e3c22672feedac5d937e"
+    },
+    {
+      "path": "PRESETS/VA-Hit Stab.mgxp",
+      "bytes": 7913,
+      "sha256": "0690fdee2ce68058562c023d5db5c0194f67ba61616e738e285ba1845082528a"
+    },
+    {
+      "path": "PRESETS/VOSIM Chant.mgxp",
+      "bytes": 7602,
+      "sha256": "1a924181a67a58be979d42610f7ffbf5e76ea82bc4b2bbc4c4896c023baf325b"
+    },
+    {
+      "path": "PRESETS/VOSIM Voice.mgxp",
+      "bytes": 7602,
+      "sha256": "c8ddf928d661da18da1d40bab878b7be626cb00587da9ffee4a4e2b4a7150269"
+    },
+    {
+      "path": "PRESETS/Vibraphone.mgxp",
+      "bytes": 8001,
+      "sha256": "7c4a00d8a3aafbba943cb30b827f399171755f0d764a647f1dc4caad82aaa226"
+    },
+    {
+      "path": "PRESETS/WT Soft Choir.mgxp",
+      "bytes": 7602,
+      "sha256": "5847f72576304779c312233ab8c972478deb6a4303b8c86f1f3e29f957ad34cd"
+    },
+    {
+      "path": "PRESETS/Wave Sequence Machine.mgxp",
+      "bytes": 7671,
+      "sha256": "0724dbae6de06801561fa41b2c942500230e1b86150f7eac606552163a3c80af"
+    },
+    {
+      "path": "PRESETS/Wave Terrain Pad.mgxp",
+      "bytes": 7592,
+      "sha256": "ec9618892da5ea8e291c558c71cf2e40a5fd3aae35cd682289fcd85093ed7c17"
+    },
+    {
+      "path": "PRESETS/Wavefolded Percussion.mgxp",
+      "bytes": 7597,
+      "sha256": "42148e9bb44b8cc9445fd8c9cdee131a10aa8083ba259252ffb68225b98463f5"
+    },
+    {
+      "path": "PRESETS/Wobble Bass.mgxp",
+      "bytes": 7723,
+      "sha256": "2f52dc466a019c7dc337c2038261c2849f7f39b0ae8f0ce887f62b60af72512f"
+    }
+  ],
+  "assets": [
+    {
+      "path": "ASSETS/SAMPLES/F-BD0000-808-kick-0001.wav",
+      "bytes": 21730,
+      "crc32": 2501781024,
+      "sha256": "8133270f9d029c256b6833fb3f2e2aa525e021e84f7182d9026ec5c41352d607",
+      "source": "assets/factory/fischer808/kick/F-BD0000-808-kick-0001.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD0010-808-kick-0002.wav",
+      "bytes": 288044,
+      "crc32": 1880047209,
+      "sha256": "37a84ed92369480eba9e78f923265e44368003921c173ab8dddcd2fcaa8cb670",
+      "source": "assets/factory/fischer808/kick/F-BD0010-808-kick-0002.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD0025-808-kick-0003.wav",
+      "bytes": 41132,
+      "crc32": 4088738260,
+      "sha256": "0fa3fa77aa77b425ab4cc702d9e61eaf24fa471b9f5bf8f0e281e784f1b70413",
+      "source": "assets/factory/fischer808/kick/F-BD0025-808-kick-0003.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD0075-808-kick-0005.wav",
+      "bytes": 192048,
+      "crc32": 1693401037,
+      "sha256": "fd49022244a0c9c6cf7110806e446d02d66fe3059d8ffc9b7b13c53d9ab51017",
+      "source": "assets/factory/fischer808/kick/F-BD0075-808-kick-0005.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD5050-808-kick-0019.wav",
+      "bytes": 144048,
+      "crc32": 1175612023,
+      "sha256": "97163a25c3c381afa426f5b9d7a9dddbe4db01065c675dea3a327dffaa965aaa",
+      "source": "assets/factory/fischer808/kick/F-BD5050-808-kick-0019.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD7550-808-kick-0024.wav",
+      "bytes": 121996,
+      "crc32": 3257530485,
+      "sha256": "89e61cdbaf6b2e1b7ef2a73b598f85672c8d21b8255e4faf2ff75855c9d21442",
+      "source": "assets/factory/fischer808/kick/F-BD7550-808-kick-0024.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BD7575-808-kick-0025.wav",
+      "bytes": 192048,
+      "crc32": 4236362327,
+      "sha256": "04f9fc97fb455ef38b3975afbc21437190a4c20ab49baa81daca089e24f5b5d7",
+      "source": "assets/factory/fischer808/kick/F-BD7575-808-kick-0025.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BongoH-Hit1-v1-rr1-Mid-VCSL-bongo-0301.wav",
+      "bytes": 29312,
+      "crc32": 3340221598,
+      "sha256": "d9554bdbd6fc62a36b25a38e8b385c5c95f216aa9734c3a86df2555e45d1969e",
+      "source": "assets/factory/vcsl/bongo/F-BongoH-Hit1-v1-rr1-Mid-VCSL-bongo-0301.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-BongoL-HitMuted2-v1-rr2--VCSL-bongo-0304.wav",
+      "bytes": 27004,
+      "crc32": 2669025952,
+      "sha256": "b206f3cfe39ccda896b3928e585537ea9a5ffc9f70e38163d37fc5555ef17bc3",
+      "source": "assets/factory/vcsl/bongo/F-BongoL-HitMuted2-v1-rr2--VCSL-bongo-0304.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CB-808-cowbell-0026.wav",
+      "bytes": 69418,
+      "crc32": 1781726552,
+      "sha256": "e4c98ccf508ce004016bb7828d9c8bdbf506ae52265fb40e446706b7a7ecf344",
+      "source": "assets/factory/fischer808/cowbell/F-CB-808-cowbell-0026.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CH-808-hat_closed-0027.wav",
+      "bytes": 17078,
+      "crc32": 911145434,
+      "sha256": "6f7c6e2d2cd797003b963ada3545ed13d85acdb2af39e7589a2e51d71dc44c26",
+      "source": "assets/factory/fischer808/hat_closed/F-CH-808-hat_closed-0027.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CP-808-clap-0029.wav",
+      "bytes": 132126,
+      "crc32": 3166713284,
+      "sha256": "d0762b5c77b60389a2295355a705b45d2a718def8c8ead5b01fa65fa16eab14b",
+      "source": "assets/factory/fischer808/clap/F-CP-808-clap-0029.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CY0000-808-cymbal-0030.wav",
+      "bytes": 100126,
+      "crc32": 219118187,
+      "sha256": "fbbefe546a982cbaecdd4d05824a27dd3f59ebaafb3dc0f1acd637b3a07df032",
+      "source": "assets/factory/fischer808/cymbal/F-CY0000-808-cymbal-0030.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CY5010-808-cymbal-0046.wav",
+      "bytes": 288044,
+      "crc32": 2684743564,
+      "sha256": "1f5716718f93faa667d1d4eb426dc046d436d8d495188f23fa483ee6085e96c4",
+      "source": "assets/factory/fischer808/cymbal/F-CY5010-808-cymbal-0046.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-CY7525-808-cymbal-0052.wav",
+      "bytes": 155708,
+      "crc32": 2521980225,
+      "sha256": "8e8f53ad96553c3d282d4d86e3a2ec48e3731f6008a73e1a91522c709e2da4f5",
+      "source": "assets/factory/fischer808/cymbal/F-CY7525-808-cymbal-0052.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Clap-rr6-VCSL-clap-0266.wav",
+      "bytes": 44906,
+      "crc32": 1735167961,
+      "sha256": "797e609f5fdc4dfa23f4e55774ff5f76546a3e8d1715639b16b57c502f31bc6f",
+      "source": "assets/factory/vcsl/clap/F-Clap-rr6-VCSL-clap-0266.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Cowbell1-Muted-v2-rr1-Mi-VCSL-cowbell-0270.wav",
+      "bytes": 43832,
+      "crc32": 3839531381,
+      "sha256": "6b6864a5e8215e8e26b075debe9f56d0fd68fdf8c1d38fa38472724d88837c8a",
+      "source": "assets/factory/vcsl/cowbell/F-Cowbell1-Muted-v2-rr1-Mi-VCSL-cowbell-0270.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Cowbell1-Normal-v2-rr1-M-VCSL-cowbell-0271.wav",
+      "bytes": 40964,
+      "crc32": 2173528101,
+      "sha256": "551b7dd511c2970739ce82906cb845fc16b1e2b37c53c91fd0bc506d2589b79a",
+      "source": "assets/factory/vcsl/cowbell/F-Cowbell1-Normal-v2-rr1-M-VCSL-cowbell-0271.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Cowbell2-Muted-v2-rr1-Mi-VCSL-cowbell-0273.wav",
+      "bytes": 37140,
+      "crc32": 1924245081,
+      "sha256": "a0444f8d4589ee972a405aa6c7d4ec594abe7fdd6a6047be66404ae2a8901c9e",
+      "source": "assets/factory/vcsl/cowbell/F-Cowbell2-Muted-v2-rr1-Mi-VCSL-cowbell-0273.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HC00-808-conga-0055.wav",
+      "bytes": 29804,
+      "crc32": 385615734,
+      "sha256": "ad056707fa59a9e6c9fc326bf5a0d4b7e88a00f82a1e216818e30b97dcef29bd",
+      "source": "assets/factory/fischer808/conga/F-HC00-808-conga-0055.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HC10-808-conga-0056.wav",
+      "bytes": 29756,
+      "crc32": 3781287689,
+      "sha256": "a6bddf5754b66204bc6a2a98335735f6eb8d7267c260ce27f962cad1e1e98d83",
+      "source": "assets/factory/fischer808/conga/F-HC10-808-conga-0056.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HC25-808-conga-0057.wav",
+      "bytes": 29142,
+      "crc32": 500322339,
+      "sha256": "34a3a42377f32f9324863d124029f1db387f4b741539ec03639dfd451a93c0b8",
+      "source": "assets/factory/fischer808/conga/F-HC25-808-conga-0057.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HT00-808-tom-0060.wav",
+      "bytes": 64180,
+      "crc32": 1812842889,
+      "sha256": "6162ffa82f2eed3e4803c906f95f567fbce8376e499dc2bb2bfd1719c238e657",
+      "source": "assets/factory/fischer808/tom/F-HT00-808-tom-0060.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HT10-808-tom-0061.wav",
+      "bytes": 60808,
+      "crc32": 1357991851,
+      "sha256": "a2d3602c54b9eda463ef6e415c42b12647c2a86bc1007111eaa296db7012d0cd",
+      "source": "assets/factory/fischer808/tom/F-HT10-808-tom-0061.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-HiHat-Close-rr1-Mid-VCSL-hat_closed-0274.wav",
+      "bytes": 38610,
+      "crc32": 2970469767,
+      "sha256": "15bc1696be1f9acab6e15e74588a91e067814e49536d25b4993650a82ac13698",
+      "source": "assets/factory/vcsl/hat_closed/F-HiHat-Close-rr1-Mid-VCSL-hat_closed-0274.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-LC10-808-cymbal-0066.wav",
+      "bytes": 48048,
+      "crc32": 1098093752,
+      "sha256": "93baf9c8302a016cdc7eb149dffa9ad5209e410678f70a4f7e79a71d1c69ce92",
+      "source": "assets/factory/fischer808/cymbal/F-LC10-808-cymbal-0066.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-LT00-808-tom-0070.wav",
+      "bytes": 75590,
+      "crc32": 3899502614,
+      "sha256": "cbafee1798d9570c74c87c5be349cc84f0deb3a125e40b54f54c26d95173374e",
+      "source": "assets/factory/fischer808/tom/F-LT00-808-tom-0070.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-LT25-808-tom-0072.wav",
+      "bytes": 74026,
+      "crc32": 2014571712,
+      "sha256": "2653c2f6c3e53cd0759e301a5c7eef0d50b80e20a6e6cbed5b311bb9d27edab4",
+      "source": "assets/factory/fischer808/tom/F-LT25-808-tom-0072.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MA-808-perc-0075.wav",
+      "bytes": 8170,
+      "crc32": 2045196360,
+      "sha256": "157927a0e6c9a185198ae4733fd4a7f39f5772cbbb5a548130379a8ac16dd428",
+      "source": "assets/factory/fischer808/perc/F-MA-808-perc-0075.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MC00-808-perc-0076.wav",
+      "bytes": 30976,
+      "crc32": 1462150823,
+      "sha256": "fcd8dbd457df6592b671f928f364d8733cc20ae3317296af636d76483d4fbd67",
+      "source": "assets/factory/fischer808/perc/F-MC00-808-perc-0076.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MC10-808-perc-0077.wav",
+      "bytes": 32058,
+      "crc32": 2195424661,
+      "sha256": "3b29f1697b091ae4a63f0c4aefb1458cfdbb4797f31111fc5004cb521c5c6639",
+      "source": "assets/factory/fischer808/perc/F-MC10-808-perc-0077.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MT00-808-tom-0081.wav",
+      "bytes": 59860,
+      "crc32": 2580960040,
+      "sha256": "abfe5ef6a69851d2af5e87e150cfcafc95aeb6141722c4a3341dd795e580b8fe",
+      "source": "assets/factory/fischer808/tom/F-MT00-808-tom-0081.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MT10-808-tom-0082.wav",
+      "bytes": 58894,
+      "crc32": 1235035436,
+      "sha256": "024d7be35b8e70ab94768233236eba0f5c7a5165cd6adf4ca3395909a2898d47",
+      "source": "assets/factory/fischer808/tom/F-MT10-808-tom-0082.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-MT25-808-tom-0083.wav",
+      "bytes": 55322,
+      "crc32": 3375765886,
+      "sha256": "4147dfec7784c4dc8e498537a6106ecbcb8e79ae7f7ad842dbce091ce3b631d9",
+      "source": "assets/factory/fischer808/tom/F-MT25-808-tom-0083.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Mid-ShakerDouble-Up-rr1-VCSL-shaker-0284.wav",
+      "bytes": 12184,
+      "crc32": 1228443406,
+      "sha256": "0c4c37f9e8362c370fabd71e088d6bd836ed545f99795c822799a352d068ca48",
+      "source": "assets/factory/vcsl/shaker/F-Mid-ShakerDouble-Up-rr1-VCSL-shaker-0284.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Mid-ShakerLowFaster-Up-r-VCSL-shaker-0286.wav",
+      "bytes": 11458,
+      "crc32": 1565593610,
+      "sha256": "fd23b021e2582c691b2d82c7787b5a4017a6e8d16ff7d274e12d5f478ac85491",
+      "source": "assets/factory/vcsl/shaker/F-Mid-ShakerLowFaster-Up-r-VCSL-shaker-0286.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-OH00-808-hat_open-0086.wav",
+      "bytes": 15710,
+      "crc32": 2294686665,
+      "sha256": "26a569d03355380fae295f2e4101979ae2677976aa864b5b956d84a0d0d9b617",
+      "source": "assets/factory/fischer808/hat_open/F-OH00-808-hat_open-0086.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-RS-808-rim-0091.wav",
+      "bytes": 6614,
+      "crc32": 3631404332,
+      "sha256": "e0fc3a8ecddfe8f9cdf259ba09ca51d0d09778ebd498262c6be9cc410fea9537",
+      "source": "assets/factory/fischer808/rim/F-RS-808-rim-0091.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-SD0000-808-snare-0092.wav",
+      "bytes": 24044,
+      "crc32": 864338305,
+      "sha256": "b5c5e5bcbae0609e2cda96e4e034ab26327a8d9030e0efd68a91f619b698cc10",
+      "source": "assets/factory/fischer808/snare/F-SD0000-808-snare-0092.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-SD0010-808-snare-0093.wav",
+      "bytes": 44052,
+      "crc32": 2259399004,
+      "sha256": "d654e7e3aa1f1c88bd3eb5e9b6fb32fdd7456289a050fa51310143405d561586",
+      "source": "assets/factory/fischer808/snare/F-SD0010-808-snare-0093.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-SD0050-808-snare-0095.wav",
+      "bytes": 36330,
+      "crc32": 1914657090,
+      "sha256": "425da1843f5ad09739ce38dac39bb67696dfbcabda69d3ed55190698d8ab668a",
+      "source": "assets/factory/fischer808/snare/F-SD0050-808-snare-0095.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-SD1050-808-snare-0100.wav",
+      "bytes": 33762,
+      "crc32": 3807381263,
+      "sha256": "de4932b6c8573936f964809b507d52e8d2b8dd6e2b56146b6db7ee2d2f6fc56b",
+      "source": "assets/factory/fischer808/snare/F-SD1050-808-snare-0100.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-SD7525-808-snare-0114.wav",
+      "bytes": 24044,
+      "crc32": 3962690960,
+      "sha256": "3e1687eb3ab90f1ec6f723a4a80b26602ccabb501c08ff2776abb2472cb84bf6",
+      "source": "assets/factory/fischer808/snare/F-SD7525-808-snare-0114.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Snare2-HitNS-v2-rr2-Mid-VCSL-snare-0309.wav",
+      "bytes": 60938,
+      "crc32": 883970615,
+      "sha256": "98268483a21392ca643125670b9a22da55f169a693a002357950af03d4fc9545",
+      "source": "assets/factory/vcsl/snare/F-Snare2-HitNS-v2-rr2-Mid-VCSL-snare-0309.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Snare2-HitNS-v5-rr2-Mid-VCSL-snare-0310.wav",
+      "bytes": 80792,
+      "crc32": 2818714505,
+      "sha256": "0978dcbbe35fc1993e8b0b9eb367fe11d57192a9d75b10f8b394e776b4225b3b",
+      "source": "assets/factory/vcsl/snare/F-Snare2-HitNS-v5-rr2-Mid-VCSL-snare-0310.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-Tumba-HitFM-v3-rr2-Sum-VCSL-conga-0308.wav",
+      "bytes": 51418,
+      "crc32": 3633266491,
+      "sha256": "5228222fb922a1ac3a83dedc9065d51dec5f0fe57fa6104829af8d2fa26b2a69",
+      "source": "assets/factory/vcsl/conga/F-Tumba-HitFM-v3-rr2-Sum-VCSL-conga-0308.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-blip-01-909-perc-0149.wav",
+      "bytes": 17324,
+      "crc32": 57367803,
+      "sha256": "93cb7bba56f0f707adf405acc5f04d390d0a7679a29adb9306f1b50c7d861ab8",
+      "source": "assets/factory/octal/perc/F-blip-01-909-perc-0149.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-blip-02-909-perc-0150.wav",
+      "bytes": 17324,
+      "crc32": 3223835102,
+      "sha256": "3f8e4784f20646c0e202c2bd830f17345a4e7adaced03235f85452edb2c0a032",
+      "source": "assets/factory/octal/perc/F-blip-02-909-perc-0150.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-blip-03-909-perc-0151.wav",
+      "bytes": 17324,
+      "crc32": 615429680,
+      "sha256": "635b06aa576dd4f01bc580236e5954e57cbe6f84ee0fb1e316d1ed20cf1cd3b7",
+      "source": "assets/factory/octal/perc/F-blip-03-909-perc-0151.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-body-01-909-snare-0159.wav",
+      "bytes": 32684,
+      "crc32": 4214298753,
+      "sha256": "bb61e80713f61e5283cd1e2ebaf7086afd269d9405decb30170181417bf1536b",
+      "source": "assets/factory/octal/snare/F-body-01-909-snare-0159.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-bongo-h-Vintage-bongo-0161.wav",
+      "bytes": 12444,
+      "crc32": 2641996626,
+      "sha256": "66de7333c084fd61f8e2be558ff0e40ffd62706e2414b4ede2a64b13a9ffbade",
+      "source": "assets/factory/oramics/bongo/F-bongo-h-Vintage-bongo-0161.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-bongo-l-Vintage-bongo-0162.wav",
+      "bytes": 13028,
+      "crc32": 1323005011,
+      "sha256": "45eb7cbf2107826422791236c60d34767f07c6920848d77fde1516dce4516f3c",
+      "source": "assets/factory/oramics/bongo/F-bongo-l-Vintage-bongo-0162.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-cabasa-Vintage-perc-0178.wav",
+      "bytes": 7622,
+      "crc32": 2677148499,
+      "sha256": "8519dc9b0056280045502681a111edbff75406815b2704b73a31d3b2515d8f62",
+      "source": "assets/factory/oramics/perc/F-cabasa-Vintage-perc-0178.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-clap-Vintage-clap-0179.wav",
+      "bytes": 18388,
+      "crc32": 787043377,
+      "sha256": "e18ad68f4c771c6f81239051fdc8d78f1c9e203e253d9780eea3527f2f4ddf3a",
+      "source": "assets/factory/oramics/clap/F-clap-Vintage-clap-0179.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-classic-01-909-clap-0117.wav",
+      "bytes": 25004,
+      "crc32": 2883207687,
+      "sha256": "ca85a11c6aff7301898cacfdbd80d56f5d79622b0934a52422b6487392dea859",
+      "source": "assets/factory/octal/clap/F-classic-01-909-clap-0117.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-closed-01-909-hat_closed-0124.wav",
+      "bytes": 9644,
+      "crc32": 3625031590,
+      "sha256": "d9e5481c4716b87a22c36dc64524dbe3f218b405313fa3997d7251dcf12f1db7",
+      "source": "assets/factory/octal/hat_closed/F-closed-01-909-hat_closed-0124.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-closed-07-909-hat_closed-0130.wav",
+      "bytes": 9644,
+      "crc32": 2859961807,
+      "sha256": "5700f97589e58fbeea55f3ca77e8e693aa637d94333863f8da332d3a6a76916d",
+      "source": "assets/factory/octal/hat_closed/F-closed-07-909-hat_closed-0130.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-closed-08-909-hat_closed-0131.wav",
+      "bytes": 11564,
+      "crc32": 2699364367,
+      "sha256": "9c223385b656df55e82732a5310673dd3e7f73c6d7702bfd57045338a1504887",
+      "source": "assets/factory/octal/hat_closed/F-closed-08-909-hat_closed-0131.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-conga-h-Vintage-conga-0180.wav",
+      "bytes": 16856,
+      "crc32": 3815970744,
+      "sha256": "26d541cb343efa77c129874eb33f10408465e56fcd6facb6ff16f00884a236d2",
+      "source": "assets/factory/oramics/conga/F-conga-h-Vintage-conga-0180.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-conga-hh-Vintage-conga-0181.wav",
+      "bytes": 10590,
+      "crc32": 3374580299,
+      "sha256": "24c8e07f6a659573f5ab10912fd2da45d66a6aeed1f21a7fa596cc930a447429",
+      "source": "assets/factory/oramics/conga/F-conga-hh-Vintage-conga-0181.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-conga-l-Vintage-conga-0163.wav",
+      "bytes": 40532,
+      "crc32": 221863717,
+      "sha256": "a8666cd8e2e53ff68d064694bcb5ecd23dbb662d0a049784b509d99106c43a73",
+      "source": "assets/factory/oramics/conga/F-conga-l-Vintage-conga-0163.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-conga-l-Vintage-conga-0182.wav",
+      "bytes": 43840,
+      "crc32": 2120723662,
+      "sha256": "7b94cb66fdcd178ff5584586f7debc8c491dbee948c345eabc3af5857f21c736",
+      "source": "assets/factory/oramics/conga/F-conga-l-Vintage-conga-0182.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-conga-m-Vintage-conga-0185.wav",
+      "bytes": 26436,
+      "crc32": 629374500,
+      "sha256": "1e6d92731804f7a0c2ca3e493e95520cdb6df6a6bfcb52676d328098ca439ae4",
+      "source": "assets/factory/oramics/conga/F-conga-m-Vintage-conga-0185.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-crash-01-909-cymbal-0120.wav",
+      "bytes": 192044,
+      "crc32": 3809894941,
+      "sha256": "db3f090a816193ee6b32d3cc1210072f0481f63f78c9905582fd6fba99dcf48f",
+      "source": "assets/factory/octal/cymbal/F-crash-01-909-cymbal-0120.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-crash-Vintage-cymbal-0187.wav",
+      "bytes": 118466,
+      "crc32": 3517294480,
+      "sha256": "089c9a786c0f017ca5fbb430a80c60345006aee634616da3f098884a0fabd632",
+      "source": "assets/factory/oramics/cymbal/F-crash-Vintage-cymbal-0187.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-cymbal-Vintage-cymbal-0165.wav",
+      "bytes": 59196,
+      "crc32": 3901493274,
+      "sha256": "ec9a40c3ab77f2b74fbb2a3d7f6d3d685dc9bb27c426b6658419eb66b42628b3",
+      "source": "assets/factory/oramics/cymbal/F-cymbal-Vintage-cymbal-0165.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-deep-01-909-kick-0137.wav",
+      "bytes": 48044,
+      "crc32": 1207162265,
+      "sha256": "313e3e7bbc725863f2087211499a528004ba4acf85c02d874179a353390a92b9",
+      "source": "assets/factory/octal/kick/F-deep-01-909-kick-0137.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-deep-02-909-kick-0138.wav",
+      "bytes": 46124,
+      "crc32": 1308873012,
+      "sha256": "9f9c29c11c979871ca07180a37b08549c413ea41ea2be2a614c92746a185c2e5",
+      "source": "assets/factory/octal/kick/F-deep-02-909-kick-0138.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-guiro-short-Vintage-perc-0167.wav",
+      "bytes": 36324,
+      "crc32": 3251502399,
+      "sha256": "6e0f79de86a0157d2bf783f806996c0bdfbacb7a14b1918f5697ed28a997a5cf",
+      "source": "assets/factory/oramics/perc/F-guiro-short-Vintage-perc-0167.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-hihat-Vintage-hat_closed-0170.wav",
+      "bytes": 3638,
+      "crc32": 2919014389,
+      "sha256": "e7fe71edaf9e09c38acfc748180d54dfea4b7c3fe50b71ffa274ec78203af5e9",
+      "source": "assets/factory/oramics/hat_closed/F-hihat-Vintage-hat_closed-0170.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-hihat-closed-long-Vintage-hat_closed-0188.wav",
+      "bytes": 17832,
+      "crc32": 767521246,
+      "sha256": "631c44ebb3ac37f4a251e66e1adf1c92aeaf334c280a0432569aa2d4399e1922",
+      "source": "assets/factory/oramics/hat_closed/F-hihat-closed-long-Vintage-hat_closed-0188.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-hihat-metal-Vintage-hat_open-0169.wav",
+      "bytes": 14502,
+      "crc32": 471391871,
+      "sha256": "1d4edef1db28bc91d09235fd0a0d3c7f33a876a96a72ad978fa67dd64adc6b56",
+      "source": "assets/factory/oramics/hat_open/F-hihat-metal-Vintage-hat_open-0169.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-hihat-open-Vintage-hat_open-0191.wav",
+      "bytes": 58918,
+      "crc32": 3564346810,
+      "sha256": "8a7410ac2240c25be26d24b8c787c2801fcc77691cda23bfc434a956a88a6682",
+      "source": "assets/factory/oramics/hat_open/F-hihat-open-Vintage-hat_open-0191.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-kick-Vintage-kick-0172.wav",
+      "bytes": 40266,
+      "crc32": 3592599345,
+      "sha256": "f6ba7fffef8a3d3cea287b8c1f8d1398c4962bd00bab4a4927bb47c5539797ac",
+      "source": "assets/factory/oramics/kick/F-kick-Vintage-kick-0172.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-kick-Vintage-kick-0193.wav",
+      "bytes": 19504,
+      "crc32": 3101820945,
+      "sha256": "1e1cee195bfc1f965c113f12d963b0b7316ec75f2caa5274d6f0a5872a26d7f0",
+      "source": "assets/factory/oramics/kick/F-kick-Vintage-kick-0193.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-kick-accent-Vintage-kick-0171.wav",
+      "bytes": 36518,
+      "crc32": 3803929177,
+      "sha256": "b9111a9bc0a66d55088c5fd60719f2f1f500b39ed5bd9bb550f70d67cf4d7c41",
+      "source": "assets/factory/oramics/kick/F-kick-accent-Vintage-kick-0171.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-kick-alt-Vintage-kick-0192.wav",
+      "bytes": 11340,
+      "crc32": 2385978168,
+      "sha256": "c58bb17b19d9e53f3a8e78ef8df5cb17d2a9e72cd1f053626ea6260b7a1ceae9",
+      "source": "assets/factory/oramics/kick/F-kick-alt-Vintage-kick-0192.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-noise-01-909-fx-0122.wav",
+      "bytes": 192044,
+      "crc32": 3193847137,
+      "sha256": "e422060e91d89079218aa73450fb27fb1476df29f743c7bfb67fdd2ec0ca9491",
+      "source": "assets/factory/octal/fx/F-noise-01-909-fx-0122.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-open-01-909-hat_open-0133.wav",
+      "bytes": 36524,
+      "crc32": 4096600975,
+      "sha256": "3e72ba13eb60d92f66fff96f4752bcc267774842114ceb8bfed98d91d912e5f8",
+      "source": "assets/factory/octal/hat_open/F-open-01-909-hat_open-0133.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-punch-01-909-kick-0139.wav",
+      "bytes": 44204,
+      "crc32": 2183378234,
+      "sha256": "65964de456b0fbcc363f558863b4b9f4c71a69457e627c9435955ba04a788ce1",
+      "source": "assets/factory/octal/kick/F-punch-01-909-kick-0139.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-punch-02-909-kick-0140.wav",
+      "bytes": 44204,
+      "crc32": 1452245873,
+      "sha256": "429bd05d0602e31450efee2248ad9ddc470df2c1d2c98c5fe59dbde46b1594b9",
+      "source": "assets/factory/octal/kick/F-punch-02-909-kick-0140.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-ride-Vintage-cymbal-0194.wav",
+      "bytes": 121558,
+      "crc32": 1389945860,
+      "sha256": "a7c11faf795e6994113952f0d0440b5058eae391d93c4944837ca20363853413",
+      "source": "assets/factory/oramics/cymbal/F-ride-Vintage-cymbal-0194.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-rim-Vintage-rim-0173.wav",
+      "bytes": 4890,
+      "crc32": 1914529821,
+      "sha256": "3cae2fb358f07b9c8e1da2f993a417b3c8fa11e32edd19621aa32e4806b2c967",
+      "source": "assets/factory/oramics/rim/F-rim-Vintage-rim-0173.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-riser-01-909-fx-0123.wav",
+      "bytes": 282942,
+      "crc32": 2511947918,
+      "sha256": "fbc7e0b203b3aac5b59edcd4a86f5e85de10904330a38b7581f6a4f8db58e957",
+      "source": "assets/factory/octal/fx/F-riser-01-909-fx-0123.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-shaker-01-909-perc-0152.wav",
+      "bytes": 15404,
+      "crc32": 1345549436,
+      "sha256": "dff4b59be458c83a7f7ed84fa8891b3d118b2f57762d9bbffebb63b949aab3c9",
+      "source": "assets/factory/octal/perc/F-shaker-01-909-perc-0152.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-shaker-02-909-perc-0153.wav",
+      "bytes": 12524,
+      "crc32": 581267745,
+      "sha256": "6ef7e29a0d2fd12a5440e1578c792f88d4950a54aec4ae7e69f57d2d3494c60e",
+      "source": "assets/factory/octal/perc/F-shaker-02-909-perc-0153.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-snap-01-909-snare-0160.wav",
+      "bytes": 26924,
+      "crc32": 705227040,
+      "sha256": "3af854922a580ecc2c7804cb3762e231f4e05f41296b9bfa2b3eafb525064558",
+      "source": "assets/factory/octal/snare/F-snap-01-909-snare-0160.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-snare-Vintage-snare-0175.wav",
+      "bytes": 21408,
+      "crc32": 2676014344,
+      "sha256": "f30676458c7872c454e2ad82bb3bb565cf0262b890d4da5d617c3fe8bc8dadbc",
+      "source": "assets/factory/oramics/snare/F-snare-Vintage-snare-0175.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-snare-accent-Vintage-snare-0174.wav",
+      "bytes": 25116,
+      "crc32": 3897537371,
+      "sha256": "41ae5f2d8718e60e59a210cc5ff766b5ba107d48853e828f5111e80393abb83c",
+      "source": "assets/factory/oramics/snare/F-snare-accent-Vintage-snare-0174.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-snare-h-Vintage-snare-0195.wav",
+      "bytes": 8304,
+      "crc32": 120467207,
+      "sha256": "65b6278baf04699795e3a74b485f024c5e77c4a4ae8fd8720d4a4acac2d63aae",
+      "source": "assets/factory/oramics/snare/F-snare-h-Vintage-snare-0195.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-snare-l-Vintage-snare-0196.wav",
+      "bytes": 21154,
+      "crc32": 3321618368,
+      "sha256": "d35848d95419257c10287681cd32ce0062d7814af6fca3185313706b138c0181",
+      "source": "assets/factory/oramics/snare/F-snare-l-Vintage-snare-0196.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-stick-h-Vintage-perc-0198.wav",
+      "bytes": 6308,
+      "crc32": 4243225826,
+      "sha256": "0a1c05ef97a247e7273e5e1c09cc47ebd0b3c2b0a330fec294cf59b2f4630205",
+      "source": "assets/factory/oramics/perc/F-stick-h-Vintage-perc-0198.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-sub-01-909-kick-0143.wav",
+      "bytes": 59564,
+      "crc32": 487134082,
+      "sha256": "c66af89418fc84594295f0ef4a68dc9ea752b15eb690c80589d40292d372e1fe",
+      "source": "assets/factory/octal/kick/F-sub-01-909-kick-0143.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-sub-02-909-kick-0144.wav",
+      "bytes": 57644,
+      "crc32": 4160202209,
+      "sha256": "ef0accd4cb641d8a96ad217fd188e9b50294e11a49c2653065c753214e2ac139",
+      "source": "assets/factory/octal/kick/F-sub-02-909-kick-0144.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tamb-Vintage-perc-0201.wav",
+      "bytes": 15216,
+      "crc32": 307104522,
+      "sha256": "c03ed95a9d72c041cf1d74034ab0663ef8defa4ba2fcdc4d04d60fab2ec41e32",
+      "source": "assets/factory/oramics/perc/F-tamb-Vintage-perc-0201.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tamb-long-Vintage-perc-0176.wav",
+      "bytes": 31212,
+      "crc32": 2663799676,
+      "sha256": "94917ba85e6cee7a066ad8bef8bca2295faaa8c25c688ae20585efc235e19a5f",
+      "source": "assets/factory/oramics/perc/F-tamb-long-Vintage-perc-0176.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tight-01-909-kick-0146.wav",
+      "bytes": 28844,
+      "crc32": 2039454248,
+      "sha256": "6ae67d0405e40032c76e6b118c3ea71d922b335a685f2f88e3b449c8ac8a5108",
+      "source": "assets/factory/octal/kick/F-tight-01-909-kick-0146.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-01-909-tom-0156.wav",
+      "bytes": 33642,
+      "crc32": 4222467363,
+      "sha256": "19bf40dd4b757822359307ac13027496351046d832bb90178aaf751d73b8f7fd",
+      "source": "assets/factory/octal/tom/F-tom-01-909-tom-0156.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-02-909-tom-0157.wav",
+      "bytes": 33642,
+      "crc32": 902675192,
+      "sha256": "760ed8caa107af2f48033b50182fe5c27b582d47dd7f5b5c93fd7477e983fdaa",
+      "source": "assets/factory/octal/tom/F-tom-02-909-tom-0157.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-03-909-tom-0158.wav",
+      "bytes": 33642,
+      "crc32": 1879026397,
+      "sha256": "abae39fdeb1d34261725bf12ae2039f9d50e53abcdb3f678e9fac5ec3fd5f095",
+      "source": "assets/factory/octal/tom/F-tom-03-909-tom-0158.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-h-Vintage-tom-0202.wav",
+      "bytes": 28262,
+      "crc32": 2496829165,
+      "sha256": "c3a25952b81b51c122c56c4051712a622cecaacb4fab7e23470b5439aedddb90",
+      "source": "assets/factory/oramics/tom/F-tom-h-Vintage-tom-0202.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-hh-Vintage-tom-0203.wav",
+      "bytes": 22538,
+      "crc32": 2498053201,
+      "sha256": "014e0f59abd7ea2955e81acbe03872880eedbfaf4e8b7f82a07cf9836a0823cb",
+      "source": "assets/factory/oramics/tom/F-tom-hh-Vintage-tom-0203.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-l-Vintage-tom-0204.wav",
+      "bytes": 59550,
+      "crc32": 1931978802,
+      "sha256": "44cf315ab852400f445767f67734df706a73c173fff2444bd939bb78a32dff45",
+      "source": "assets/factory/oramics/tom/F-tom-l-Vintage-tom-0204.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tom-m-Vintage-tom-0206.wav",
+      "bytes": 39196,
+      "crc32": 2597144190,
+      "sha256": "6322d2f3f49a594a904b6df64b9e8343c0d9228105bdd6fdf46e05bfe7a2ebb7",
+      "source": "assets/factory/oramics/tom/F-tom-m-Vintage-tom-0206.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tr505-hihat-open-Vintage-hat_open-0214.wav",
+      "bytes": 34832,
+      "crc32": 755333442,
+      "sha256": "3cef4a0392467e46ee78790b0a0592f124f198d6dff6f0788e8ea322647f317c",
+      "source": "assets/factory/oramics/hat_open/F-tr505-hihat-open-Vintage-hat_open-0214.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/F-tr505-rim-Vintage-rim-0217.wav",
+      "bytes": 7548,
+      "crc32": 3750479382,
+      "sha256": "e01e3ac26698ad76d4bcc4fc65b1d32ff0a3dc84c067d5a3371da02833ea38d4",
+      "source": "assets/factory/oramics/rim/F-tr505-rim-Vintage-rim-0217.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/GBX-22f22446-VA-Hit.wav",
+      "bytes": 192044,
+      "crc32": 586294342,
+      "sha256": "69701980e1acba5606c74bdc545ba720ca0684615feb40a6ce0d98a919d17839",
+      "source": "assets/factory/VA-Hit.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/GBX-9810cb6c-FM-Metal.wav",
+      "bytes": 192044,
+      "crc32": 2551237484,
+      "sha256": "58c08eeb47ed5102d15016aa111880e75d459ab1a35abe3c26518d801f6e9e2c",
+      "source": "assets/factory/FM-Metal.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/demo-slices.wav",
+      "bytes": 96044,
+      "crc32": 2088663905,
+      "sha256": "0adba99c56ba1b0d2c2aec05099e1547e6f6336db93a07cb2603a4c4974167a9",
+      "source": "assets/samples/demo-slices.wav"
+    },
+    {
+      "path": "ASSETS/SOUNDFONTS/FluidR3 GM.sf2",
+      "bytes": 148398306,
+      "crc32": 2022094057,
+      "sha256": "74594e8f4250680adf590507a306655a299935343583256f3b722c48a1bc1cb0",
+      "source": null
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-Ambient-90.wav",
+      "bytes": 1024044,
+      "crc32": 217579815,
+      "sha256": "7fdb6d5f5b2204b8d70c814995f4a74bca3e61a06349a9d827215892a839c664",
+      "source": "mk3-preset-pack/assets/sampler/L-Ambient-90.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-Breakbeat-132.wav",
+      "bytes": 698226,
+      "crc32": 865405510,
+      "sha256": "0945af4c18d7d7301bb68f1f2b8e30c6da59581beea002cb2aebcb9d9d6d3001",
+      "source": "mk3-preset-pack/assets/sampler/L-Breakbeat-132.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-Funk-104.wav",
+      "bytes": 886198,
+      "crc32": 2909647575,
+      "sha256": "26bfa4e9639313f352233dbe105ad61250296bc85a674dece18cc05708790ba7",
+      "source": "mk3-preset-pack/assets/sampler/L-Funk-104.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-House-124.wav",
+      "bytes": 743270,
+      "crc32": 3854385961,
+      "sha256": "1a00976282eb218c4002fe2ba9dcd308df63f4e40b29257e801065c7bc39d8b7",
+      "source": "mk3-preset-pack/assets/sampler/L-House-124.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-Jungle-172.wav",
+      "bytes": 535858,
+      "crc32": 194192815,
+      "sha256": "e9d91f6a9089dce0b8d9cfb2aaa928334315c76b2895614fc5cf9442dd3a0f49",
+      "source": "mk3-preset-pack/assets/sampler/L-Jungle-172.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/L-Techno-138.wav",
+      "bytes": 667870,
+      "crc32": 1928924964,
+      "sha256": "82870437306e38c30b1c784c5924975f6b301e7cfe295a1a4c1011b63d5e2ebc",
+      "source": "mk3-preset-pack/assets/sampler/L-Techno-138.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Clavisynth.wav",
+      "bytes": 1915186,
+      "crc32": 2608164258,
+      "sha256": "66ad6ec5066e1773933c28e317203cdde5310d05c6001c17f0dfc34e42260502",
+      "source": "mk3-preset-pack/assets/sampler/M-Clavisynth.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Electric-Piano.wav",
+      "bytes": 3800674,
+      "crc32": 3124823455,
+      "sha256": "d8f6abbd97f7b1a1a1c2a898d84c4f1a3909a4cbced459c7ecb8ccc6e8c33d14",
+      "source": "mk3-preset-pack/assets/sampler/M-Electric-Piano.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Grand-Piano.wav",
+      "bytes": 3840044,
+      "crc32": 3598316739,
+      "sha256": "47534fdaa3cf55ca34fb3a99ae296d4aefcc28ce69d168fb951d138785a43cb8",
+      "source": "mk3-preset-pack/assets/sampler/M-Grand-Piano.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Kalimba.wav",
+      "bytes": 465126,
+      "crc32": 2797465028,
+      "sha256": "c7eae8ea1e5d90545022cb2f285ae73127da0fff984f8737adf9fb78800be2bc",
+      "source": "mk3-preset-pack/assets/sampler/M-Kalimba.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Marimba.wav",
+      "bytes": 619754,
+      "crc32": 4116533783,
+      "sha256": "3237d18cf1e1d8863264c4d72bd0c7f70646a74e77eb26fceeb754cf83bd57d6",
+      "source": "mk3-preset-pack/assets/sampler/M-Marimba.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    },
+    {
+      "path": "ASSETS/SAMPLES/M-Vibraphone.wav",
+      "bytes": 2534458,
+      "crc32": 166052699,
+      "sha256": "b32bf691707d2497726a2acb06ca3e5042b275d3384c122a26d63bf6d4f68189",
+      "source": "mk3-preset-pack/assets/sampler/M-Vibraphone.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+    }
+  ],
+  "soundfont_source": "Existing DATA FluidR3 GM.sf2; set FACTORY_SOUNDFONT to this exact file when staging a fresh SD; SF2 audio is not embedded in firmware",
+  "pending_factory_import": 0
+}

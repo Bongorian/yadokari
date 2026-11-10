@@ -1,0 +1,167 @@
+# YADOKARI CI.
+# Three jobs, all on clean Ubuntu 24.04 ARM64 runners: the
+# project's locked environment is native AArch64 (the factory
+# catalog generation is fingerprint-locked to it), and the host
+# suite was developed and qualified there — x86-64 runners fail
+# the catalog-environment gate by design and diverge elsewhere.
+#   host-tests : the host test suite (make test), GCC 13.3 per the
+#                catalog environment lock.
+#   firmware   : full firmware build via scripts/build-firmware.sh,
+#                Arm GNU Toolchain 15.2.rel1 (pinned version + SHA-256),
+#                Circle at its pinned commit (handled by the script).
+#   container  : the dev container (docker/Dockerfile) builds, and the
+#                host suite passes inside it — the same environment
+#                Mac/Linux developers use locally.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ARM_TC_VERSION: 15.2.rel1
+  ARM_TC_SHA256_X86_64: 66f7ce7c1bf662f589a4caf440812375f3cd8000a033ccf0971127a0726d6921
+  ARM_TC_SHA256_AARCH64: 46195685b6aec1077e3f1b7706b43a6aa1fef4d8d3bff3a411b7dad1c5b1196b
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install host toolchain (GCC 13.3, catalog lock)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++-13 python3 python3-pil python3-usb make libsdl2-dev
+      - name: Clone pinned Circle for the tool tests
+        # Several python tool tests read the pinned Circle checkout
+        # (git show / git archive against .deps/circle-build and
+        # .deps/circle-multicore-4m). The dev tree always has both;
+        # a bare CI checkout must create them.
+        run: |
+          if [ ! -d .deps/circle-build/.git ]; then
+            git init -q .deps/circle-build
+            git -C .deps/circle-build remote add origin https://github.com/rsta2/circle.git
+            git -C .deps/circle-build fetch -q --depth 1 origin 7a81e1b480fe7d19fc1fc695b89bff0a0848f44b
+            git -C .deps/circle-build checkout -q FETCH_HEAD
+          fi
+          if [ ! -d .deps/circle-multicore-4m ]; then
+            cp -a .deps/circle-build .deps/circle-multicore-4m
+          fi
+      - name: Add swap (the sanitizer suite peaks beyond the runner RAM)
+        run: |
+          free -h
+          sudo fallocate -l 16G /swapfile2 || true
+          sudo chmod 600 /swapfile2 || true
+          sudo mkswap /swapfile2 || true
+          sudo swapon /swapfile2 || true
+          free -h
+      - name: Host test suite
+        # The ASan build of tests/integration/backends_test.cpp overflows
+        # the default 8 MB stack in main; the suite needs a raised limit.
+        run: |
+          ulimit -s unlimited || ulimit -s 262144 || true
+          make test CXX=g++-13
+
+  # The firmware job runs on an arm64 runner on purpose: the
+  # factory-content generation environment is fingerprint-locked
+  # to native AArch64 Ubuntu 24.04 / GCC 13.3 (see
+  # tools/content/catalog_environment.lock.json), and the build
+  # verifies that fingerprint. An x86_64 runner fails that gate
+  # by design.
+  firmware:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends g++-13 python3 python3-pil make git xz-utils
+      - name: Cache Arm GNU Toolchain
+        id: cache-arm
+        uses: actions/cache@v4
+        with:
+          path: /opt/arm-gnu-toolchain
+          key: arm-gnu-toolchain-15.2.rel1-${{ runner.arch }}
+      - name: Install Arm GNU Toolchain 15.2.rel1 (pinned)
+        if: steps.cache-arm.outputs.cache-hit != 'true'
+        run: |
+          arch="$(uname -m)"
+          case "$arch" in
+            x86_64)  sha="$ARM_TC_SHA256_X86_64" ;;
+            aarch64) sha="$ARM_TC_SHA256_AARCH64" ;;
+            *) echo "unsupported arch: $arch" >&2; exit 1 ;;
+          esac
+          url="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TC_VERSION}/binrel/arm-gnu-toolchain-${ARM_TC_VERSION}-${arch}-aarch64-none-elf.tar.xz"
+          curl -fL "$url" -o /tmp/arm.tar.xz
+          echo "$sha  /tmp/arm.tar.xz" | sha256sum -c -
+          sudo mkdir -p /opt/arm-gnu-toolchain
+          sudo tar -xJf /tmp/arm.tar.xz -C /opt/arm-gnu-toolchain --strip-components=1
+      - name: Cache Circle checkout
+        uses: actions/cache@v4
+        with:
+          path: .deps
+          key: circle-7a81e1b480fe7d19fc1fc695b89bff0a0848f44b-v1
+      - name: Throwaway CI update key (CI builds are never official)
+        run: head -c 32 /dev/urandom > "$RUNNER_TEMP/ci-update-key.pub"
+      - name: Build firmware
+        env:
+          UPDATE_PUBLIC_KEY: ${{ runner.temp }}/ci-update-key.pub
+        run: |
+          export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
+          aarch64-none-elf-g++ --version | head -1
+          scripts/build-firmware.sh
+      - name: List firmware outputs
+        run: ls -la firmware/*.img firmware/*.elf firmware/recovery/*.img 2>/dev/null || true
+      - name: Upload firmware images
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-images
+          path: |
+            firmware/kernel8-rpi4.img
+            firmware/recovery/kernel8-rpi4.img
+          if-no-files-found: warn
+          retention-days: 14
+
+  container:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build dev container
+        run: docker build -f docker/Dockerfile -t yadokari-dev .
+      - name: Clone pinned Circle for the tool tests
+        # Several python tool tests read the pinned Circle checkout
+        # (git show / git archive against .deps/circle-build and
+        # .deps/circle-multicore-4m). The dev tree always has both;
+        # a bare CI checkout must create them.
+        run: |
+          if [ ! -d .deps/circle-build/.git ]; then
+            git init -q .deps/circle-build
+            git -C .deps/circle-build remote add origin https://github.com/rsta2/circle.git
+            git -C .deps/circle-build fetch -q --depth 1 origin 7a81e1b480fe7d19fc1fc695b89bff0a0848f44b
+            git -C .deps/circle-build checkout -q FETCH_HEAD
+          fi
+          if [ ! -d .deps/circle-multicore-4m ]; then
+            cp -a .deps/circle-build .deps/circle-multicore-4m
+          fi
+      - name: Add swap (the sanitizer suite peaks beyond the runner RAM)
+        run: |
+          free -h
+          sudo fallocate -l 16G /swapfile2 || true
+          sudo chmod 600 /swapfile2 || true
+          sudo mkswap /swapfile2 || true
+          sudo swapon /swapfile2 || true
+          free -h
+      - name: Host test suite inside the container
+        run: docker run --rm --ulimit stack=268435456:268435456 -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' -v "$PWD":/src -w /src yadokari-dev bash -c "ulimit -s 262144 || true; exec make test"

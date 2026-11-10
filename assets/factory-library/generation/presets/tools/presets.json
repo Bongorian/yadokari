@@ -1,0 +1,1905 @@
+{
+  "comment": "MK3 signature preset pack definitions (SYNTH_PRESET_PACK.md). Parameters are descriptor NAMES resolved against the current firmware code at generation time; values outside a descriptor range or off a discrete step fail the build. PFXS types: 0 BYPASS, 5 OVERDRIVE, 6 FOLDER, 15 HARD CLIP, 16 CHORUS, 20 PITCH SHIFT, 21 ROTARY. PITCH SHIFT semitones are encoded in A as (st+12)/24; ROTARY speed in A as SLOW 0 / FAST 0.5 / BRAKE 1.",
+  "presets": [
+    {
+      "name": "Minimoog Bass",
+      "guid": "mk3.va-dual",
+      "signature": "OSC2 at -12 st square plus SUB WAVE square at 0.55: the sub-octave stack under a driven ladder",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 1,
+        "DETUNE": 6,
+        "OSC MIX": 0.45,
+        "CUTOFF": 900,
+        "RESONANCE": 0.35,
+        "SUB": 0.55,
+        "NOISE": 0,
+        "PULSE WIDTH": 0.5,
+        "PWM DEPTH": 0,
+        "ATTACK": 0.003,
+        "DECAY": 0.28,
+        "SUSTAIN": 0.35,
+        "RELEASE": 0.12,
+        "FILTER ENV": 2.2,
+        "OSC 2 TUNE": -12,
+        "FILTER DRIVE": 1.6,
+        "SUB WAVE": 1
+      }
+    },
+    {
+      "name": "Minimoog Lead",
+      "guid": "mk3.va-dual",
+      "signature": "Dual saw detuned 11 ct with a slow-opening filter (ENV 1.2 oct, attack 10 ms) and drive 1.3",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 11,
+        "OSC MIX": 0.5,
+        "CUTOFF": 3200,
+        "RESONANCE": 0.25,
+        "SUB": 0.1,
+        "ATTACK": 0.01,
+        "DECAY": 0.4,
+        "SUSTAIN": 0.75,
+        "RELEASE": 0.3,
+        "FILTER ENV": 1.2,
+        "FILTER DRIVE": 1.3
+      }
+    },
+    {
+      "name": "SH-101 Bass",
+      "guid": "mk3.daisy-synth",
+      "signature": "Plucky ADSR (D 0.30, S 0.15, R 0.09) on the fixed saw+square-sub voice: the envelope is the whole recipe",
+      "params": {
+        "DAISY ATTACK": 0.002,
+        "DAISY DECAY": 0.3,
+        "DAISY SUSTAIN": 0.15,
+        "DAISY RELEASE": 0.09
+      }
+    },
+    {
+      "name": "SH-101 Sequence",
+      "guid": "mk3.daisy-synth",
+      "signature": "Sustain 0 with D 0.11 / R 0.06: a full-decay gate blip distinct from the Bass envelope",
+      "params": {
+        "DAISY ATTACK": 0.001,
+        "DAISY DECAY": 0.11,
+        "DAISY SUSTAIN": 0,
+        "DAISY RELEASE": 0.06
+      }
+    },
+    {
+      "name": "TB-303 Acid",
+      "guid": "mk3.acid",
+      "signature": "RESONANCE 0.88 with ENV AMT 0.72 on the saw (WAVE 0); slide/accent are step attributes and intentionally not in the preset",
+      "params": {
+        "CUTOFF": 0.58,
+        "RESONANCE": 0.88,
+        "ENV AMT": 0.72,
+        "DECAY": 0.42,
+        "WAVE": 0
+      }
+    },
+    {
+      "name": "Prophet-5 Poly Keys",
+      "guid": "mk3.va-dual",
+      "signature": "Gentle 8 ct dual-saw detune, modest filter env 0.7 oct: the polite poly keys voicing",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 8,
+        "OSC MIX": 0.5,
+        "CUTOFF": 2600,
+        "RESONANCE": 0.18,
+        "SUB": 0,
+        "ATTACK": 0.02,
+        "DECAY": 0.9,
+        "SUSTAIN": 0.55,
+        "RELEASE": 0.5,
+        "FILTER ENV": 0.7,
+        "FILTER DRIVE": 1.1
+      }
+    },
+    {
+      "name": "Prophet-5 Brass",
+      "guid": "mk3.va-dual",
+      "signature": "FILTER ENV 2.8 oct swell from a 1500 Hz floor: the brass attack is the filter, not the amp",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 6,
+        "OSC MIX": 0.5,
+        "CUTOFF": 1500,
+        "RESONANCE": 0.3,
+        "ATTACK": 0.06,
+        "DECAY": 0.5,
+        "SUSTAIN": 0.7,
+        "RELEASE": 0.35,
+        "FILTER ENV": 2.8,
+        "FILTER DRIVE": 1.2
+      }
+    },
+    {
+      "name": "Jupiter-8 Pad",
+      "guid": "mk3.layer",
+      "signature": "Two VA pads layered at detune -9/+9 ct and pan -0.4/+0.4: width comes from the layer, not a chorus",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": -0.4,
+            "detune": -9,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 4,
+              "OSC MIX": 0.5,
+              "CUTOFF": 1800,
+              "RESONANCE": 0.15,
+              "ATTACK": 0.6,
+              "DECAY": 1.2,
+              "SUSTAIN": 0.8,
+              "RELEASE": 1.4,
+              "FILTER ENV": 0.4
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0.4,
+            "detune": 9,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 10,
+              "OSC MIX": 0.5,
+              "CUTOFF": 1800,
+              "RESONANCE": 0.15,
+              "ATTACK": 0.6,
+              "DECAY": 1.2,
+              "SUSTAIN": 0.8,
+              "RELEASE": 1.4,
+              "FILTER ENV": 0.4
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Juno-106 Pad",
+      "guid": "mk3.va-dual",
+      "signature": "Dual pulse with PWM (depth 0.18, rate 0.6) plus PFXS CHORUS: the chorus ships inside the preset",
+      "params": {
+        "OSC 1": 1,
+        "OSC 2": 1,
+        "DETUNE": 5,
+        "OSC MIX": 0.5,
+        "CUTOFF": 2400,
+        "RESONANCE": 0.12,
+        "SUB": 0.2,
+        "PULSE WIDTH": 0.42,
+        "PWM DEPTH": 0.18,
+        "PWM RATE": 0.6,
+        "ATTACK": 0.35,
+        "DECAY": 1,
+        "SUSTAIN": 0.75,
+        "RELEASE": 0.9,
+        "FILTER ENV": 0.4
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.35,
+          "b": 0.5,
+          "mix": 0.7
+        },
+        "reverb": 0.25
+      }
+    },
+    {
+      "name": "Juno-106 Bass",
+      "guid": "mk3.va-dual",
+      "signature": "Single-DCO layout per the motif: OSC 2 as PULSE blending with the square sub at 0.6 (SUB WAVE square), PWM off, no chorus: the dry Juno bass counterpart (audit 2026-11-08)",
+      "params": {
+        "OSC 1": 1,
+        "OSC 2": 1,
+        "DETUNE": 4,
+        "OSC MIX": 0.4,
+        "CUTOFF": 700,
+        "RESONANCE": 0.3,
+        "SUB": 0.6,
+        "SUB WAVE": 1,
+        "PULSE WIDTH": 0.5,
+        "PWM DEPTH": 0,
+        "ATTACK": 0.004,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.3,
+        "RELEASE": 0.12,
+        "FILTER ENV": 1.8,
+        "FILTER DRIVE": 1.3
+      }
+    },
+    {
+      "name": "JP-8000 Supersaw",
+      "guid": "mk3.layer",
+      "signature": "Rebuilt as 2x VA layers (each DETUNE 28, layer detune -18/+18 ct, pan -0.3/+0.3) plus PFXS CHORUS: the supersaw spread is now editable values, not a fixed PolySaw voice (audit 2026-11-08)",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": -0.3,
+            "detune": -18,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 28,
+              "OSC MIX": 0.5,
+              "CUTOFF": 6800,
+              "RESONANCE": 0.12,
+              "ATTACK": 0.005,
+              "DECAY": 0.4,
+              "SUSTAIN": 0.75,
+              "RELEASE": 0.3
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0.3,
+            "detune": 18,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 28,
+              "OSC MIX": 0.5,
+              "CUTOFF": 6800,
+              "RESONANCE": 0.12,
+              "ATTACK": 0.005,
+              "DECAY": 0.4,
+              "SUSTAIN": 0.75,
+              "RELEASE": 0.3
+            }
+          }
+        ]
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.4,
+          "b": 0.5,
+          "mix": 0.5
+        }
+      }
+    },
+    {
+      "name": "JP-8000 Hypersaw",
+      "guid": "mk3.layer",
+      "signature": "The Supersaw rebuild widened: VA leaves at DETUNE 38, layer detune -26/+26 ct, chorus mix 0.6 (audit 2026-11-08)",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": -0.3,
+            "detune": -26,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 38,
+              "OSC MIX": 0.5,
+              "CUTOFF": 6800,
+              "RESONANCE": 0.12,
+              "ATTACK": 0.005,
+              "DECAY": 0.4,
+              "SUSTAIN": 0.75,
+              "RELEASE": 0.3
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0.3,
+            "detune": 26,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 38,
+              "OSC MIX": 0.5,
+              "CUTOFF": 6800,
+              "RESONANCE": 0.12,
+              "ATTACK": 0.005,
+              "DECAY": 0.4,
+              "SUSTAIN": 0.75,
+              "RELEASE": 0.3
+            }
+          }
+        ]
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.4,
+          "b": 0.5,
+          "mix": 0.6
+        }
+      }
+    },
+    {
+      "name": "Solina String Ensemble",
+      "guid": "mk3.plaits",
+      "signature": "Plaits model 6 (string machine) plus PFXS CHORUS at depth 0.65 / mix 0.8: the ensemble effect is in the snapshot",
+      "params": {
+        "MODEL": 6,
+        "HARMONICS": 0.5,
+        "TIMBRE": 0.4,
+        "MORPH": 0.5,
+        "DECAY": 0.75,
+        "COLOR": 0.45
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.3,
+          "b": 0.65,
+          "mix": 0.8
+        },
+        "reverb": 0.2
+      }
+    },
+    {
+      "name": "CS-80 Pad",
+      "guid": "mk3.layer",
+      "signature": "Slowest attacks in the pack (0.9/1.1 s) with layer detune -14/+14 ct and full-width pan",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": -0.5,
+            "detune": -14,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 6,
+              "OSC MIX": 0.5,
+              "CUTOFF": 1500,
+              "RESONANCE": 0.2,
+              "ATTACK": 0.9,
+              "DECAY": 1.4,
+              "SUSTAIN": 0.85,
+              "RELEASE": 1.8,
+              "FILTER ENV": 0.35
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0.5,
+            "detune": 14,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 1,
+              "DETUNE": 6,
+              "OSC MIX": 0.5,
+              "CUTOFF": 1300,
+              "RESONANCE": 0.2,
+              "PULSE WIDTH": 0.5,
+              "ATTACK": 1.1,
+              "DECAY": 1.4,
+              "SUSTAIN": 0.85,
+              "RELEASE": 1.8,
+              "FILTER ENV": 0.35
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MS-20 Scream",
+      "guid": "mk3.va-dual",
+      "signature": "Complete version: SVF in HP mode at resonance 1.15 plus PFXS OVERDRIVE: the scream is the resonant high-pass, driven",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 5,
+        "OSC MIX": 0.5,
+        "CUTOFF": 2600,
+        "RESONANCE": 1.15,
+        "ATTACK": 0.005,
+        "DECAY": 0.35,
+        "SUSTAIN": 0.5,
+        "RELEASE": 0.2,
+        "FILTER ENV": 1.5,
+        "FILTER DRIVE": 2.2,
+        "FILTER TYPE": 1,
+        "SVF MODE": 1
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 5,
+          "a": 0.55,
+          "b": 0.25,
+          "mix": 0.9
+        }
+      }
+    },
+    {
+      "name": "Oberheim SEM Pad",
+      "guid": "mk3.va-dual",
+      "signature": "Complete version: FILTER TYPE MORPH parked at 0.5, the notch centre of the LP-to-HP morph",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 1,
+        "DETUNE": 7,
+        "OSC MIX": 0.5,
+        "CUTOFF": 1900,
+        "RESONANCE": 0.35,
+        "PULSE WIDTH": 0.5,
+        "ATTACK": 0.5,
+        "DECAY": 1.1,
+        "SUSTAIN": 0.8,
+        "RELEASE": 1.2,
+        "FILTER ENV": 0.5,
+        "FILTER DRIVE": 1.1,
+        "FILTER TYPE": 2,
+        "FILTER MORPH": 0.5
+      }
+    },
+    {
+      "name": "DX7 E.Piano",
+      "guid": "mk3.fm6",
+      "signature": "Internal bank patch 32 (E.PIANO 1) unmodified: succeeds factory 'FM6 Electric Piano'",
+      "params": {
+        "PATCH": 32
+      }
+    },
+    {
+      "name": "DX7 Lately Bass",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 0 (SOLID BASS, candidate for the Lately program) with ATTACK x0.7 and RELEASE x0.85 tightening (FM6 ATTACK/RELEASE are time multipliers; x1.4 loosened the attack, audit 2026-11-08)",
+      "params": {
+        "PATCH": 0,
+        "ATTACK": 0.7,
+        "RELEASE": 0.85,
+        "BRIGHTNESS": 1.15,
+        "MOD DEPTH": 1.1
+      }
+    },
+    {
+      "name": "DX7 Marimba",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 49, the program literally named MARIMBA, with RELEASE x0.8 (see report for the deviation from the pack spec text)",
+      "params": {
+        "PATCH": 49,
+        "RELEASE": 0.8
+      }
+    },
+    {
+      "name": "DX7 Metal Pad",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 74 (ICE PAD 2) with ATTACK x2 / RELEASE x2, inherited from factory 'FM6 Metal Pad'",
+      "params": {
+        "PATCH": 74,
+        "ATTACK": 2,
+        "RELEASE": 2
+      }
+    },
+    {
+      "name": "DX7 Tubular Bell",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 54 (TUB BELLS) with RELEASE x1.4 for the long bell tail",
+      "params": {
+        "PATCH": 54,
+        "RELEASE": 1.4
+      }
+    },
+    {
+      "name": "DX7 Wineglass",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 23 unmodified, the exact values of factory 'FM6 Wineglass' (fm6.values[0]=23, everything else at defaults): the successor round 1 left out",
+      "params": {
+        "PATCH": 23
+      }
+    },
+    {
+      "name": "Genesis FM Bass",
+      "guid": "mk3.fm",
+      "signature": "RATIO 0.33 with INDEX 0.62: sub-octave carrier grit (0.5 was the descriptor midpoint and expressed nothing, audit 2026-11-08; confirm by ear)",
+      "params": {
+        "RATIO": 0.33,
+        "INDEX": 0.62
+      }
+    },
+    {
+      "name": "FM Cowbell",
+      "guid": "mk3.fm",
+      "signature": "RATIO 0.82 with INDEX 0.74: the highest index in the pack, metallic band cluster",
+      "params": {
+        "RATIO": 0.82,
+        "INDEX": 0.74
+      }
+    },
+    {
+      "name": "PPG Wave Pad",
+      "guid": "mk3.wavetable",
+      "signature": "POSITION 42 with SCAN DEPTH 22 at rate 0.35: a slow drift through the dark half of the table",
+      "params": {
+        "POSITION": 42,
+        "SCAN DEPTH": 22,
+        "SCAN RATE": 0.35,
+        "ATTACK": 0.45,
+        "DECAY": 1.4,
+        "SUSTAIN": 0.7,
+        "RELEASE": 1.1,
+        "BRIGHTNESS": 0.5
+      }
+    },
+    {
+      "name": "PPG Wave Bell",
+      "guid": "mk3.wavetable",
+      "signature": "POSITION 88 (bright end) with SUSTAIN 0: a pure decay bell, BRIGHTNESS 0.95",
+      "params": {
+        "POSITION": 88,
+        "SCAN DEPTH": 5,
+        "SCAN RATE": 0.8,
+        "ATTACK": 0.002,
+        "DECAY": 0.9,
+        "SUSTAIN": 0,
+        "RELEASE": 0.8,
+        "BRIGHTNESS": 0.95
+      }
+    },
+    {
+      "name": "Microwave Bass",
+      "guid": "mk3.wavetable",
+      "signature": "POSITION 10 with SCAN RATE 1.4: fast scan wobble on the darkest waves",
+      "params": {
+        "POSITION": 10,
+        "SCAN DEPTH": 12,
+        "SCAN RATE": 1.4,
+        "ATTACK": 0.004,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.45,
+        "RELEASE": 0.15,
+        "BRIGHTNESS": 0.75
+      }
+    },
+    {
+      "name": "WT Soft Choir",
+      "guid": "mk3.wavetable",
+      "signature": "Factory 'WT Soft Choir' values inherited verbatim (POSITION 48, SCAN DEPTH 3, SCAN RATE 0.1, ATTACK 0.35, RELEASE 2, SUSTAIN 0.7; DECAY/BRIGHTNESS stay at the factory defaults): the pack successor round 1 left out",
+      "params": {
+        "POSITION": 48,
+        "SCAN DEPTH": 3,
+        "SCAN RATE": 0.1,
+        "ATTACK": 0.35,
+        "RELEASE": 2,
+        "SUSTAIN": 0.7
+      }
+    },
+    {
+      "name": "Kawai K5000 Glass",
+      "guid": "mk3.additive",
+      "signature": "FOCUS 5 / WIDTH 2 additive spectrum with MOTION 0.7, inherited from factory 'ADD Moving Glass'",
+      "params": {
+        "BRIGHTNESS": 0.75,
+        "ODD / EVEN": 0.5,
+        "FOCUS": 5,
+        "WIDTH": 2,
+        "MOTION": 0.7,
+        "ATTACK": 0.15,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.65,
+        "RELEASE": 1.2
+      }
+    },
+    {
+      "name": "Hammond B-3 Organ",
+      "guid": "mk3.additive",
+      "signature": "Drawbar-style tapered harmonics (H1 1, H2 0.7, H3 0.85, H4 0.45, H5 0.35, H6 0.15), SUSTAIN 1 (no decay): a registration curve, not a flat stack (audit 2026-11-08)",
+      "params": {
+        "BRIGHTNESS": 0.85,
+        "ODD / EVEN": 0.1,
+        "MOTION": 0,
+        "ATTACK": 0.005,
+        "DECAY": 0.05,
+        "SUSTAIN": 1,
+        "RELEASE": 0.12,
+        "HARMONIC 1": 1,
+        "HARMONIC 2": 0.7,
+        "HARMONIC 3": 0.85,
+        "HARMONIC 4": 0.45,
+        "HARMONIC 5": 0.35,
+        "HARMONIC 6": 0.15,
+        "HARMONIC 7": 0,
+        "HARMONIC 8": 0,
+        "HARMONIC 9": 0,
+        "HARMONIC 10": 0,
+        "HARMONIC 11": 0,
+        "HARMONIC 12": 0,
+        "HARMONIC 13": 0,
+        "HARMONIC 14": 0,
+        "HARMONIC 15": 0,
+        "HARMONIC 16": 0
+      }
+    },
+    {
+      "name": "Casio CZ-101 Bass",
+      "guid": "mk3.phase-dist",
+      "signature": "WAVE 2 (PULSE) with ENV DEPTH 0.5 and sustain 0.2, inherited from factory 'PD Pulse Bass'",
+      "params": {
+        "WAVE": 2,
+        "DISTORTION": 0.3,
+        "ENV DEPTH": 0.5,
+        "MOTION": 0,
+        "RATE": 0.3,
+        "ATTACK": 0.005,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.2,
+        "RELEASE": 0.1
+      }
+    },
+    {
+      "name": "Casio CZ-101 Pad",
+      "guid": "mk3.phase-dist",
+      "signature": "WAVE 3 (CURVE) with MOTION 0.6 and a 0.4 s attack swell, inherited from factory 'PD Curved Pad'",
+      "params": {
+        "WAVE": 3,
+        "DISTORTION": 0.3,
+        "ENV DEPTH": 0.5,
+        "MOTION": 0.6,
+        "RATE": 0.3,
+        "ATTACK": 0.4,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.8,
+        "RELEASE": 1.4
+      }
+    },
+    {
+      "name": "Prophet VS Vector Pad",
+      "guid": "mk3.layer",
+      "signature": "Wavetable leaf (scan depth 28) against a VA pulse leaf, panned -0.2/+0.2: two-source vector blend",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.wavetable",
+            "level": 0.5,
+            "pan": -0.2,
+            "detune": 0,
+            "params": {
+              "POSITION": 30,
+              "SCAN DEPTH": 28,
+              "SCAN RATE": 0.25,
+              "ATTACK": 0.7,
+              "DECAY": 1,
+              "SUSTAIN": 0.75,
+              "RELEASE": 1.3,
+              "BRIGHTNESS": 0.6
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.5,
+            "pan": 0.2,
+            "detune": 5,
+            "params": {
+              "OSC 1": 1,
+              "OSC 2": 0,
+              "DETUNE": 5,
+              "OSC MIX": 0.5,
+              "CUTOFF": 2000,
+              "RESONANCE": 0.15,
+              "PULSE WIDTH": 0.45,
+              "ATTACK": 0.8,
+              "DECAY": 1,
+              "SUSTAIN": 0.8,
+              "RELEASE": 1.4,
+              "FILTER ENV": 0.4
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "GM Grand Piano",
+      "guid": "mk3.soundfont",
+      "signature": "SoundFont bank 0 / program 0: FluidR3 GM 'Yamaha Grand Piano'. Renamed from 'M1 Piano' (audit 2026-11-08): the content is a GM grand, not the Korg M1 piano patch",
+      "params": {
+        "BANK": 0,
+        "PROGRAM": 0,
+        "TUNE": 0,
+        "GAIN": 1,
+        "VELOCITY": 1
+      },
+      "sample": {
+        "asset": "fluidr3-gm",
+        "slot": 0
+      }
+    },
+    {
+      "name": "Rings Resonator",
+      "guid": "mk3.resonator",
+      "signature": "MODEL 0 (modal) at polyphony 2 with BRIGHTNESS 0.65 / DAMPING 0.45: bright but quickly damped modes",
+      "params": {
+        "MODEL": 0,
+        "POLYPHONY": 2,
+        "STRUCTURE": 0.55,
+        "BRIGHTNESS": 0.65,
+        "DAMPING": 0.45,
+        "POSITION": 0.5,
+        "FM": 0,
+        "TRANSPOSE": 0
+      }
+    },
+    {
+      "name": "Clouds Texture Pad",
+      "guid": "mk3.texture",
+      "signature": "Granular MODE 0 fully wet (DRY/WET 1) with DENSITY 0.65 and internal REVERB 0.45; processes the track input bus (INPUT is a track field, not stored in presets)",
+      "params": {
+        "MODE": 0,
+        "POSITION": 0.5,
+        "SIZE": 0.55,
+        "PITCH": 0,
+        "DENSITY": 0.65,
+        "TEXTURE": 0.5,
+        "DRY / WET": 1,
+        "SPREAD": 0.6,
+        "FEEDBACK": 0.35,
+        "REVERB": 0.45,
+        "FREEZE": 0,
+        "QUALITY": 1,
+        "TRIGGER": 0,
+        "GATE": 0
+      }
+    },
+    {
+      "name": "Buchla Bongo",
+      "guid": "mk3.westcoast",
+      "signature": "LPG DECAY 0.18, the shortest in the pack, with FOLD only 0.3: a clean percussive bongo",
+      "params": {
+        "FOLD": 0.3,
+        "PHASE MOD": 0.15,
+        "RATIO": 0.5,
+        "LPG DECAY": 0.18,
+        "DAMPING": 0.65
+      }
+    },
+    {
+      "name": "Buchla Easel Lead",
+      "guid": "mk3.westcoast",
+      "signature": "FOLD 0.85 with PHASE MOD 0.55 and LPG DECAY 0.65: the folded lead counterpart to the Bongo",
+      "params": {
+        "FOLD": 0.85,
+        "PHASE MOD": 0.55,
+        "RATIO": 0.45,
+        "LPG DECAY": 0.65,
+        "DAMPING": 0.3
+      }
+    },
+    {
+      "name": "Detroit Chord Stab",
+      "guid": "mk3.plaits",
+      "signature": "Plaits model 14 (chord) with DECAY 0.22: the stab is one short chord-osc envelope",
+      "params": {
+        "MODEL": 14,
+        "HARMONICS": 0.55,
+        "TIMBRE": 0.6,
+        "MORPH": 0.35,
+        "DECAY": 0.22,
+        "COLOR": 0.5
+      }
+    },
+    {
+      "name": "Swarm Pad",
+      "guid": "mk3.plaits",
+      "signature": "Plaits model 16 (swarm) with DECAY 0.85: the longest Plaits decay in the pack",
+      "params": {
+        "MODEL": 16,
+        "HARMONICS": 0.5,
+        "TIMBRE": 0.5,
+        "MORPH": 0.6,
+        "DECAY": 0.85,
+        "COLOR": 0.6
+      }
+    },
+    {
+      "name": "Robot Voice",
+      "guid": "mk3.plaits",
+      "signature": "Plaits model 15 (speech): the only speech-model preset",
+      "params": {
+        "MODEL": 15,
+        "HARMONICS": 0.45,
+        "TIMBRE": 0.55,
+        "MORPH": 0.5,
+        "DECAY": 0.55,
+        "COLOR": 0.5
+      }
+    },
+    {
+      "name": "Game Boy Lead",
+      "guid": "mk3.chipclock",
+      "signature": "PITCH FOLLOW 0.85 with NOISE MIX 0.04; CLOCK 0.26 = the Game Boy APU clock 4.194 MHz on the 0-16 MHz display map (audit 2026-11-08; confirm by ear)",
+      "params": {
+        "CLOCK": 0.26,
+        "PITCH FOLLOW": 0.85,
+        "RAW DIV": 0.2,
+        "NOISE MIX": 0.04,
+        "ARPEGGIO": 0
+      }
+    },
+    {
+      "name": "Frozen Choir",
+      "guid": "mk3.spectral",
+      "signature": "FREEZE 0.92 and WET 0.85 over the pitched demo-slices material: a frozen spectrum wash",
+      "params": {
+        "FREEZE": 0.92,
+        "BIN SHIFT": 0.5,
+        "TILT": 0.45,
+        "WET": 0.85,
+        "PARTIALS": 0.65
+      },
+      "sample": {
+        "asset": "demo-slices",
+        "slot": 0
+      }
+    },
+    {
+      "name": "D-50 LA Piano",
+      "guid": "mk3.layer",
+      "signature": "100 ms window of the factory VA-Hit sample as the attack leaf over a decaying additive body (H1 1 / H2 0.55 / H3 0.3)",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.sampler",
+            "level": 0.55,
+            "pan": 0,
+            "detune": 0,
+            "sample": {
+              "asset": "va-hit",
+              "slot": 0,
+              "edit": {
+                "start": 0,
+                "end": 0.1,
+                "mode": 0,
+                "attack_ms": 0,
+                "release_ms": 25,
+                "fade_ms": 1
+              }
+            }
+          },
+          {
+            "guid": "mk3.additive",
+            "level": 0.5,
+            "pan": 0,
+            "detune": 0,
+            "params": {
+              "BRIGHTNESS": 0.7,
+              "ODD / EVEN": 0.5,
+              "FOCUS": 3,
+              "WIDTH": 8,
+              "MOTION": 0,
+              "ATTACK": 0.004,
+              "DECAY": 1.1,
+              "SUSTAIN": 0.22,
+              "RELEASE": 0.45,
+              "HARMONIC 1": 1,
+              "HARMONIC 2": 0.55,
+              "HARMONIC 3": 0.3,
+              "HARMONIC 4": 0.18,
+              "HARMONIC 5": 0.1,
+              "HARMONIC 6": 0,
+              "HARMONIC 7": 0,
+              "HARMONIC 8": 0,
+              "HARMONIC 9": 0,
+              "HARMONIC 10": 0,
+              "HARMONIC 11": 0,
+              "HARMONIC 12": 0,
+              "HARMONIC 13": 0,
+              "HARMONIC 14": 0,
+              "HARMONIC 15": 0,
+              "HARMONIC 16": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "D-50 Fantasia",
+      "guid": "mk3.layer",
+      "signature": "First 180 ms of the factory FM-Metal sample as a bell attack over a BRIGHTNESS 0.8 wavetable sustain",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.sampler",
+            "level": 0.42,
+            "pan": 0,
+            "detune": 0,
+            "sample": {
+              "asset": "fm-metal",
+              "slot": 0,
+              "edit": {
+                "start": 0,
+                "end": 0.18,
+                "mode": 0,
+                "attack_ms": 0,
+                "release_ms": 40,
+                "fade_ms": 1
+              }
+            }
+          },
+          {
+            "guid": "mk3.wavetable",
+            "level": 0.52,
+            "pan": 0,
+            "detune": 4,
+            "params": {
+              "POSITION": 48,
+              "SCAN DEPTH": 14,
+              "SCAN RATE": 0.3,
+              "ATTACK": 0.4,
+              "DECAY": 1.2,
+              "SUSTAIN": 0.7,
+              "RELEASE": 1.2,
+              "BRIGHTNESS": 0.8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VA-Hit Stab",
+      "guid": "mk3.sampler",
+      "signature": "The factory VA-Hit sample standalone and full-range (START 0 / END 1, no window trim) with RELEASE 60 ms: the D-50 attack leaf as a playable stab in its own right",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 60
+      },
+      "sample": {
+        "asset": "va-hit",
+        "slot": 0
+      }
+    },
+    {
+      "name": "FM-Metal Hit",
+      "guid": "mk3.sampler",
+      "signature": "The factory FM-Metal sample standalone and full-range with EDGE FADE 5 and RELEASE 150 ms: a longer metallic ring-out than the VA-Hit stab",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 5,
+        "ATTACK": 0,
+        "RELEASE": 150
+      },
+      "sample": {
+        "asset": "fm-metal",
+        "slot": 0
+      }
+    },
+    {
+      "name": "Slices Loop",
+      "guid": "mk3.sampler",
+      "signature": "The pitched demo-slices sequence as a looping playable bed: LOOP on with LOOP XFADE 25 ms over the full range, gentle ATTACK 5 / RELEASE 30",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "LOOP XFADE": 25,
+        "ATTACK": 5,
+        "RELEASE": 30
+      },
+      "sample": {
+        "asset": "demo-slices",
+        "slot": 0,
+        "loop": true
+      }
+    },
+    {
+      "name": "Mega Moog",
+      "guid": "mk3.layer",
+      "signature": "Two full Minimoog-style VA stacks layered (four oscillators, two -12 st square subs), detune -4/+4 ct",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0,
+            "detune": -4,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 1,
+              "DETUNE": 6,
+              "OSC MIX": 0.45,
+              "CUTOFF": 900,
+              "RESONANCE": 0.35,
+              "SUB": 0.55,
+              "PULSE WIDTH": 0.5,
+              "ATTACK": 0.003,
+              "DECAY": 0.28,
+              "SUSTAIN": 0.35,
+              "RELEASE": 0.12,
+              "FILTER ENV": 2.2,
+              "OSC 2 TUNE": -12,
+              "FILTER DRIVE": 1.6,
+              "SUB WAVE": 1
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.5,
+            "pan": 0,
+            "detune": 4,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 1,
+              "DETUNE": 14,
+              "OSC MIX": 0.45,
+              "CUTOFF": 1000,
+              "RESONANCE": 0.3,
+              "SUB": 0.5,
+              "PULSE WIDTH": 0.5,
+              "ATTACK": 0.003,
+              "DECAY": 0.3,
+              "SUSTAIN": 0.35,
+              "RELEASE": 0.12,
+              "FILTER ENV": 2.2,
+              "OSC 2 TUNE": -12,
+              "FILTER DRIVE": 1.5,
+              "SUB WAVE": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "FM+VA Hybrid Keys",
+      "guid": "mk3.layer",
+      "signature": "DX7 E.PIANO 1 leaf (patch 32) panned -0.1 against a triangle-led VA body at +0.1",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.fm6",
+            "level": 0.5,
+            "pan": -0.1,
+            "detune": 0,
+            "params": {
+              "PATCH": 32
+            }
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.48,
+            "pan": 0.1,
+            "detune": 0,
+            "params": {
+              "OSC 1": 2,
+              "OSC 2": 0,
+              "DETUNE": 5,
+              "OSC MIX": 0.4,
+              "CUTOFF": 2800,
+              "RESONANCE": 0.15,
+              "ATTACK": 0.03,
+              "DECAY": 0.7,
+              "SUSTAIN": 0.45,
+              "RELEASE": 0.5,
+              "FILTER ENV": 0.6
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "K5000+CZ Glass Duo",
+      "guid": "mk3.layer",
+      "signature": "Factory 'Layer Glass Duo' renamed and inherited verbatim: additive leaf (MOTION 0.3) at pan -0.35 / detune -7 against the CZ curve leaf at +0.35 / +7",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.additive",
+            "level": 0.5,
+            "pan": -0.35,
+            "detune": -7,
+            "params": {
+              "MOTION": 0.3,
+              "RELEASE": 1
+            }
+          },
+          {
+            "guid": "mk3.phase-dist",
+            "level": 0.5,
+            "pan": 0.35,
+            "detune": 7,
+            "params": {
+              "WAVE": 3,
+              "ATTACK": 0.1,
+              "RELEASE": 1.2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Reese Bass",
+      "guid": "mk3.layer",
+      "signature": "Rebuilt on the original's lineage (Reese bass was made on a Casio CZ-5000): two PhaseDist SKEW layers detuned -20/+20 ct, DCW sweep (ENV DEPTH 0.6) supplying the filter-like motion the PolySaw version lacked, PFXS FOLDER softened to mix 0.6 (audit 2026-11-08)",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.phase-dist",
+            "level": 0.58,
+            "pan": 0,
+            "detune": -20,
+            "params": {
+              "WAVE": 0,
+              "DISTORTION": 0.45,
+              "ENV DEPTH": 0.6,
+              "MOTION": 0,
+              "RATE": 0.3,
+              "ATTACK": 0.005,
+              "DECAY": 0.5,
+              "SUSTAIN": 0.7,
+              "RELEASE": 0.25
+            }
+          },
+          {
+            "guid": "mk3.phase-dist",
+            "level": 0.58,
+            "pan": 0,
+            "detune": 20,
+            "params": {
+              "WAVE": 0,
+              "DISTORTION": 0.45,
+              "ENV DEPTH": 0.6,
+              "MOTION": 0,
+              "RATE": 0.3,
+              "ATTACK": 0.005,
+              "DECAY": 0.5,
+              "SUSTAIN": 0.7,
+              "RELEASE": 0.25
+            }
+          }
+        ]
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 6,
+          "a": 0.5,
+          "b": 0.25,
+          "mix": 0.6
+        }
+      }
+    },
+    {
+      "name": "TR-808 Kick",
+      "guid": "mk3.daisy-adrums",
+      "signature": "Analog kick voice with DECAY 0.85, the longest drum decay in the pack, TUNE 0.46",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.46,
+        "TONE": 0.35,
+        "DECAY": 0.85,
+        "ACCENT": 0.8
+      }
+    },
+    {
+      "name": "TR-909 Kick",
+      "guid": "mk3.daisy-sdrums",
+      "signature": "Synthetic kick voice with TONE 0.62 (click) and ACCENT 0.95 against a shorter 0.55 decay",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.5,
+        "TONE": 0.62,
+        "DECAY": 0.55,
+        "ACCENT": 0.95
+      }
+    },
+    {
+      "name": "Simmons SDS Tom",
+      "guid": "mk3.daisy-sdrums",
+      "signature": "Kick voice retuned to TUNE 0.78: the pitch-drop tom is the kick engine tuned up",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.78,
+        "TONE": 0.5,
+        "DECAY": 0.5,
+        "ACCENT": 0.85
+      }
+    },
+    {
+      "name": "FM Clave",
+      "guid": "mk3.fm",
+      "signature": "RATIO 0.78 with INDEX 0.45: drier and shorter than the Cowbell (0.74) by index alone",
+      "params": {
+        "RATIO": 0.78,
+        "INDEX": 0.45
+      }
+    },
+    {
+      "name": "Russian Hardbass Donk",
+      "guid": "mk3.fm6",
+      "signature": "Self-authored custom patch (PATCH -1): algorithm 5 with TWO working pairs (blip pair + sustaining body pair), pitch EG blip +12 st class (L1 64), feedback 0 (ALG 5 feedback targets the silent third pair in the old layout): rebuilt per audit 2026-11-08",
+      "params": {
+        "PATCH": -1,
+        "MOD DEPTH": 1.25,
+        "RELEASE": 0.9
+      },
+      "fm6_patch": {
+        "algorithm": 5,
+        "feedback": 0,
+        "transpose": 24,
+        "name": "DONK",
+        "pitch_eg": {
+          "rates": [
+            99,
+            85,
+            30,
+            30
+          ],
+          "levels": [
+            64,
+            50,
+            50,
+            50
+          ]
+        },
+        "ops": [
+          {
+            "rates": [
+              99,
+              78,
+              40,
+              60
+            ],
+            "levels": [
+              92,
+              0,
+              0,
+              0
+            ],
+            "out_level": 92,
+            "coarse": 1,
+            "vel_sens": 3
+          },
+          {
+            "rates": [
+              99,
+              62,
+              38,
+              64
+            ],
+            "levels": [
+              99,
+              78,
+              72,
+              0
+            ],
+            "out_level": 99,
+            "coarse": 1,
+            "vel_sens": 2
+          },
+          {
+            "rates": [
+              99,
+              70,
+              40,
+              60
+            ],
+            "levels": [
+              85,
+              0,
+              0,
+              0
+            ],
+            "out_level": 65,
+            "coarse": 1,
+            "vel_sens": 3
+          },
+          {
+            "rates": [
+              99,
+              62,
+              38,
+              64
+            ],
+            "levels": [
+              99,
+              85,
+              78,
+              0
+            ],
+            "out_level": 88,
+            "coarse": 1,
+            "vel_sens": 2
+          },
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "name": "Hardbass Kick",
+      "guid": "mk3.daisy-sdrums",
+      "signature": "Synthetic kick with TONE 0.8 and ACCENT 1.0: the hardest click in the pack",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.54,
+        "TONE": 0.8,
+        "DECAY": 0.48,
+        "ACCENT": 1
+      }
+    },
+    {
+      "name": "Hardbass Lead Stab",
+      "guid": "mk3.layer",
+      "signature": "PolySaw stab at level 0.5 layered with the rebuilt Donk custom FM patch thinned to level 0.3 (Donk rebuild propagated, audit 2026-11-08)",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.polysaw",
+            "level": 0.5,
+            "pan": 0,
+            "detune": 6
+          },
+          {
+            "guid": "mk3.fm6",
+            "level": 0.3,
+            "pan": 0,
+            "detune": 0,
+            "params": {
+              "PATCH": -1,
+              "MOD DEPTH": 1.1
+            },
+            "fm6_patch": {
+              "algorithm": 5,
+              "feedback": 0,
+              "transpose": 24,
+              "name": "DONK",
+              "pitch_eg": {
+                "rates": [
+                  99,
+                  85,
+                  30,
+                  30
+                ],
+                "levels": [
+                  64,
+                  50,
+                  50,
+                  50
+                ]
+              },
+              "ops": [
+                {
+                  "rates": [
+                    99,
+                    78,
+                    40,
+                    60
+                  ],
+                  "levels": [
+                    92,
+                    0,
+                    0,
+                    0
+                  ],
+                  "out_level": 92,
+                  "coarse": 1,
+                  "vel_sens": 3
+                },
+                {
+                  "rates": [
+                    99,
+                    62,
+                    38,
+                    64
+                  ],
+                  "levels": [
+                    99,
+                    78,
+                    72,
+                    0
+                  ],
+                  "out_level": 99,
+                  "coarse": 1,
+                  "vel_sens": 2
+                },
+                {
+                  "rates": [
+                    99,
+                    70,
+                    40,
+                    60
+                  ],
+                  "levels": [
+                    85,
+                    0,
+                    0,
+                    0
+                  ],
+                  "out_level": 65,
+                  "coarse": 1,
+                  "vel_sens": 3
+                },
+                {
+                  "rates": [
+                    99,
+                    62,
+                    38,
+                    64
+                  ],
+                  "levels": [
+                    99,
+                    85,
+                    78,
+                    0
+                  ],
+                  "out_level": 88,
+                  "coarse": 1,
+                  "vel_sens": 2
+                },
+                null,
+                null
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Uplifting Trance Lead",
+      "guid": "mk3.layer",
+      "signature": "Three-source stack: two PolySaw layers at -12/+12 ct plus a VA saw pair (DETUNE 16, CUTOFF 7500) on top",
+      "layer": {
+        "parts": [
+          {
+            "guid": "mk3.polysaw",
+            "level": 0.5,
+            "pan": -0.3,
+            "detune": -12
+          },
+          {
+            "guid": "mk3.polysaw",
+            "level": 0.5,
+            "pan": 0.3,
+            "detune": 12
+          },
+          {
+            "guid": "mk3.va-dual",
+            "level": 0.55,
+            "pan": 0,
+            "detune": 0,
+            "params": {
+              "OSC 1": 0,
+              "OSC 2": 0,
+              "DETUNE": 16,
+              "OSC MIX": 0.5,
+              "CUTOFF": 7500,
+              "RESONANCE": 0.2,
+              "ATTACK": 0.01,
+              "DECAY": 0.5,
+              "SUSTAIN": 0.7,
+              "RELEASE": 0.4,
+              "FILTER ENV": 0.8
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Trance Pluck",
+      "guid": "mk3.va-dual",
+      "signature": "SUSTAIN 0.05 pluck envelope (DECAY 0.22, FILTER ENV 2.4) with the space carried by PFXS sends only: delay 0.35 / reverb 0.3, inserts bypassed",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 7,
+        "OSC MIX": 0.5,
+        "CUTOFF": 3000,
+        "RESONANCE": 0.25,
+        "ATTACK": 0.002,
+        "DECAY": 0.22,
+        "SUSTAIN": 0.05,
+        "RELEASE": 0.18,
+        "FILTER ENV": 2.4,
+        "FILTER DRIVE": 1.2
+      },
+      "pfxs": {
+        "delay": 0.35,
+        "reverb": 0.3
+      }
+    },
+    {
+      "name": "Trance Offbeat Bass",
+      "guid": "mk3.daisy-synth",
+      "signature": "Tightest Daisy ADSR in the pack (D 0.18, S 0.1, R 0.07): offbeat gating by envelope alone",
+      "params": {
+        "DAISY ATTACK": 0.002,
+        "DAISY DECAY": 0.18,
+        "DAISY SUSTAIN": 0.1,
+        "DAISY RELEASE": 0.07
+      }
+    },
+    {
+      "name": "Trance Rolling Bass",
+      "guid": "mk3.va-dual",
+      "signature": "Rolling bass rebuilt on VA: tight saw pair, CUTOFF 750 with a fast-decaying FILTER ENV 2.6 oct (D 0.085, S 0) and drive 1.4 \u2014 the 16th-note filter chatter IS the sound; PolySaw had no filter envelope (audit 2026-11-08)",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 4,
+        "OSC MIX": 0.5,
+        "CUTOFF": 750,
+        "RESONANCE": 0.4,
+        "FILTER ENV": 2.6,
+        "FILTER DRIVE": 1.4,
+        "ATTACK": 0.001,
+        "DECAY": 0.085,
+        "SUSTAIN": 0,
+        "RELEASE": 0.06
+      }
+    },
+    {
+      "name": "Trance Gate Pad",
+      "guid": "mk3.va-dual",
+      "signature": "PWM pad voiced brighter than the Juno pad (CUTOFF 3000, attack 0.25) with CHORUS plus delay send 0.15 in the snapshot",
+      "params": {
+        "OSC 1": 1,
+        "OSC 2": 1,
+        "DETUNE": 6,
+        "OSC MIX": 0.5,
+        "CUTOFF": 3000,
+        "RESONANCE": 0.12,
+        "SUB": 0.15,
+        "PULSE WIDTH": 0.42,
+        "PWM DEPTH": 0.2,
+        "PWM RATE": 0.7,
+        "ATTACK": 0.25,
+        "DECAY": 1,
+        "SUSTAIN": 0.8,
+        "RELEASE": 0.8,
+        "FILTER ENV": 0.4
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.4,
+          "b": 0.5,
+          "mix": 0.65
+        },
+        "delay": 0.15,
+        "reverb": 0.3
+      }
+    },
+    {
+      "name": "Psytrance Bass",
+      "guid": "mk3.va-dual",
+      "signature": "Shortest filter gesture in the pack: DECAY 0.09 at SUSTAIN 0 with FILTER ENV 3.2 oct",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 3,
+        "OSC MIX": 0.5,
+        "CUTOFF": 1100,
+        "RESONANCE": 0.5,
+        "ATTACK": 0.001,
+        "DECAY": 0.09,
+        "SUSTAIN": 0,
+        "RELEASE": 0.07,
+        "FILTER ENV": 3.2,
+        "FILTER DRIVE": 1.5
+      }
+    },
+    {
+      "name": "Psytrance Kick",
+      "guid": "mk3.daisy-sdrums",
+      "signature": "Tightest kick in the pack: DECAY 0.36 with ACCENT 1.0",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.47,
+        "TONE": 0.55,
+        "DECAY": 0.36,
+        "ACCENT": 1
+      }
+    },
+    {
+      "name": "Psy Squelch",
+      "guid": "mk3.acid",
+      "signature": "RESONANCE 0.96 with ENV AMT 0.92: beyond the 303 recipe (0.88/0.72) on both axes",
+      "params": {
+        "CUTOFF": 0.66,
+        "RESONANCE": 0.96,
+        "ENV AMT": 0.92,
+        "DECAY": 0.55,
+        "WAVE": 0.15
+      }
+    },
+    {
+      "name": "Goa Lead",
+      "guid": "mk3.va-dual",
+      "signature": "Dual pulse lead (PW 0.38) at resonance 0.42: neither saw nor square, the pulse pair is the voice",
+      "params": {
+        "OSC 1": 1,
+        "OSC 2": 1,
+        "DETUNE": 5,
+        "OSC MIX": 0.5,
+        "CUTOFF": 3400,
+        "RESONANCE": 0.42,
+        "PULSE WIDTH": 0.38,
+        "PWM DEPTH": 0,
+        "ATTACK": 0.008,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.55,
+        "RELEASE": 0.22,
+        "FILTER ENV": 1.6,
+        "FILTER DRIVE": 1.25
+      }
+    },
+    {
+      "name": "Dubstep Growl",
+      "guid": "mk3.fm6",
+      "signature": "Bank patch 20 (GASHAUS, algorithm 28 / feedback 7) pushed with MOD DEPTH 1.7 plus PFXS FOLDER: patch choice recorded as a design decision in the report",
+      "params": {
+        "PATCH": 20,
+        "MOD DEPTH": 1.7,
+        "BRIGHTNESS": 1.25,
+        "ATTACK": 1.1,
+        "RELEASE": 1.2
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 6,
+          "a": 0.6,
+          "b": 0.25,
+          "mix": 0.85
+        }
+      }
+    },
+    {
+      "name": "Hardstyle Kick",
+      "guid": "mk3.daisy-sdrums",
+      "signature": "Long synth kick (DECAY 0.68, ACCENT 1) with PFXS HARD CLIP at drive 0.65 / ceiling 0.45, mix 1",
+      "params": {
+        "VOICE": 0.05,
+        "TUNE": 0.5,
+        "TONE": 0.65,
+        "DECAY": 0.68,
+        "ACCENT": 1
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 15,
+          "a": 0.65,
+          "b": 0.45,
+          "mix": 1
+        }
+      }
+    },
+    {
+      "name": "Hard Sync Lead",
+      "guid": "mk3.va-dual",
+      "signature": "HARD SYNC on with OSC 2 TUNE +7 st: the sync ratio is the preset (extension E1)",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 4,
+        "OSC MIX": 0.5,
+        "CUTOFF": 3600,
+        "RESONANCE": 0.3,
+        "ATTACK": 0.004,
+        "DECAY": 0.4,
+        "SUSTAIN": 0.6,
+        "RELEASE": 0.25,
+        "FILTER ENV": 1.4,
+        "OSC 2 TUNE": 7,
+        "FILTER DRIVE": 1.3,
+        "HARD SYNC": 1
+      }
+    },
+    {
+      "name": "CrossMod Metal Bass",
+      "guid": "mk3.va-dual",
+      "signature": "CROSS MOD 0.65 (extension E1) on a saw/pulse pair with drive 1.6: oscillator cross-modulation is the metal",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 1,
+        "DETUNE": 3,
+        "OSC MIX": 0.5,
+        "CUTOFF": 1300,
+        "RESONANCE": 0.45,
+        "SUB": 0.3,
+        "PULSE WIDTH": 0.5,
+        "ATTACK": 0.003,
+        "DECAY": 0.3,
+        "SUSTAIN": 0.3,
+        "RELEASE": 0.12,
+        "FILTER ENV": 2,
+        "FILTER DRIVE": 1.6,
+        "CROSS MOD": 0.65
+      }
+    },
+    {
+      "name": "Alpha Juno Hoover",
+      "guid": "mk3.va-dual",
+      "signature": "Per the original Alpha Juno 'What the...' patch: PITCH ENV +12 st over PITCH DECAY 0.5, fast deep PWM (4.0 Hz / 0.4), VCF wide open (CUTOFF 15000, RES 0.05), low pulse sub, plus PFXS CHORUS (audit 2026-11-08)",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 0,
+        "DETUNE": 9,
+        "OSC MIX": 0.5,
+        "CUTOFF": 15000,
+        "RESONANCE": 0.05,
+        "PULSE WIDTH": 0.5,
+        "PWM DEPTH": 0.4,
+        "PWM RATE": 4.0,
+        "ATTACK": 0.01,
+        "DECAY": 0.6,
+        "SUSTAIN": 0.7,
+        "RELEASE": 0.35,
+        "FILTER ENV": 0.8,
+        "PITCH ENV": 12,
+        "PITCH DECAY": 0.5,
+        "SUB": 0.35,
+        "SUB WAVE": 1
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 16,
+          "a": 0.45,
+          "b": 0.55,
+          "mix": 0.75
+        }
+      }
+    },
+    {
+      "name": "Granular Pad",
+      "guid": "mk3.granular",
+      "signature": "Grains from POSITION 0.12 (first pitched slice of demo-slices) at SIZE 0.6 with a 0.8 s attack: the slow grain cloud",
+      "params": {
+        "POSITION": 0.12,
+        "SIZE": 0.6,
+        "DENSITY": 0.55,
+        "TEXTURE": 0.5,
+        "SPREAD": 0.5,
+        "ATTACK": 0.8,
+        "DECAY": 1,
+        "SUSTAIN": 0.8,
+        "RELEASE": 1.6,
+        "JITTER": 0.25,
+        "FREEZE": 0,
+        "PITCH OFFSET": 0
+      },
+      "sample": {
+        "asset": "demo-slices",
+        "slot": 0
+      }
+    },
+    {
+      "name": "Granular Choir",
+      "guid": "mk3.granular",
+      "signature": "POSITION 0.55 with SIZE 0.75 / SPREAD 0.7 / JITTER 0.4: larger, wider grains than the Pad from the same material",
+      "params": {
+        "POSITION": 0.55,
+        "SIZE": 0.75,
+        "DENSITY": 0.7,
+        "TEXTURE": 0.65,
+        "SPREAD": 0.7,
+        "ATTACK": 1.2,
+        "DECAY": 1,
+        "SUSTAIN": 0.85,
+        "RELEASE": 2,
+        "JITTER": 0.4,
+        "FREEZE": 0,
+        "PITCH OFFSET": 0
+      },
+      "sample": {
+        "asset": "demo-slices",
+        "slot": 0
+      }
+    },
+    {
+      "name": "Talking Formant Pad",
+      "guid": "mk3.formant",
+      "signature": "MODE 0 (FORMANT) with MOD DEPTH 0.35 sweeping the vowel at centre 0.45: the vowel motion is the preset",
+      "params": {
+        "MODE": 0,
+        "VOWEL": 0.45,
+        "FORMANT SHIFT": 0,
+        "SHAPE": 0.5,
+        "MOD DEPTH": 0.35,
+        "ATTACK": 0.4,
+        "DECAY": 0.8,
+        "SUSTAIN": 0.75,
+        "RELEASE": 0.9
+      }
+    },
+    {
+      "name": "VOSIM Voice",
+      "guid": "mk3.formant",
+      "signature": "MODE 1 (VOSIM) with FORMANT SHIFT +3 st and SHAPE 0.65: the alternate formant engine mode",
+      "params": {
+        "MODE": 1,
+        "VOWEL": 0.6,
+        "FORMANT SHIFT": 3,
+        "SHAPE": 0.65,
+        "MOD DEPTH": 0.2,
+        "ATTACK": 0.05,
+        "DECAY": 0.4,
+        "SUSTAIN": 0.6,
+        "RELEASE": 0.3
+      }
+    },
+    {
+      "name": "B-3 + Leslie",
+      "guid": "mk3.additive",
+      "signature": "The tapered B-3 drawbar set with PFXS ROTARY at SPEED FAST (A 0.5), DRIVE 0.4, mix 0.9: organ and speaker are one preset (extension E5; taper per audit 2026-11-08)",
+      "params": {
+        "BRIGHTNESS": 0.85,
+        "ODD / EVEN": 0.1,
+        "MOTION": 0,
+        "ATTACK": 0.005,
+        "DECAY": 0.05,
+        "SUSTAIN": 1,
+        "RELEASE": 0.12,
+        "HARMONIC 1": 1,
+        "HARMONIC 2": 0.7,
+        "HARMONIC 3": 0.85,
+        "HARMONIC 4": 0.45,
+        "HARMONIC 5": 0.35,
+        "HARMONIC 6": 0.15,
+        "HARMONIC 7": 0,
+        "HARMONIC 8": 0,
+        "HARMONIC 9": 0,
+        "HARMONIC 10": 0,
+        "HARMONIC 11": 0,
+        "HARMONIC 12": 0,
+        "HARMONIC 13": 0,
+        "HARMONIC 14": 0,
+        "HARMONIC 15": 0,
+        "HARMONIC 16": 0
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 21,
+          "a": 0.5,
+          "b": 0.4,
+          "mix": 0.9
+        }
+      }
+    },
+    {
+      "name": "Shimmer Reverb Pad",
+      "guid": "mk3.va-dual",
+      "signature": "PFXS PITCH SHIFT at +12 st (A 1.0) mixed 0.45 into a slow VA pad with reverb send 0.55: the octave-up wash ships in the preset (extensions E4+E5)",
+      "params": {
+        "OSC 1": 0,
+        "OSC 2": 2,
+        "DETUNE": 8,
+        "OSC MIX": 0.5,
+        "CUTOFF": 2200,
+        "RESONANCE": 0.15,
+        "ATTACK": 0.7,
+        "DECAY": 1.2,
+        "SUSTAIN": 0.8,
+        "RELEASE": 1.8,
+        "FILTER ENV": 0.5
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 20,
+          "a": 1,
+          "b": 0.25,
+          "mix": 0.45
+        },
+        "delay": 0.1,
+        "reverb": 0.55
+      }
+    }
+  ]
+}

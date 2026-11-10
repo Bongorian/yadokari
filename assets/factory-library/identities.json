@@ -1,0 +1,1829 @@
+{
+  "version": 1,
+  "format": 13,
+  "note": "GUID/revision allocation retained. All115 obsolete MGXC12 masters were removed by user instruction on2026-11-09; re-author in MGXC13 without header migration. MGXC13 masters submitted on branch content/mgxc13-factory: the 115 regenerated (with the TX81z Lately Bass recipe rebuild/rename and the Hoover and Supersaw/Hypersaw corrections) plus the 72 user-approved additions recorded in user_approved_additions.",
+  "files": [
+    {
+      "master": "KITS/606 Acid.mgxk",
+      "guid": "f0c9dcb0db4e4cd0417129bca4388d35",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/707 House.mgxk",
+      "guid": "f09b0008e313f85ec90087ccd4e752de",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/727 Latin.mgxk",
+      "guid": "f008b343603908180b34a27bb8f44f9e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/808 Classic.mgxk",
+      "guid": "f00046c5aa4b6a684f6b3d735feec079",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/909 Classic.mgxk",
+      "guid": "f0900c401c9084eba54c4b9e5388c55c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Acoustic Jazz.mgxk",
+      "guid": "f00b547c6cd06e2df20c9f326177597e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Acoustic Studio.mgxk",
+      "guid": "f0b204bfef51a055371af6dbc6a164f0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Ambient Percussion.mgxk",
+      "guid": "f02487d9ba76604ab1194a716de2d4fc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Boom Bap.mgxk",
+      "guid": "f017d6a5f6486f25a1e70ca16ae8afec",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Breakbeat Jungle.mgxk",
+      "guid": "f04056dd07e6462c2974cb0a0fcc2173",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/CR-78 Vintage.mgxk",
+      "guid": "f018a5e2af8d6ba6a59bb2aa5c67d3c4",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/DMX Drumtraks.mgxk",
+      "guid": "f03667b6fa988f6ea0c440f2169b0bd0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Deep House.mgxk",
+      "guid": "f092a157ec7fcfdb671d39dac486176b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Disco Funk.mgxk",
+      "guid": "f05cccac3d971b1c843f0295563c66e6",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Electro.mgxk",
+      "guid": "f07dfd245c92a0751ac1f46b662e988d",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Glitch Experimental.mgxk",
+      "guid": "f0ffa959c671df94c818465ae4fddbb5",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Hard Techno.mgxk",
+      "guid": "f0ad41f64365a6139699805bdad2aef4",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Industrial Techno.mgxk",
+      "guid": "f08db5731eea231334d07c6dda1ce569",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/LinnDrum LM-2.mgxk",
+      "guid": "f0a4d563c95b214093ff71ce800dc15b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Lo-fi Hip-Hop.mgxk",
+      "guid": "f0e5e2fcc39a2703c540f074db6d0fc2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Melodic Techno.mgxk",
+      "guid": "f01633bde71270bdcab63e7cdf7acedc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Minimal Techno.mgxk",
+      "guid": "f0a4f1b6c5d9e7f679027b95453fc63a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Psytrance.mgxk",
+      "guid": "f0ef48dbb41bbd70d2948ee052abcff2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "KITS/Trap Drill.mgxk",
+      "guid": "f067d63e73a816146b3138f244b53685",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Alpha Juno Hoover.mgxp",
+      "guid": "f07d26d5c35f11b6ccaa25521499ae57",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/B-3 + Leslie.mgxp",
+      "guid": "f03ecd64e713cb43e7e23d247ac76f68",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Buchla Bongo.mgxp",
+      "guid": "f07363c6eaaed900daf3ed72212772a1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Buchla Easel Lead.mgxp",
+      "guid": "f05b08fed67457c86b97b4284c24353b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/CS-80 Pad.mgxp",
+      "guid": "f0ac1e604c965cc75b02b590b3f94d48",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Casio CZ-101 Bass.mgxp",
+      "guid": "f0da916b4e1864f3513a3ec7a4202b8e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Casio CZ-101 Pad.mgxp",
+      "guid": "f0ee920145ffa29d5631255e154a2588",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Clouds Texture Pad.mgxp",
+      "guid": "f06d884e23d6471f10c31c274d9de860",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/CrossMod Metal Bass.mgxp",
+      "guid": "f039b2625002df575dac0be7a9df1117",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/D-50 Fantasia.mgxp",
+      "guid": "f0a712d6e3229b413161d9d490c7df80",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/D-50 LA Piano.mgxp",
+      "guid": "f04b9837f15f5a72c034a92ea24ec92f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/DX7 E.Piano.mgxp",
+      "guid": "f00afb28bd040946fa74789e9959a436",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/TX81z Lately Bass.mgxp",
+      "guid": "f0cc0e6d1f846d7275d545288cf2ce24",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/DX7 Marimba.mgxp",
+      "guid": "f0181c8de6e81615f3cd3eaa7b4f70ec",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/DX7 Metal Pad.mgxp",
+      "guid": "f062111828053b662862aead97c8a581",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/DX7 Tubular Bell.mgxp",
+      "guid": "f02a55bfed8160a67872d53be9a7d04d",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/DX7 Wineglass.mgxp",
+      "guid": "f049c4b08e0c1b0a094bc4cd47cba5b2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Detroit Chord Stab.mgxp",
+      "guid": "f04102da5cb6f7d73fc5a128f823fa7f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Dubstep Growl.mgxp",
+      "guid": "f0af6bb6d9cd01ff7fd2eb6ad794e357",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM Clave.mgxp",
+      "guid": "f0e8158973e63d9ebd3ea4f208c23501",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM Cowbell.mgxp",
+      "guid": "f0b7f6684d0f17ea35ae4c7c71d574b8",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM+VA Hybrid Keys.mgxp",
+      "guid": "f099712492e65acd411c94f26218a48b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM-Metal Hit.mgxp",
+      "guid": "f01eb33a415d5461b7bf08531d2db4cc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Frozen Choir.mgxp",
+      "guid": "f0c76e84cdb70fcc05262645603c230e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Game Boy Lead.mgxp",
+      "guid": "f0c330d12f1ff51f6380c7dd5976853f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Genesis FM Bass.mgxp",
+      "guid": "f08e0303d07e6fe3c9e038362a9a7dfc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Goa Lead.mgxp",
+      "guid": "f0e7448797cbbb6b6c76a9ce49ce4f2b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Choir.mgxp",
+      "guid": "f05dc73391b89404669901e41db232b7",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Pad.mgxp",
+      "guid": "f052eb3db208d0ba4b6ef491f046dab2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Hammond B-3 Organ.mgxp",
+      "guid": "f044c8930ec2ed0c3909e75aaa6bc4d2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Hard Sync Lead.mgxp",
+      "guid": "f0f4bb41452f2bfb9112dce0a124ecbe",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Hardbass Kick.mgxp",
+      "guid": "f0cf8c5bf2c941a4410902435ab17847",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Hardbass Lead Stab.mgxp",
+      "guid": "f0959848f05ff836aecaca47d90b9dcb",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Hardstyle Kick.mgxp",
+      "guid": "f0a02f4ad17460db22007a8381633ab8",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/JP-8000 Hypersaw.mgxp",
+      "guid": "f029531897b517dfcf638198e1a98ba0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/JP-8000 Supersaw.mgxp",
+      "guid": "f0ee841f570cb8f87591fabcc488a0fb",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Juno-106 Bass.mgxp",
+      "guid": "f06feb9082a522cde14b6cc10993cfdb",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Juno-106 Pad.mgxp",
+      "guid": "f0c456427a027af0a53c166c4c3f7f9b",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Jupiter-8 Pad.mgxp",
+      "guid": "f08a12ad5bf7f6ff17c1604b2dbd50dc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/K5000+CZ Glass Duo.mgxp",
+      "guid": "f095b5204f8768bf994622206cd4914b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Kawai K5000 Glass.mgxp",
+      "guid": "f082aa1a2b4ec202a28497008a2ed590",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/GM Grand Piano.mgxp",
+      "guid": "f00250d63ee35df617a25fb5bbd46d2e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/MS-20 Scream.mgxp",
+      "guid": "f034746ab990579909929cd59d31ebf2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Mega Moog.mgxp",
+      "guid": "f0bd3beabe344842c3e7c50f6cce5753",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Microwave Bass.mgxp",
+      "guid": "f02b5eed2e1e365ed08d73576fd7068b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Minimoog Bass.mgxp",
+      "guid": "f030b5a73d4e6f3a7ca7a7c9f9acf746",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Minimoog Lead.mgxp",
+      "guid": "f0e57dd7cd6911a4834eedd456afe2d7",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Oberheim SEM Pad.mgxp",
+      "guid": "f0a32e33b6d2b2221d40a9a31a28c7aa",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PPG Wave Bell.mgxp",
+      "guid": "f01f9372b0f8d98e67d0657897e74ebd",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PPG Wave Pad.mgxp",
+      "guid": "f02d90bdc0ec553bd745b3c3ff5ed9df",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Prophet VS Vector Pad.mgxp",
+      "guid": "f0196eb427225d71c59e8658e2406db6",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Prophet-5 Brass.mgxp",
+      "guid": "f09398c1a10fc082321292038222cd21",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Prophet-5 Poly Keys.mgxp",
+      "guid": "f01655b2a4625ce765d7da3e6e57cf17",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Psy Squelch.mgxp",
+      "guid": "f02f06f2eea64c42cfb32d0be44a8c37",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Psytrance Bass.mgxp",
+      "guid": "f078050267dd594be40ff23287384ed4",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Psytrance Kick.mgxp",
+      "guid": "f000e8a384b6b0d6fd651f9881a1a50f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Reese Bass.mgxp",
+      "guid": "f0a39741e0ca80ded66eef9a33b918d5",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Rings Resonator.mgxp",
+      "guid": "f0fb01a1e34362563ffd372860ba5c4e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Robot Voice.mgxp",
+      "guid": "f069027951bf7f33fb7ddc52a91ebca1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Russian Hardbass Donk.mgxp",
+      "guid": "f0c39b664e1f93957db81a8fc222eda5",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/SH-101 Bass.mgxp",
+      "guid": "f0896a93a4533936a9e31ff2c55cdfef",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/SH-101 Sequence.mgxp",
+      "guid": "f0d498da5594a7b589ed32f4ad2c1840",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Shimmer Reverb Pad.mgxp",
+      "guid": "f00f59eba0a7b057f2280b9949c2e269",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Simmons SDS Tom.mgxp",
+      "guid": "f08a9f2f540304e90e38ae2373057c47",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Slices Loop.mgxp",
+      "guid": "f06e233075c2d9c1200e4626f9fe8f1a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Solina String Ensemble.mgxp",
+      "guid": "f09bf80d09b5b98b9b1b94ff5a1c80dd",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Swarm Pad.mgxp",
+      "guid": "f0960b35bdbb25eb4b35b999d6dd50ee",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/TB-303 Acid.mgxp",
+      "guid": "f023efc76fdc1b3699d330c266c47d13",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/TR-808 Kick.mgxp",
+      "guid": "f0aae03b2decdc41d2ae0e3e15f63d12",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/TR-909 Kick.mgxp",
+      "guid": "f0595331aab2fccf3ecb672ba4f64746",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Talking Formant Pad.mgxp",
+      "guid": "f0ddf1fa73bd91bcfba61c991dd15e71",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Trance Gate Pad.mgxp",
+      "guid": "f0c3794ec653b547c8e3b24ac4b2e00a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Trance Offbeat Bass.mgxp",
+      "guid": "f05e4031d6c22f48c7bd61527869506e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Trance Pluck.mgxp",
+      "guid": "f0b0263a9eb8a627acf602fe0379fabb",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Trance Rolling Bass.mgxp",
+      "guid": "f054eb1c80fdac0a963b3503e5f51773",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Uplifting Trance Lead.mgxp",
+      "guid": "f0ebecb616b569a02847fda36c4c0ce6",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/VA-Hit Stab.mgxp",
+      "guid": "f0d0ceaeb07223044d54ee172063dd80",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/VOSIM Voice.mgxp",
+      "guid": "f043eaf77a6b859cb775e76dcc4c1796",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/WT Soft Choir.mgxp",
+      "guid": "f02bf04f52eb099dce3571b579cdf9bd",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Breakbeat Chops 132.mgxp",
+      "guid": "2ab27d6d02295d32990213dba776c65c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Jungle Chops 172.mgxp",
+      "guid": "05cc6841e53256168a60b1239d178f8f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Funk Chops 104.mgxp",
+      "guid": "fbdb9c38bf115a85b840139f891fa931",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/House Loop 124.mgxp",
+      "guid": "9f1ffe7fc1f756348deb5dd7c760a80c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Techno Loop 138.mgxp",
+      "guid": "2d428329362d5e448dbea55b004843ac",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Ambient Bed 90.mgxp",
+      "guid": "2ec8998dc04857508d07650e30e4e256",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Grand Piano.mgxp",
+      "guid": "3f7e0effdd585245b3cadc11a0717099",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Electric Piano.mgxp",
+      "guid": "e8dbe54fe8605bc0be5baa7343f7635f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Clavisynth.mgxp",
+      "guid": "66df1806fe63568d98cf322d288c528e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Marimba.mgxp",
+      "guid": "125421cc440253febb03fbb555f774a6",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Kalimba.mgxp",
+      "guid": "bdcf03a6e4fc5d49994272b382ec3af8",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Vibraphone.mgxp",
+      "guid": "fb5cc297f2b35c43bb86661e6a6c8e36",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Oberheim Brass Stab.mgxp",
+      "guid": "d76a85cc7fad517898d53f55831aedac",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/EBM Industrial Bass.mgxp",
+      "guid": "35d6b7b189cc5ac887c3020efbad6c61",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Dub Chord Stab.mgxp",
+      "guid": "6f82b494565b5986b7eb84b96e7a6ec3",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Cinematic Sub Drop.mgxp",
+      "guid": "1f150d740529529b88faebbc99679e3e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Formant Lead.mgxp",
+      "guid": "d9feac313628524db0a9fe98677bba42",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chip Arp Lead.mgxp",
+      "guid": "d254471ab7a656ad82d5668a8968d950",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Freeze Swell.mgxp",
+      "guid": "8c01eb698b2058bcab55e01612aa85ed",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Karplus Pluck Lead.mgxp",
+      "guid": "62dc992ac9db56fb89060241f5ca1a26",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Alien Choir.mgxp",
+      "guid": "f807a3e80f6f5d88972a1030bd8bc4dc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/VOSIM Chant.mgxp",
+      "guid": "5379a4d022015d71975e875a4cf6b4a0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Feedback Riser.mgxp",
+      "guid": "4b1bc78792a75bf3837a2a7a2511b320",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Morph WT Lead.mgxp",
+      "guid": "9f26b405336251d6889656be8731f7a2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Plaits Analog Kick.mgxp",
+      "guid": "b2771fcd66ab5e1eb91ca85aaf5f08c1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Plaits Analog Snare.mgxp",
+      "guid": "dbc67035f3c85b718b1fd4c6ff9647c2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Plaits Metallic Hat.mgxp",
+      "guid": "d774ef8891a352528b56c93d5167cd1c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Noise Riser.mgxp",
+      "guid": "a43dccd6187d59ce90e70f1c641efbde",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Harmonic Keys.mgxp",
+      "guid": "e8ce9370179455c393521963df52cf17",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Wave Terrain Pad.mgxp",
+      "guid": "40e8035b67fb5419b340aa85fa74d0da",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Formant Voice.mgxp",
+      "guid": "c96e867d95145c7e8585e0840e7d6e35",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Donk Stack.mgxp",
+      "guid": "0558b73fc4975787b4dfecf7a6259cc4",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Reese Wall.mgxp",
+      "guid": "5d044e4f0be15e5db6c9ccc1ba1cae23",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Screech Lead.mgxp",
+      "guid": "b75740ccaa2b546f9e93f1224b587912",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Frozen Cathedral.mgxp",
+      "guid": "c93412a3c4ff5ab6a22f190964c9f1c9",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Wave Sequence Machine.mgxp",
+      "guid": "188a4606ad1d5de19a15d5f8f004aa5b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Tape Microsound Loop.mgxp",
+      "guid": "80eda7c6ca305d6eb9fe00801ed4bf7a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/GM Strings.mgxp",
+      "guid": "b2029f8539f55256987876b7281451c5",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/GM Choir Aahs.mgxp",
+      "guid": "9340e44f315b5f09ad12f54e0ef7ecb1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/GM Synth Brass.mgxp",
+      "guid": "2c6ec3475a3a52babbe58c71375de89f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Wash.mgxp",
+      "guid": "b59995037a315fe380bbd01918aebc7f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PWM Strings.mgxp",
+      "guid": "4933eaf72cb65743a0eecca68e7c39b6",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/TB-303 Square.mgxp",
+      "guid": "f0f42e1434ab5f7fa7f60192c39ccff0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Fold Bass.mgxp",
+      "guid": "d4ce8c238f7558118c6b7f1cbc249160",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Additive Bell.mgxp",
+      "guid": "30dd8230630853af86058ad94f620385",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/String Swarm.mgxp",
+      "guid": "7692dd402d625442b555b5ae9b22eae2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Robot Chord Choir.mgxp",
+      "guid": "6eb38a83a6935180b42193aa4c7b9af9",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Plaits Hit Stack.mgxp",
+      "guid": "65f89d0d673c54fe841ab4f22b582a5c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Wobble Bass.mgxp",
+      "guid": "1b88acda449d51959b4329049802f295",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/808 Snare.mgxp",
+      "guid": "e426b8ddb642524db3cbababe705927a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/909 Clap.mgxp",
+      "guid": "3cea130eb2be59cd992c97f31906dd7f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Metallic Ride.mgxp",
+      "guid": "55145abe28b850cd9dd42f1f1866f0cc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM Rimshot.mgxp",
+      "guid": "e34b779a253c520783a2051d8417350e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Electro Tom.mgxp",
+      "guid": "1009ace2565159869cca9ee96735ba9d",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Noise Hat.mgxp",
+      "guid": "f5aca8e2ebbd51878fda7702bff287b0",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Laser Zap.mgxp",
+      "guid": "7fe31dd77df254138d50e1fa02c9ec81",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Pure Sub.mgxp",
+      "guid": "0127ca35965b50ddbaf460c4df7c995c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM Rubber Bass.mgxp",
+      "guid": "a29bb8f8ac825e6ebb3ee3765d507681",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Slap Bass.mgxp",
+      "guid": "d8c9b2bf97de5338b68d3e737528174c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Neuro Bass.mgxp",
+      "guid": "1d75e6a1bbc6538ca47057dbfb6eab93",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/8bit PWM Bass.mgxp",
+      "guid": "1d325bd403ad501295eafc91e8620543",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/House Piano Stab.mgxp",
+      "guid": "97f592fa9f2351d39ea5e86dde88eff7",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Rave Stab.mgxp",
+      "guid": "cd73139b6f0d5aac85c41281fdebbd60",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/FM Tine EP.mgxp",
+      "guid": "dd3deed4555d540b95c5e0419c27f99e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Digital Glass Keys.mgxp",
+      "guid": "d981dc08374a51778666d927068ba14a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Organ Percussion.mgxp",
+      "guid": "ee15a11692c45088aa816d63a4629b60",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Acid FM Lead.mgxp",
+      "guid": "5ac08c1d6150509995f987f24ef42c7a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Sync Sweep Lead.mgxp",
+      "guid": "5f1679c0067851ddabbd0d71120e70af",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Formant Growl.mgxp",
+      "guid": "fd0519355d125237ba420c28fced64cb",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Metallic Ambient Pad.mgxp",
+      "guid": "7c5b0cf05d78595c8a3b692c1006ad6a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Noise Breath Pad.mgxp",
+      "guid": "9ed25cc30f2954c9ac72f749e8e658ed",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Reverse Impact.mgxp",
+      "guid": "83e304d705bc582a8dc46cc1af59152b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Spectral Downlifter.mgxp",
+      "guid": "6c9d53a65a2f599cac775c8e06c7a2da",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Glitch Percussion.mgxp",
+      "guid": "932f975f6687546f94ae2048a2017881",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Particle Rain.mgxp",
+      "guid": "c59491dfc3a2549883ab6ca867c3d629",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Inharmonic Metal String.mgxp",
+      "guid": "475b76b1c4e75106967396f51f29d0ab",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Wavefolded Percussion.mgxp",
+      "guid": "73fc62989a5750cbb3b34157fbc9f822",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chiptune Chord Arp.mgxp",
+      "guid": "9dd9545d4393595c9a6f009d6b291b9c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Feedback FM Bell.mgxp",
+      "guid": "ff0e7eff87405634a2c9e1e4c2443d41",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Modal Woodblock.mgxp",
+      "guid": "e35af0b158685ea9956bbc6b41d225f1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Terrain Digital Bass.mgxp",
+      "guid": "97b9b7db1bcc59f88b99c7d4086c6f8c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chord Organ.mgxp",
+      "guid": "1392d685b6ab5d77a92fc21437cdd2a1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Granular Vocal Pluck.mgxp",
+      "guid": "77ebcb82fbb259408b97d0d58b7e7fe3",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Harmonic Morph Bell.mgxp",
+      "guid": "c92b48ee2ade50689ca0fab0bdc164bf",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    }
+  ],
+  "builtins": [
+    {
+      "source_key": 256,
+      "name": "WT Glass Motion",
+      "guid": "f04255494c5400000000000000000100",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 257,
+      "name": "WT Reed Drift",
+      "guid": "f04255494c5400000000000000000101",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 258,
+      "name": "WT Digital Sweep",
+      "guid": "f04255494c5400000000000000000102",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 259,
+      "name": "WT Soft Choir",
+      "guid": "f04255494c5400000000000000000103",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 260,
+      "name": "VA Wide Saw",
+      "guid": "f04255494c5400000000000000000104",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 261,
+      "name": "VA Pulse Bass",
+      "guid": "f04255494c5400000000000000000105",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 262,
+      "name": "VA PWM Keys",
+      "guid": "f04255494c5400000000000000000106",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 263,
+      "name": "VA Slow Brass",
+      "guid": "f04255494c5400000000000000000107",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 264,
+      "name": "FM6 Electric Piano",
+      "guid": "f04255494c5400000000000000000108",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 265,
+      "name": "FM6 Wineglass",
+      "guid": "f04255494c5400000000000000000109",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 266,
+      "name": "FM6 Metal Pad",
+      "guid": "f04255494c540000000000000000010a",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 267,
+      "name": "ADD Organ",
+      "guid": "f04255494c540000000000000000010b",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 268,
+      "name": "ADD Moving Glass",
+      "guid": "f04255494c540000000000000000010c",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 269,
+      "name": "PD Pulse Bass",
+      "guid": "f04255494c540000000000000000010d",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 270,
+      "name": "PD Curved Pad",
+      "guid": "f04255494c540000000000000000010e",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 271,
+      "name": "Layer Glass Duo",
+      "guid": "f04255494c540000000000000000010f",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 512,
+      "name": "Circuit",
+      "guid": "f04255494c5400000000000000000200",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 513,
+      "name": "Dust",
+      "guid": "f04255494c5400000000000000000201",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 514,
+      "name": "Wood",
+      "guid": "f04255494c5400000000000000000202",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 768,
+      "name": "SF2 Debug Sine",
+      "guid": "f04255494c5400000000000000000300",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 769,
+      "name": "Test Tone",
+      "guid": "f04255494c5400000000000000000301",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 770,
+      "name": "Techno 01",
+      "guid": "f04255494c5400000000000000000302",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 272,
+      "name": "Daisy Analog Kick",
+      "guid": "f04255494c5400000000000000000110",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 273,
+      "name": "Daisy Analog Snare",
+      "guid": "f04255494c5400000000000000000111",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 274,
+      "name": "Daisy Analog Hat",
+      "guid": "f04255494c5400000000000000000112",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 275,
+      "name": "Daisy Synth Kick",
+      "guid": "f04255494c5400000000000000000113",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 276,
+      "name": "Daisy Synth Snare",
+      "guid": "f04255494c5400000000000000000114",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 277,
+      "name": "Daisy Synth Hat",
+      "guid": "f04255494c5400000000000000000115",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1024,
+      "name": "VA Deep Kick",
+      "guid": "f04255494c5400000000000000000400",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1025,
+      "name": "FM Metal Snare",
+      "guid": "f04255494c5400000000000000000401",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1026,
+      "name": "FM Tick Hat",
+      "guid": "f04255494c5400000000000000000402",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1027,
+      "name": "VA Air Hat",
+      "guid": "f04255494c5400000000000000000403",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1028,
+      "name": "FM Glass Rim",
+      "guid": "f04255494c5400000000000000000404",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1029,
+      "name": "VA Round Tom",
+      "guid": "f04255494c5400000000000000000405",
+      "revision": 1,
+      "origin": "Factory"
+    },
+    {
+      "source_key": 1040,
+      "name": "VA + FM Percussion",
+      "guid": "f04255494c5400000000000000000410",
+      "revision": 1,
+      "origin": "Factory"
+    }
+  ],
+  "pending_factory_import": [],
+  "user_approved_additions": {
+    "date": "2026-11-09",
+    "note": "Added beyond the original 115-item fixed allocation with the user's explicit approval (2026-11-09), so the submitted library is more complete than before the MGXC12 removal: the user's own preset batches 1 (12) and 2 (24), the previously held Frozen Cathedral (1), and batch 3 (35 new presets). GUIDs are the pre-existing user allocations where they exist (batch 3 GUIDs were newly derived by the same UUIDv5 scheme); all are recorded here as Factory origin, revision 1, and are submitted in the same round, so none of them remain in pending_factory_import.",
+    "masters": [
+      "PRESETS/Oberheim Brass Stab.mgxp",
+      "PRESETS/EBM Industrial Bass.mgxp",
+      "PRESETS/Dub Chord Stab.mgxp",
+      "PRESETS/Cinematic Sub Drop.mgxp",
+      "PRESETS/Formant Lead.mgxp",
+      "PRESETS/Chip Arp Lead.mgxp",
+      "PRESETS/Granular Freeze Swell.mgxp",
+      "PRESETS/Karplus Pluck Lead.mgxp",
+      "PRESETS/Alien Choir.mgxp",
+      "PRESETS/VOSIM Chant.mgxp",
+      "PRESETS/Feedback Riser.mgxp",
+      "PRESETS/Morph WT Lead.mgxp",
+      "PRESETS/Plaits Analog Kick.mgxp",
+      "PRESETS/Plaits Analog Snare.mgxp",
+      "PRESETS/Plaits Metallic Hat.mgxp",
+      "PRESETS/Noise Riser.mgxp",
+      "PRESETS/Harmonic Keys.mgxp",
+      "PRESETS/Wave Terrain Pad.mgxp",
+      "PRESETS/Granular Formant Voice.mgxp",
+      "PRESETS/Donk Stack.mgxp",
+      "PRESETS/Reese Wall.mgxp",
+      "PRESETS/Screech Lead.mgxp",
+      "PRESETS/Frozen Cathedral.mgxp",
+      "PRESETS/Wave Sequence Machine.mgxp",
+      "PRESETS/Tape Microsound Loop.mgxp",
+      "PRESETS/GM Strings.mgxp",
+      "PRESETS/GM Choir Aahs.mgxp",
+      "PRESETS/GM Synth Brass.mgxp",
+      "PRESETS/Granular Wash.mgxp",
+      "PRESETS/PWM Strings.mgxp",
+      "PRESETS/TB-303 Square.mgxp",
+      "PRESETS/Fold Bass.mgxp",
+      "PRESETS/Additive Bell.mgxp",
+      "PRESETS/String Swarm.mgxp",
+      "PRESETS/Robot Chord Choir.mgxp",
+      "PRESETS/Plaits Hit Stack.mgxp",
+      "PRESETS/Wobble Bass.mgxp",
+      "PRESETS/808 Snare.mgxp",
+      "PRESETS/909 Clap.mgxp",
+      "PRESETS/Metallic Ride.mgxp",
+      "PRESETS/FM Rimshot.mgxp",
+      "PRESETS/Electro Tom.mgxp",
+      "PRESETS/Noise Hat.mgxp",
+      "PRESETS/Laser Zap.mgxp",
+      "PRESETS/Pure Sub.mgxp",
+      "PRESETS/FM Rubber Bass.mgxp",
+      "PRESETS/Slap Bass.mgxp",
+      "PRESETS/Neuro Bass.mgxp",
+      "PRESETS/8bit PWM Bass.mgxp",
+      "PRESETS/House Piano Stab.mgxp",
+      "PRESETS/Rave Stab.mgxp",
+      "PRESETS/FM Tine EP.mgxp",
+      "PRESETS/Digital Glass Keys.mgxp",
+      "PRESETS/Organ Percussion.mgxp",
+      "PRESETS/Acid FM Lead.mgxp",
+      "PRESETS/Sync Sweep Lead.mgxp",
+      "PRESETS/Formant Growl.mgxp",
+      "PRESETS/Metallic Ambient Pad.mgxp",
+      "PRESETS/Noise Breath Pad.mgxp",
+      "PRESETS/Reverse Impact.mgxp",
+      "PRESETS/Spectral Downlifter.mgxp",
+      "PRESETS/Glitch Percussion.mgxp",
+      "PRESETS/Particle Rain.mgxp",
+      "PRESETS/Inharmonic Metal String.mgxp",
+      "PRESETS/Wavefolded Percussion.mgxp",
+      "PRESETS/Chiptune Chord Arp.mgxp",
+      "PRESETS/Feedback FM Bell.mgxp",
+      "PRESETS/Modal Woodblock.mgxp",
+      "PRESETS/Terrain Digital Bass.mgxp",
+      "PRESETS/Chord Organ.mgxp",
+      "PRESETS/Granular Vocal Pluck.mgxp",
+      "PRESETS/Harmonic Morph Bell.mgxp"
+    ]
+  }
+}

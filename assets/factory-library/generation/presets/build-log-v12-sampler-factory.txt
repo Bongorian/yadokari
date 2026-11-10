@@ -1,0 +1,26 @@
+gen  Breakbeat Chops 132            8001 bytes  Breakbeat Chops 132.mgxp
+gen  Jungle Chops 172               7998 bytes  Jungle Chops 172.mgxp
+gen  Funk Chops 104                 7996 bytes  Funk Chops 104.mgxp
+gen  House Loop 124                 7900 bytes  House Loop 124.mgxp
+gen  Techno Loop 138                7901 bytes  Techno Loop 138.mgxp
+gen  Ambient Bed 90                 7953 bytes  Ambient Bed 90.mgxp
+gen  Grand Piano                    7945 bytes  Grand Piano.mgxp
+gen  Electric Piano                 7948 bytes  Electric Piano.mgxp
+gen  Clavisynth                     7997 bytes  Clavisynth.mgxp
+gen  Marimba                        7929 bytes  Marimba.mgxp
+gen  Kalimba                        7911 bytes  Kalimba.mgxp
+gen  Vibraphone                     7985 bytes  Vibraphone.mgxp
+generated 12 presets
+PASS Breakbeat Chops 132          engine=mk3.sampler
+PASS Jungle Chops 172             engine=mk3.sampler
+PASS Funk Chops 104               engine=mk3.sampler
+PASS House Loop 124               engine=mk3.sampler
+PASS Techno Loop 138              engine=mk3.sampler
+PASS Ambient Bed 90               engine=mk3.sampler
+PASS Grand Piano                  engine=mk3.sampler
+PASS Electric Piano               engine=mk3.sampler
+PASS Clavisynth                   engine=mk3.sampler
+PASS Marimba                      engine=mk3.sampler
+PASS Kalimba                      engine=mk3.sampler
+PASS Vibraphone                   engine=mk3.sampler
+verify: 12 passed, 0 failed, 12 total

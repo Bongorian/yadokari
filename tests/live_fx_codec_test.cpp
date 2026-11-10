@@ -1,0 +1,8 @@
+#include "project_codec.h"
+#include <cassert>
+#include <memory>
+#include <vector>
+#include <cstdio>
+struct Sink{std::vector<uint8_t> data;bool write(const uint8_t* p,size_t n){data.insert(data.end(),p,p+n);return true;}};
+struct Source{const std::vector<uint8_t>& data;size_t pos=0;bool read(uint8_t* p,size_t n){if(n>data.size()-pos)return false;for(size_t i=0;i<n;++i)p[i]=data[pos++];return true;}bool at_end()const{return pos==data.size();}};
+int main(){using namespace groove;auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->macros[7].routes[15]={true,3,0x1234,1,0,LayerMode::Replace,MacroCurve::Smooth};p->effects.live_fx_type=4;p->effects.live_fx_amount=.75f;p->morph_a[0].values[morph_index(472)]=3;track_at(*p,0,0).steps[0].locks[0]={472,7,true};auto t=track_at(*p,0,0);t.steps[0].lock_only=true;t.steps[70].lock_only=true;t.steps[70].locks[0]={472,2,true};t.mutation.frozen=true;t.mutation_source[0]=t.steps[0];t.mutation_source[70]=t.steps[70];Sink s;assert(encode_project(s,*p));auto out=std::make_unique<ProjectState>();Source source{s.data};assert(decode_project(source,*out));assert(out->effects.live_fx_type==4 && out->effects.live_fx_amount==.75f);const auto& r=out->macros[7].routes[15];assert(r.enabled && r.tracks==0x1234 && r.curve==MacroCurve::Smooth && r.low==1 && r.high==0);assert(out->morph_a[0].values[morph_index(472)]==3);assert(track_at(*out,0,0).steps[0].locks[0].id==472);const auto t2=track_at(*out,0,0);assert(t2.steps[0].lock_only && t2.steps[70].lock_only && t2.mutation_source[0].lock_only && t2.mutation_source[70].lock_only);puts("live FX MGXC round-trip passed");}

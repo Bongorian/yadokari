@@ -1,0 +1,4 @@
+#pragma once
+#include <stdlib.h>
+// Circle has no linked libc abs. The native WSOLA window delta is bounded.
+extern "C" inline int abs(int value){return value<0?-value:value;}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "base_native_workload": "native-workload-v1-audo.json",
+  "cases": 19,
+  "tracks": "12 original native + 2 looper + 2 Song AUDIO",
+  "recording": "Main to looper 13, bar-start, free length, service WAV writes",
+  "warmup_seconds": 2,
+  "measure_seconds": 6,
+  "rate": 48000,
+  "worker_frames": 24,
+  "worker_budget_us": 500,
+  "assets": [
+    {
+      "path": "GROOVE/AUDIO-TEST/STREAM0.WAV",
+      "frames": 2304000,
+      "bytes": 9216044,
+      "sha256": "90ee91b3bc7ccb0e747ef839ba8bba9d5c29931196ccf547008bff7062803b3a"
+    },
+    {
+      "path": "GROOVE/AUDIO-TEST/STREAM1.WAV",
+      "frames": 2304000,
+      "bytes": 9216044,
+      "sha256": "add839faa8cc97ae798841e9681bf127c78e2703d86b8c1a022086dd2eece293"
+    },
+    {
+      "path": "GROOVE/AUDIO-TEST/STREAM2.WAV",
+      "frames": 2304000,
+      "bytes": 9216044,
+      "sha256": "831eda48d7f836ceb70b19b7f567345f44707162e4df325b97bda23957015146"
+    },
+    {
+      "path": "GROOVE/AUDIO-TEST/STREAM3.WAV",
+      "frames": 2304000,
+      "bytes": 9216044,
+      "sha256": "bffff264da0fc8011abc7ce6e622e6aafd8bc245ffde204e2a90c055b2b7c1cd"
+    }
+  ]
+}

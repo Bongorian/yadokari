@@ -1,0 +1,100 @@
+{
+  "source-sans": {
+    "repo": "adobe-fonts/source-sans",
+    "revision": "87b37a2daaed80fcb8e8ccb0085c4d72ddade12e",
+    "files": {
+      "LICENSE.md": {
+        "sha256": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/LICENSE.md",
+        "local": "third_party/fonts/source-sans/OFL.txt"
+      },
+      "OTF/SourceSans3-Light.otf": {
+        "sha256": "bbfab2c58d46defe8a194634744660ee15d560dcf3d7a8c7bb509936acc618c7",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/OTF/SourceSans3-Light.otf",
+        "local": ".deps/fonts/SourceSans3-Light.otf"
+      },
+      "OTF/SourceSans3-Regular.otf": {
+        "sha256": "08df266400933d3178d081a45f94a08814c3e55b4b7dd2e0ff69cb1329f13ab6",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/OTF/SourceSans3-Regular.otf",
+        "local": ".deps/fonts/SourceSans3-Regular.otf"
+      },
+      "OTF/SourceSans3-Semibold.otf": {
+        "sha256": "36f1cd2c344aa3109e64429bce41a41e4b2b923beb2db19b8dbf9bb56f05a4f9",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/OTF/SourceSans3-Semibold.otf",
+        "local": ".deps/fonts/SourceSans3-Semibold.otf"
+      },
+      "OTF/SourceSans3-Bold.otf": {
+        "sha256": "7776ddb9f3eb58683e59f28d558d8896b768c2d0c80799fb3f1c56c54dfd98c9",
+        "url": "https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/OTF/SourceSans3-Bold.otf",
+        "local": ".deps/fonts/SourceSans3-Bold.otf"
+      }
+    },
+    "usage": "historical"
+  },
+  "archivo": {
+    "repo": "google/fonts",
+    "revision": "6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec",
+    "files": {
+      "ofl/archivo/OFL.txt": {
+        "sha256": "108b4e57c9c796d3d38d0428ca7ee39de47ad93187302718d9b2d8864b9b716b",
+        "url": "https://raw.githubusercontent.com/google/fonts/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/archivo/OFL.txt",
+        "local": "third_party/fonts/archivo/OFL.txt"
+      },
+      "ofl/archivo/Archivo[wdth,wght].ttf": {
+        "sha256": "0e094a7d3c7c4c25cf1310c4b30014f1dae9332220b1c2c88f4fa996f0b05053",
+        "url": "https://raw.githubusercontent.com/google/fonts/6c1dbe27dcf7d817d4b62cec033ba77fa8e2a5ec/ofl/archivo/Archivo%5Bwdth%2Cwght%5D.ttf",
+        "local": ".deps/fonts/Archivo-VF.ttf"
+      }
+    },
+    "usage": "historical"
+  },
+  "smooch-sans": {
+    "repo": "google/fonts",
+    "revision": "bbda7253fc363238b05d97515ca71f8ae49c4fa9",
+    "files": {
+      "ofl/smoochsans/OFL.txt": {
+        "sha256": "fa0b71e1cd04a0ba1b95f17b45dbb2d9072a9a1e7760935dfbde8a3fe8f0402c",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/smoochsans/OFL.txt",
+        "local": "third_party/fonts/smooch-sans/OFL.txt"
+      },
+      "ofl/smoochsans/SmoochSans[wght].ttf": {
+        "sha256": "6d82f480d71365d9c6c4f96ad1f3cab44053ea3f0b63650b1e0e539d915aff49",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/smoochsans/SmoochSans%5Bwght%5D.ttf",
+        "local": ".deps/fonts/SmoochSans-VF.ttf"
+      }
+    },
+    "usage": "historical"
+  },
+  "barlow-semi-condensed": {
+    "repo": "google/fonts",
+    "revision": "bbda7253fc363238b05d97515ca71f8ae49c4fa9",
+    "files": {
+      "ofl/barlowsemicondensed/OFL.txt": {
+        "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/barlowsemicondensed/OFL.txt",
+        "local": "third_party/fonts/barlow-semi-condensed/OFL.txt"
+      },
+      "ofl/barlowsemicondensed/BarlowSemiCondensed-Regular.ttf": {
+        "sha256": "e8c7242f612b13d026e18a94b63b0fd079e91a3faf009d1b6981dbb5f16d1153",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/barlowsemicondensed/BarlowSemiCondensed-Regular.ttf",
+        "local": ".deps/fonts/BarlowSemiCondensed-Regular.ttf"
+      },
+      "ofl/barlowsemicondensed/BarlowSemiCondensed-Medium.ttf": {
+        "sha256": "4998b693a190b76f2b11315844345a8546c1e2e6a320905507a9eed04edf8b48",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/barlowsemicondensed/BarlowSemiCondensed-Medium.ttf",
+        "local": ".deps/fonts/BarlowSemiCondensed-Medium.ttf"
+      },
+      "ofl/barlowsemicondensed/BarlowSemiCondensed-SemiBold.ttf": {
+        "sha256": "bd299f4bc5b44d30be8d42e9bad3a5df7d66af1cd55d0ed72a8b8916360a1424",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/barlowsemicondensed/BarlowSemiCondensed-SemiBold.ttf",
+        "local": ".deps/fonts/BarlowSemiCondensed-SemiBold.ttf"
+      },
+      "ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf": {
+        "sha256": "5bd6757e459a110da81b44532f0f43058e2dab2401688abca84f2fdbde193cbb",
+        "url": "https://raw.githubusercontent.com/google/fonts/bbda7253fc363238b05d97515ca71f8ae49c4fa9/ofl/barlowsemicondensed/BarlowSemiCondensed-Bold.ttf",
+        "local": ".deps/fonts/BarlowSemiCondensed-Bold.ttf"
+      }
+    },
+    "usage": "ui"
+  }
+}

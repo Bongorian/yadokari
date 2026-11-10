@@ -1,0 +1,38 @@
+// Shared UI implementation: ordinary translation-unit boundaries, uniform -O3.
+#include "software_canvas.h"
+namespace groove {
+auto SoftwareCanvas::marquee_offset(int overflow,uint64_t elapsed) -> int{
+  if(overflow<=0)return 0;
+  const uint64_t travel=(uint64_t(overflow)*1000+27)/28,phase=elapsed%(2400+2*travel);
+  if(phase<1200)return 0;
+  if(phase<1200+travel)return int((phase-1200)*28/1000);
+  if(phase<2400+travel)return overflow;
+  return overflow-int((phase-2400-travel)*28/1000);
+ }
+auto SoftwareCanvas::observe_text(unsigned side,int x,int y,int width,ui::FontRole role,bool numeric,const char* text,int band_y,int band_h) -> void{if(text_observer)text_observer({side,x,y,width,role,numeric,text,band_h?band_y:field_y_,band_h?band_h:field_h_,field_x_,field_w_,field_align_,field_kind_},text_observer_context);}
+auto SoftwareCanvas::scrolling_due(int first,int last)const -> bool{for(unsigned i=0;i<marquee_count_;++i){const auto& m=marquees_[i];if(m.y>=first && m.y<last && marquee_offset(m.overflow,text_time_-m.started)!=m.offset)return true;}return false;}
+auto SoftwareCanvas::scrolling_label(unsigned side,int x,int y,const char* value,uint32_t color,ui::FontRole role,int w) -> void{
+  const int full=ui::text_width(value,role);if(full<=w){for(unsigned i=0;i<marquee_count_;++i)if(marquees_[i].key==uint32_t(side*480*272+y*480+x)){marquees_[i].overflow=0;marquees_[i].offset=0;}label(side,x,y,value,color,role,w);return;}
+  uint32_t key=uint32_t(side*480*272+y*480+x),hash=2166136261u;for(const char* p=value;*p;++p)hash=(hash^uint8_t(*p))*16777619u;hash=(hash^unsigned(w))*16777619u;hash=(hash^unsigned(role))*16777619u;
+  unsigned n=0;while(n<marquee_count_ && marquees_[n].key!=key)++n;
+  if(n==marquee_count_){if(n>=48){label(side,x,y,value,color,role,w);return;}++marquee_count_;marquees_[n]={text_time_,hash,key,full-w,0,y};}
+  auto& m=marquees_[n];if(m.hash!=hash)m={text_time_,hash,key,full-w,0,y};m.offset=marquee_offset(m.overflow,text_time_-m.started);
+  observe_text(side,x,mapped_y(y),w,role,false,value);
+  ui::raster_text([&](int px,int py,unsigned a){if(px>=x && px<x+w)blend(side,px,py,color,a);},x-m.offset,mapped_y(y),value,role,full+4);
+ }
+auto SoftwareCanvas::fill(unsigned side,int x,int y,int w,int h,uint32_t color) -> void{color=lit(color);y=mapped_y(y);h=mapped_h(h);if(side>1 || w<=0 || h<=0)return;int x0=x<0?0:x,y0=y<clip_top_?clip_top_:y,x1=x+w>480?480:x+w,y1=y+h>clip_bottom_?clip_bottom_:y+h;for(int j=y0;j<y1;++j)for(int i=x0;i<x1;++i)pixels[side][j*480+i]=color;}
+auto SoftwareCanvas::rounded_coverage(float x,float y,float w,float h,float r) -> float{if(r<=0)return x>=0 && y>=0 && x<w && y<h?1:0;float dx=r-x,dy=r-y;if(w-x<r)dx=r-(w-x);else if(x>=r)dx=0;if(h-y<r)dy=r-(h-y);else if(y>=r)dy=0;if(dx<0)dx=0;if(dy<0)dy=0;return ui::clamp01(r+0.5f-sqrtf(dx*dx+dy*dy));}
+auto SoftwareCanvas::rounded(unsigned side,int x,int y,int w,int h,int radius,uint32_t color,unsigned alpha) -> void{if(w<=0 || h<=0 || side>1)return;y=mapped_y(y);h=mapped_h(h);if(radius>w/2)radius=w/2;if(radius>h/2)radius=h/2;if(radius<=0){for(int j=0;j<h;++j)for(int i=0;i<w;++i)blend(side,x+i,y+j,color,alpha);return;}for(int j=0;j<h;++j)for(int i=0;i<w;++i){unsigned a=alpha;if((i<radius || i>=w-radius) && (j<radius || j>=h-radius))a=unsigned(rounded_coverage(i+0.5f,j+0.5f,float(w),float(h),float(radius))*alpha);blend(side,x+i,y+j,color,a);}}
+auto SoftwareCanvas::outline(unsigned side,int x,int y,int w,int h,int radius,uint32_t color,unsigned thickness,unsigned alpha) -> void{if(w<=0 || h<=0)return;y=mapped_y(y);h=mapped_h(h);for(int j=0;j<h;++j)for(int i=0;i<w;++i){if(i>=int(thickness) && j>=int(thickness) && i<w-int(thickness) && j<h-int(thickness) && ((i>=radius && i<w-radius) || (j>=radius && j<h-radius)))continue;float outer=rounded_coverage(i+0.5f,j+0.5f,float(w),float(h),float(radius));float inner=0;if(i>=int(thickness) && j>=int(thickness) && i<w-int(thickness) && j<h-int(thickness))inner=rounded_coverage(i+0.5f-thickness,j+0.5f-thickness,float(w-2*int(thickness)),float(h-2*int(thickness)),float(radius>int(thickness)?radius-int(thickness):0));blend(side,x+i,y+j,color,unsigned(ui::clamp01(outer-inner)*alpha));}}
+auto SoftwareCanvas::line_pixels(unsigned side,int x0,int y0,int x1,int y1,uint32_t color,int thickness,unsigned alpha) -> void{int x=x0,y=y0,end_x=x1,end_y=y1;int dx=(end_x>x?end_x-x:x-end_x),dy=-(end_y>y?end_y-y:y-end_y),sx=x<end_x?1:-1,sy=y<end_y?1:-1,error=dx+dy;int weight=thickness;if(weight<1)weight=1;for(;;){for(int n=0;n<weight;++n)blend(side,x,y+n,color,alpha);if(x==end_x && y==end_y)break;int e2=2*error;if(e2>=dy){error+=dy;x+=sx;}if(e2<=dx){error+=dx;y+=sy;}}}
+auto SoftwareCanvas::line(unsigned side,float x0,float y0,float x1,float y1,uint32_t color,float thickness,unsigned alpha) -> void{thickness=thickness<1.5f?1:thickness<2.5f?2:thickness<4.5f?3:6;line_pixels(side,int(lroundf(x0)),int(lroundf(mapped_y(y0))),int(lroundf(x1)),int(lroundf(mapped_y(y1))),color,int(lroundf(thickness)),alpha);}
+auto SoftwareCanvas::aligned_band(unsigned side,int x,int y,int w,int h,const char* value,uint32_t color,ui::FontRole role,ui::TextAlign align,ui::TextKind kind,bool numeric,bool scrolling) -> void{
+  if(w<=0 || h<=0){return;}int top=mapped_y(y),height=mapped_h(h),full=ui::text_width(value,role,numeric),width=full<w?full:w,tx=x+(align==ui::TextAlign::Right?w-width:align==ui::TextAlign::Center?(w-width)/2:0),ty=ui::centered_text_y(role,top,height);
+  int old_x=field_x_,old_w=field_w_,old_y=field_y_,old_h=field_h_;auto old_align=field_align_;auto old_kind=field_kind_;field_x_=x;field_w_=w;field_y_=top;field_h_=height;field_align_=align;field_kind_=kind;
+  if(scrolling && full>w){bool active=layout_active_;layout_active_=false;scrolling_label(side,tx,ty,value,color,role,w);layout_active_=active;}else label_pixels(side,tx,ty,value,color,role,w-(tx-x),numeric,top,height);
+  field_x_=old_x;field_w_=old_w;field_y_=old_y;field_h_=old_h;field_align_=old_align;field_kind_=old_kind;
+ }
+auto SoftwareCanvas::number(unsigned side,unsigned x,unsigned y,unsigned value,uint32_t color,unsigned scale) -> void{char digits[12];unsigned n=0;do{digits[n++]=char('0'+value%10);value/=10;}while(value && n<11);char text[12];for(unsigned i=0;i<n;++i)text[i]=digits[n-i-1];text[n]=0;label(side,int(x),int(y),text,color,scale>1?ui::FontRole::Heading:ui::FontRole::Body,480-int(x),true);}
+auto SoftwareCanvas::format_value(char out[24],float value,unsigned precision) -> void{if(!(value>=-10000000 && value<=10000000))value=0;if(precision>6)precision=6;unsigned n=0;if(value<0){out[n++]='-';value=-value;}uint64_t factor=1;for(unsigned i=0;i<precision;++i)factor*=10;uint64_t raw=uint64_t(double(value)*factor+.5),integer=raw/factor,fraction=raw%factor;char digits[20];unsigned count=0;do{digits[count++]=char('0'+integer%10);integer/=10;}while(integer && count<20);while(count)out[n++]=digits[--count];if(precision){out[n++]='.';for(uint64_t divisor=factor/10;divisor;divisor/=10)out[n++]=char('0'+fraction/divisor%10);}out[n]=0;}
+auto SoftwareCanvas::value(unsigned side,int x,int y,int w,float v,uint32_t color,ui::FontRole role,unsigned precision) -> void{char text[24];format_value(text,v,precision);if(layout_active_ && y>=75 && y<=90){aligned_band(side,x,82,w,18,text,color,role,ui::TextAlign::Right,ui::TextKind::ValueNumber,true);return;}int tw=ui::text_width(text,role,true);int ox=field_x_,ow=field_w_;auto oa=field_align_;auto ok=field_kind_;field_x_=x;field_w_=w;field_align_=ui::TextAlign::Right;field_kind_=ui::TextKind::ValueNumber;label(side,x+w-tw,y,text,color,role,w,true);field_x_=ox;field_w_=ow;field_align_=oa;field_kind_=ok;}
+}

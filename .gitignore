@@ -1,0 +1,47 @@
+.deps/
+*.o
+*.d
+*.elf
+*.img
+*.map
+build/
+*.lst
+
+firmware/update_key.h
+__pycache__/
+*.gup
+
+# Runtime recordings and generated asset recovery generations remain local.
+/recordings/
+/assets/**/*.bak
+/assets/**/*.bak-*
+/readiness-boot-package.log
+
+firmware/.circle-profile-stamp
+
+# Reproducible, licensed factory audio is built from the pinned source lock.
+/assets/factory/**/F-*.wav
+/assets/factory/**/M-*.wav
+/assets/factory/**/L-*.wav
+/assets/factory/library.json
+/assets/kits/*.mgx*
+/assets/presets/*.mgx*
+/build/factory-kits.tsv
+
+# Runtime factory cache and user project destination (generated from source).
+/FACTORY/
+/Projects/
+/BENCH.MGX
+/BENCH.MGXS
+
+# Canonical development DATA sample, regenerated from the licensed source asset.
+/ASSETS/
+
+# Canonical user DATA stays local just like the former runtime directories.
+/PROJECTS/
+/PRESETS/
+/KITS/
+/RECORDINGS/
+
+# Compiler-measured firmware stack reports; selected evidence is archived in docs.
+/firmware/*.su

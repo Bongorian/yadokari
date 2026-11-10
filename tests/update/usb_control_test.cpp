@@ -1,0 +1,5 @@
+#include "update/usb_control.h"
+#include <cassert>
+using namespace groove::update;
+static UsbInput line(UsbControlMux& mux,const char* s,bool active){UsbInput result;while(*s){auto next=mux.feed(uint8_t(*s++),active);if(next.kind!=UsbInputKind::None){assert(result.kind==UsbInputKind::None);result=next;}}return result;}
+int main(){UsbControlMux m;assert(line(m,"!GBX1 STATUS\n",false).command==SerialCommand::Status);assert(line(m,"!GBX1 ENTER\n",false).command==SerialCommand::Enter);assert(line(m,"!GBX1 LOG\n",false).command==SerialCommand::Log);assert(line(m,"!GBX1 HARDWARE\n",false).command==SerialCommand::Hardware);assert(m.feed('G',true).kind==UsbInputKind::BinaryStart);m={};assert(m.feed('G',false).kind==UsbInputKind::None);assert(line(m,"UP1\n",false).kind==UsbInputKind::None);assert(line(m,"!GBX1 TRIAL\n",true).command==SerialCommand::Trial);assert(line(m,"!GBX1 CONFIRM\n",true).command==SerialCommand::Confirm);assert(line(m,"!GBX1 G\n",true).kind==UsbInputKind::None);assert(m.feed('G',true).kind==UsbInputKind::BinaryStart);}

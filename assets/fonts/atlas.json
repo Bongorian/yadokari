@@ -1,0 +1,83 @@
+{
+  "families": [
+    "Barlow Semi Condensed"
+  ],
+  "license_notices": [
+    "third_party/fonts/barlow-semi-condensed/OFL.txt"
+  ],
+  "numeric_feature": "tnum frozen into outlines and advances",
+  "fonts": [
+    {
+      "role": "Small",
+      "family": "Barlow Semi Condensed",
+      "size": 12,
+      "cap_height": 9,
+      "line_height": 14,
+      "tracking_px": 1,
+      "source_sha256": "fb576adaab6fdfbea2655a2ab1c4c93fdf601a9797e92c1fa7aa6d71f714a7fa",
+      "coverage_bytes": 2475,
+      "glyphs": 101,
+      "kern_pairs": 961
+    },
+    {
+      "role": "Body",
+      "family": "Barlow Semi Condensed",
+      "size": 14,
+      "cap_height": 10,
+      "line_height": 18,
+      "tracking_px": 0,
+      "source_sha256": "42478c420924a6b89b4eb20742be8338500d97f7e143134b08f5b99ac68221a4",
+      "coverage_bytes": 3158,
+      "glyphs": 101,
+      "kern_pairs": 976
+    },
+    {
+      "role": "Heading",
+      "family": "Barlow Semi Condensed",
+      "size": 20,
+      "cap_height": 15,
+      "line_height": 24,
+      "tracking_px": 0,
+      "source_sha256": "fb576adaab6fdfbea2655a2ab1c4c93fdf601a9797e92c1fa7aa6d71f714a7fa",
+      "coverage_bytes": 6760,
+      "glyphs": 101,
+      "kern_pairs": 961
+    },
+    {
+      "role": "Number",
+      "family": "Barlow Semi Condensed",
+      "size": 24,
+      "cap_height": 17,
+      "line_height": 28,
+      "tracking_px": 0,
+      "source_sha256": "828ee16d6cffdecde19f6d615e59d7ab689a00706106e3deee98071946b082dc",
+      "coverage_bytes": 8818,
+      "glyphs": 101,
+      "kern_pairs": 975
+    },
+    {
+      "role": "Bold",
+      "family": "Barlow Semi Condensed",
+      "size": 14,
+      "cap_height": 10,
+      "line_height": 18,
+      "tracking_px": 0,
+      "source_sha256": "b7cbe21f9848ebc24acaf99abf1129505574421de5c92b48fc31ac0dcb346415",
+      "coverage_bytes": 3322,
+      "glyphs": 101,
+      "kern_pairs": 954
+    },
+    {
+      "role": "Knob",
+      "family": "Barlow Semi Condensed",
+      "size": 20,
+      "cap_height": 15,
+      "line_height": 24,
+      "tracking_px": 0,
+      "source_sha256": "fb576adaab6fdfbea2655a2ab1c4c93fdf601a9797e92c1fa7aa6d71f714a7fa",
+      "coverage_bytes": 6760,
+      "glyphs": 101,
+      "kern_pairs": 961
+    }
+  ]
+}

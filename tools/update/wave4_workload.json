@@ -1,0 +1,70 @@
+{
+  "name": "Wave4 draft",
+  "revision": 1,
+  "status": "Executed under 2026-11-04 final-test authorization; bounded acceptance: nonzero windows, no missing frames, ring/stream errors or reset. Not a general polyphony guarantee.",
+  "rate": 48000,
+  "tempo": 120,
+  "warmup_ms": 2000,
+  "window_ms": 6000,
+  "pattern": {
+    "length": 16,
+    "steps": [
+      0,
+      4,
+      8,
+      12
+    ],
+    "velocity": 90,
+    "gate": 40
+  },
+  "scenarios": [
+    {
+      "id": 0,
+      "name": "16 mixed engines",
+      "detail": "Attached engine state; no pool fill; SOURCE defaults, level .12"
+    },
+    {
+      "id": 1,
+      "name": "Four two-layer tracks + twelve mixed",
+      "detail": "Alternating ADDITIVE/PHASE DIST; pan -1..1; 7 ct spacing; per-child level 1/2"
+    },
+    {
+      "id": 2,
+      "name": "Four four-layer tracks + twelve mixed",
+      "detail": "Same child engines; per-child level 1/4; admission limits remain enabled"
+    },
+    {
+      "id": 3,
+      "name": "16 tracks sharing a large SF2",
+      "asset": "GROOVE/LOADTEST.SF2",
+      "minimum_bytes": 33554432,
+      "selection": "First supported bank/program",
+      "missing": "SKIPPED, never substituted with a small fixture"
+    },
+    {
+      "id": 4,
+      "name": "12 mixed + four streams + recording + save",
+      "detail": "Two Looper, two AUDIO; 48 s generated stereo PCM16 files; Main recording; save requested 3.5 s after playback start"
+    }
+  ],
+  "metrics": [
+    "worker blocks / mean / max / over500 / missing frames delta",
+    "USB ring underrun/overrun delta",
+    "callback gaps and duration",
+    "DSP stage timings",
+    "stream misses delta",
+    "recorded file saved/verified/assigned/drop flags",
+    "save snapshot / completion / max service duration",
+    "uptime / boot markers / low heap / temperature / throttling"
+  ],
+  "not_guaranteed": [
+    "polyphony under all mixtures",
+    "large SF2 across arbitrary programs/layers",
+    "long recording",
+    "SD latency tails",
+    "audible quality",
+    "physical workflows"
+  ],
+  "data": "Temporary generated streams and take removed after restoring the in-memory project stopped; supplied SF2 preserved. No disk backup or pool autoload.",
+  "timing_revision": 2
+}

@@ -1,0 +1,1221 @@
+{
+  "revision": 13,
+  "sha256": "45e463cf9dc5d46840105da3c44a41338e82284a385ec327933123c9ada807a8",
+  "files": [
+    {
+      "path": "BENCH.MGXS",
+      "size": 1295533,
+      "sha256": "cc91c9aa73449b9e937899e2e25bd81c8c13371a36bea11048176f101bc97445"
+    },
+    {
+      "path": "FACTORY/DEBUG/440Hz.wav",
+      "size": 96044,
+      "sha256": "7ca185a6d87ec11419e53d82fa56ad8bd294c84f0168b60aeeb7e2c47739596e"
+    },
+    {
+      "path": "FACTORY/DEBUG/Benchmark.mgxs",
+      "size": 1295533,
+      "sha256": "749c44a41904c5a585f5a678ab1a18c2d0bec13070d5a241310abb1b230d8c4b"
+    },
+    {
+      "path": "FACTORY/DEBUG/SF2-Sine.mgxp",
+      "size": 7576,
+      "sha256": "1b91712fc0de38f79965a633edd48d71d48a80ba36332f1396eae47d1202e26e"
+    },
+    {
+      "path": "FACTORY/DEBUG/Sine.sf2",
+      "size": 946,
+      "sha256": "d44ec058c2762b7c698f245f1a1a158bb5536025558fb88065d0a646ea3e587e"
+    },
+    {
+      "path": "FACTORY/DEBUG/Test-Tone.mgxp",
+      "size": 7569,
+      "sha256": "13686b22cb3573616d5fa6513687e498e2e5c4e2c43a48c443bb775e831f18ed"
+    },
+    {
+      "path": "FACTORY/DEBUG/demo-slices.wav",
+      "size": 96044,
+      "sha256": "0adba99c56ba1b0d2c2aec05099e1547e6f6336db93a07cb2603a4c4974167a9"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Clap.wav",
+      "size": 24044,
+      "sha256": "0f28ce84ccf877288723642c8f0c393acbad8be0853e8c2538fabbe358feb3ac"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Closed-Hat.wav",
+      "size": 9644,
+      "sha256": "a75aef9fa2c364be8553ff7a3a8727ca55f3d4c71d33568174181b649abb63af"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Kick.wav",
+      "size": 38444,
+      "sha256": "f5962e3bb1a8a63a04c75d21a6ad166805e6d0ddcac5793b2eac59ade887e04e"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Open-Hat.wav",
+      "size": 48044,
+      "sha256": "4ef6312ebb77e9725dba21ffcb4a344bddc27b751b6e9ac62a7f2817f01e4654"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Snare.wav",
+      "size": 28844,
+      "sha256": "a0f5868c86f650ffc3b5b876dd7417ae355b0a67eafd80020df3c74c83a43255"
+    },
+    {
+      "path": "FACTORY/DRUMS/Circuit-Tom.wav",
+      "size": 24044,
+      "sha256": "b7f40a12d9c172760aceddba1e2f1431854199540782d85b477906f1cb772499"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Clap.wav",
+      "size": 24044,
+      "sha256": "1a3b138b79a57eabe8faed04595bc1e75c60b5d84e322bce0398eceffe75cb0f"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Closed-Hat.wav",
+      "size": 9644,
+      "sha256": "c935d77f5b304975da858d7ef3f6e71d4b3fc01713973d1ba3b4a6a5d1aef7ec"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Kick.wav",
+      "size": 38444,
+      "sha256": "d80a99478b6872bd36bd418a7ea1b20622535621e365d2476c74fc222a69fe10"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Open-Hat.wav",
+      "size": 48044,
+      "sha256": "275595acf09a6e9d9ef4b8bb159262e10ee79d871ad4d067ce0e8b93698804bd"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Snare.wav",
+      "size": 28844,
+      "sha256": "dc0f67f0b2e3468652e1e25e8a3d21d3dac31ada34ebfe25af63f2a44d609cae"
+    },
+    {
+      "path": "FACTORY/DRUMS/Dust-Tom.wav",
+      "size": 24044,
+      "sha256": "0523e8114b5896be38dfe5b8bda3827b65bc56e3777f6d81587dec5470dc24db"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/FM Glass Rim.wav",
+      "size": 24044,
+      "sha256": "80d837f8198eb6ef2354ab79e47ab500a1973cc36445cb9ea3f1bf7dce3a53c7"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/FM Metal Snare.wav",
+      "size": 28844,
+      "sha256": "ae8e068d166396ce3afbe47ff20313c906272576a16afeee7e836c33842e448e"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/FM Tick Hat.wav",
+      "size": 9644,
+      "sha256": "525195337876a3ca28451ff7dc519042b9ab889d7895c3d1e2201681e8906b48"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/VA Air Hat.wav",
+      "size": 48044,
+      "sha256": "3ed282498fb44e799fab4be21fd7e975a2a59eb8adae08dd55bd3a541945da10"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/VA Deep Kick.wav",
+      "size": 38444,
+      "sha256": "39f58466f6781f6f18b9b500f2e18c22ffbb38a2dad62981a9a0a8a1496e893b"
+    },
+    {
+      "path": "FACTORY/DRUMS/VA-FM/VA Round Tom.wav",
+      "size": 24044,
+      "sha256": "5102997f454fc460e2b1895ad26ad7e6cecbf23fdb1346812b755251fdaa376e"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Clap.wav",
+      "size": 24044,
+      "sha256": "1b948fdb24cdeb97634847bd170ebb0f6fd80ca2dc9309f3346e80dec06ab883"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Closed-Hat.wav",
+      "size": 9644,
+      "sha256": "b81c56e41ab3486a12c6b46d8b9df69a1f40c6077543c2df8824e0ec1a026700"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Kick.wav",
+      "size": 38444,
+      "sha256": "ceb8b71b159a19a54e432c1fc6d5880c49a712e3033932da78ce25152860c6b0"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Open-Hat.wav",
+      "size": 48044,
+      "sha256": "3ba53442fe25eb0db3dba6cd420204d0e598a7cfdba55f1252b1e8de10017056"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Snare.wav",
+      "size": 28844,
+      "sha256": "c6a397160f4967855f8cd131dfc9d86b97b0a87312bab31bae4a29c6cf1e79ec"
+    },
+    {
+      "path": "FACTORY/DRUMS/Wood-Tom.wav",
+      "size": 24044,
+      "sha256": "e596a5d066a84377591190ad4d29a864a241769d8e7e29c4b556101a4bf54ead"
+    },
+    {
+      "path": "FACTORY/KITS/Circuit.mgxk",
+      "size": 13226,
+      "sha256": "538061e43816851a6eef6d83e933c9be413e059b5c339742d525f42bd70ca1d0"
+    },
+    {
+      "path": "FACTORY/KITS/Dust.mgxk",
+      "size": 13223,
+      "sha256": "47df389ccbc512a6e114fc1cb942ec8ca9f6bd5afa4317b75aa823e7e2d94811"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/606 Acid.mgxk",
+      "size": 13243,
+      "sha256": "ebe8eeb07cd11ab8eba3200a6b80505d1d06052839e5108923823c34fa19657f"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/707 House.mgxk",
+      "size": 13244,
+      "sha256": "4c71556705baf44b38565540d2a1677bfa240c56bca0e698b70e216163b354ad"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/727 Latin.mgxk",
+      "size": 13244,
+      "sha256": "8f7bf415d4240a0905c49cd4bfa17b97bc15c3d46cfb23be4cc26c6ce0f2d82c"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/808 Classic.mgxk",
+      "size": 13246,
+      "sha256": "f9a0ee9e8ab9729928c217319e2d70ff89155cc9f6469624c2f67887608cdaec"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/909 Classic.mgxk",
+      "size": 13246,
+      "sha256": "3986e559e46f2a5a3ef80ebc88968d71ef8137088b5246e0530ab747e3c0f115"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Acoustic Jazz.mgxk",
+      "size": 13248,
+      "sha256": "bc60749427ff692fc08e59b13881e91dfd8c94c0519e0c349d774d164323529a"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Acoustic Studio.mgxk",
+      "size": 13250,
+      "sha256": "cba7d4747cdb37683b03941a1cb2dec26ef8b2e113518ed950eb394984c8bf68"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Ambient Percussion.mgxk",
+      "size": 13253,
+      "sha256": "efe44c136a8def0c721b41cf8dfaff1637c6d1ab08665135de381ab486351bc3"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Boom Bap.mgxk",
+      "size": 13243,
+      "sha256": "abb7aabb2d7acf258d6e38200bfc8149ae16ea8c27fdf6473ffbe2ba73b88c39"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Breakbeat Jungle.mgxk",
+      "size": 13251,
+      "sha256": "b918b1ea136e4102642537940d350130c95589a08ee516ff7d2a86cb672c6979"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/CR-78 Vintage.mgxk",
+      "size": 13248,
+      "sha256": "176f72d08d85f8021f62a077bb44f55721d758608ba0237b05f00e7a171e00c6"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/DMX Drumtraks.mgxk",
+      "size": 13248,
+      "sha256": "20333d98823e6179ba54dc90dc0b57254ba407d33b7425908b60fa56637ab1f0"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Deep House.mgxk",
+      "size": 13245,
+      "sha256": "a2d009f8864e306f5f090c184106d38c12d9ca128ab9cbdec98033342207f1ce"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Disco Funk.mgxk",
+      "size": 13245,
+      "sha256": "31527a4a35ffa84d5671a2c843400f29d887dd8d366f37f3382832ce7fd70ce1"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Electro.mgxk",
+      "size": 13242,
+      "sha256": "afc70c4969f3b1861d398ca51957dad06e23f704f41142c7f8173cd63a214033"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Glitch Experimental.mgxk",
+      "size": 13254,
+      "sha256": "63e65ae6c0e656d4519441cc257fe6b53a2ebf062f35281751ccee700fd0c9df"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Hard Techno.mgxk",
+      "size": 13246,
+      "sha256": "4cf358246ff6dd2a834982c8c0b2c857098422e944004a5e7a43fee263ef57ca"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Industrial Techno.mgxk",
+      "size": 13252,
+      "sha256": "6d164a35aa380f4a9add7bab9a9e4f38aeb5093ccaa1f4d2d46bac58f4dde953"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/LinnDrum LM-2.mgxk",
+      "size": 13248,
+      "sha256": "e594347cf4b03becc18cd14a795625d55a9552ebb404a159043429284f6401b6"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Lo-fi Hip-Hop.mgxk",
+      "size": 13248,
+      "sha256": "967acae27148476a4ffaba7cb65724789f447e565bd7493f91981cc0d1152d0f"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Melodic Techno.mgxk",
+      "size": 13249,
+      "sha256": "d5b8b6f1f81ebfaf9432d2bf0201db738b84cabe40dcfa1330008d041e26a343"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Minimal Techno.mgxk",
+      "size": 13249,
+      "sha256": "66c0fead4d35bc053dd09fc31ef33a8d94cf361aa7ab5fed78bc1e472483bcfb"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Psytrance.mgxk",
+      "size": 13244,
+      "sha256": "c8b70ac050cec89819092b4527c541653c552d50472d71eb02a737f0d65c5e8d"
+    },
+    {
+      "path": "FACTORY/KITS/LIBRARY/Trap Drill.mgxk",
+      "size": 13245,
+      "sha256": "997aa10ddbc36abae220d794166935c4d11ed1517c42db13b06862758ef7b5d0"
+    },
+    {
+      "path": "FACTORY/KITS/Wood.mgxk",
+      "size": 13223,
+      "sha256": "5ed9805c12be337566673280de5a98ae9d23b9bbf4b055824a5b5676fc664e47"
+    },
+    {
+      "path": "FACTORY/PRESETS/ADD Moving Glass.mgxp",
+      "size": 7656,
+      "sha256": "3b83422ff337d1b7080fa49c4335394d5a524892f9dc6d9e9d74f65e8e0e661d"
+    },
+    {
+      "path": "FACTORY/PRESETS/ADD Organ.mgxp",
+      "size": 7649,
+      "sha256": "9bdf65ab0841f6f2683503614659caf70eeaea690b4239ad6046cf8a9e14b501"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Analog Hat.mgxp",
+      "size": 7582,
+      "sha256": "466e8312e2b4bc75374b24e7efb493da5d936ca9cf8c516a702ab2c73f30e0e3"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Analog Kick.mgxp",
+      "size": 7583,
+      "sha256": "1490e8be1bb04db435e020e32fffef4649d26f2bbcdac878c7417212ddee5929"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Analog Snare.mgxp",
+      "size": 7584,
+      "sha256": "1577ce032c0113b477cf4590864cfa40506e591543013073ea8ed59ee2de507a"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Synth Hat.mgxp",
+      "size": 7581,
+      "sha256": "d6f2c205db1ec4a008c6641e22f089c89d72493cd5bde197d322b4241901f9e1"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Synth Kick.mgxp",
+      "size": 7582,
+      "sha256": "9a2b9638d2fc617a8ab7045375fad43a482c281d815158545c892d318a0d57b4"
+    },
+    {
+      "path": "FACTORY/PRESETS/DRUMS/Daisy Synth Snare.mgxp",
+      "size": 7583,
+      "sha256": "dbb67e524afd6de4dbde5945f0cb76fc7873cf69d4d18ee6e6c6da73856345a0"
+    },
+    {
+      "path": "FACTORY/PRESETS/FM6 Electric Piano.mgxp",
+      "size": 7765,
+      "sha256": "aa76d9d741aff0c7e125d2e450c3b2dc40a9c1c395693b191ab61b8a779e14ae"
+    },
+    {
+      "path": "FACTORY/PRESETS/FM6 Metal Pad.mgxp",
+      "size": 7760,
+      "sha256": "05dd00c67890ad8a7428a3066fe92da7e8a99b69a1ac959700553db960220f8e"
+    },
+    {
+      "path": "FACTORY/PRESETS/FM6 Wineglass.mgxp",
+      "size": 7760,
+      "sha256": "c33ad22e682ab81832e530a96089a6e8775db575fed47bc1fb46ca816ba25fcf"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/808 Snare.mgxp",
+      "size": 7867,
+      "sha256": "1f48366c6e80111861014dd611ce25f5933ac55d596a525cfb9136764835297f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/8bit PWM Bass.mgxp",
+      "size": 7665,
+      "sha256": "2f425701d0565ace309e811b2e25fa004a30d621f7cb3eb550d94b843b28f12c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/909 Clap.mgxp",
+      "size": 7910,
+      "sha256": "065577d45032676be69e0c31737069c16fe93276bf7fdb5af6ff7d36a5706d2e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Acid FM Lead.mgxp",
+      "size": 7775,
+      "sha256": "9e7905b6f775f701a71a5c06f81a0f9ec31fe77536d1f242995945d6ccb01b4b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Additive Bell.mgxp",
+      "size": 7669,
+      "sha256": "a04752913ea487625e3d8a997bedd63b3488f48819a176d82f710eb360102e9f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Alien Choir.mgxp",
+      "size": 7662,
+      "sha256": "a97aad03bab332f5e298e07a1acb246a266ea0bb7e9cc01fb982171217b8536f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Alpha Juno Hoover.mgxp",
+      "size": 7729,
+      "sha256": "c95e4a8b1f6c758c306805ce75efc6a5461fe7f5e1944e837312dd996ab045de"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Ambient Bed 90.mgxp",
+      "size": 7969,
+      "sha256": "ae76d9d6d8e115967e83a749538491cae9785775af16896c2e64cfdc78f20e0a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/B-3 + Leslie.mgxp",
+      "size": 7721,
+      "sha256": "889271aa461890a751b680738a78e93b84a77b232238a99214d19cccdafff937"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Breakbeat Chops 132.mgxp",
+      "size": 8017,
+      "sha256": "d4125a28ac3d7bc33f3cd2001b3f1415f16dd0447a6dc562e7d2951cdc9057d0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Buchla Bongo.mgxp",
+      "size": 7664,
+      "sha256": "55f1cf8d1de9f79cc5368c19c1d1312bdac2a841af076d80c94c16c43fa0f301"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Buchla Easel Lead.mgxp",
+      "size": 7669,
+      "sha256": "0c02169842022aa1996f4f5059fb847aa61104a507cac6fef33083482443a22e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/CS-80 Pad.mgxp",
+      "size": 7851,
+      "sha256": "6335385607c870ac606ff1b718221702a537a77c981fe420193a6ccd382d0c6f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Casio CZ-101 Bass.mgxp",
+      "size": 7611,
+      "sha256": "92c8c10420f1f9ab6d0d47303128b49b436dc4b111d794e0fb43703f07e57291"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Casio CZ-101 Pad.mgxp",
+      "size": 7610,
+      "sha256": "134678e22e1d0602c4e5e25e628ead5f8f6c6ea3f5584ff83da8a93add6d6937"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Chip Arp Lead.mgxp",
+      "size": 7665,
+      "sha256": "7ca12426c3e28a813562413d6595f257c848117b9f83ba0bde2e5dce7d712263"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Chiptune Chord Arp.mgxp",
+      "size": 7594,
+      "sha256": "afe13c82cc8029ff7890189e7d004410291200eea12e41761b4190ec68941cc0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Chord Organ.mgxp",
+      "size": 7587,
+      "sha256": "9425dd04ecac82c05a7746d19ebdd05d223beff3cb5b02af92501538bec97dfe"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Cinematic Sub Drop.mgxp",
+      "size": 7677,
+      "sha256": "d64cc13797ad217a71f74eaf9993d043c6373c599d5c495a68cce099fb391742"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Clavisynth.mgxp",
+      "size": 8013,
+      "sha256": "fa17ebfca98b9e42875c9b08b8d5407dcc40c5f86541087715273783e1bf66a1"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Clouds Texture Pad.mgxp",
+      "size": 7647,
+      "sha256": "9076b6622933516bd196a0547e47b81f6ce2c4c54663d2a1b65b9afc7e1c429e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/CrossMod Metal Bass.mgxp",
+      "size": 7678,
+      "sha256": "4968598e0e5f24cc32ecf21894350ad97dcd05b0e5623bbfce77054c46264d15"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/D-50 Fantasia.mgxp",
+      "size": 8044,
+      "sha256": "0cf44a72fd192e3e7e7c708ddc529a564aad887af4bf70b2f569f0f6c0943ad7"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/D-50 LA Piano.mgxp",
+      "size": 8111,
+      "sha256": "5ac3426d085ef0a3d4bc33d8e66dddc36448713ecbc2f70bc44b21c0f59ec324"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/DX7 E.Piano.mgxp",
+      "size": 7774,
+      "sha256": "ed02ef0c86d664705da4b677622bd8d77b675e74846a906829f6ffb2b8561974"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/DX7 Marimba.mgxp",
+      "size": 7774,
+      "sha256": "8c4938e1bc6eec32eda1b75746491a271d9d7d4dc8d7437e7b90b33183d607c3"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/DX7 Metal Pad.mgxp",
+      "size": 7776,
+      "sha256": "2581d37556fc897346135ae1944bfb3eb68d8214a9574dac9a2cf5fa2c5bf9b2"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/DX7 Tubular Bell.mgxp",
+      "size": 7779,
+      "sha256": "4a6c5f5c0b5991f3fd19081634e94a06145c7c3ef3252dd4f2ee8293bee93e31"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/DX7 Wineglass.mgxp",
+      "size": 7776,
+      "sha256": "adb9f921c1583ab390c23d065ca8cd7bf8b19e51e30de1641102399953c05430"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Detroit Chord Stab.mgxp",
+      "size": 7594,
+      "sha256": "0768d16e0b8d34fada4b5d89ae729c8efa3d657cc4d5d140550af8006d26f83e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Digital Glass Keys.mgxp",
+      "size": 7607,
+      "sha256": "88ace572e6fdbf97acc9bfdc93c99b1fffd33c52e554981407067703224b8e51"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Donk Stack.mgxp",
+      "size": 8117,
+      "sha256": "f1db95bc105446cbe3fe73c19522958355ac26451a78fd80ddc009f9c15e1fec"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Dub Chord Stab.mgxp",
+      "size": 7925,
+      "sha256": "7de575a2442f56cc582ef9c9294f21b7c8c062a5f2a88437d26ac9dd58302fa0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Dubstep Growl.mgxp",
+      "size": 7829,
+      "sha256": "82695599a33d22751d5a2d431ff689bc2cd8a19418630e1230298d9ef109034b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/EBM Industrial Bass.mgxp",
+      "size": 7731,
+      "sha256": "0b1f2141d3e54daee916cb135930604f81a50b3bf63268ca0fd61ccd6a5d0b11"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Electric Piano.mgxp",
+      "size": 7964,
+      "sha256": "93e3ac9abd40ae10c59f94f57d1313d5ec8ce10379f85e1023f63bf0a164c2ce"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Electro Tom.mgxp",
+      "size": 7593,
+      "sha256": "8acf9a82855958139d54317d7b3509c2dd66bdb741fbd37d9469f916ee636053"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM Clave.mgxp",
+      "size": 7580,
+      "sha256": "b5f650a5148db8254f3f2a0a8f90a928eef0f284f219ff3558b0a4143ed47dbe"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM Cowbell.mgxp",
+      "size": 7582,
+      "sha256": "d62daad0c24bbfcef21e6449fc87f9af7ea3a174dff1e2e2659fa29de5644661"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM Rimshot.mgxp",
+      "size": 7582,
+      "sha256": "50c56e18678df2d63fa679a415a888c501c868ee194891018097d514fd5e449a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM Rubber Bass.mgxp",
+      "size": 7777,
+      "sha256": "1ac32fab4972da13c6b26dccc8faaeb9d943c8b0899d60213c65b5a19538797d"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM Tine EP.mgxp",
+      "size": 7773,
+      "sha256": "667bb279bed85f3cc3dbb003730c5b578ad720f3a9fbbe3cab6bb09a626ee463"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM+VA Hybrid Keys.mgxp",
+      "size": 7979,
+      "sha256": "8aae30fa3913c1dc0c5db49b344b3036af41b3164241054f48a31b680b41b7d4"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/FM-Metal Hit.mgxp",
+      "size": 7914,
+      "sha256": "ffd6d73ede09a4812d43f62e4a81c7e08a8a3c7a5032333119422f485c02ab76"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Feedback FM Bell.mgxp",
+      "size": 7592,
+      "sha256": "d9cb57b89c939f0bca2f0bbd53eee758eed195144cca20c5d0e4ff15a353650e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Feedback Riser.mgxp",
+      "size": 7777,
+      "sha256": "69110b6e3c0ca554bfadcced68e7073173661c3f2ecf8afe24eab6f3e936b41e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Fold Bass.mgxp",
+      "size": 7661,
+      "sha256": "5d6250c3cdb70c17202421be7e412407e81f48e320440ff48bfcc6a299bfc521"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Formant Growl.mgxp",
+      "size": 7604,
+      "sha256": "d4634877973ab6d55f3cdbb86723ee702a88ab496b759707c06110d6aa402762"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Formant Lead.mgxp",
+      "size": 7656,
+      "sha256": "46f3d1692b65f32fe1f49f6b609582ad1cdddb5edb05cab43c57dff456211708"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Frozen Cathedral.mgxp",
+      "size": 7853,
+      "sha256": "005743af8ca0442fb31b0d773d2726c83a838a223ef5cb407f8c34f7e44b06c5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Frozen Choir.mgxp",
+      "size": 7663,
+      "sha256": "350fe8ce71fe20e43afcce319a0eba148db9d7c37c80f03794b91c0b4f79d91f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Funk Chops 104.mgxp",
+      "size": 8012,
+      "sha256": "9528ab6dd28d24715740d7bc212441f0523a8b3f88aaa97d18647c2db5be597d"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/GM Choir Aahs.mgxp",
+      "size": 7591,
+      "sha256": "860afb23af901181d421c9cf24b601c390312c755084bda8055eaaa5ae2ccf96"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/GM Grand Piano.mgxp",
+      "size": 7592,
+      "sha256": "9eaf73a506f94ccebbff5f5da45e83d346c284bfa4a46aea9a4ad923978981d9"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/GM Strings.mgxp",
+      "size": 7588,
+      "sha256": "3f857d7d570903fd690c5d9258da763a8245d510025f5acac9fe1e919bbee13a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/GM Synth Brass.mgxp",
+      "size": 7592,
+      "sha256": "31ef140a3b68d2476ceda1f5111d3f1c4d3f98a5e96b9c0babcbc2ec9030f226"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Game Boy Lead.mgxp",
+      "size": 7665,
+      "sha256": "4aae6bc8d3b209c9efd09e5470a7f1ff3ab3fa958df9e50663c073e36f30dee8"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Genesis FM Bass.mgxp",
+      "size": 7587,
+      "sha256": "2aa84f16c21b53b09ddb30bc8098db8c3c69b33baf4b19824196f276783ee2f1"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Glitch Percussion.mgxp",
+      "size": 7655,
+      "sha256": "f22a36f57a83e4cd3e3cff02ffdfc9790229ce112b474635fb68f9d8d8bf64ce"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Goa Lead.mgxp",
+      "size": 7667,
+      "sha256": "a901e820dd208f91bea3cc16a6a9fcf6887e294ffac58146af3d0e4d24097955"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Grand Piano.mgxp",
+      "size": 7961,
+      "sha256": "4c4bdfb95e9021113d2c5e57cf69cc633fba85e5a422bae90131e06280274b75"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Choir.mgxp",
+      "size": 7652,
+      "sha256": "88f1a5396e7f9cba3f00d02cf9653f3cf61351800c0c4da4628e00afde98f8f1"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Formant Voice.mgxp",
+      "size": 7598,
+      "sha256": "4354e5df26a0ea184efa8a0a49b6e2f81cb53d587abe25004470420fa2185fa6"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Freeze Swell.mgxp",
+      "size": 7659,
+      "sha256": "fd87beb0b4e457049dd583fbd9bbb2df489620afacfcad3ed632e3b4a2f60594"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Pad.mgxp",
+      "size": 7650,
+      "sha256": "a4ba7ac249616021f4d910575f1b41355345c07941f146bc6e4339e8275553ba"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Vocal Pluck.mgxp",
+      "size": 7596,
+      "sha256": "8e1bfb3fcb5185e7eefd4c609b69f7afc2ca7b30ea13ce0a9b3b4c47068a14c8"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Granular Wash.mgxp",
+      "size": 7651,
+      "sha256": "6a2b5af3b0846a07d824e68a7a6e43901999cbecb548235cf9f952d16c4386aa"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Hammond B-3 Organ.mgxp",
+      "size": 7673,
+      "sha256": "33a2c17a4ffd6c8e6247b1eb63f8c92ad72b1f825101a5f7dd4c966e21ab92d0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Hard Sync Lead.mgxp",
+      "size": 7673,
+      "sha256": "c68fe81acf60f8e6b684e9326c83cca07b7a10da29e2e52839d5ef1113db735f"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Hardbass Kick.mgxp",
+      "size": 7595,
+      "sha256": "c418f6ba7542b33efde7f2d62076e997e94c0279625074e777cbc18136e9bcff"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Hardbass Lead Stab.mgxp",
+      "size": 7898,
+      "sha256": "a6e0f627ba02ba35d4275255dfd1b6721fea86883d10e1bd4b87dd1ef8dddf40"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Hardstyle Kick.mgxp",
+      "size": 7649,
+      "sha256": "f0ba21727d9b48451290cea237c19fc86f31907840c585e64e58abd938af4bab"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Harmonic Keys.mgxp",
+      "size": 7589,
+      "sha256": "36a4fe2910cf4a239eec7a9d0a2340d69a7478fcf26341d9561b67b117c3910a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Harmonic Morph Bell.mgxp",
+      "size": 7595,
+      "sha256": "72fe694f44ba096a7f9612b133f6ce232337458561dc3a9d77cf264043422632"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/House Loop 124.mgxp",
+      "size": 7916,
+      "sha256": "f196666dffcf1d478ce6cd3ca487ebd41b02e3d0043f3d64d98e0277e5a9cb56"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/House Piano Stab.mgxp",
+      "size": 7594,
+      "sha256": "0453f2382a308c5526dee017711261a73e14e5bd161935b7874cfcdb4e795bff"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Inharmonic Metal String.mgxp",
+      "size": 7599,
+      "sha256": "00e3ba4f902383c196138a68082a1ee38481d5d75a99f30c1488efca7781f962"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/JP-8000 Hypersaw.mgxp",
+      "size": 7874,
+      "sha256": "5a527d2249d6bb753a3fb3e71a874069df63b9500239d536b34ab62c1954d285"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/JP-8000 Supersaw.mgxp",
+      "size": 7874,
+      "sha256": "4b6563bcd4d374e923b0e1d1bafd150de120464ebd65a4f43062cf980b274633"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Jungle Chops 172.mgxp",
+      "size": 8014,
+      "sha256": "3feb92c39948724f0ae2e5f1e468e7146271f41b32f484db026195d4984870a5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Juno-106 Bass.mgxp",
+      "size": 7672,
+      "sha256": "2d210e89edf5f0bd603206316c30a7241b6682b93cd4f7b58ec81945760be4b0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Juno-106 Pad.mgxp",
+      "size": 7708,
+      "sha256": "f9c403232b2d8694cf11ea5c80e784033ed1d9b7088c98ffd88596a9f5f7b5ca"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Jupiter-8 Pad.mgxp",
+      "size": 7871,
+      "sha256": "0f75e9bced6b68b9baa9a876c27b02eb8d4dcefdc0b601cc1dac491946f3a47d"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/K5000+CZ Glass Duo.mgxp",
+      "size": 7808,
+      "sha256": "e04f09524d01cda02292c48e429e9a537f75532d6f1c7c1948ef06ee7c8e1e20"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Kalimba.mgxp",
+      "size": 7927,
+      "sha256": "0ec28c166c6be8d594255abd1b218e10eef89eab901709aeefe5c860b616b414"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Karplus Pluck Lead.mgxp",
+      "size": 7641,
+      "sha256": "a16ea2651513266f0fb989010b2e18badb55385ba946a07b6a6f2649e478f248"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Kawai K5000 Glass.mgxp",
+      "size": 7673,
+      "sha256": "09d43534a2d2fb1377476f0369af08f2aaae2177727db38a1d25676c740c5e20"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Laser Zap.mgxp",
+      "size": 7668,
+      "sha256": "20f3ee166a8cd2c5d502e1e10ffc4b7808709f72ab3848ab0785dfd593bba12b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/MS-20 Scream.mgxp",
+      "size": 7724,
+      "sha256": "0edc79fdfd2fb8eaf3efd8e5ea3a32ecf462789569ab2a9813ceb678dea47de2"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Marimba.mgxp",
+      "size": 7945,
+      "sha256": "71beaae4dffcf0ebd99e2420fc6e3b83ca83f22f91d575d40ffdf610320a6b38"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Mega Moog.mgxp",
+      "size": 7867,
+      "sha256": "670c649b7652ca771863126d88fc2cefbba432482d33f4b9d916965118df7292"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Metallic Ambient Pad.mgxp",
+      "size": 7836,
+      "sha256": "89d13f09209bdbc83879b1d6b1b8f58e5fd6fe890546a4782127b19e81a25cac"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Metallic Ride.mgxp",
+      "size": 7776,
+      "sha256": "b8294995dde1bc0196a8ba38e2c417943a9ef4dd6abbccd5f14cefec434f12ba"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Microwave Bass.mgxp",
+      "size": 7603,
+      "sha256": "b727e336ea27d1eb8354048e3138d2a81bb54772dc494342990323f7b9260b9c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Minimoog Bass.mgxp",
+      "size": 7672,
+      "sha256": "51e45c64f88ef2b156c0bb80e994571f3865dcb6c2945494bc23a2ae57a376a9"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Minimoog Lead.mgxp",
+      "size": 7672,
+      "sha256": "de7bbbd9112ae1d48b330fb51a06571aa47d5cd3857e1790c724735e1a4b9e9a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Modal Woodblock.mgxp",
+      "size": 7591,
+      "sha256": "1fdc651ec86fd83c490e513d064f690baa233e573d15da01c5f12df17651c666"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Morph WT Lead.mgxp",
+      "size": 7602,
+      "sha256": "f8cb1512e8828c4b5dcbadc76bc1ba81c74c29b2a709583d2756ebaa8d6c9ab2"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Neuro Bass.mgxp",
+      "size": 7856,
+      "sha256": "ec84752842ac601343783ae84d9067d9805aa75b7f0c87fe727265040da67a08"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Noise Breath Pad.mgxp",
+      "size": 7791,
+      "sha256": "e9d6ef33c5b930b7bef4ebf965d01308da1e71ee0a33b6e51513145061256137"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Noise Hat.mgxp",
+      "size": 7668,
+      "sha256": "b59f1200d1c9d4d321b3c5e80b585be34abf1e0a1f14358adaf1d4383168e8e2"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Noise Riser.mgxp",
+      "size": 7587,
+      "sha256": "9a58719bebd13e3d367288ce64b9d1180e4eda33b0d88c0c4b3a9ec12da01104"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Oberheim Brass Stab.mgxp",
+      "size": 7877,
+      "sha256": "c62753541746579cb65b6a9e375eaff08fcc76e0e058269a9d5bd7e40e1d9967"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Oberheim SEM Pad.mgxp",
+      "size": 7675,
+      "sha256": "a7f9b6d6ecb7d49a0efb404ef4ed89005682f747533f95cbb454fa363cbd3b96"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Organ Percussion.mgxp",
+      "size": 7868,
+      "sha256": "9178ddac84bb1305fc3e3435ff6203b5c6c35f5755d33469ff1f7c25b8b78b40"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/PPG Wave Bell.mgxp",
+      "size": 7602,
+      "sha256": "2b3f13b085fde24b3bf5d16fcf14ad5bd0d3d60a4a2d0e1aec5a60f18d977fe0"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/PPG Wave Pad.mgxp",
+      "size": 7601,
+      "sha256": "6452a8a991cf480812cb99a0bb9b097e04e64f6da60dc56ed71f9a74490d3b08"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/PWM Strings.mgxp",
+      "size": 7723,
+      "sha256": "e23dbe28cc3e14fac6251e65e1710afaae6461dd92166e8f484c4fc4e7846c2e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Particle Rain.mgxp",
+      "size": 7589,
+      "sha256": "f26b0f2bc1477ca99165df7e7d7ce862b70d6fa85538b1e44bfb35fe140f8023"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Plaits Analog Kick.mgxp",
+      "size": 7594,
+      "sha256": "6974c1cd10f81ace727386664046aa9db76ba8b3fc8dd9909565f85a42fc43d5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Plaits Analog Snare.mgxp",
+      "size": 7595,
+      "sha256": "76f95b22413a617d3291689e028cee84049b2691603d674f99aeb865b9353d7b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Plaits Hit Stack.mgxp",
+      "size": 7860,
+      "sha256": "b2e0c17530f3ed6bddca840045946fffaf6898ea14751515d38f1f1f6c6abfc5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Plaits Metallic Hat.mgxp",
+      "size": 7595,
+      "sha256": "a507b95f6671dd28269b7e3f37976faef1a0d3154629dd1853380fcfb5b589d3"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Prophet VS Vector Pad.mgxp",
+      "size": 7809,
+      "sha256": "c376f2b94a5bad99be9997b01bb9a3772138095c12ef9d1e6ff91e021eafe2d5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Prophet-5 Brass.mgxp",
+      "size": 7674,
+      "sha256": "bb298a44db6debe62ea33ae1b6328ce470f8b037d43a18a9b5fa14a2e948e697"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Prophet-5 Poly Keys.mgxp",
+      "size": 7678,
+      "sha256": "a18e28b14f163f3433a83f8ab95154c25a48b549042405c12faa3311363a175e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Psy Squelch.mgxp",
+      "size": 7585,
+      "sha256": "46168f30fcd0ee8957f1085e5f5612ba2efbd91d4e3881937780daf389bc4016"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Psytrance Bass.mgxp",
+      "size": 7673,
+      "sha256": "da45dd28bc72b0d7e5c04215f03f39a4da166857396da77fa3eddde0960a45dd"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Psytrance Kick.mgxp",
+      "size": 7596,
+      "sha256": "08e334b775edff3368c5ff145c505d2952e7287b9913811c895deec1ecc8e24c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Pure Sub.mgxp",
+      "size": 7667,
+      "sha256": "076b2e86fffbad664bb084fbec3054ef120c05b9f5a391f1c088e8fe9c11e179"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Rave Stab.mgxp",
+      "size": 7721,
+      "sha256": "a0236bf32ee6551c7682ea609b8b0d0ffd98f76d07c0d0246d4fd6d1f2c818f1"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Reese Bass.mgxp",
+      "size": 7791,
+      "sha256": "1fcc8342a77a748bec368d02e478762ccf2638fe59053f9a90ae4d96338491f8"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Reese Wall.mgxp",
+      "size": 8095,
+      "sha256": "d803741ff3adf4f0b0fca1883ff30f36e4175aeb4bedca4910fccf68916e3aed"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Reverse Impact.mgxp",
+      "size": 7916,
+      "sha256": "e4504df2353757692db000b655526641776d06cf54879e1caabdd502e7c2b1de"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Rings Resonator.mgxp",
+      "size": 7638,
+      "sha256": "75535d011e00ec838d299c82d2f0354910e03cfa9d982917615891f05524d603"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Robot Chord Choir.mgxp",
+      "size": 7709,
+      "sha256": "cf596014c6e13f069f43474bdd0018ca0f20d425629c9e674550a1cc7d926669"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Robot Voice.mgxp",
+      "size": 7587,
+      "sha256": "a349b3818223d9f44812e8ab0e86092f27db6b687b0a644a85c5a0627ed5fd37"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Russian Hardbass Donk.mgxp",
+      "size": 7784,
+      "sha256": "09183be748aff359f171a31fa2b1647e1723788651b19304922981cff7c1c02c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/SH-101 Bass.mgxp",
+      "size": 7620,
+      "sha256": "d6e874145ca9ab8721a74aa66b2a12a0baad88d47c0b09859e715b807f603505"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/SH-101 Sequence.mgxp",
+      "size": 7624,
+      "sha256": "d2f8457086cae6d77e6ab0a8bfea9412551e1ea78ef839e6e32b8455558dda7a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Screech Lead.mgxp",
+      "size": 8028,
+      "sha256": "c80136f2803b4d618595003c3623e5647694ed58a38b3d0061f368362886381b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Shimmer Reverb Pad.mgxp",
+      "size": 7730,
+      "sha256": "c62d01d944a58d3e3a92eb0289c6cca3ec03e3037540ff752bf6d603775b6651"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Simmons SDS Tom.mgxp",
+      "size": 7597,
+      "sha256": "5bdb94e613ca14bb9540e8dd15e797812d7b4d7046141bbcd033a5941a7fde3c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Slap Bass.mgxp",
+      "size": 7587,
+      "sha256": "88e4d7ccc9c65dc2c4a85ac050c2f8f90445f14c93d2f56d7d0123a6712a426b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Slices Loop.mgxp",
+      "size": 7913,
+      "sha256": "2af8a493d228052f7b9e5dad797116767b6181f1675429619e7b227690e4eb5c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Solina String Ensemble.mgxp",
+      "size": 7651,
+      "sha256": "b6ec544d481a1b77486d1ee896df8e0b5b4c8243c89389faf089bf2a61133f0c"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Spectral Downlifter.mgxp",
+      "size": 7670,
+      "sha256": "a171a376bb9a28d749e5444ee52d4df8b3f3affdcf046cf073300600c944923e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/String Swarm.mgxp",
+      "size": 7757,
+      "sha256": "cffb35d823d6f0d12fe3875ddc0ebc11b1c77169dd8e8769fe505d038c7e6dc3"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Swarm Pad.mgxp",
+      "size": 7585,
+      "sha256": "e8bb610a23c3aa03ba8e8f5e34c0d90eeb0e9a4671347b42f3747a2759540cce"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Sync Sweep Lead.mgxp",
+      "size": 7674,
+      "sha256": "370ff3b9656a24f8445c94ab8c2fa9494819e1aa0f00fe228255f3e8ba190af9"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/TB-303 Acid.mgxp",
+      "size": 7585,
+      "sha256": "469e262861222570c988cac7f5c28cb4a227d12d2a0d46d6943ddc2ed8534a0b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/TB-303 Square.mgxp",
+      "size": 7587,
+      "sha256": "fea40286d81ae3c31d036aa5d3a5d279d94dcca1b0e45256ecd76ae1274d530b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/TR-808 Kick.mgxp",
+      "size": 7593,
+      "sha256": "d09bb2a8d6b4e56c44a722ab655f126c98fc6fa93868b308b252711051e766d6"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/TR-909 Kick.mgxp",
+      "size": 7577,
+      "sha256": "d2f0a57dfbc8c5720acb5427fe86d7a688cda8ed7ca74e8c8de642ab5c1670d4"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/TX81z Lately Bass.mgxp",
+      "size": 7780,
+      "sha256": "ab6cc418f76342503b97678cabd4dbc8f1150609bf1043c1062552a1b5a67887"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Talking Formant Pad.mgxp",
+      "size": 7610,
+      "sha256": "e84f7d74fb018f5840e3a0d36870a083871c17aa9b369b3a478c74b30a854c7b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Tape Microsound Loop.mgxp",
+      "size": 7998,
+      "sha256": "1adf0731ec8b1bb7fa6e20de608a11f928e55cbbaa158e9fa9cd311edde73de4"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Techno Loop 138.mgxp",
+      "size": 7917,
+      "sha256": "60269a49ffc3d0523ad2f4b9cc8722907c67f0a094755a3cf875dce826e59565"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Terrain Digital Bass.mgxp",
+      "size": 7596,
+      "sha256": "93c7a9398a9472c0ce44772fe852993ad9163887cf90286f734e9b255b0a545b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Trance Gate Pad.mgxp",
+      "size": 7727,
+      "sha256": "4d14b1cf9ef284855e4512e7cb80f58e793285a9b3bcd862b2775b1b95a53997"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Trance Offbeat Bass.mgxp",
+      "size": 7628,
+      "sha256": "9cbfa45c1e341d042ced0a681dd92725c95273839443f2f0533b292f88b963bc"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Trance Pluck.mgxp",
+      "size": 7724,
+      "sha256": "9238c0b53e0cd84762b30b3b8a55bb927f06d72552c544c6e197c0c44c42e723"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Trance Rolling Bass.mgxp",
+      "size": 7678,
+      "sha256": "9fe5d3415425ab4929d81ef2a421cbe1c19351a9ab3e7453100b908ca4b067eb"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Uplifting Trance Lead.mgxp",
+      "size": 7867,
+      "sha256": "fc59c05bca3241827d57e481ad971e1e0ffc60972482e3c22672feedac5d937e"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/VA-Hit Stab.mgxp",
+      "size": 7913,
+      "sha256": "0690fdee2ce68058562c023d5db5c0194f67ba61616e738e285ba1845082528a"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/VOSIM Chant.mgxp",
+      "size": 7602,
+      "sha256": "1a924181a67a58be979d42610f7ffbf5e76ea82bc4b2bbc4c4896c023baf325b"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/VOSIM Voice.mgxp",
+      "size": 7602,
+      "sha256": "c8ddf928d661da18da1d40bab878b7be626cb00587da9ffee4a4e2b4a7150269"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Vibraphone.mgxp",
+      "size": 8001,
+      "sha256": "7c4a00d8a3aafbba943cb30b827f399171755f0d764a647f1dc4caad82aaa226"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/WT Soft Choir.mgxp",
+      "size": 7602,
+      "sha256": "5847f72576304779c312233ab8c972478deb6a4303b8c86f1f3e29f957ad34cd"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Wave Sequence Machine.mgxp",
+      "size": 7671,
+      "sha256": "0724dbae6de06801561fa41b2c942500230e1b86150f7eac606552163a3c80af"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Wave Terrain Pad.mgxp",
+      "size": 7592,
+      "sha256": "ec9618892da5ea8e291c558c71cf2e40a5fd3aae35cd682289fcd85093ed7c17"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Wavefolded Percussion.mgxp",
+      "size": 7597,
+      "sha256": "42148e9bb44b8cc9445fd8c9cdee131a10aa8083ba259252ffb68225b98463f5"
+    },
+    {
+      "path": "FACTORY/PRESETS/LIBRARY/Wobble Bass.mgxp",
+      "size": 7723,
+      "sha256": "2f52dc466a019c7dc337c2038261c2849f7f39b0ae8f0ce887f62b60af72512f"
+    },
+    {
+      "path": "FACTORY/PRESETS/Layer Glass Duo.mgxp",
+      "size": 7789,
+      "sha256": "8af83470e81e5cfe15eb39dcf23fcbd469055e88d4cb01140fb7526af25b3b7d"
+    },
+    {
+      "path": "FACTORY/PRESETS/PD Curved Pad.mgxp",
+      "size": 7591,
+      "sha256": "390f760dfe1059f985e1173487c7796ecc7972a2050b4a18ba1841a9fdae5446"
+    },
+    {
+      "path": "FACTORY/PRESETS/PD Pulse Bass.mgxp",
+      "size": 7591,
+      "sha256": "69c8dee529af53133c6966034f084ba45250210b5b8f0d004f149aab655944e4"
+    },
+    {
+      "path": "FACTORY/PRESETS/VA PWM Keys.mgxp",
+      "size": 7654,
+      "sha256": "10f6c9bc875c29a99e0d7728f42a5094eabb4e6bd9acb1416084372a39b2d80c"
+    },
+    {
+      "path": "FACTORY/PRESETS/VA Pulse Bass.mgxp",
+      "size": 7656,
+      "sha256": "a6253b88978ccb2ec27c5c8833e5e4652df9473cf17882dedfa6f6350b3e21f7"
+    },
+    {
+      "path": "FACTORY/PRESETS/VA Slow Brass.mgxp",
+      "size": 7656,
+      "sha256": "96e96e8bfb3f5b5928c322432fe1a34dd9e7ead7d6116b30ca7f5cb3f38d524b"
+    },
+    {
+      "path": "FACTORY/PRESETS/VA Wide Saw.mgxp",
+      "size": 7654,
+      "sha256": "76eb3875551c4e327477734507e3f2412f262e6d963fcdd04d75997d134b337a"
+    },
+    {
+      "path": "FACTORY/PRESETS/WT Digital Sweep.mgxp",
+      "size": 7589,
+      "sha256": "e25e27e58eec8e12954273aad09e81853b2eb7611363fcee3648080d7e34bdbc"
+    },
+    {
+      "path": "FACTORY/PRESETS/WT Glass Motion.mgxp",
+      "size": 7588,
+      "sha256": "07877c4db8cab70aba8f9521db788e92bbe3d45c125970a7176116adfdd484dd"
+    },
+    {
+      "path": "FACTORY/PRESETS/WT Reed Drift.mgxp",
+      "size": 7586,
+      "sha256": "4e751ca1d4b4c0b04e32795c09a86eb998b971cfeecc301b803e57846a68b878"
+    },
+    {
+      "path": "FACTORY/PRESETS/WT Soft Choir.mgxp",
+      "size": 7586,
+      "sha256": "b729e87feff5b238f86568b9734f8ab33a8cde0ffa88545f1c2bd2a514384ec9"
+    }
+  ]
+}

@@ -1,0 +1,520 @@
+{
+  "upstream": "https://github.com/KristofferKarlAxelEkstrand/AKWF-FREE",
+  "commit": "8de90bf94376670947369e69de0af6b9fbd19286",
+  "license": "CC0-1.0",
+  "selection": "16 timbral families; eight evenly spaced source files per family, in the listed family order. Original mono PCM16 single cycles.",
+  "waves": [
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0001.wav",
+      "sha256": "908663b5cfa0d4a2682e1f70fc01add782e657cfe958af6cc6a6c4616fa7e971"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0008.wav",
+      "sha256": "7e7b80bc32c59a503f5c207eefec957cdcbb507a8c24c0dae41b01e307e7594b"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0015.wav",
+      "sha256": "2dd982b03ec12214da77ac66ab3e354def586564407c094edffbd240f6458aa1"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0022.wav",
+      "sha256": "622e75795123afb58a0398cc1494f2d1479b03bd9ebd7390bcb9d679c9df0ab2"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0029.wav",
+      "sha256": "f85f31eafc0684fcbcebab5a35a01ad42c4c66890248da1fd2d3bfcb1576a841"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0036.wav",
+      "sha256": "0dfc5c2063e9126b2c5c0691ef45929b136300696dc77ddc5793c1c8130d0c5c"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0043.wav",
+      "sha256": "8b78324fc1ae1bb8d8802c633000e600009798ae103c1f40647fddfbe2bf10a9"
+    },
+    {
+      "source": "AKWF/AKWF_bw_saw/AKWF_saw_0050.wav",
+      "sha256": "27b44d71d696edb571fae876411d2276bf94522c020e3bf00b33a1cdeafcd5fb"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0001.wav",
+      "sha256": "4005a0a492d036970f853ee996c2c767f789b92229e0d3b26e84a34f2d8e22a5"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0003.wav",
+      "sha256": "25f9ad8794ad2ad5a563a117cd2ad32775db579c87ab1a3f8b006da90873de72"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0005.wav",
+      "sha256": "b00508ea428a89b854cf31c8f89d7f0cd29bc5da9821b29f228f8e19749e2ba6"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0007.wav",
+      "sha256": "2eb6d1058f2021c1da3c9cc345d73a7dc19e3342b4eb4fa7057a8f6276fef667"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0010.wav",
+      "sha256": "81c819056a9d7ce023b3ea1ae94de260b1b36f5a7e76239ef43c7566cbac3369"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0012.wav",
+      "sha256": "5aebe3f64b1eed33e32351aefba52af16824c35b8ff679533c1bd378dba3d65a"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0014.wav",
+      "sha256": "27678f5652ee471f63d70ef0c0cedbed3312dfeaee780b90aa3aa87444318bd9"
+    },
+    {
+      "source": "AKWF/AKWF_sinharm/AKWF_sinharm_0016.wav",
+      "sha256": "682b19a0b996b380ef6302b4252f95bddd01ee63e16a201d16c6a00cefdbe09b"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0001.wav",
+      "sha256": "63b23c306b7dcf757d7d5d2cdd92b29d1df341900b257287ff22ae077333754c"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0023.wav",
+      "sha256": "6064089bd9303887fc0cac7ca6a1f5e57baa0ce776120d173207fe93c48f2c92"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0045.wav",
+      "sha256": "532e902e28a7c3abe512b4f6071fadd08964d36fb0877a4131930652ee2044a2"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0067.wav",
+      "sha256": "3129669b8edf0d4aeb11e020c9fbb9fffb477cdb008d514ae23a6cd0702bbb57"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0088.wav",
+      "sha256": "a0e6daa0ec37a20ecb578d5975c6e49903c18c30ede1603f696ae59260a56a56"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0110.wav",
+      "sha256": "a262e8cc6e0c3f211c167a5923055145720d13c42ccd9d110fa757312d7baf72"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0132.wav",
+      "sha256": "57b38e7b7de9ea3074d8af0d22e4161c2ffe2dcc1afc2fa62f7c15946d1335bc"
+    },
+    {
+      "source": "AKWF/AKWF_eorgan/AKWF_eorgan_0154.wav",
+      "sha256": "044ab70f31a7b05f454daaeb07b1b4bf99475128e209bc5cab9ad8650e7b5fa8"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0001.wav",
+      "sha256": "844df08a41e1296169d14426b9f348ca8e0f9ad3ef465b5d136982b1d3f49c0e"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0011.wav",
+      "sha256": "80f32c86d55cf9ebbf7f11e3219e0a3693494e9b16c06be1693a9ae7876fba3d"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0022.wav",
+      "sha256": "3f573531227e9cd2764083787580cdf3c3403b7ae9f7ac12eee9c47537cdfb73"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0032.wav",
+      "sha256": "e052c92f786f56421d655993b04f24cbce2adeac6584b6d00fffef722ecc8100"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0042.wav",
+      "sha256": "339a48ccc6fc32083c4cb445539f4187ff7dcab0d3e4c7dcc142376a1db15e65"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0052.wav",
+      "sha256": "b7112bb006ae54c9fe52943856c45ec2e13743e0ed58bad8421fc65c7f4946de"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0063.wav",
+      "sha256": "6815bbc010cc33e7e86dba44f457dc2410480a98ff5093783fe656f05c000f6e"
+    },
+    {
+      "source": "AKWF/AKWF_epiano/AKWF_epiano_0073.wav",
+      "sha256": "6cdb1996b83f34cf151591ff8e81616f5938c44a2ee24d9087348d7db452a832"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0001.wav",
+      "sha256": "9c84f3e721a7b6a6e74420ac0674a62f9ea0a171c0f59feb9ad4a1c2dafe0311"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0003.wav",
+      "sha256": "b7cd16edef32c96f89d033ae62182e73a51747d3f2bb9c88f30508081ecac35c"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0006.wav",
+      "sha256": "b254d0eed81f27d57e4b736fdcab67e93ec02fef0e9d59826591dfd01fabc7fd"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0008.wav",
+      "sha256": "26d5bd4b0a69cc1c0b553f4cf9f832aad9a78ae079855c5d2adcb31b12db7843"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0010.wav",
+      "sha256": "d8ecd8473a0bf7370961298668d92496bed797cf34ae276c4f11915ec4b42cd9"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0012.wav",
+      "sha256": "75fd57f9adef743b7d5d6d68178a9798a0e648d58be2c3a1f1364731f794593f"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0015.wav",
+      "sha256": "8e58931a9c3bedced2314a16030ead10f8be34f64e5e4815c48bf661710fcf3f"
+    },
+    {
+      "source": "AKWF/AKWF_flute/AKWF_flute_0017.wav",
+      "sha256": "e23ddd796fd0aa98d20966b83ed7c6303fd4cb1866590e00f71c24d28078cd1b"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0001.wav",
+      "sha256": "3d1b4335917313a14a7c79f0a770c3ad0d99dd039a0ba220f16cc80d2e18584f"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0004.wav",
+      "sha256": "15517673f8b622586971a346b776ba64b07936c2eafda6039132c33ed8cd77e9"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0008.wav",
+      "sha256": "29cec90d022a4815f86bfa99d2c28102c4b6bb5f58631d8b88c74ea2ede080e6"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0011.wav",
+      "sha256": "db63a4019f31e02963a0e74ce11521e09c6e09504c3094b567d8cccd4f7f058d"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0015.wav",
+      "sha256": "8c9a124e11f3445f4d9db83d176047c054ef19fb107551e326435adaae345d1e"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0018.wav",
+      "sha256": "f328b4a4b5d7703ef88bbf55b9023486d72ba3148bbd5188ba3d408e97ef4c71"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0022.wav",
+      "sha256": "34d15891e56ed495e0007aabd125d339db7a243dc9bd2e581c746eba4ee227c6"
+    },
+    {
+      "source": "AKWF/AKWF_clarinett/AKWF_clarinett_0025.wav",
+      "sha256": "ce37533ce4a9f75634e4e3697d880affb4aa14a9b3cd8b4c3d5010a774da41fd"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0001.wav",
+      "sha256": "ea57edce5b9b72b0380c0269081c75fae7be4df13ce74bdb5b555892a5714220"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0016.wav",
+      "sha256": "7e60addef4f11c05896bb86fd7bf358381fc7c1c3525e367bff2051866dfa71a"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0030.wav",
+      "sha256": "aade07cbb142d0ed0d675be0e95cf1c42dd30b4b66f44aa8f0a8e11c78d0c35f"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0045.wav",
+      "sha256": "f79d5dcf634c83f8407d55e7af6ef56e1ca17204f036166b753aff4dd270db7d"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0060.wav",
+      "sha256": "9ddbfa928f5e700afa5d117f623dd483bdc47986164eca6693455c8b2663e459"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0075.wav",
+      "sha256": "0dc4129a7cac829abcd2095484b903559a73a021285524ed0a4391434bd53132"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0089.wav",
+      "sha256": "f0b9bdddd1d39afd3fe2c0d9d329ea5d44c831afcaefb8a8cc55904cf80a62d4"
+    },
+    {
+      "source": "AKWF/AKWF_hvoice/AKWF_hvoice_0104.wav",
+      "sha256": "d937dab258194d9eed9bc9d152599d6f20ece1b5b8f69f8d7422460171407c97"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0001.wav",
+      "sha256": "8d725ce44162ec4c51513182a23626b44dd17b1a80b2180f582fca1682cf2eb9"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0003.wav",
+      "sha256": "c245a6296f668d193aa819db89966f62f6dd691f5365b5043dd4f7d99482fe3c"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0005.wav",
+      "sha256": "14e115b50c3831e5c7792b5fc4612d197a3c9bab8da0c43c3468a71f29b8dedc"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0007.wav",
+      "sha256": "3021d1f6a4d84f421cd27b0fe031b3b4718c9486953bd2868e912dadd371493d"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0008.wav",
+      "sha256": "50fadb21dc9f9355b1fef1c4c087ccdfd9f1095e3e36a842b9eb7f8abe004189"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0010.wav",
+      "sha256": "b35c1e20d446e733cab222cfa4defa30838ad03b02be6c6994f98c587eca4b9e"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0012.wav",
+      "sha256": "9753cab368c7e2d0d6009f20461a55bbb6e500f8894f4e41b129532565234d3f"
+    },
+    {
+      "source": "AKWF/AKWF_violin/AKWF_violin_0014.wav",
+      "sha256": "d65d91dd5722d8a6bb378b7b476c1118c63a797d5a25f3b84911aa9b7a97d49a"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0001.wav",
+      "sha256": "46fccdca2f27e87505539e85b6e01582777bc64d931a947e0e2eb18b0267c641"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0004.wav",
+      "sha256": "7b79e284b11aeaa6f24beb656d5f3492ae548202ee2e21b41a57298ae4f14339"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0007.wav",
+      "sha256": "33a06f96d318642713ecc96af516bba10fe8aebe8823dfbbbca29e4268276750"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0010.wav",
+      "sha256": "30d9e54d6a8844e913b782035a5f67a0feee3ec79a8f8a98d3f4a513d73d5cc0"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0013.wav",
+      "sha256": "3d978d889f852beba5073ae04165f0c68d836507609a135cfa02e6876920218c"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0016.wav",
+      "sha256": "fc70eceb8dc87bb6925de92ed19b717d333649706207a6d334ee856e91cb4ec9"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0019.wav",
+      "sha256": "e023be41d75f1bb12d59e008d5b437c6c77568ab15ce9e44323e696cf5bea5e1"
+    },
+    {
+      "source": "AKWF/AKWF_eguitar/AKWF_eguitar_0022.wav",
+      "sha256": "026bd7ffc2235a3ad055377621c4e55d7b81713fb220fc13cb67f70afe4e1828"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0001.wav",
+      "sha256": "edf32ff8f34320bf06aad5959fb2b312c6a31f9c306aa35399261289d64a7a47"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0011.wav",
+      "sha256": "b385994e39c1bf5e477a19baefc9e5ba4f8b2bed32147ebc9102b84ab4259874"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0021.wav",
+      "sha256": "1ea0223a18fdc9a4a3061aa62966510e445e5cd70fd3dc071fb23e98c1b8c685"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0031.wav",
+      "sha256": "fa078ebbcceb3bb7c492e14f29e7e63a5b03f353e3eff545c141a66585901a3b"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0040.wav",
+      "sha256": "b8c0c980df3d0f7c93da0dcbe72678e27b9fa142b0ff31f311e3bae429a7a037"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0050.wav",
+      "sha256": "2723977885ee30f8ed7c7b40f19cc349d8900a06fa91b628b67fc45178ac7fec"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0060.wav",
+      "sha256": "9cfc6acfe30b35d9fa9ad1e21b31d7009a1e920e9573b14b080811ce2abc9e3d"
+    },
+    {
+      "source": "AKWF/AKWF_ebass/AKWF_ebass_0070.wav",
+      "sha256": "d9a3ac28538b52dec5f5dbb342e4be8b3e8fd4319a6a69f7059c1fa5472fb801"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0001.wav",
+      "sha256": "577602d32152cf54cf3a82ab2bc0c36cb7b14ec25ff8014e4666516070511414"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0023.wav",
+      "sha256": "041a2d72f4e10493bb55c5d172179694ed46a8e9678acedc4b7ae15f45caebdb"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0046.wav",
+      "sha256": "581837adcae3954fd2357aa474466e1026252472c225eec3aed3ba707c8b2800"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0068.wav",
+      "sha256": "dd6f50c43f1a5c98c52c55f80ee94c0519c0ea4087190dba696af404a5c02d15"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0091.wav",
+      "sha256": "ce8500b1a894a76ecb85b748615cd1be3a609d70350b37c22aec238b6f6b93a1"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0113.wav",
+      "sha256": "00c0d63f5caea2f2e7b1382d3bd01392ef4f5b96f845691708a1d5388b3a8b31"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0136.wav",
+      "sha256": "159226f9acb89ca145445eaf1bc05ee991c27622f6b7042d78fdd9c6432919a9"
+    },
+    {
+      "source": "AKWF/AKWF_oscchip/AKWF_oscchip_0158.wav",
+      "sha256": "2e2093951b81fe130e38af46b223a1513c3c480c0e1051920354588c5d88c0ef"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0001.wav",
+      "sha256": "d16ef27ba18d94f109dfc9c0b1f7a297a66114f76ae7cea385f26d5ea67d0f69"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0020.wav",
+      "sha256": "4abb9aba97b31d42cb6325f2aa4990bfba78b7bc196ac5a70bca0ca5e2a67129"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0040.wav",
+      "sha256": "92211b306d222ba2b59a10753ab9cb3a1ea181384b8f6a28dcb876e84c31a70c"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0059.wav",
+      "sha256": "b4a7e5624564e8df8c0d147618fd776257f914eac00ec60f49804438a6848c7f"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0079.wav",
+      "sha256": "3ff308ced10f04177aab9cda72ceba0e4ddfaa73dbbb60257c27c750debbd087"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0098.wav",
+      "sha256": "ec7b64751a0c85d030f1b7258ce4587c6bd845db21af5bd976d219f5008bb17b"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0118.wav",
+      "sha256": "c70ffbf661782d82e151a6e6c3e6e87b3650b6369416c51a16e099fe5013ed0b"
+    },
+    {
+      "source": "AKWF/AKWF_vgame/AKWF_vgame_0137.wav",
+      "sha256": "6cccb1e8c03b175e69d4e5dffc2db8a5bb78eaef4c8eadc24399944bcba2dbb2"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0001.wav",
+      "sha256": "984d9fa33c5b66faab219c5590f650d5e4afecc9b7c160b422c17df41c7635be"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0007.wav",
+      "sha256": "3c5ddea5ea9b816dde2dd3f74b5e57cae64654c8b94331fb29a6f9c453c3cf9b"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0013.wav",
+      "sha256": "52f76c2c8e3d68aa047e190ad9640824cc015ddd0931d3c4957ca7e183d940a7"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0019.wav",
+      "sha256": "44bbf5e32d64833c88a072cfa2b72001bb61b5eb5e108695aa811df0e2a32154"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0026.wav",
+      "sha256": "27e9edd81ce3c5cccd123cbc902f6887bf6676307b8b0702fc3df539fc5ff90b"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0032.wav",
+      "sha256": "49f8581cf3f057ead68af3d242145fc9072872fa1ed8573c9a0ec1391a7e23f1"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0038.wav",
+      "sha256": "fcdf20352644c55ba7477a37004c063000c8efcc5c35768d27b1157fb6ee74b3"
+    },
+    {
+      "source": "AKWF/AKWF_granular/AKWF_granular_0044.wav",
+      "sha256": "691a1b396a4a75d27a8b7a2af258336b5c891472bcb75ae2b728d8ff8a848561"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0001.wav",
+      "sha256": "dc06b609058281779c35415018bf8ebe84f5abc6eefb6c05d7e46fbdd79b8698"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0018.wav",
+      "sha256": "888e55555027439d7fc53f93b3e9ddd76a82723b7b1e92b07e7fd501c562de3e"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0036.wav",
+      "sha256": "d281154462619449f3cc07b2409742eb2fb5db66a2b27249b16f5f041fccce7c"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0053.wav",
+      "sha256": "f2e0dae84e257d016321470b28a91ef1905c9222fccf0cf4d709c62857aafb40"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0070.wav",
+      "sha256": "ff1c36ed7ec82f700223d044f4237e934deb943292de25886856b6b0bbe18911"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0087.wav",
+      "sha256": "3935d8d9bcc4bb59d86c5bb19dfc96d03dff083e53e20c70f7e1b9ebaf8b7090"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0105.wav",
+      "sha256": "1b5fb668490319d12b88dc457dcb07db2e7a75665ba5b3fc4534837e84677739"
+    },
+    {
+      "source": "AKWF/AKWF_fmsynth/AKWF_fmsynth_0122.wav",
+      "sha256": "401c2437457cb888828ed0525c2a5d6c4bed10431deaa310037959a538273ee0"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0001.wav",
+      "sha256": "0b5f46267509999e762a059f2356c9addf26b96d8c13ac10b4e9f3010bd71c3e"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0007.wav",
+      "sha256": "9e97ec036b3a43377d893342270e83e48cab8526f56f99609a407050c1f21921"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0014.wav",
+      "sha256": "07df54dba82a704f0467b7a152febd925c4fefdbcb2c63a898456ff6b23cda01"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0020.wav",
+      "sha256": "6e98a4b668aba0426119c522bea9ab07434a82a17a1cd609ed2f66d40cc90f9c"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0026.wav",
+      "sha256": "2641954e6c96e217bdc4dab44515f654959e122ec9a061c737c3073b056573b6"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0032.wav",
+      "sha256": "efc6c67c902df5d2250cc7323f426a851fc87ed516fcfa728419f8f7555ad757"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0039.wav",
+      "sha256": "578d8c85250089759407118fc6114e857219d85876422c58abb49c487b78ecef"
+    },
+    {
+      "source": "AKWF/AKWF_distorted/AKWF_distorted_0045.wav",
+      "sha256": "5f5f78ee368322494e4be17c414823d337d32f34b0f0ff162c81ed2bb4fe208c"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0001.wav",
+      "sha256": "b41a37e04d70bfcc23bd0f8bf46e778ea0cd88d53ff9a93b71c03bd618cfef1f"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0006.wav",
+      "sha256": "68127e8bb460e71f4d85f8422157382c2809ecda521730107a65aba593bf5239"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0011.wav",
+      "sha256": "f8c2134e85fd1ee7e187a4dc1efb9e26ffe59f035201898eedc731987497a61b"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0016.wav",
+      "sha256": "ec6f6f41b770405e3ad0410996a27e67fe224f4b6ba126c9de6ade1091e0f7b1"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0021.wav",
+      "sha256": "021213b391043ff8bd82217f44babfbc98f0fbacfb06164e84fea2c39f1b709c"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0026.wav",
+      "sha256": "7f5536f67f16f57550e4b03a36af191182f6d7c05cd45532171d76df92498997"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0031.wav",
+      "sha256": "4e4adfb135078dbc18a8365b7cb60152323f21486da07c05866432f9443f0e31"
+    },
+    {
+      "source": "AKWF/AKWF_raw/AKWF_raw_0036.wav",
+      "sha256": "15948e161ff2bb33a115700a5a38dfe2fa602527c8a59961d3d84bc816c1e256"
+    }
+  ]
+}

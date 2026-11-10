@@ -1,0 +1,71 @@
+{
+  "format": 13,
+  "pending_containers": [
+    "KITS/VA + FM Percussion.mgxk",
+    "PRESETS/FM Glass Rim.mgxp",
+    "PRESETS/FM Metal Snare.mgxp",
+    "PRESETS/FM Tick Hat.mgxp",
+    "PRESETS/VA Air Hat.mgxp",
+    "PRESETS/VA Deep Kick.mgxp",
+    "PRESETS/VA Round Tom.mgxp"
+  ],
+  "origin": "Offline48kHz actual Engine render, seed0x53445231+i, velocity110, native root note per recipe, NoteOff10ms before end,2ms final fade, mono PCM16 normalized to peak24575. Six standalone native synth presets plus one baked sample kit; no user pool registration.",
+  "recipe_sha256": "fe79c101a786d8ebf61fe5e3079310094b1d558150fa0fd13f8088090f2ce58f",
+  "generator_sha256": "daf73e065a8b8f99774ed26f3ab2bdccc910fbece0ef2e690239cd3d004f81fb",
+  "files": [
+    {
+      "master": "DRUMS/FM Glass Rim.wav",
+      "path": "FACTORY/DRUMS/VA-FM/FM Glass Rim.wav",
+      "bytes": 24044,
+      "sha256": "80d837f8198eb6ef2354ab79e47ab500a1973cc36445cb9ea3f1bf7dce3a53c7",
+      "crc32": 2580797956,
+      "offset": 0,
+      "packed": 24270
+    },
+    {
+      "master": "DRUMS/FM Metal Snare.wav",
+      "path": "FACTORY/DRUMS/VA-FM/FM Metal Snare.wav",
+      "bytes": 28844,
+      "sha256": "ae8e068d166396ce3afbe47ff20313c906272576a16afeee7e836c33842e448e",
+      "crc32": 3139303752,
+      "offset": 24270,
+      "packed": 29157
+    },
+    {
+      "master": "DRUMS/FM Tick Hat.wav",
+      "path": "FACTORY/DRUMS/VA-FM/FM Tick Hat.wav",
+      "bytes": 9644,
+      "sha256": "525195337876a3ca28451ff7dc519042b9ab889d7895c3d1e2201681e8906b48",
+      "crc32": 1447068469,
+      "offset": 53427,
+      "packed": 9734
+    },
+    {
+      "master": "DRUMS/VA Air Hat.wav",
+      "path": "FACTORY/DRUMS/VA-FM/VA Air Hat.wav",
+      "bytes": 48044,
+      "sha256": "3ed282498fb44e799fab4be21fd7e975a2a59eb8adae08dd55bd3a541945da10",
+      "crc32": 3627183749,
+      "offset": 63161,
+      "packed": 50179
+    },
+    {
+      "master": "DRUMS/VA Deep Kick.wav",
+      "path": "FACTORY/DRUMS/VA-FM/VA Deep Kick.wav",
+      "bytes": 38444,
+      "sha256": "39f58466f6781f6f18b9b500f2e18c22ffbb38a2dad62981a9a0a8a1496e893b",
+      "crc32": 3004041602,
+      "offset": 113340,
+      "packed": 41621
+    },
+    {
+      "master": "DRUMS/VA Round Tom.wav",
+      "path": "FACTORY/DRUMS/VA-FM/VA Round Tom.wav",
+      "bytes": 24044,
+      "sha256": "5102997f454fc460e2b1895ad26ad7e6cecbf23fdb1346812b755251fdaa376e",
+      "crc32": 4215956134,
+      "offset": 154961,
+      "packed": 25034
+    }
+  ]
+}

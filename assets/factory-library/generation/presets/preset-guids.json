@@ -1,0 +1,639 @@
+{
+  "Minimoog Bass": {
+    "guid": "bongorian.preset.minimoog-bass",
+    "revision": 1,
+    "guid128": "f030b5a73d4e6f3a7ca7a7c9f9acf746",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Minimoog Lead": {
+    "guid": "bongorian.preset.minimoog-lead",
+    "revision": 1,
+    "guid128": "f0e57dd7cd6911a4834eedd456afe2d7",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "SH-101 Bass": {
+    "guid": "bongorian.preset.sh-101-bass",
+    "revision": 1,
+    "guid128": "f0896a93a4533936a9e31ff2c55cdfef",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "SH-101 Sequence": {
+    "guid": "bongorian.preset.sh-101-sequence",
+    "revision": 1,
+    "guid128": "f0d498da5594a7b589ed32f4ad2c1840",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "TB-303 Acid": {
+    "guid": "bongorian.preset.tb-303-acid",
+    "revision": 1,
+    "guid128": "f023efc76fdc1b3699d330c266c47d13",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Prophet-5 Poly Keys": {
+    "guid": "bongorian.preset.prophet-5-poly-keys",
+    "revision": 1,
+    "guid128": "f01655b2a4625ce765d7da3e6e57cf17",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Prophet-5 Brass": {
+    "guid": "bongorian.preset.prophet-5-brass",
+    "revision": 1,
+    "guid128": "f09398c1a10fc082321292038222cd21",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Jupiter-8 Pad": {
+    "guid": "bongorian.preset.jupiter-8-pad",
+    "revision": 1,
+    "guid128": "f08a12ad5bf7f6ff17c1604b2dbd50dc",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Juno-106 Pad": {
+    "guid": "bongorian.preset.juno-106-pad",
+    "revision": 1,
+    "guid128": "f0c456427a027af0a53c166c4c3f7f9b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Juno-106 Bass": {
+    "guid": "bongorian.preset.juno-106-bass",
+    "revision": 1,
+    "guid128": "f06feb9082a522cde14b6cc10993cfdb",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "JP-8000 Supersaw": {
+    "guid": "bongorian.preset.jp-8000-supersaw",
+    "revision": 1,
+    "guid128": "f0ee841f570cb8f87591fabcc488a0fb",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "JP-8000 Hypersaw": {
+    "guid": "bongorian.preset.jp-8000-hypersaw",
+    "revision": 1,
+    "guid128": "f029531897b517dfcf638198e1a98ba0",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Solina String Ensemble": {
+    "guid": "bongorian.preset.solina-string-ensemble",
+    "revision": 1,
+    "guid128": "f09bf80d09b5b98b9b1b94ff5a1c80dd",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "CS-80 Pad": {
+    "guid": "bongorian.preset.cs-80-pad",
+    "revision": 1,
+    "guid128": "f0ac1e604c965cc75b02b590b3f94d48",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "MS-20 Scream": {
+    "guid": "bongorian.preset.ms-20-scream",
+    "revision": 1,
+    "guid128": "f034746ab990579909929cd59d31ebf2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Oberheim SEM Pad": {
+    "guid": "bongorian.preset.oberheim-sem-pad",
+    "revision": 1,
+    "guid128": "f0a32e33b6d2b2221d40a9a31a28c7aa",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 E.Piano": {
+    "guid": "bongorian.preset.dx7-e-piano",
+    "revision": 1,
+    "guid128": "f00afb28bd040946fa74789e9959a436",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 Lately Bass": {
+    "guid": "bongorian.preset.dx7-lately-bass",
+    "revision": 1,
+    "guid128": "f0cc0e6d1f846d7275d545288cf2ce24",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 Marimba": {
+    "guid": "bongorian.preset.dx7-marimba",
+    "revision": 1,
+    "guid128": "f0181c8de6e81615f3cd3eaa7b4f70ec",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 Metal Pad": {
+    "guid": "bongorian.preset.dx7-metal-pad",
+    "revision": 1,
+    "guid128": "f062111828053b662862aead97c8a581",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 Tubular Bell": {
+    "guid": "bongorian.preset.dx7-tubular-bell",
+    "revision": 1,
+    "guid128": "f02a55bfed8160a67872d53be9a7d04d",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "DX7 Wineglass": {
+    "guid": "bongorian.preset.dx7-wineglass",
+    "revision": 1,
+    "guid128": "f049c4b08e0c1b0a094bc4cd47cba5b2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Genesis FM Bass": {
+    "guid": "bongorian.preset.genesis-fm-bass",
+    "revision": 1,
+    "guid128": "f08e0303d07e6fe3c9e038362a9a7dfc",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "FM Cowbell": {
+    "guid": "bongorian.preset.fm-cowbell",
+    "revision": 1,
+    "guid128": "f0b7f6684d0f17ea35ae4c7c71d574b8",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "PPG Wave Pad": {
+    "guid": "bongorian.preset.ppg-wave-pad",
+    "revision": 1,
+    "guid128": "f02d90bdc0ec553bd745b3c3ff5ed9df",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "PPG Wave Bell": {
+    "guid": "bongorian.preset.ppg-wave-bell",
+    "revision": 1,
+    "guid128": "f01f9372b0f8d98e67d0657897e74ebd",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Microwave Bass": {
+    "guid": "bongorian.preset.microwave-bass",
+    "revision": 1,
+    "guid128": "f02b5eed2e1e365ed08d73576fd7068b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "WT Soft Choir": {
+    "guid": "bongorian.preset.wt-soft-choir",
+    "revision": 1,
+    "guid128": "f02bf04f52eb099dce3571b579cdf9bd",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Kawai K5000 Glass": {
+    "guid": "bongorian.preset.kawai-k5000-glass",
+    "revision": 1,
+    "guid128": "f082aa1a2b4ec202a28497008a2ed590",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hammond B-3 Organ": {
+    "guid": "bongorian.preset.hammond-b-3-organ",
+    "revision": 1,
+    "guid128": "f044c8930ec2ed0c3909e75aaa6bc4d2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Casio CZ-101 Bass": {
+    "guid": "bongorian.preset.casio-cz-101-bass",
+    "revision": 1,
+    "guid128": "f0da916b4e1864f3513a3ec7a4202b8e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Casio CZ-101 Pad": {
+    "guid": "bongorian.preset.casio-cz-101-pad",
+    "revision": 1,
+    "guid128": "f0ee920145ffa29d5631255e154a2588",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Prophet VS Vector Pad": {
+    "guid": "bongorian.preset.prophet-vs-vector-pad",
+    "revision": 1,
+    "guid128": "f0196eb427225d71c59e8658e2406db6",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Rings Resonator": {
+    "guid": "bongorian.preset.rings-resonator",
+    "revision": 1,
+    "guid128": "f0fb01a1e34362563ffd372860ba5c4e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Clouds Texture Pad": {
+    "guid": "bongorian.preset.clouds-texture-pad",
+    "revision": 1,
+    "guid128": "f06d884e23d6471f10c31c274d9de860",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Buchla Bongo": {
+    "guid": "bongorian.preset.buchla-bongo",
+    "revision": 1,
+    "guid128": "f07363c6eaaed900daf3ed72212772a1",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Buchla Easel Lead": {
+    "guid": "bongorian.preset.buchla-easel-lead",
+    "revision": 1,
+    "guid128": "f05b08fed67457c86b97b4284c24353b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Detroit Chord Stab": {
+    "guid": "bongorian.preset.detroit-chord-stab",
+    "revision": 1,
+    "guid128": "f04102da5cb6f7d73fc5a128f823fa7f",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Swarm Pad": {
+    "guid": "bongorian.preset.swarm-pad",
+    "revision": 1,
+    "guid128": "f0960b35bdbb25eb4b35b999d6dd50ee",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Robot Voice": {
+    "guid": "bongorian.preset.robot-voice",
+    "revision": 1,
+    "guid128": "f069027951bf7f33fb7ddc52a91ebca1",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Game Boy Lead": {
+    "guid": "bongorian.preset.game-boy-lead",
+    "revision": 1,
+    "guid128": "f0c330d12f1ff51f6380c7dd5976853f",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Frozen Choir": {
+    "guid": "bongorian.preset.frozen-choir",
+    "revision": 1,
+    "guid128": "f0c76e84cdb70fcc05262645603c230e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "D-50 LA Piano": {
+    "guid": "bongorian.preset.d-50-la-piano",
+    "revision": 1,
+    "guid128": "f04b9837f15f5a72c034a92ea24ec92f",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "D-50 Fantasia": {
+    "guid": "bongorian.preset.d-50-fantasia",
+    "revision": 1,
+    "guid128": "f0a712d6e3229b413161d9d490c7df80",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "VA-Hit Stab": {
+    "guid": "bongorian.preset.va-hit-stab",
+    "revision": 1,
+    "guid128": "f0d0ceaeb07223044d54ee172063dd80",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "FM-Metal Hit": {
+    "guid": "bongorian.preset.fm-metal-hit",
+    "revision": 1,
+    "guid128": "f01eb33a415d5461b7bf08531d2db4cc",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Slices Loop": {
+    "guid": "bongorian.preset.slices-loop",
+    "revision": 1,
+    "guid128": "f06e233075c2d9c1200e4626f9fe8f1a",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Mega Moog": {
+    "guid": "bongorian.preset.mega-moog",
+    "revision": 1,
+    "guid128": "f0bd3beabe344842c3e7c50f6cce5753",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "FM+VA Hybrid Keys": {
+    "guid": "bongorian.preset.fm-va-hybrid-keys",
+    "revision": 1,
+    "guid128": "f099712492e65acd411c94f26218a48b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "K5000+CZ Glass Duo": {
+    "guid": "bongorian.preset.k5000-cz-glass-duo",
+    "revision": 1,
+    "guid128": "f095b5204f8768bf994622206cd4914b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Reese Bass": {
+    "guid": "bongorian.preset.reese-bass",
+    "revision": 1,
+    "guid128": "f0a39741e0ca80ded66eef9a33b918d5",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "TR-808 Kick": {
+    "guid": "bongorian.preset.tr-808-kick",
+    "revision": 1,
+    "guid128": "f0aae03b2decdc41d2ae0e3e15f63d12",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "TR-909 Kick": {
+    "guid": "bongorian.preset.tr-909-kick",
+    "revision": 1,
+    "guid128": "f0595331aab2fccf3ecb672ba4f64746",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Simmons SDS Tom": {
+    "guid": "bongorian.preset.simmons-sds-tom",
+    "revision": 1,
+    "guid128": "f08a9f2f540304e90e38ae2373057c47",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "FM Clave": {
+    "guid": "bongorian.preset.fm-clave",
+    "revision": 1,
+    "guid128": "f0e8158973e63d9ebd3ea4f208c23501",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Russian Hardbass Donk": {
+    "guid": "bongorian.preset.russian-hardbass-donk",
+    "revision": 1,
+    "guid128": "f0c39b664e1f93957db81a8fc222eda5",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hardbass Kick": {
+    "guid": "bongorian.preset.hardbass-kick",
+    "revision": 1,
+    "guid128": "f0cf8c5bf2c941a4410902435ab17847",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hardbass Lead Stab": {
+    "guid": "bongorian.preset.hardbass-lead-stab",
+    "revision": 1,
+    "guid128": "f0959848f05ff836aecaca47d90b9dcb",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Uplifting Trance Lead": {
+    "guid": "bongorian.preset.uplifting-trance-lead",
+    "revision": 1,
+    "guid128": "f0ebecb616b569a02847fda36c4c0ce6",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Trance Pluck": {
+    "guid": "bongorian.preset.trance-pluck",
+    "revision": 1,
+    "guid128": "f0b0263a9eb8a627acf602fe0379fabb",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Trance Offbeat Bass": {
+    "guid": "bongorian.preset.trance-offbeat-bass",
+    "revision": 1,
+    "guid128": "f05e4031d6c22f48c7bd61527869506e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Trance Rolling Bass": {
+    "guid": "bongorian.preset.trance-rolling-bass",
+    "revision": 1,
+    "guid128": "f054eb1c80fdac0a963b3503e5f51773",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Trance Gate Pad": {
+    "guid": "bongorian.preset.trance-gate-pad",
+    "revision": 1,
+    "guid128": "f0c3794ec653b547c8e3b24ac4b2e00a",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Psytrance Bass": {
+    "guid": "bongorian.preset.psytrance-bass",
+    "revision": 1,
+    "guid128": "f078050267dd594be40ff23287384ed4",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Psytrance Kick": {
+    "guid": "bongorian.preset.psytrance-kick",
+    "revision": 1,
+    "guid128": "f000e8a384b6b0d6fd651f9881a1a50f",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Psy Squelch": {
+    "guid": "bongorian.preset.psy-squelch",
+    "revision": 1,
+    "guid128": "f02f06f2eea64c42cfb32d0be44a8c37",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Goa Lead": {
+    "guid": "bongorian.preset.goa-lead",
+    "revision": 1,
+    "guid128": "f0e7448797cbbb6b6c76a9ce49ce4f2b",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Dubstep Growl": {
+    "guid": "bongorian.preset.dubstep-growl",
+    "revision": 1,
+    "guid128": "f0af6bb6d9cd01ff7fd2eb6ad794e357",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hardstyle Kick": {
+    "guid": "bongorian.preset.hardstyle-kick",
+    "revision": 1,
+    "guid128": "f0a02f4ad17460db22007a8381633ab8",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Hard Sync Lead": {
+    "guid": "bongorian.preset.hard-sync-lead",
+    "revision": 1,
+    "guid128": "f0f4bb41452f2bfb9112dce0a124ecbe",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "CrossMod Metal Bass": {
+    "guid": "bongorian.preset.crossmod-metal-bass",
+    "revision": 1,
+    "guid128": "f039b2625002df575dac0be7a9df1117",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Alpha Juno Hoover": {
+    "guid": "bongorian.preset.alpha-juno-hoover",
+    "revision": 1,
+    "guid128": "f07d26d5c35f11b6ccaa25521499ae57",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Granular Pad": {
+    "guid": "bongorian.preset.granular-pad",
+    "revision": 1,
+    "guid128": "f052eb3db208d0ba4b6ef491f046dab2",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Granular Choir": {
+    "guid": "bongorian.preset.granular-choir",
+    "revision": 1,
+    "guid128": "f05dc73391b89404669901e41db232b7",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Talking Formant Pad": {
+    "guid": "bongorian.preset.talking-formant-pad",
+    "revision": 1,
+    "guid128": "f0ddf1fa73bd91bcfba61c991dd15e71",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "VOSIM Voice": {
+    "guid": "bongorian.preset.vosim-voice",
+    "revision": 1,
+    "guid128": "f043eaf77a6b859cb775e76dcc4c1796",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "B-3 + Leslie": {
+    "guid": "bongorian.preset.b-3-leslie",
+    "revision": 1,
+    "guid128": "f03ecd64e713cb43e7e23d247ac76f68",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Shimmer Reverb Pad": {
+    "guid": "bongorian.preset.shimmer-reverb-pad",
+    "revision": 1,
+    "guid128": "f00f59eba0a7b057f2280b9949c2e269",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  },
+  "Breakbeat Chops 132": {
+    "guid": "bongorian.preset.breakbeat-chops-132",
+    "revision": 1,
+    "guid128": "2ab27d6d02295d32990213dba776c65c",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Jungle Chops 172": {
+    "guid": "bongorian.preset.jungle-chops-172",
+    "revision": 1,
+    "guid128": "05cc6841e53256168a60b1239d178f8f",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Funk Chops 104": {
+    "guid": "bongorian.preset.funk-chops-104",
+    "revision": 1,
+    "guid128": "fbdb9c38bf115a85b840139f891fa931",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "House Loop 124": {
+    "guid": "bongorian.preset.house-loop-124",
+    "revision": 1,
+    "guid128": "9f1ffe7fc1f756348deb5dd7c760a80c",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Techno Loop 138": {
+    "guid": "bongorian.preset.techno-loop-138",
+    "revision": 1,
+    "guid128": "2d428329362d5e448dbea55b004843ac",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Ambient Bed 90": {
+    "guid": "bongorian.preset.ambient-bed-90",
+    "revision": 1,
+    "guid128": "2ec8998dc04857508d07650e30e4e256",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Grand Piano": {
+    "guid": "bongorian.preset.grand-piano",
+    "revision": 1,
+    "guid128": "3f7e0effdd585245b3cadc11a0717099",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Electric Piano": {
+    "guid": "bongorian.preset.electric-piano",
+    "revision": 1,
+    "guid128": "e8dbe54fe8605bc0be5baa7343f7635f",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Clavisynth": {
+    "guid": "bongorian.preset.clavisynth",
+    "revision": 1,
+    "guid128": "66df1806fe63568d98cf322d288c528e",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Marimba": {
+    "guid": "bongorian.preset.marimba",
+    "revision": 1,
+    "guid128": "125421cc440253febb03fbb555f774a6",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Kalimba": {
+    "guid": "bongorian.preset.kalimba",
+    "revision": 1,
+    "guid128": "bdcf03a6e4fc5d49994272b382ec3af8",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "Vibraphone": {
+    "guid": "bongorian.preset.vibraphone",
+    "revision": 1,
+    "guid128": "fb5cc297f2b35c43bb86661e6a6c8e36",
+    "guid128_source": "derived:uuid5-project-namespace",
+    "origin": "factory"
+  },
+  "GM Grand Piano": {
+    "guid": "bongorian.preset.m1-piano",
+    "revision": 1,
+    "guid128": "f00250d63ee35df617a25fb5bbd46d2e",
+    "guid128_source": "repo:assets/factory-library/identities.json",
+    "origin": "factory"
+  }
+}

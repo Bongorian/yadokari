@@ -1,0 +1,121 @@
+{
+  "upstream": "https://github.com/asb2m10/dexed",
+  "commit": "fea2f0f0f2c397799f59b27eb11c038cd34b22c5",
+  "path": "source/msfa",
+  "files": [
+    {
+      "file": "synth.h",
+      "sha256": "d22b8967f43e5ea15b76cc708bcfce254a27eac4b6cba4c70d8c3ad3486dea0b",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "aligned_buf.h",
+      "sha256": "9553d8913077fca065869f003e3510bf01d2b56e6ae611c3483724d94f64f6c2",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "controllers.h",
+      "sha256": "6108b8e0ab5b59392adc59806c4049f10dfa486bcd06e94bf670925f7116f06e",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "fm_core.h",
+      "sha256": "6d441eaae369b9d7c20323b59a65ee21be1e01fb6ea0198e816fb5b2d45daaa5",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "fm_core.cc",
+      "sha256": "a44801e0a330f3545ec00016ebd26fa714d372c5e6350f971be64a9da6529dfc",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "fm_op_kernel.h",
+      "sha256": "7525bf0a2f7c77f5f3ed52eb51c9feee2c3a640d2eb639f500eb1e12b2cf7775",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "fm_op_kernel.cc",
+      "sha256": "a29ae8e31f7aa42255b1918a8ca2d79dee53fbc897e66a4f2f52a6b9d565d0cd",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "env.h",
+      "sha256": "6936df4cc9dc41c2ee4a3fd19a2669976e3e245e7a7795392bd561cd778abe36",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "env.cc",
+      "sha256": "35f1a4038ac2d9cbbeed558978ee7fdc0dbe333d88a1ad9d4958e9fafb253180",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "pitchenv.h",
+      "sha256": "be825b9272fe59bd7faf47b4878fdbd756f502ca3b4364d2934a7f5dafa0abe4",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "pitchenv.cc",
+      "sha256": "e5f4689316466a933f1a09ca316012c583fd3aca06ed9decaad20e2294046a2f",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "lfo.h",
+      "sha256": "a33fed1e6ff32d58307c07678a44bf90a33220e713c56ee6fd90ae59af6febeb",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "lfo.cc",
+      "sha256": "937675b18e79ef75c17f1a217baa6101634fa41bbdc15fe359d7b0a7f0001fe8",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "freqlut.h",
+      "sha256": "d319ee2d35e8e8e2c860b6fc2a2d1382bf5782d1d147264914325ca41f89f00b",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "freqlut.cc",
+      "sha256": "f46ddab0d296f1a82d2ef6826f7e431cad97967418a37fdb486052a4187dcaf8",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "sin.h",
+      "sha256": "77486d3ac19d53514a8d26cd2164374ceceab9b15f8d98f876d4db7647321cc2",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "sin.cc",
+      "sha256": "e54e17adc689a8ad7446d38adb3ba6beb077921d2d5b4bd6fe7075a38a5938ae",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "exp2.h",
+      "sha256": "23aa480e221e5d1f928a5ccab654a9c01a80eb0b610fd66d9364af09d18cdda8",
+      "license": "Apache-2.0",
+      "modified": false
+    },
+    {
+      "file": "exp2.cc",
+      "sha256": "dff6dfd8af6f0a470360c2d2fa98aa7ae5208c27b83c9229ffccbc84815930da",
+      "license": "Apache-2.0",
+      "modified": false
+    }
+  ]
+}

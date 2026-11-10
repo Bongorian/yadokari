@@ -1,0 +1,14 @@
+// Read the authored comparison songs with the actual current codec. No rewriting.
+#include "project_files.h"
+#include "native_budget.h"
+#include "../../platform/desktop/file_access.h"
+#include <cstdio>
+#include <memory>
+#include <string>
+using namespace groove;
+static void quoted(const char* text){std::putchar('"');for(const unsigned char* p=reinterpret_cast<const unsigned char*>(text);*p;++p){if(*p=='"' || *p=='\\')std::putchar('\\');if(*p>=32)std::putchar(*p);}std::putchar('"');}
+int main(int argc,char** argv){if(argc!=2)return 2;DesktopFiles fs;std::puts("{\"songs\":[");unsigned song=0;for(const char* name:{"load-all","load-va","load-native","load-sampler","load-va2","load-stream","load-stream2"}){const std::string path=std::string(argv[1])+"/"+name+".mgxs";auto p=std::make_unique<ProjectState>();PreservedOwner preserved;if(!preserved || !read_project_file(fs,path.c_str(),*p,nullptr,preserved.get())){std::fprintf(stderr,"Current codec refused %s\n",path.c_str());return 3;}const std::string logical=std::string("PROJECTS/")+name+".mgxs";if(!project_paths(*p,logical.c_str(),true,true))return 4;
+ std::printf("%s{\"name\":\"%s\",\"tempo\":%u,\"song_enabled\":%s,\"song_sections\":%u,\"unavailable_owners\":%u,\"tracks\":[",song++?",\n":"",name,p->tempo,p->song.enabled?"true":"false",p->song.length,p->unavailable_targets.count);
+ for(unsigned t=0;t<16;++t){const auto tr=track_at(*p,0,t);unsigned notes=0,kit=0,chords=0,max_gate=0;for(unsigned pi=0;pi<kPatterns;++pi){auto row=track_at(*p,pi,t);for(unsigned step=0;step<kSteps;++step){const auto& n=row.steps[step];if(n.enabled){++notes;if(n.gate>max_gate)max_gate=n.gate;for(auto c:n.chord)chords+=c<128;}for(unsigned pad=0;pad<16;++pad)kit+=row.kit.steps[pad][step].enabled;}}
+ std::printf("%s{\"track\":%u,\"name\":",t?",":"",t+1);quoted(tr.track_name);std::printf(",\"engine\":\"%s\",\"preset\":",engine_guid(tr.instrument));quoted(tr.preset_name);std::printf(",\"steps\":%u,\"extra_chord_notes\":%u,\"kit_steps\":%u,\"max_gate\":%u,\"length\":%u,\"layer_parts\":%u,\"texture\":[",notes,chords,kit,max_gate,tr.length,tr.layer.count);for(unsigned i=0;i<15;++i)std::printf("%s%.9g",i?",":"",tr.texture.values[i]);std::printf("],\"resonator_model\":%.9g}",tr.resonator.values[0]);}
+ std::printf("],\"pool\":[");unsigned used=0;for(unsigned i=0;i<kPresetSlots;++i)if(p->sounds[i].instrument!=Instrument::Empty){const auto& s=p->sounds[i];std::printf("%s{\"slot\":%u,\"engine\":\"%s\"}",used++?",":"",i,engine_guid(s.instrument));}std::printf("],\"assets\":[");unsigned assets=0;for(unsigned i=0;i<kSampleAssets;++i){const auto& a=p->assets[i];if(!a.path[0])continue;std::printf("%s{\"slot\":%u,\"path\":",assets++?",":"",i);quoted(a.path);std::printf(",\"crc32\":\"%08x\",\"frames\":%u,\"rate\":%u}",a.metadata.content_crc,a.metadata.frames,a.metadata.rate);}std::printf("]}");}std::puts("\n]}");}

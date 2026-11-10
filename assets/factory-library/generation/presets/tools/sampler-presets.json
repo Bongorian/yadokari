@@ -1,0 +1,1200 @@
+{
+  "comment": "MK3 factory sampler preset set (companion to presets.json). Twelve mk3.sampler presets built on the firmware factory library's own loops and packed multisample strips (assets/factory in the firmware repo, library.json revision 2; WAV copies in assets/sampler/, SHA-256 verified against library.json). Loops are CC0-1.0 arrangements of the kit library's one-shots; the six multisample strips used here are all VCSL recordings (CC0-1.0). Zone layouts are library.json's own tables. Engine params mirror sample.edit on purpose: the params are the knob surface, the edit carries slices/zones/choke that have no parameter equivalent.",
+  "presets": [
+    {
+      "name": "Breakbeat Chops 132",
+      "guid": "mk3.sampler",
+      "signature": "The factory Breakbeat-132 loop (4 bars of CC0 one-shots) cut into 16 one-beat slices on the pads and keys 36-51, choke group 1 so each new slice cuts the last: the classic re-arrangement setup at its native tempo",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 40
+      },
+      "sample": {
+        "asset": "break-132",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 40,
+          "choke": 1,
+          "markers": [
+            0.0,
+            0.0625,
+            0.125,
+            0.1875,
+            0.25,
+            0.3125,
+            0.375,
+            0.4375,
+            0.5,
+            0.5625,
+            0.625,
+            0.6875,
+            0.75,
+            0.8125,
+            0.875,
+            0.9375,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 36,
+              "key_high": 36,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 37,
+              "key_low": 37,
+              "key_high": 37,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 38,
+              "key_low": 38,
+              "key_high": 38,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 39,
+              "key_low": 39,
+              "key_high": 39,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 40,
+              "key_low": 40,
+              "key_high": 40,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 41,
+              "key_low": 41,
+              "key_high": 41,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 42,
+              "key_low": 42,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 43,
+              "key_low": 43,
+              "key_high": 43,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 44,
+              "key_low": 44,
+              "key_high": 44,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 45,
+              "key_low": 45,
+              "key_high": 45,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 46,
+              "key_low": 46,
+              "key_high": 46,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 47,
+              "key_low": 47,
+              "key_high": 47,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 48,
+              "key_high": 48,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 49,
+              "key_low": 49,
+              "key_high": 49,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 50,
+              "key_low": 50,
+              "key_high": 50,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 51,
+              "key_low": 51,
+              "key_high": 51,
+              "velocity_low": 1,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Jungle Chops 172",
+      "guid": "mk3.sampler",
+      "signature": "The factory Jungle-172 loop cut into 16 one-beat slices on the pads and keys 36-51 with choke group 1: fast break re-arrangement at 172 BPM, one beat per pad",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 40
+      },
+      "sample": {
+        "asset": "jungle-172",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 40,
+          "choke": 1,
+          "markers": [
+            0.0,
+            0.0625,
+            0.125,
+            0.1875,
+            0.25,
+            0.3125,
+            0.375,
+            0.4375,
+            0.5,
+            0.5625,
+            0.625,
+            0.6875,
+            0.75,
+            0.8125,
+            0.875,
+            0.9375,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 36,
+              "key_high": 36,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 37,
+              "key_low": 37,
+              "key_high": 37,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 38,
+              "key_low": 38,
+              "key_high": 38,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 39,
+              "key_low": 39,
+              "key_high": 39,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 40,
+              "key_low": 40,
+              "key_high": 40,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 41,
+              "key_low": 41,
+              "key_high": 41,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 42,
+              "key_low": 42,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 43,
+              "key_low": 43,
+              "key_high": 43,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 44,
+              "key_low": 44,
+              "key_high": 44,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 45,
+              "key_low": 45,
+              "key_high": 45,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 46,
+              "key_low": 46,
+              "key_high": 46,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 47,
+              "key_low": 47,
+              "key_high": 47,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 48,
+              "key_high": 48,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 49,
+              "key_low": 49,
+              "key_high": 49,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 50,
+              "key_low": 50,
+              "key_high": 50,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 51,
+              "key_low": 51,
+              "key_high": 51,
+              "velocity_low": 1,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Funk Chops 104",
+      "guid": "mk3.sampler",
+      "signature": "The factory Funk-104 loop sliced into 16 beats (pads / keys 36-51, choke 1) with the loop flag on: sequence it whole at 104 BPM or chop it live, with a looser 60 ms slice release for the funk tail",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 60
+      },
+      "sample": {
+        "asset": "funk-104",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 60,
+          "choke": 1,
+          "markers": [
+            0.0,
+            0.0625,
+            0.125,
+            0.1875,
+            0.25,
+            0.3125,
+            0.375,
+            0.4375,
+            0.5,
+            0.5625,
+            0.625,
+            0.6875,
+            0.75,
+            0.8125,
+            0.875,
+            0.9375,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 36,
+              "key_high": 36,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 37,
+              "key_low": 37,
+              "key_high": 37,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 38,
+              "key_low": 38,
+              "key_high": 38,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 39,
+              "key_low": 39,
+              "key_high": 39,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 40,
+              "key_low": 40,
+              "key_high": 40,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 41,
+              "key_low": 41,
+              "key_high": 41,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 42,
+              "key_low": 42,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 43,
+              "key_low": 43,
+              "key_high": 43,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 44,
+              "key_low": 44,
+              "key_high": 44,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 45,
+              "key_low": 45,
+              "key_high": 45,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 46,
+              "key_low": 46,
+              "key_high": 46,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 47,
+              "key_low": 47,
+              "key_high": 47,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 48,
+              "key_high": 48,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 49,
+              "key_low": 49,
+              "key_high": 49,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 50,
+              "key_low": 50,
+              "key_high": 50,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 51,
+              "key_low": 51,
+              "key_high": 51,
+              "velocity_low": 1,
+              "velocity_high": 127
+            }
+          ]
+        },
+        "loop": true
+      }
+    },
+    {
+      "name": "House Loop 124",
+      "guid": "mk3.sampler",
+      "signature": "The factory House-124 drum loop as a straight tempo loop: full range, LOOP on, 25 ms crossfade - set the song tempo to 124 and it sits; SAMPLE SPEED re-pitches it the classic way",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 30,
+        "LOOP XFADE": 25
+      },
+      "sample": {
+        "asset": "house-124",
+        "slot": 0,
+        "loop": true,
+        "edit": {
+          "fade_ms": 2,
+          "crossfade_ms": 25,
+          "attack_ms": 0,
+          "release_ms": 30
+        }
+      }
+    },
+    {
+      "name": "Techno Loop 138",
+      "guid": "mk3.sampler",
+      "signature": "The factory Techno-138 drum loop as a straight tempo loop: full range, LOOP on, 20 ms crossfade, native pitch at key 60 - play it up or down the keyboard for the pitched-loop trick",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 30,
+        "LOOP XFADE": 20
+      },
+      "sample": {
+        "asset": "techno-138",
+        "slot": 0,
+        "loop": true,
+        "edit": {
+          "fade_ms": 2,
+          "crossfade_ms": 20,
+          "attack_ms": 0,
+          "release_ms": 30
+        }
+      }
+    },
+    {
+      "name": "Ambient Bed 90",
+      "guid": "mk3.sampler",
+      "signature": "The factory Ambient-90 loop as a slow atmosphere bed: 900 ms attack, 1200 ms release, 100 ms loop crossfade, and a PFXS wash (delay 0.18 / reverb 0.45) carried in the snapshot",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 10,
+        "ATTACK": 900,
+        "RELEASE": 1200,
+        "LOOP XFADE": 100
+      },
+      "sample": {
+        "asset": "ambient-90",
+        "slot": 0,
+        "loop": true,
+        "edit": {
+          "fade_ms": 10,
+          "crossfade_ms": 100,
+          "attack_ms": 900,
+          "release_ms": 1200
+        }
+      },
+      "pfxs": {
+        "delay": 0.18,
+        "reverb": 0.45
+      }
+    },
+    {
+      "name": "Grand Piano",
+      "guid": "mk3.sampler",
+      "signature": "VCSL grand piano as a packed multisample strip: 4 roots (C2/C3/C4/C5) x 2 velocity layers = 8 zones, each zone its own slice of the strip - a true multisample instrument, plain OneShot with a 150 ms release trim",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 150
+      },
+      "sample": {
+        "asset": "grand-piano",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 150,
+          "markers": [
+            0.0,
+            0.125,
+            0.25,
+            0.375,
+            0.5,
+            0.625,
+            0.75,
+            0.875,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 64,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Electric Piano",
+      "guid": "mk3.sampler",
+      "signature": "VCSL electric piano as a packed multisample strip: 4 roots x 2 velocity layers = 8 zones with their own slices, softer 220 ms release - a stage-piano one-shot set playable across the whole keyboard",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 220
+      },
+      "sample": {
+        "asset": "electric-piano",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 220,
+          "markers": [
+            0.0,
+            0.12629485111678854,
+            0.2525897022335771,
+            0.3788845533503656,
+            0.5051794044671541,
+            0.6314742555839427,
+            0.7577691067007312,
+            0.8737051488832115,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 64,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Clavisynth",
+      "guid": "mk3.sampler",
+      "signature": "VCSL clavisynth as a packed multisample strip: 4 roots x 2 velocity layers = 8 zones, short 90 ms release, with a PFXS overdrive (mix 0.4) for the funky clav bite",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 90
+      },
+      "sample": {
+        "asset": "clavisynth",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 90,
+          "markers": [
+            0.0,
+            0.20508453159086898,
+            0.45571868822259654,
+            0.5796771205477191,
+            0.7595415901275205,
+            0.8204540446609181,
+            0.9186295324315377,
+            0.9501540877908792,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ],
+          "zones": [
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 36,
+              "key_low": 0,
+              "key_high": 42,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 48,
+              "key_low": 43,
+              "key_high": 54,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 60,
+              "key_low": 55,
+              "key_high": 66,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 72,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 64,
+              "velocity_high": 127
+            }
+          ]
+        }
+      },
+      "pfxs": {
+        "fx1": {
+          "type": 5,
+          "a": 0.5,
+          "b": 0.25,
+          "mix": 0.4
+        }
+      }
+    },
+    {
+      "name": "Marimba",
+      "guid": "mk3.sampler",
+      "signature": "VCSL marimba as a packed multisample strip: 3 roots x 2 velocity layers = 6 zones, tight 70 ms release - dry mallet one-shots with the recordings' own decay",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 70
+      },
+      "sample": {
+        "asset": "marimba",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 70,
+          "markers": [
+            0.0,
+            0.14892772425812073,
+            0.5244969421180875,
+            0.616465766245502,
+            0.8255312968969357,
+            0.886040244630553,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3
+          ],
+          "zones": [
+            {
+              "root": 47,
+              "key_low": 0,
+              "key_high": 53,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 47,
+              "key_low": 0,
+              "key_high": 53,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 60,
+              "key_low": 54,
+              "key_high": 65,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 60,
+              "key_low": 54,
+              "key_high": 65,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 71,
+              "key_low": 66,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 71,
+              "key_low": 66,
+              "key_high": 127,
+              "velocity_low": 64,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Kalimba",
+      "guid": "mk3.sampler",
+      "signature": "VCSL mbira as a packed multisample strip (the library's kalimba): 3 roots as 3 zones (the source has no velocity split), 90 ms release - a bright thumb-piano pluck across the keyboard",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 0,
+        "RELEASE": 90
+      },
+      "sample": {
+        "asset": "kalimba",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 0,
+          "release_ms": 90,
+          "markers": [
+            0.0,
+            0.45516274549434294,
+            0.8245083662665939,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0,
+            1,
+            2,
+            0
+          ],
+          "zones": [
+            {
+              "root": 49,
+              "key_low": 0,
+              "key_high": 55,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 61,
+              "key_low": 56,
+              "key_high": 66,
+              "velocity_low": 1,
+              "velocity_high": 127
+            },
+            {
+              "root": 71,
+              "key_low": 67,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 127
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Vibraphone",
+      "guid": "mk3.sampler",
+      "signature": "VCSL vibraphone as a packed multisample strip: 3 roots x 2 velocity layers = 6 zones, long 400 ms release and a PFXS reverb 0.3 - the tremolo shimmer is in the recordings themselves",
+      "params": {
+        "SAMPLE SPEED": 1,
+        "START": 0,
+        "END": 1,
+        "EDGE FADE": 2,
+        "ATTACK": 5,
+        "RELEASE": 400
+      },
+      "sample": {
+        "asset": "vibraphone",
+        "slot": 0,
+        "edit": {
+          "fade_ms": 2,
+          "attack_ms": 5,
+          "release_ms": 400,
+          "markers": [
+            0.0,
+            0.18931555775812475,
+            0.3787084509476352,
+            0.564899025968133,
+            0.7542714015942147,
+            0.8458468111366177,
+            1.0
+          ],
+          "pads": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            0,
+            1,
+            2,
+            3
+          ],
+          "zones": [
+            {
+              "root": 48,
+              "key_low": 0,
+              "key_high": 53,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 48,
+              "key_low": 0,
+              "key_high": 53,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 59,
+              "key_low": 54,
+              "key_high": 65,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 59,
+              "key_low": 54,
+              "key_high": 65,
+              "velocity_low": 64,
+              "velocity_high": 127
+            },
+            {
+              "root": 72,
+              "key_low": 66,
+              "key_high": 127,
+              "velocity_low": 1,
+              "velocity_high": 63
+            },
+            {
+              "root": 72,
+              "key_low": 66,
+              "key_high": 127,
+              "velocity_low": 64,
+              "velocity_high": 127
+            }
+          ]
+        }
+      },
+      "pfxs": {
+        "reverb": 0.3
+      }
+    }
+  ]
+}
