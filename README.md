@@ -1,5 +1,5 @@
 <!-- YADOKARI — public README. Keep the facts in step with the release;
-     screenshots are real frames from the device's own renderer. -->
+     the hero photo shows the author's own unit; screenshots are real frames from the device's own renderer. -->
 
 <div align="center">
 
@@ -27,9 +27,9 @@ the shell exactly as it found it.
 
 [🧰 Requirements](#-requirements) · [🚀 Quick start](#-quick-start) · [✨ Features](#-features) · [📸 Screenshots](#-screenshots) · [🔨 Building](#-building-from-source) · [📚 Docs](docs/) · [🤝 Contributing](#-contributing)
 
-<img src="assets/boot/splash-yadokari-480x272.png" alt="YADOKARI boot splash" width="480">
+<img src="assets/yadokari-main.jpg" alt="YADOKARI running on a MASCHINE MK3 — the whole rig: controller, Raspberry Pi 4, a power bank and a speaker" width="880">
 
-<sub>The boot splash on the right display — the firmware stamps its own version underneath at runtime.</sub>
+<sub>The whole rig — a MASCHINE MK3, a Raspberry Pi 4, a power bank and a speaker. The right display shows the YADOKARI boot splash; the firmware stamps its own version underneath at runtime.</sub>
 
 </div>
 
