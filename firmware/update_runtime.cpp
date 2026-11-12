@@ -135,17 +135,28 @@ bool CUpdateRuntime::Initialize(bool recovery){
  if(recovery){if(f_mount(&m_DataFs,"DATA:",1)!=FR_OK)m_Status="DATA PARTITION UNAVAILABLE";Enter();m_Autoboot=m_Ready&&m_Identity&&m_Partition==1&&m_Manager.state().phase==Phase::Stable;FILINFO status;if(f_stat("DATA:/RECOVERY.ON",&status)==FR_OK)m_Autoboot=false;}
  // Keep STATUS and logs available after a boot-identity failure; mutating
  // remote commands still require m_Ready and m_Identity via remote_ready().
- FILINFO remote_marker{};m_Remote=storage_ready && f_stat("DATA:/REMOTE.ON",&remote_marker)==FR_OK && !(remote_marker.fattrib&AM_DIR);
+ FILINFO remote_marker{};
+ const bool cdc_marker=f_stat("DATA:/REMOTE.ON",&remote_marker)==FR_OK && !(remote_marker.fattrib&AM_DIR);
 #if defined(GROOVE_CDC_DEFAULT_ON) && RASPPI >= 5
  // 0.9.1 Pi 5 release configuration (firmware/circle-pi5.mk): the
- // USB-C CDC gadget and the remote control channel are on by
- // default, with the behaviour a Pi 4 shows when DATA:/REMOTE.ON
- // is present; no opt-in marker file is required. The marker
- // still works -- it is simply not needed. The define is never
- // set for Pi 4 or development builds.
- if(storage_ready)m_Remote=true;
+ // USB-C CDC gadget is on by default, with the behaviour a Pi 4
+ // shows when DATA:/REMOTE.ON is present; no opt-in marker file
+ // is required. The marker still works -- it is simply not
+ // needed. The define is never set for Pi 4 or development builds.
+ const bool cdc_default_on=true;
+#else
+ const bool cdc_default_on=false;
 #endif
- if(m_Remote && !StartGadget())m_Status="USB-C GADGET INITIALIZATION FAILED";
+ // Gadget enumeration follows the channel decision alone, not update
+ // storage readiness: PollUsbControl serves STATUS without
+ // remote_ready() precisely so a card whose update layout is not
+ // prepared -- the single-partition release card, for example -- can
+ // still report the INVALID UPDATE SD LAYOUT status below. m_Remote,
+ // which gates every mutating and diagnostic command, keeps requiring
+ // prepared storage. tests/cdc_gate_test.py executes this truth table.
+ const bool cdc_channel=cdc_marker||cdc_default_on;
+ m_Remote=storage_ready && cdc_channel;
+ if(cdc_channel && !StartGadget())m_Status="USB-C GADGET INITIALIZATION FAILED";
  if(m_Remote && m_TrialFallback){Enter();StartNetwork(false);}
  if(!m_Ready)m_Status="INVALID UPDATE SD LAYOUT / JOURNAL";
  if(!m_Identity)m_Status="BOOT IDENTITY UNKNOWN / NO AUTO BOOT";

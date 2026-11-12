@@ -2107,4 +2107,5 @@ test-all: test-run-deployment-check
 test-run-py-deployment-runner:
 	python3 tests/deployment_runner_test.py
 	python3 tests/diagnostic_owner_test.py
+	python3 tests/cdc_gate_test.py
 test-all: test-run-py-deployment-runner

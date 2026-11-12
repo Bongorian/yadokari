@@ -1,18 +1,29 @@
 # YADOKARI CI.
-# Three jobs, all on clean Ubuntu 24.04 ARM64 runners: the
+# All jobs run on clean Ubuntu 24.04 ARM64 runners: the
 # project's locked environment is native AArch64 (the factory
 # catalog generation is fingerprint-locked to it), and the host
 # suite was developed and qualified there — x86-64 runners fail
 # the catalog-environment gate by design and diverge elsewhere.
+# The three gated jobs are:
 #   host-tests : the host test suite (make test), GCC 13.3 per the
 #                catalog environment lock.
 #   firmware   : full firmware builds via scripts/build-firmware.sh
 #                (Pi 4) and scripts/build-firmware-pi5.sh (Pi 5),
 #                Arm GNU Toolchain 15.2.rel1 (pinned version + SHA-256),
 #                Circle at its pinned commit (handled by the script).
-#   container  : the dev container (docker/Dockerfile) builds, and the
-#                host suite passes inside it — the same environment
-#                Mac/Linux developers use locally.
+#   container  : the dev container (docker/Dockerfile, apt pinned to
+#                the catalog lock via snapshot.ubuntu.com) builds, and
+#                the environment-sensitive subset — the catalog gate,
+#                the factory content generation checks, and the
+#                node-dependent HTTP test — passes inside it. The
+#                full suite runs once, in host-tests; this job's job
+#                is proving the pinned environment itself (D3).
+#   preflight  : fast machine-checked invariants that gate the three
+#                jobs above — the snapshot serves the catalog lock,
+#                every cache key covers its content inputs, and the
+#                patch-shape / CDC-gate tests pass — so known drift
+#                classes fail in about a minute, with the invariant
+#                named, instead of surfacing inside an expensive job.
 name: CI
 
 on:
@@ -26,7 +37,11 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a main-push run: a release candidate must always
+  # get a complete verdict (14 of the first 21 runs were cancelled
+  # mid-flight and produced none — D4). PR and branch runs still
+  # cancel superseded runs.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
   ARM_TC_VERSION: 15.2.rel1
@@ -34,9 +49,48 @@ env:
   ARM_TC_SHA256_AARCH64: 46195685b6aec1077e3f1b7706b43a6aa1fef4d8d3bff3a411b7dad1c5b1196b
 
 jobs:
-  host-tests:
+  # Fast preventive gate. Expected duration is under two minutes;
+  # five minutes is the hard timeout for a slow network fetch, not
+  # the target. Every expensive job needs this job, so a failure
+  # here is the complete CI verdict for known drift classes.
+  preflight:
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 150
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Invariant checks (snapshot pin and cache keys)
+        # scripts/ci-check-pins.py asserts (1) the Dockerfile's
+        # UBUNTU_SNAPSHOT serves every package/version in
+        # tools/content/catalog_environment.lock.json and (2) each
+        # actions/cache key covers its registered content inputs
+        # (Circle pin + patch inputs; toolchain version + arch).
+        run: |
+          if ! python3 -c 'import yaml' >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y --no-install-recommends python3-yaml
+          fi
+          python3 scripts/ci-check-pins.py
+      - name: Fast invariant tests (CPU heap patch and CDC gate)
+        # The CPU heap replay includes the 0.9.0 -> current patch
+        # migration case; the CDC test executes the production
+        # channel/remote gate expressions over their truth table.
+        # Running them here catches patch-shape and gate drift
+        # before the firmware build, not inside it.
+        run: |
+          git init -q "$RUNNER_TEMP/circle-pinned"
+          git -C "$RUNNER_TEMP/circle-pinned" remote add origin https://github.com/rsta2/circle.git
+          git -C "$RUNNER_TEMP/circle-pinned" fetch -q --depth 1 origin 7a81e1b480fe7d19fc1fc695b89bff0a0848f44b
+          git -C "$RUNNER_TEMP/circle-pinned" checkout -q FETCH_HEAD
+          git fetch -q --depth 1 origin tag v0.9.0
+          git show v0.9.0:scripts/patch-circle-cpu-heap.py > "$RUNNER_TEMP/patch-circle-cpu-heap-090.py"
+          CIRCLEHOME="$RUNNER_TEMP/circle-pinned" OLD_CPU_HEAP_SCRIPT="$RUNNER_TEMP/patch-circle-cpu-heap-090.py" python3 tests/cpu_heap_patch_test.py
+          python3 tests/cdc_gate_test.py
+
+  host-tests:
+    needs: preflight
+    runs-on: ubuntu-24.04-arm
+    # Observed maximum 52 min; ~1.5x headroom (D6).
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - name: Install host toolchain (GCC 13.3, catalog lock)
@@ -69,9 +123,24 @@ jobs:
       - name: Host test suite
         # The ASan build of tests/integration/backends_test.cpp overflows
         # the default 8 MB stack in main; the suite needs a raised limit.
+        # ci-test.sh adds the scoped D1 retry for the two evidenced
+        # load-sensitive targets; any other failure fails immediately.
+        # FLAKE_LOG collects one line per retry fire for the trend
+        # artifact below; annotations and the job summary remain the
+        # per-run visible record.
+        env:
+          FLAKE_LOG: ci-flake-log.tsv
         run: |
           ulimit -s unlimited || ulimit -s 262144 || true
-          make test CXX=g++-13
+          scripts/ci-test.sh CXX=g++-13
+      - name: Upload flake trend log (host-tests)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake-log-host-tests-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ci-flake-log.tsv
+          if-no-files-found: ignore
+          retention-days: 90
 
   # The firmware job runs on an arm64 runner on purpose: the
   # factory-content generation environment is fingerprint-locked
@@ -80,8 +149,11 @@ jobs:
   # verifies that fingerprint. An x86_64 runner fails that gate
   # by design.
   firmware:
+    needs: preflight
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 120
+    # Observed maximum 5 min; 30 covers a cold toolchain download
+    # plus both platform builds (D6).
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Install build dependencies
@@ -93,7 +165,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /opt/arm-gnu-toolchain
-          key: arm-gnu-toolchain-15.2.rel1-${{ runner.arch }}
+          key: arm-gnu-toolchain-${{ env.ARM_TC_VERSION }}-${{ runner.arch }}
       - name: Install Arm GNU Toolchain 15.2.rel1 (pinned)
         if: steps.cache-arm.outputs.cache-hit != 'true'
         run: |
@@ -112,7 +184,10 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .deps
-          key: circle-7a81e1b480fe7d19fc1fc695b89bff0a0848f44b-v1
+          # The key covers the patch scripts' contents: the restored
+          # checkout carries their applied state, so a patch change
+          # must never restore a tree patched by an older script.
+          key: circle-7a81e1b480fe7d19fc1fc695b89bff0a0848f44b-${{ hashFiles('scripts/patch-*.py', 'scripts/circle-pi5-cdc.patch') }}
       - name: Throwaway CI update key (CI builds are never official)
         run: head -c 32 /dev/urandom > "$RUNNER_TEMP/ci-update-key.pub"
       - name: Build firmware
@@ -128,8 +203,6 @@ jobs:
         run: |
           export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
           scripts/build-firmware-pi5.sh
-      - name: List firmware outputs
-        run: ls -la firmware/*.img firmware/*.elf firmware/recovery/*.img 2>/dev/null || true
       - name: Upload firmware images
         uses: actions/upload-artifact@v4
         with:
@@ -143,34 +216,72 @@ jobs:
           retention-days: 14
 
   container:
+    needs: preflight
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 120
+    # Restructured in D3: this job no longer re-runs the full suite
+    # (host-tests owns that). It proves the pinned dev-container
+    # environment: image build + the environment-sensitive subset.
+    # 45 min covers a cold image build plus the subset with wide
+    # headroom; the pre-restructure full-suite shape observed
+    # 25-56 min and is gone (D6).
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Build dev container
-        run: docker build -f docker/Dockerfile -t yadokari-dev .
-      - name: Clone pinned Circle for the tool tests
-        # Several python tool tests read the pinned Circle checkout
-        # (git show / git archive against .deps/circle-build and
-        # .deps/circle-multicore-4m). The dev tree always has both;
-        # a bare CI checkout must create them.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build dev container (layer cache)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          tags: yadokari-dev:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Environment-sensitive subset inside the container
+        # The subset is the set of checks whose result depends on
+        # the pinned environment rather than on the code alone:
+        #   factory-generation-environment + test-run-py-catalog-environment
+        #     — the catalog gate itself (compiler/libm/architecture
+        #       fingerprints vs catalog_environment.lock.json);
+        #   test-run-factory-workflow + test-run-factory-boot-gate
+        #     — the factory catalog is actually generated in this
+        #       environment and its outputs validated;
+        #   test-run-file-web-http
+        #     — depends on the image's node runtime (its absence was
+        #       failure F4) — and, being load-sensitive, it runs
+        #       under the same D1 retry wrapper as in host-tests.
+        # None of these targets reads the .deps Circle fixtures, so
+        # the old clone step is gone; the subset's memory peak is
+        # far below the full sanitizer suite's, so the swap step is
+        # gone too (D7). ci-test.sh appends its retry lines to
+        # GITHUB_STEP_SUMMARY; inside the container that path is a
+        # file in the bind-mounted workspace, and the step mirrors
+        # it into the real job summary afterwards so retries stay
+        # countable from run history. FLAKE_LOG is likewise a file
+        # in the bind-mounted workspace and is uploaded below as
+        # the trend artifact; GITHUB_JOB/GITHUB_RUN_ID are passed
+        # through so its lines identify this job and run.
         run: |
-          if [ ! -d .deps/circle-build/.git ]; then
-            git init -q .deps/circle-build
-            git -C .deps/circle-build remote add origin https://github.com/rsta2/circle.git
-            git -C .deps/circle-build fetch -q --depth 1 origin 7a81e1b480fe7d19fc1fc695b89bff0a0848f44b
-            git -C .deps/circle-build checkout -q FETCH_HEAD
+          set +e
+          docker run --rm --ulimit stack=268435456:268435456 \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' \
+            -e GITHUB_STEP_SUMMARY=/src/.ci-retry-summary.md \
+            -e FLAKE_LOG=/src/ci-flake-log.tsv \
+            -e GITHUB_JOB -e GITHUB_RUN_ID \
+            -v "$PWD":/src -w /src yadokari-dev \
+            bash -c "ulimit -s 262144 || true; scripts/ci-test.sh TEST_TARGETS='factory-generation-environment test-run-py-catalog-environment test-run-factory-workflow test-run-factory-boot-gate test-run-file-web-http'"
+          status=$?
+          if [ -f .ci-retry-summary.md ]; then
+            cat .ci-retry-summary.md >> "$GITHUB_STEP_SUMMARY"
+            rm -f .ci-retry-summary.md
           fi
-          if [ ! -d .deps/circle-multicore-4m ]; then
-            cp -a .deps/circle-build .deps/circle-multicore-4m
-          fi
-      - name: Add swap (the sanitizer suite peaks beyond the runner RAM)
-        run: |
-          free -h
-          sudo fallocate -l 16G /swapfile2 || true
-          sudo chmod 600 /swapfile2 || true
-          sudo mkswap /swapfile2 || true
-          sudo swapon /swapfile2 || true
-          free -h
-      - name: Host test suite inside the container
-        run: docker run --rm --ulimit stack=268435456:268435456 -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' -v "$PWD":/src -w /src yadokari-dev bash -c "ulimit -s 262144 || true; exec make test"
+          exit $status
+      - name: Upload flake trend log (container)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake-log-container-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ci-flake-log.tsv
+          if-no-files-found: ignore
+          retention-days: 90
