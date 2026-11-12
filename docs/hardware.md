@@ -1,6 +1,6 @@
 # Hardware
 
-The target hardware is a Pi 4 / AArch64 running Circle, and the MASCHINE MK3. The PC SDL backend is for development only.
+The target hardware is a Pi 4 or Pi 5 / AArch64 running Circle, and the MASCHINE MK3. The Pi 4 is the reference environment; the Pi 5 is supported with measured, scaled-up polyphony budgets (see [known limitations](known-limitations.md)). The PC SDL backend is for development only.
 
 | Connection | Purpose | Basis / limits |
 |---|---|---|

@@ -1,0 +1,1195 @@
+--- a/include/circle/bcm2711int.h
++++ b/include/circle/bcm2711int.h
+@@ -82,6 +82,10 @@
+ #define ARM_IRQ_DMA11		GIC_SPI (91)
+ #define ARM_IRQ_UART_D0		GIC_SPI (120)	// BCM2712 D0 stepping
+ #define ARM_IRQ_UART		GIC_SPI (121)
++// PI5 EXPERIMENT (CDC spike 2026-11-12): BCM2712 DWC2 (usb@480000 in the pinned
++// bcm2712-rpi-5-b.dtb) interrupts on GIC SPI 73, the same number
++// as BCM2711 USB. Stock Circle omits ARM_IRQ_USB for RASPPI >= 5.
++#define ARM_IRQ_USB		GIC_SPI (73)
+ #define ARM_IRQ_PCIE_EXT_HOST_INTA GIC_SPI (219)
+ #define ARM_IRQ_PCIE_HOST_INTA	GIC_SPI (229)
+ #define ARM_IRQ_PCIE_HOST_MSI	GIC_SPI (234)
+--- a/include/circle/bcm2835.h
++++ b/include/circle/bcm2835.h
+@@ -223,7 +223,14 @@
+ //
+ // USB Host Controller
+ //
++#if RASPPI >= 5
++// PI5 EXPERIMENT (CDC step 1 2026-11-12): the BCM2712 DWC2 lives in the SoC AXI window at
++// physical 0x1000480000 (DT usb@480000, identity ranges), not behind
++// the RP1 IO base. 33 bits wide; CDWHCIRegister carries uintptr.
++#define ARM_USB_BASE		0x1000480000UL
++#else
+ #define ARM_USB_BASE		(ARM_IO_BASE + 0x980000)
++#endif
+ 
+ #define ARM_USB_CORE_BASE	ARM_USB_BASE
+ #define ARM_USB_HOST_BASE	(ARM_USB_BASE + 0x400)
+--- a/include/circle/usb/dwhcidevice.h
++++ b/include/circle/usb/dwhcidevice.h
+@@ -139,7 +139,7 @@
+ 	void CompleteRequest (CUSBRequest *pURB);
+ 
+ #ifndef NDEBUG
+-	void DumpRegister (const char *pName, u32 nAddress);
++	void DumpRegister (const char *pName, uintptr nAddress); // PI5 EXPERIMENT (CDC step 1): widened with CDWHCIRegister
+ 	void DumpStatus (unsigned nChannel = 0);
+ #endif
+ 	
+--- a/include/circle/usb/dwhci.h
++++ b/include/circle/usb/dwhci.h
+@@ -86,6 +86,12 @@
+ 		#define DWHCI_CORE_RX_STAT_PACKET_STATUS_IN_XFER_COMP		3
+ 		#define DWHCI_CORE_RX_STAT_PACKET_STATUS_DATA_TOGGLE_ERR	5
+ 		#define DWHCI_CORE_RX_STAT_PACKET_STATUS_CHAN_HALTED		7
++	// packet status values in device mode (PKTSTS field of GRXSTSR)
++	#define DWHCI_CORE_RX_STAT_PKTSTS_DEV_GLOBAL_OUT_NAK	1
++	#define DWHCI_CORE_RX_STAT_PKTSTS_DEV_OUT_DATA		2
++	#define DWHCI_CORE_RX_STAT_PKTSTS_DEV_OUT_DONE		3
++	#define DWHCI_CORE_RX_STAT_PKTSTS_DEV_SETUP_DONE	4
++	#define DWHCI_CORE_RX_STAT_PKTSTS_DEV_SETUP_DATA	6
+ #define DWHCI_CORE_RX_FIFO_SIZ		(ARM_USB_CORE_BASE + 0x024)
+ #define DWHCI_CORE_NPER_TX_FIFO_SIZ	(ARM_USB_CORE_BASE + 0x028)
+ #define DWHCI_CORE_NPER_TX_STAT		(ARM_USB_CORE_BASE + 0x02C)	// RO
+@@ -375,5 +381,9 @@
+ // Data FIFOs (non-DMA mode only)
+ //
+ #define DWHCI_DATA_FIFO(chan)		(ARM_USB_HOST_BASE + 0x1000 + (chan)*DWHCI_DATA_FIFO_SIZE)
++// DFIFO access window of EP n in device mode (one window per EP, from the core base)
++#define DWHCI_DEV_EP_FIFO(ep)		(ARM_USB_CORE_BASE + 0x1000 + (ep)*0x1000)
++#define DWHCI_DEV_IN_EP_TX_FIFO_STAT(ep)	(ARM_USB_DEV_BASE + 0x118 + (ep)*0x20)
++	#define DWHCI_DEV_IN_EP_TX_FIFO_STAT_SPACE__MASK	0xFFFF	// free space, in 32-bit words
+ 
+ #endif
+--- a/include/circle/usb/dwhciregister.h
++++ b/include/circle/usb/dwhciregister.h
+@@ -26,8 +26,10 @@
+ class CDWHCIRegister
+ {
+ public:
+-	CDWHCIRegister (u32 nAddress);
+-	CDWHCIRegister (u32 nAddress, u32 nValue);
++	// PI5 EXPERIMENT (CDC step 1 2026-11-12): address widened to uintptr; the BCM2712 DWC2 base
++	// (0x1000480000) does not fit in u32. Values for RASPPI<5 are unchanged.
++	CDWHCIRegister (uintptr nAddress);
++	CDWHCIRegister (uintptr nAddress, u32 nValue);
+ 	~CDWHCIRegister (void);
+ 
+ 	u32 Read (void);
+@@ -52,7 +54,7 @@
+ 	
+ private:
+ 	boolean	m_bValid;
+-	u32	m_nAddress;
++	uintptr	m_nAddress;
+ 	u32	m_nBuffer;
+ };
+ 
+--- a/include/circle/usb/gadget/dwusbgadgetendpoint0.h
++++ b/include/circle/usb/gadget/dwusbgadgetendpoint0.h
+@@ -36,6 +36,12 @@
+ 
+ 	void OnControlMessage (void) override;
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 6): read-only view of the control
++	// state machine for the gadget's diagnostic record.
++	unsigned GetDiagState (void) const { return (unsigned) m_State; }
++#endif
++
+ 	void OnTransferComplete (boolean bIn, size_t nLength) override;
+ 
+ private:
+--- a/include/circle/usb/gadget/dwusbgadgetendpoint.h
++++ b/include/circle/usb/gadget/dwusbgadgetendpoint.h
+@@ -159,6 +159,18 @@
+ 	void *m_pTransferBuffer;
+ 	size_t m_nTransferLength;
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 2 2026-11-12): slave-mode (PIO) packet pump
++	// entry points and state. Only compiled on BCM2712, where the DWC2 runs
++	// without DMA (PI5_CDC_DESIGN.md section 3.7); the DMA members above are
++	// unchanged and remain the only transfer path on other models.
++	void SlaveReceivePacket (unsigned nByteCount);
++	void SlavePushInData (void);
++
++	u8 *m_pSlaveCursor;		// next byte of the armed transfer to move
++	size_t m_nSlaveMoved;		// bytes of the armed transfer already moved
++#endif
++
+ 	DMA_BUFFER (u32, m_DummyBuffer, 1);	// for empty packet transfers
+ 
+ 	// next EP sequence including EP0
+--- a/include/circle/usb/gadget/dwusbgadget.h
++++ b/include/circle/usb/gadget/dwusbgadget.h
+@@ -49,6 +49,107 @@
+ 	/// \note May override this for device-specific initialization.
+ 	boolean Initialize (boolean bScanDevices = TRUE) override;
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 3, 2026-11-12): Initialize() failure
++	// forensics. Initialize() records how far it got and the raw core
++	// registers at the failure point, so a failed start on BCM2712
++	// can be diagnosed from one BOOTDIAG dump instead of a guess.
++	// The record is static: it survives the failed Initialize() and
++	// does not depend on the gadget object's lifetime.
++	enum TInitDiagStage
++	{
++		InitDiagNone		= 0,	// Initialize() not (yet) run
++		InitDiagEntry		= 1,	// descriptor + model checks passed
++		InitDiagPower		= 2,	// PowerOn() is the deciding check
++		InitDiagVendor		= 3,	// post-power GSNPSID check decides
++		InitDiagIrq		= 4,	// IRQ mask-off + ConnectIRQ phase
++		InitDiagResetAhbIdle	= 5,	// core reset: AHB_IDLE wait
++		InitDiagResetSoft	= 6,	// core reset: soft-reset clear wait
++		InitDiagCore		= 7,	// InitCore() configuration
++		InitDiagDone		= 8	// Initialize() succeeded
++	};
++
++	struct TInitAttempt
++	{
++		unsigned nPhySel;	// PHY selection used: 0 = stock UTMI+, 1 = alternate ULPI
++		unsigned nStage;	// stage reached in this attempt
++		unsigned nFailStage;	// failing check in this attempt, 0 = none
++		u32 nGsnpsidFirst;	// first non-zero GSNPSID seen while polling
++		u32 nGsnpsid;		// GSNPSID the vendor check decided on
++		unsigned nPollCount;	// GSNPSID poll reads in this attempt
++		u32 nGrstctl;		// GRSTCTL at the end of this attempt
++	};
++
++	struct TInitDiag
++	{
++		unsigned nStage;	// last checkpoint reached (TInitDiagStage)
++		unsigned nFailStage;	// failing check (TInitDiagStage), 0 = none
++		u32 nGsnpsidPre;	// GSNPSID as found, before PowerOn
++		u32 nGsnpsidPost;	// GSNPSID read by the vendor self-check
++		u32 nGusbcfg;		// GUSBCFG at entry / failure point / done
++		u32 nGrstctl;		// GRSTCTL at entry / failure point / done
++		boolean bPowerOk;	// PowerOn() result
++		boolean bPowerPre;	// CDC step 4: PowerOn() skipped, core already powered
++		// CDC step 3b (2026-11-12): capability capture + attempt log.
++		u32 nHwCfg1;		// GHWCFG1..4, read once after PowerOn
++		u32 nHwCfg2;
++		u32 nHwCfg3;
++		u32 nHwCfg4;
++		boolean bAltPhyAvailable; // GHWCFG2 offers an alternate PHY selection
++		unsigned nAttempts;	// init attempts started (1..2)
++		TInitAttempt Attempts[2];
++	};
++
++	static const TInitDiag &GetInitDiag (void) { return s_InitDiag; }
++
++	// PI5 EXPERIMENT (CDC step 5, 2026-11-12): runtime interrupt
++	// service record. A completed Initialize() is not enough on
++	// BCM2712: the v1011 boot pulled up at high speed, but EP0 SETUP
++	// was never answered, and every SETUP is dispatched from
++	// InterruptHandler(). This record separates "the vector was
++	// never delivered" from "delivered but not serviced":
++	// nIrqCount counts InterruptStub() entries (vector deliveries
++	// only), nLastStatus is the masked GINTSTS the handler last
++	// dispatched, nPollServices counts the polled fallback below.
++	struct TIrqDiag
++	{
++		unsigned nIrqCount;	// InterruptStub() entries (vector only)
++		u32 nLastStatus;	// last GINTSTS & GINTMSK dispatched
++		unsigned nPollServices;	// PollServiceInterrupts() services
++
++		// PI5 EXPERIMENT (CDC step 6, 2026-11-12): per-event
++		// counters on the handler's control path. Together they
++		// name the stage at which a control transfer dies: bus
++		// events (nEvUsbReset, nEvEnumDone), receive-status-queue
++		// traffic (nEvRxFifoLevel dispatches; nEvSetup /
++		// nEvOutData entries actually popped), EP interrupt
++		// dispatches (nEvInEPInt, nEvOutEPInt), the last raw
++		// GRXSTSP popped (nRxStsLast) and the EP0 control state
++		// at the last handler exit (nEP0StateLast, a
++		// CDWUSBGadgetEndpoint0::TState value).
++		unsigned nEvUsbReset;
++		unsigned nEvEnumDone;
++		unsigned nEvRxFifoLevel;
++		unsigned nEvSetup;
++		unsigned nEvOutData;
++		unsigned nEvInEPInt;
++		unsigned nEvOutEPInt;
++		u32 nRxStsLast;
++		unsigned nEP0StateLast;
++	};
++
++	static const TIrqDiag &GetIrqDiag (void) { return s_IrqDiag; }
++
++	// Polled-service fallback: if unmasked events are pending in
++	// GINTSTS but the interrupt vector has not been delivered since
++	// the last poll, run the interrupt handler from thread context.
++	// A no-op while interrupts arrive. Returns TRUE if it serviced.
++	boolean PollServiceInterrupts (void);
++
++	// Live GINTSTS / GINTMSK reads for diagnostics (BOOTDIAG).
++	static void ReadLiveInterrupts (u32 *pStatus, u32 *pMask);
++#endif
++
+ 	/// \return TRUE if connection status has been changed (always TRUE on first call)
+ 	boolean UpdatePlugAndPlay (void) override;
+ 
+@@ -87,7 +188,11 @@
+ 
+ private:
+ 	boolean PowerOn (void);
++#if RASPPI >= 5
++	boolean InitCore (boolean bAltPhy = FALSE);	// PI5 EXPERIMENT (CDC step 3b): retry PHY selection
++#else
+ 	boolean InitCore (void);
++#endif
+ 	void InitCoreDevice (void);
+ 
+ 	boolean Reset (void);
+@@ -101,11 +206,20 @@
+ 	void HandleEnumerationDone (void);
+ 	void HandleInEPInterrupt (void);
+ 	void HandleOutEPInterrupt (void);
++#if RASPPI >= 5
++	void HandleRxFIFOLevel (void);	// PI5 EXPERIMENT (CDC step 2): slave-mode RxFIFO drain
++#endif
+ 	void InterruptHandler (void);
+ 	static void InterruptStub (void *pParam);
+ 
+ 	boolean WaitForBit (CDWHCIRegister *pRegister, u32 nMask, boolean bWaitUntilSet,
+ 			    unsigned nMsTimeout);
++#if RASPPI >= 5
++	static void InitDiagSnapshot (void);	// PI5 EXPERIMENT (CDC step 3)
++	boolean InitDiagPollVendor (TInitAttempt &Attempt);	// PI5 EXPERIMENT (CDC step 3b)
++	void InitDiagApplyAltPhy (void);	// PI5 EXPERIMENT (CDC step 3b)
++	void InitDiagCloseAttempt (TInitAttempt &Attempt);	// PI5 EXPERIMENT (CDC step 3b)
++#endif
+ 
+ 	void AssignEndpoint (unsigned nEP, CDWUSBGadgetEndpoint *pEP);
+ 	void RemoveEndpoint (unsigned nEP);
+@@ -144,6 +258,12 @@
+ 	boolean m_bPnPEvent[PnPEventUnknown];
+ 
+ 	CDWUSBGadgetEndpoint *m_pEP[NumberOfEPs+1];
++
++#if RASPPI >= 5
++	static TInitDiag s_InitDiag;	// PI5 EXPERIMENT (CDC step 3)
++	static TIrqDiag s_IrqDiag;	// PI5 EXPERIMENT (CDC step 5)
++	static unsigned s_nPollIrqSeen;	// IRQ count the poll last latched (CDC step 5)
++#endif
+ };
+ 
+ #endif
+--- a/lib/usb/dwhcidevice.cpp
++++ b/lib/usb/dwhcidevice.cpp
+@@ -1850,7 +1850,7 @@
+ 
+ #ifndef NDEBUG
+ 
+-void CDWHCIDevice::DumpRegister (const char *pName, u32 nAddress)
++void CDWHCIDevice::DumpRegister (const char *pName, uintptr nAddress)
+ {
+ 	CDWHCIRegister Register (nAddress);
+ 
+--- a/lib/usb/dwhciregister.cpp
++++ b/lib/usb/dwhciregister.cpp
+@@ -22,13 +22,13 @@
+ #include <circle/logger.h>
+ #include <assert.h>
+ 
+-CDWHCIRegister::CDWHCIRegister (u32 nAddress)
++CDWHCIRegister::CDWHCIRegister (uintptr nAddress)
+ :	m_bValid (FALSE),
+ 	m_nAddress (nAddress)
+ {
+ }
+ 
+-CDWHCIRegister::CDWHCIRegister (u32 nAddress, u32 nValue)
++CDWHCIRegister::CDWHCIRegister (uintptr nAddress, u32 nValue)
+ :	m_bValid (TRUE),
+ 	m_nAddress (nAddress),
+ 	m_nBuffer (nValue)
+@@ -118,13 +118,13 @@
+ 	{
+ 		CLogger::Get ()->Write ("dwhci", LogDebug,
+ 					"Register at 0x%X is 0x%X",
+-					m_nAddress & 0xFFF, m_nBuffer);
++					(unsigned) (m_nAddress & 0xFFF), m_nBuffer);
+ 	}
+ 	else
+ 	{
+ 		CLogger::Get ()->Write ("dwhci", LogDebug,
+ 					"Register at 0x%X was not set",
+-					m_nAddress & 0xFFF);
++					(unsigned) (m_nAddress & 0xFFF));
+ 	}
+ }
+ 
+--- a/lib/usb/gadget/dwusbgadget.cpp
++++ b/lib/usb/gadget/dwusbgadget.cpp
+@@ -39,6 +39,135 @@
+ 
+ LOGMODULE ("dwgadget");
+ 
++#if RASPPI >= 5
++// PI5 EXPERIMENT (CDC step 3, 2026-11-12): Initialize() failure
++// forensics record (see dwusbgadget.h). Static storage, so it is
++// zero-initialized and survives a failed Initialize().
++CDWUSBGadget::TInitDiag CDWUSBGadget::s_InitDiag;
++
++void CDWUSBGadget::InitDiagSnapshot (void)
++{
++	s_InitDiag.nGusbcfg = CDWHCIRegister (DWHCI_CORE_USB_CFG).Read ();
++	s_InitDiag.nGrstctl = CDWHCIRegister (DWHCI_CORE_RESET).Read ();
++}
++
++// CDC step 3b: poll GSNPSID every ~10 ms for up to ~500 ms. Step 3's
++// single read cannot distinguish "core dead" from "core live but
++// not settled yet"; this poll decides that branch inside this boot.
++// The first non-zero value, the final value and the read count are
++// all recorded on the attempt.
++boolean CDWUSBGadget::InitDiagPollVendor (TInitAttempt &Attempt)
++{
++	CDWHCIRegister VendorId (DWHCI_CORE_VENDOR_ID);
++
++	Attempt.nGsnpsidFirst = 0;
++	Attempt.nGsnpsid = 0;
++	Attempt.nPollCount = 0;
++
++	for (unsigned i = 0; i < 50; i++)
++	{
++		u32 nValue = VendorId.Read ();
++		Attempt.nPollCount++;
++		if (nValue != 0 && Attempt.nGsnpsidFirst == 0)
++		{
++			Attempt.nGsnpsidFirst = nValue;
++		}
++		Attempt.nGsnpsid = nValue;
++
++		if (nValue == 0x4F54280A)
++		{
++			return TRUE;
++		}
++
++		if (i < 49)
++		{
++#ifdef NO_BUSY_WAIT
++			CScheduler::Get ()->MsSleep (10);
++#else
++			CTimer::Get ()->MsDelay (10);
++#endif
++		}
++	}
++
++	return FALSE;
++}
++
++// CDC step 3b: pre-apply the alternate PHY selection (ULPI) to
++// GUSBCFG, so a retried Reset()/InitCore() runs against it from the
++// start. InitCore(TRUE) re-applies the same selection after the
++// reset, in case the reset cleared it.
++void CDWUSBGadget::InitDiagApplyAltPhy (void)
++{
++	CDWHCIRegister USBConfig (DWHCI_CORE_USB_CFG);
++	USBConfig.Read ();
++	USBConfig.Or (DWHCI_CORE_USB_CFG_ULPI_UTMI_SEL);	// select ULPI
++	USBConfig.And (~DWHCI_CORE_USB_CFG_PHYIF);
++	USBConfig.Write ();
++}
++
++// CDC step 3b: freeze the global stage/fail state into an attempt
++// record, with a fresh GRSTCTL snapshot.
++void CDWUSBGadget::InitDiagCloseAttempt (TInitAttempt &Attempt)
++{
++	Attempt.nStage = s_InitDiag.nStage;
++	Attempt.nFailStage = s_InitDiag.nFailStage;
++	InitDiagSnapshot ();
++	Attempt.nGrstctl = s_InitDiag.nGrstctl;
++}
++
++// CDC step 5 (2026-11-12): runtime interrupt-service record (see
++// dwusbgadget.h). Static storage, zero-initialized, like s_InitDiag.
++CDWUSBGadget::TIrqDiag CDWUSBGadget::s_IrqDiag;
++unsigned CDWUSBGadget::s_nPollIrqSeen;
++
++boolean CDWUSBGadget::PollServiceInterrupts (void)
++{
++	// If the vector has been delivered since the last poll, the
++	// interrupt path is alive: latch the new count and leave any
++	// pending events to the vector.
++	if (s_IrqDiag.nIrqCount != s_nPollIrqSeen)
++	{
++		s_nPollIrqSeen = s_IrqDiag.nIrqCount;
++		return FALSE;
++	}
++
++	u32 nPending =   CDWHCIRegister (DWHCI_CORE_INT_STAT).Read ()
++		       & CDWHCIRegister (DWHCI_CORE_INT_MASK).Read ();
++	if (!nPending)
++	{
++		return FALSE;
++	}
++
++	// Unmasked events are pending, but no interrupt has been
++	// delivered: run the same handler the vector would call. The
++	// GIC line is disabled around the thread-context pass, so a
++	// vector that recovers mid-pass cannot re-enter the handler;
++	// a still-asserted level line is delivered after re-enable.
++	// One handler call per poll bounds the work (the handler's
++	// own RxFIFO drain is bounded, CDC step 2).
++	m_pInterruptSystem->DisableIRQ (ARM_IRQ_USB);
++	InterruptHandler ();
++	m_pInterruptSystem->EnableIRQ (ARM_IRQ_USB);
++
++	s_IrqDiag.nPollServices++;
++
++	return TRUE;
++}
++
++void CDWUSBGadget::ReadLiveInterrupts (u32 *pStatus, u32 *pMask)
++{
++	if (pStatus)
++	{
++		*pStatus = CDWHCIRegister (DWHCI_CORE_INT_STAT).Read ();
++	}
++
++	if (pMask)
++	{
++		*pMask = CDWHCIRegister (DWHCI_CORE_INT_MASK).Read ();
++	}
++}
++#endif
++
+ CDWUSBGadget::CDWUSBGadget (CInterruptSystem *pInterruptSystem, TDeviceSpeed DeviceSpeed)
+ :	m_pInterruptSystem (pInterruptSystem),
+ 	m_DeviceSpeed (DeviceSpeed),
+@@ -80,7 +209,8 @@
+ 	    && Model != MachineModelCM0
+ 	    && Model != MachineModel3APlus
+ 	    && Model != MachineModel4B
+-	    && Model != MachineModel400)
++	    && Model != MachineModel400
++	    && Model != MachineModel5)	// PI5 EXPERIMENT (CDC step 1 2026-11-12)
+ 	{
+ 		LOGERR ("This Raspberry Pi model does not support USB gadget mode");
+ 		return FALSE;
+@@ -88,15 +218,137 @@
+ 
+ 	PeripheralEntry ();
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 3, 2026-11-12): failure forensics, and
++	// power BEFORE the vendor self-check below. Stock Circle reads
++	// GSNPSID from a possibly unpowered core: on BCM283x the boot
++	// firmware leaves the USB domain on, which masks the ordering,
++	// but the BCM2712 EEPROM bootloader does not have to, so the
++	// self-check can read a dead core and abort before power is
++	// ever requested. Linux powers the domain (genpd) before any
++	// dwc2 register access, and its USB power call is the same one
++	// PowerOn() makes (old firmware interface, device 3), so only
++	// the order changes. The as-found state is recorded first.
++	// CDC step 4 refines the power step below: a core that already
++	// answers must not be power-cycled at all (see there).
++	s_InitDiag.nStage = InitDiagEntry;
++	s_InitDiag.nGsnpsidPre = CDWHCIRegister (DWHCI_CORE_VENDOR_ID).Read ();
++	InitDiagSnapshot ();
++	s_InitDiag.nAttempts = 1;
++	s_InitDiag.Attempts[0] = TInitAttempt ();
++	TInitAttempt &Attempt1 = s_InitDiag.Attempts[0];
++	Attempt1.nPhySel = 0;
++	// CDC step 4 (2026-11-12): if the core already answers with
++	// the Synopsys ID it is powered, and on BCM2712 PowerOn() must
++	// not be called at all: the v1010 BOOTDIAG shows the as-found
++	// ID correct and every register reading 0 after the call, the
++	// core never returning. The EEPROM bootloader leaves the core
++	// on, exactly like the BCM283x boot firmware, so this path
++	// skips power entirely -- the stock PowerOn() call after the
++	// vendor check is skipped below too. Only a core that does not
++	// answer takes the power path, with the step 3 ordering and
++	// the step 3b settle polling unchanged.
++	if (s_InitDiag.nGsnpsidPre == 0x4F54280A)
++	{
++		s_InitDiag.bPowerPre = TRUE;
++		s_InitDiag.bPowerOk = TRUE;
++	}
++	else
++	{
++		s_InitDiag.nStage = InitDiagPower;
++		s_InitDiag.bPowerOk = PowerOn ();
++		if (!s_InitDiag.bPowerOk)
++		{
++			s_InitDiag.nFailStage = InitDiagPower;
++			InitDiagSnapshot ();
++			InitDiagCloseAttempt (Attempt1);
++			LOGERR ("Cannot power on");
++			return FALSE;
++		}
++	}
++
++	// CDC step 3b: capture the capability registers while the core
++	// is (supposedly) powered. They are recorded whatever happens
++	// next: GHWCFG2's HS PHY type says which PHY selections the
++	// silicon actually offers, and GHWCFG3 carries the DFIFO depth
++	// the FIFO-split question (design section 9) depends on.
++	s_InitDiag.nHwCfg1 = CDWHCIRegister (DWHCI_CORE_HW_CFG1).Read ();
++	s_InitDiag.nHwCfg2 = CDWHCIRegister (DWHCI_CORE_HW_CFG2).Read ();
++	s_InitDiag.nHwCfg3 = CDWHCIRegister (DWHCI_CORE_HW_CFG3).Read ();
++	s_InitDiag.nHwCfg4 = CDWHCIRegister (DWHCI_CORE_HW_CFG4).Read ();
++	unsigned nHsPhyType = DWHCI_CORE_HW_CFG2_HS_PHY_TYPE (s_InitDiag.nHwCfg2);
++	s_InitDiag.bAltPhyAvailable =
++		   nHsPhyType == DWHCI_CORE_HW_CFG2_HS_PHY_TYPE_UTMI_ULPI
++		|| nHsPhyType == DWHCI_CORE_HW_CFG2_HS_PHY_TYPE_ULPI;
++	// No other alternate exists: HS PHY type 1 (UTMI only) and 0
++	// (no HS PHY) leave no second interface selection, and trying
++	// ULPI there -- or a UTMI width change -- would be guessing at
++	// hardware behaviour, so those branches stay undecided by design.
++
++	// CDC step 3b: settle polling for the vendor check, with one
++	// retry on the alternate PHY selection if the stock selection
++	// never produces the Synopsys ID. The stock check below still
++	// runs and decides: on a poll match it re-reads the same
++	// constant register and passes.
++	s_InitDiag.nStage = InitDiagVendor;
++	if (!InitDiagPollVendor (Attempt1) && s_InitDiag.bAltPhyAvailable)
++	{
++		s_InitDiag.nFailStage = InitDiagVendor;
++		InitDiagCloseAttempt (Attempt1);
++		s_InitDiag.nAttempts = 2;
++		s_InitDiag.Attempts[1] = TInitAttempt ();
++		TInitAttempt &Attempt2 = s_InitDiag.Attempts[1];
++		Attempt2.nPhySel = 1;
++		InitDiagApplyAltPhy ();
++		if (InitDiagPollVendor (Attempt2))
++		{
++			// The alternate selection revived the core; the stock
++			// check below passes, and InitCore uses this selection.
++			s_InitDiag.nFailStage = 0;
++		}
++	}
++#endif
++
+ 	CDWHCIRegister VendorId (DWHCI_CORE_VENDOR_ID);
+ 	if (VendorId.Read () != 0x4F54280A)
+ 	{
++#if RASPPI >= 5
++		s_InitDiag.nGsnpsidPost = VendorId.Get ();
++		s_InitDiag.nStage = InitDiagVendor;
++		s_InitDiag.nFailStage = InitDiagVendor;
++		InitDiagSnapshot ();
++		s_InitDiag.Attempts[s_InitDiag.nAttempts-1].nGsnpsid = VendorId.Get ();
++		InitDiagCloseAttempt (s_InitDiag.Attempts[s_InitDiag.nAttempts-1]);
++#endif
+ 		LOGERR ("Unknown vendor 0x%0X", VendorId.Get ());
+ 		return FALSE;
+ 	}
+ 
++#if RASPPI >= 5
++	s_InitDiag.nGsnpsidPost = VendorId.Get ();
++	s_InitDiag.nStage = InitDiagIrq;
++#endif
++
++#if RASPPI >= 5
++	// CDC step 4: on the pre-powered path PowerOn() must not run
++	// at all (it kills a live BCM2712 core, see above); on the
++	// fallback path it already ran above and this stock call is
++	// idempotent.
++	if (!s_InitDiag.bPowerPre && !PowerOn ())
++#else
+ 	if (!PowerOn ())
++#endif
+ 	{
++#if RASPPI >= 5
++		// On RASPPI >= 5 the fallback path already ran PowerOn()
++		// above; if this stock call is the one that fails, it is
++		// recorded here.
++		s_InitDiag.bPowerOk = FALSE;
++		s_InitDiag.nStage = InitDiagPower;
++		s_InitDiag.nFailStage = InitDiagPower;
++		InitDiagSnapshot ();
++		InitDiagCloseAttempt (s_InitDiag.Attempts[s_InitDiag.nAttempts-1]);
++#endif
+ 		LOGERR ("Cannot power on");
+ 		return FALSE;
+ 	}
+@@ -110,12 +362,58 @@
+ 	assert (m_pInterruptSystem != 0);
+ 	m_pInterruptSystem->ConnectIRQ (ARM_IRQ_USB, InterruptStub, this);
+ 
++#if RASPPI >= 5
++	if (!InitCore (s_InitDiag.Attempts[s_InitDiag.nAttempts-1].nPhySel != 0))
++#else
+ 	if (!InitCore ())
++#endif
+ 	{
++#if RASPPI >= 5
++		if (!s_InitDiag.nFailStage)
++		{
++			s_InitDiag.nFailStage = InitDiagCore;
++		}
++		s_InitDiag.nStage = InitDiagCore;
++		InitDiagSnapshot ();
++		InitDiagCloseAttempt (s_InitDiag.Attempts[s_InitDiag.nAttempts-1]);
++		// CDC step 3b: one retry of the core-init sequence with
++		// the alternate PHY selection, when this attempt died in
++		// Reset() and the alternate has not been tried yet (a
++		// vendor-stage retry already used it, or GHWCFG2 says it
++		// does not exist). Bounded by the same waits as attempt 1.
++		if (   (s_InitDiag.Attempts[s_InitDiag.nAttempts-1].nFailStage == InitDiagResetAhbIdle
++		    || s_InitDiag.Attempts[s_InitDiag.nAttempts-1].nFailStage == InitDiagResetSoft)
++		    && s_InitDiag.nAttempts < 2
++		    && s_InitDiag.bAltPhyAvailable)
++		{
++			s_InitDiag.nAttempts = 2;
++			s_InitDiag.Attempts[1] = TInitAttempt ();
++			TInitAttempt &Retry = s_InitDiag.Attempts[1];
++			Retry.nPhySel = 1;
++			Retry.nGsnpsidFirst = s_InitDiag.nGsnpsidPost;
++			Retry.nGsnpsid = s_InitDiag.nGsnpsidPost;
++			Retry.nPollCount = 0;
++			s_InitDiag.nFailStage = 0;
++			InitDiagApplyAltPhy ();
++			if (InitCore (TRUE))
++			{
++				goto InitDiagCoreOk;
++			}
++			InitDiagCloseAttempt (Retry);
++		}
++#endif
+ 		LOGERR ("Cannot initialize core");
+ 		return FALSE;
+ 	}
+ 
++#if RASPPI >= 5
++InitDiagCoreOk:
++#endif
++
++#if RASPPI >= 5
++	s_InitDiag.nStage = InitDiagCore;
++#endif
++
+ 	// Create EPs
+ 	new CDWUSBGadgetEndpoint0 (pDeviceDesc->bMaxPacketSize0, this);
+ 
+@@ -128,6 +426,13 @@
+ 	AHBConfig.Or (DWHCI_CORE_AHB_CFG_GLOBALINT_MASK);
+ 	AHBConfig.Write ();
+ 
++#if RASPPI >= 5
++	s_InitDiag.nStage = InitDiagDone;
++	s_InitDiag.nFailStage = 0;
++	InitDiagSnapshot ();
++	InitDiagCloseAttempt (s_InitDiag.Attempts[s_InitDiag.nAttempts-1]);
++#endif
++
+ 	PeripheralExit ();
+ 
+ 	return TRUE;
+@@ -209,7 +514,11 @@
+ 	return TRUE;
+ }
+ 
++#if RASPPI >= 5
++boolean CDWUSBGadget::InitCore (boolean bAltPhy)
++#else
+ boolean CDWUSBGadget::InitCore (void)
++#endif
+ {
+ 	if (!Reset ())
+ 	{
+@@ -219,13 +528,30 @@
+ 
+ 	CDWHCIRegister USBConfig (DWHCI_CORE_USB_CFG);
+ 	USBConfig.Read ();
++#if RASPPI >= 5
++	if (bAltPhy)
++	{
++		USBConfig.Or (DWHCI_CORE_USB_CFG_ULPI_UTMI_SEL);	// select ULPI (CDC step 3b retry)
++	}
++	else
++	{
++		USBConfig.And (~DWHCI_CORE_USB_CFG_ULPI_UTMI_SEL);	// select UTMI+
++	}
++#else
+ 	USBConfig.And (~DWHCI_CORE_USB_CFG_ULPI_UTMI_SEL);	// select UTMI+
++#endif
+ 	USBConfig.And (~DWHCI_CORE_USB_CFG_PHYIF);		// UTMI width is 8
+ 	USBConfig.Write ();
+ 
+ 	CDWHCIRegister AHBConfig (DWHCI_CORE_AHB_CFG);
+ 	AHBConfig.Read ();
++#if RASPPI < 5
+ 	AHBConfig.Or (DWHCI_CORE_AHB_CFG_DMAENABLE);
++#else
++	// PI5 EXPERIMENT (CDC step 1 2026-11-12): no DMAENABLE on BCM2712. DWC2 DMA stalls OUT
++	// endpoint completion on this SoC (Linux forces slave mode too);
++	// the PIO packet pump (design step 2) owns transfers instead.
++#endif
+ 	AHBConfig.Or (DWHCI_CORE_AHB_CFG_WAIT_AXI_WRITES);
+ 	AHBConfig.And (~DWHCI_CORE_AHB_CFG_MAX_AXI_BURST__MASK);
+ 	//AHBConfig.Or (0 << DWHCI_CORE_AHB_CFG_MAX_AXI_BURST__SHIFT);	// max. AXI burst length 4
+@@ -401,9 +727,17 @@
+ {
+ 	CDWHCIRegister Reset (DWHCI_CORE_RESET, 0);
+ 
++#if RASPPI >= 5
++	s_InitDiag.nStage = InitDiagResetAhbIdle;	// PI5 EXPERIMENT (CDC step 3)
++#endif
++
+ 	// wait for AHB master IDLE state
+ 	if (!WaitForBit (&Reset, DWHCI_CORE_RESET_AHB_IDLE, TRUE, 100))
+ 	{
++#if RASPPI >= 5
++		s_InitDiag.nFailStage = InitDiagResetAhbIdle;
++		InitDiagSnapshot ();
++#endif
+ 		return FALSE;
+ 	}
+ 
+@@ -411,8 +745,16 @@
+ 	Reset.Or (DWHCI_CORE_RESET_SOFT_RESET);
+ 	Reset.Write ();
+ 
++#if RASPPI >= 5
++	s_InitDiag.nStage = InitDiagResetSoft;
++#endif
++
+ 	if (!WaitForBit (&Reset, DWHCI_CORE_RESET_SOFT_RESET, FALSE, 10))
+ 	{
++#if RASPPI >= 5
++		s_InitDiag.nFailStage = InitDiagResetSoft;
++		InitDiagSnapshot ();
++#endif
+ 		return FALSE;
+ 	}
+ 
+@@ -442,6 +784,9 @@
+ 	IntMask.Or (DWHCI_CORE_INT_MASK_IN_EP_INTR);
+ 	IntMask.Or (DWHCI_CORE_INT_MASK_OUT_EP_INTR);
+ 	IntMask.Or (DWHCI_CORE_INT_MASK_IN_EP_MISMATCH);
++#if RASPPI >= 5
++	IntMask.Or (DWHCI_CORE_INT_MASK_RX_STS_Q_LVL);	// PI5 EXPERIMENT (CDC step 2): slave-mode RxFIFO drain
++#endif
+ 	IntMask.Write ();
+ }
+ 
+@@ -542,6 +887,10 @@
+ 	LOGDBG ("USB reset");
+ #endif
+ 
++#if RASPPI >= 5
++	s_IrqDiag.nEvUsbReset++;	// PI5 EXPERIMENT (CDC step 6)
++#endif
++
+ 	// Trace: always log bus reset with current state (diagnosis for issue #591)
+ 	LOGTRACE ("USB reset (state %u)", (unsigned) m_State);
+ 
+@@ -608,7 +957,11 @@
+ 					    DWHCI_DEV_IN_EP_INT_XFER_COMPLETE
+ 					  | DWHCI_DEV_IN_EP_INT_TIMEOUT
+ 					  | DWHCI_DEV_IN_EP_INT_AHB_ERROR
+-					  | DWHCI_DEV_IN_EP_INT_EP_DISABLED);
++					  | DWHCI_DEV_IN_EP_INT_EP_DISABLED
++#if RASPPI >= 5
++					  | DWHCI_DEV_IN_EP_INT_EMPTY_INTR	// PI5 EXPERIMENT (CDC step 2): TxFIFO-empty refill
++#endif
++					  );
+ 	InEPCommonIntMask.Write ();
+ 
+ 	SetDeviceAddress (0);
+@@ -644,6 +997,10 @@
+ 	LOGDBG ("Enumeration done");
+ #endif
+ 
++#if RASPPI >= 5
++	s_IrqDiag.nEvEnumDone++;	// PI5 EXPERIMENT (CDC step 6)
++#endif
++
+ 	// Trace: always log which speed this enumeration settled on, to diagnose
+ 	// hosts that bounce between High-Speed and Full-Speed (issue #591)
+ 	{
+@@ -762,11 +1119,25 @@
+ 	CDWHCIRegister IntStatus (DWHCI_CORE_INT_STAT);
+ 	CDWHCIRegister IntMask (DWHCI_CORE_INT_MASK);
+ 	u32 nIntStatus = IntStatus.Read () & IntMask.Read ();
++#if RASPPI >= 5
++	s_IrqDiag.nLastStatus = nIntStatus;	// PI5 EXPERIMENT (CDC step 5)
++#endif
+ 
+ #ifdef USB_GADGET_DEBUG
+ 	LOGDBG ("IRQ (status 0x%08X, state %u)", nIntStatus, (unsigned) m_State);
+ #endif
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 2): drain the RxFIFO before any EP
++	// completion is dispatched below, so received data already sits in
++	// the transfer buffers when FinishTransfer() runs (DMA used to
++	// guarantee this ordering).
++	if (nIntStatus & DWHCI_CORE_INT_MASK_RX_STS_Q_LVL)
++	{
++		HandleRxFIFOLevel ();
++	}
++#endif
++
+ 	if (nIntStatus & DWHCI_CORE_INT_MASK_USB_SUSPEND)
+ 	{
+ 		HandleUSBSuspend ();
+@@ -786,16 +1157,32 @@
+ 
+ 	if (nIntStatus & DWHCI_CORE_INT_MASK_OUT_EP_INTR)
+ 	{
++#if RASPPI >= 5
++		s_IrqDiag.nEvOutEPInt++;	// PI5 EXPERIMENT (CDC step 6)
++#endif
+ 		HandleOutEPInterrupt ();
+ 	}
+ 
+ 	if (nIntStatus & DWHCI_CORE_INT_MASK_IN_EP_INTR)
+ 	{
++#if RASPPI >= 5
++		s_IrqDiag.nEvInEPInt++;	// PI5 EXPERIMENT (CDC step 6)
++#endif
+ 		HandleInEPInterrupt ();
+ 	}
+ 
+ 	assert (!(nIntStatus & DWHCI_CORE_INT_MASK_IN_EP_MISMATCH));
+ 
++#if RASPPI >= 5
++	// PI5 EXPERIMENT (CDC step 6): where the EP0 control state
++	// machine stood when this dispatch finished.
++	if (m_pEP[0])
++	{
++		s_IrqDiag.nEP0StateLast =
++			static_cast<CDWUSBGadgetEndpoint0 *> (m_pEP[0])->GetDiagState ();
++	}
++#endif
++
+ 	PeripheralExit ();
+ }
+ 
+@@ -804,6 +1191,10 @@
+ 	CDWUSBGadget *pThis = static_cast<CDWUSBGadget *> (pParam);
+ 	assert (pThis != 0);
+ 
++#if RASPPI >= 5
++	s_IrqDiag.nIrqCount++;	// PI5 EXPERIMENT (CDC step 5): vector deliveries only
++#endif
++
+ 	pThis->InterruptHandler ();
+ }
+ 
+@@ -912,3 +1303,80 @@
+ 		return DeviceSpeedUnknown;
+ 	}
+ }
++
++#if RASPPI >= 5
++
++void CDWUSBGadget::HandleRxFIFOLevel (void)
++{
++	// PI5 EXPERIMENT (CDC step 2 2026-11-12): slave-mode RxFIFO drain.
++	// Behavioural reference: dwc2_hsotg_handle_rx() in Linux's
++	// drivers/usb/dwc2/gadget.c. GINTSTS.RxFLvl is level-triggered on
++	// the receive status queue being non-empty; every iteration
++	// re-reads it and only then pops one GRXSTSR entry, because the
++	// status snapshot taken in InterruptHandler() may be stale (a USB
++	// reset in the same pass flushes the queue). The loop is bounded;
++	// if more packets arrive than one pass drains, the level interrupt
++	// simply fires again.
++	CDWHCIRegister IntStatus (DWHCI_CORE_INT_STAT);
++
++	s_IrqDiag.nEvRxFifoLevel++;	// PI5 EXPERIMENT (CDC step 6)
++
++	for (unsigned nGuard = 0; nGuard < 1024; nGuard++)
++	{
++		if (!(IntStatus.Read () & DWHCI_CORE_INT_MASK_RX_STS_Q_LVL))
++		{
++			break;
++		}
++
++		CDWHCIRegister RxStatus (DWHCI_CORE_RX_STAT_POP);
++		u32 nStatus = RxStatus.Read ();
++
++		s_IrqDiag.nRxStsLast = nStatus;	// PI5 EXPERIMENT (CDC step 6)
++
++		unsigned nEP = nStatus & DWHCI_CORE_RX_STAT_CHAN_NUMBER__MASK;
++		unsigned nByteCount =   (nStatus & DWHCI_CORE_RX_STAT_BYTE_COUNT__MASK)
++				      >> DWHCI_CORE_RX_STAT_BYTE_COUNT__SHIFT;
++		unsigned nPktStatus =   (nStatus & DWHCI_CORE_RX_STAT_PACKET_STATUS__MASK)
++				      >> DWHCI_CORE_RX_STAT_PACKET_STATUS__SHIFT;
++
++		switch (nPktStatus)
++		{
++		case DWHCI_CORE_RX_STAT_PKTSTS_DEV_OUT_DATA:
++		case DWHCI_CORE_RX_STAT_PKTSTS_DEV_SETUP_DATA:
++			// PI5 EXPERIMENT (CDC step 6): count the receive
++			// entries the pump actually pops, split by kind.
++			if (nPktStatus == DWHCI_CORE_RX_STAT_PKTSTS_DEV_SETUP_DATA)
++			{
++				s_IrqDiag.nEvSetup++;
++			}
++			else
++			{
++				s_IrqDiag.nEvOutData++;
++			}
++
++			if (nEP <= NumberOfEPs && m_pEP[nEP])
++			{
++				m_pEP[nEP]->SlaveReceivePacket (nByteCount);
++			}
++			else
++			{
++				// No endpoint object owns this packet: read and
++				// drop it, so the RxFIFO cannot wedge.
++				volatile u32 *pFIFO = (volatile u32 *) DWHCI_DEV_EP_FIFO (nEP & 0xF);
++				for (unsigned i = 0; i < (nByteCount + 3) / 4; i++)
++				{
++					(void) *pFIFO;
++				}
++			}
++			break;
++
++		default:
++			// Global OUT NAK, OUT transfer done and SETUP done carry
++			// no FIFO data; the per-EP interrupts (XFRC, SETUP_DONE)
++			// report them through the existing dispatch.
++			break;
++		}
++	}
++}
++
++#endif
+--- a/lib/usb/gadget/Makefile
++++ b/lib/usb/gadget/Makefile
+@@ -24,7 +24,9 @@
+ 
+ include $(CIRCLEHOME)/Rules.mk
+ 
+-ifneq ($(strip $(RASPPI)),5)
++# PI5 EXPERIMENT (CDC spike 2026-11-12): RASPPI=5 gate removed
++# (stock Circle builds this library empty for RASPPI=5)
++ifeq (1,1)
+ OBJS	= dwusbgadget.o dwusbgadgetendpoint.o dwusbgadgetendpoint0.o \
+ 	  usbmidigadget.o usbmidigadgetendpoint.o \
+ 	  usbcdcgadget.o usbcdcgadgetendpoint.o \
+--- a/lib/usb/gadget/dwusbgadgetendpoint.cpp
++++ b/lib/usb/gadget/dwusbgadgetendpoint.cpp
+@@ -216,13 +216,23 @@
+ 		assert (m_nEP || nLength <= 0x7F);
+ 		assert (m_nEP || nPacketCount <= 3);
+ 
++#if RASPPI >= 5
++		// PI5 EXPERIMENT (CDC step 2): slave mode moves the data with the
++		// CPU, so there is no DMA cache maintenance to do here.
++#else
+ 		CleanAndInvalidateDataCacheRange ((uintptr) pBuffer, nLength);
++#endif
+ 	}
+ 	else
+ 	{
+ 		pBuffer = m_DummyBuffer;
+ 	}
+ 
++#if RASPPI >= 5
++	m_pSlaveCursor = (u8 *) pBuffer;
++	m_nSlaveMoved = 0;
++#endif
++
+ 	if (Mode == TransferDataIn)
+ 	{
+ 		CDWHCIRegister InEPXferSize (DWHCI_DEV_IN_EP_XFER_SIZ (m_nEP), 0);
+@@ -230,9 +240,11 @@
+ 		InEPXferSize.Or (nLength << DWHCI_DEV_EP_XFER_SIZ_XFER_SIZ__SHIFT);
+ 		InEPXferSize.Write ();
+ 
++#if RASPPI < 5
+ 		CDWHCIRegister InEPDMAAddress (DWHCI_DEV_IN_EP_DMA_ADDR (m_nEP),
+ 					       BUS_ADDRESS ((uintptr) pBuffer));
+ 		InEPDMAAddress.Write ();
++#endif
+ 
+ 		CDWHCIRegister InEPCtrl (DWHCI_DEV_IN_EP_CTRL (m_nEP), 0);
+ 		InEPCtrl.Read ();
+@@ -241,6 +253,11 @@
+ 		InEPCtrl.Or (DWHCI_DEV_EP_CTRL_EP_ENABLE);
+ 		InEPCtrl.Or (DWHCI_DEV_EP_CTRL_CLEAR_NAK);
+ 		InEPCtrl.Write ();
++#if RASPPI >= 5
++		// PI5 EXPERIMENT (CDC step 2): the EP is enabled now; fill its
++		// TxFIFO from the transfer buffer (TXFE tops it up if it drains).
++		SlavePushInData ();
++#endif
+ 	}
+ 	else
+ 	{
+@@ -259,9 +276,11 @@
+ 		OutEPXferSize.Or (nLength << DWHCI_DEV_EP_XFER_SIZ_XFER_SIZ__SHIFT);
+ 		OutEPXferSize.Write ();
+ 
++#if RASPPI < 5
+ 		CDWHCIRegister OutEPDMAAddress (DWHCI_DEV_OUT_EP_DMA_ADDR (m_nEP),
+ 						BUS_ADDRESS ((uintptr) pBuffer));
+ 		OutEPDMAAddress.Write ();
++#endif
+ 
+ 		CDWHCIRegister OutEPCtrl (DWHCI_DEV_OUT_EP_CTRL (m_nEP));
+ 		OutEPCtrl.Read ();
+@@ -315,11 +334,13 @@
+ 	// prevent speculative CPU refills while DMA owns the receive buffer.
+ 	// Invalidate only (never clean stale lines back over the DMA result).
+ 	// FinishTransfer runs before CDC Enqueue and EP0 OnControlMessage.
++#if RASPPI < 5
+ 	if (m_TransferMode != TransferDataIn && nXferSize)
+ 	{
+ 		InvalidateDataCacheRange ((uintptr) m_pTransferBuffer, nXferSize);
+ 	}
+ #endif
++#endif
+ 
+ #ifdef USB_GADGET_DEBUG
+ 	LOGDBG ("%u byte(s) transferred", nXferSize);
+@@ -345,6 +366,10 @@
+ 	m_TransferMode = TransferUnknown;
+ 	m_pTransferBuffer = nullptr;
+ 	m_nTransferLength = -1;
++#if RASPPI >= 5
++	m_pSlaveCursor = nullptr;
++	m_nSlaveMoved = 0;
++#endif
+ }
+ 
+ void CDWUSBGadgetEndpoint::Stall (boolean bIn)
+@@ -435,6 +460,19 @@
+ 	LOGDBG ("EP%u: Interrupt status is 0x%08X", m_nEP, InEPInt.Get ());
+ #endif
+ 
++#if RASPPI >= 5
++	if (InEPInt.Get () & DWHCI_DEV_IN_EP_INT_EMPTY_INTR)
++	{
++		CDWHCIRegister InEPIntAck (DWHCI_DEV_IN_EP_INT (m_nEP));
++		InEPIntAck.Set (DWHCI_DEV_IN_EP_INT_EMPTY_INTR);
++		InEPIntAck.Write ();
++
++		// PI5 EXPERIMENT (CDC step 2): the TxFIFO ran empty with data
++		// still to send; top it up from the transfer buffer.
++		SlavePushInData ();
++	}
++#endif
++
+ 	if (InEPInt.Get () & DWHCI_DEV_IN_EP_INT_XFER_COMPLETE)
+ 	{
+ 		CDWHCIRegister InEPIntAck (DWHCI_DEV_IN_EP_INT (m_nEP));
+@@ -468,3 +506,114 @@
+ 	s_NextEPSeq[0] = 0;
+ 	s_uchFirstInNextEPSeq = 0;
+ }
++
++#if RASPPI >= 5
++
++// PI5 EXPERIMENT (CDC step 2 2026-11-12): slave-mode (PIO) packet pump.
++// Behavioural reference: the slave-mode helpers of Linux's
++// drivers/usb/dwc2/gadget.c. Everything in this section is compiled
++// only on BCM2712; the DMA path above is the only path on other models.
++
++void CDWUSBGadgetEndpoint::SlaveReceivePacket (unsigned nByteCount)
++{
++	// Pop one received packet (nByteCount bytes, per GRXSTSR) from this
++	// EP's DFIFO window into the armed OUT/SETUP transfer buffer. The
++	// word count is driven by the packet, not by the space left in the
++	// transfer: the RxFIFO must be drained either way, so surplus bytes
++	// (or bytes for an EP with no armed OUT transfer) are read and
++	// dropped. Completion is unchanged: the core decrements DOEPTSIZ
++	// as data is popped and raises XFRC, which FinishTransfer() reports
++	// exactly as in DMA mode.
++	unsigned nWords = (nByteCount + 3) / 4;
++
++	boolean bStore =    (m_TransferMode == TransferSetupOut
++			  || m_TransferMode == TransferDataOut)
++			 && m_pSlaveCursor != nullptr;
++
++	size_t nSpace = 0;
++	if (bStore)
++	{
++		assert (m_nSlaveMoved <= m_nTransferLength);
++		nSpace = m_nTransferLength - m_nSlaveMoved;
++	}
++
++	volatile u32 *pFIFO = (volatile u32 *) DWHCI_DEV_EP_FIFO (m_nEP);
++	for (unsigned i = 0; i < nWords; i++)
++	{
++		u32 nWord = *pFIFO;
++
++		for (unsigned j = 0; j < 4; j++)
++		{
++			unsigned nIndex = i*4 + j;
++			if (nIndex >= nByteCount)
++			{
++				break;
++			}
++
++			if (bStore && nIndex < nSpace)
++			{
++				*m_pSlaveCursor++ = (u8) (nWord & 0xFF);
++			}
++
++			nWord >>= 8;
++		}
++	}
++
++	if (bStore)
++	{
++		m_nSlaveMoved += nByteCount < nSpace ? nByteCount : nSpace;
++	}
++}
++
++void CDWUSBGadgetEndpoint::SlavePushInData (void)
++{
++	// Push as much of the armed IN transfer as currently fits into this
++	// EP's TxFIFO. Called when the EP is enabled in BeginTransfer() and
++	// again from the TXFE interrupt if the FIFO drains mid-transfer.
++	// The core segments the byte stream into packets per DIEPTSIZ and
++	// decrements it as packets are transmitted, so FinishTransfer()
++	// accounting is the same as in DMA mode. Bytes past the transfer
++	// size in the final word are padding and are never transmitted.
++	if (m_TransferMode != TransferDataIn || !m_pSlaveCursor)
++	{
++		return;
++	}
++
++	assert (m_nSlaveMoved <= m_nTransferLength);
++	size_t nRemaining = m_nTransferLength - m_nSlaveMoved;
++	if (!nRemaining)
++	{
++		return;		// e.g. a zero-length packet: XFRC completes it
++	}
++
++	// Free TxFIFO space in bytes. DTXFSTS reports the shared
++	// non-periodic FIFO for EP0 and the dedicated FIFO for other IN EPs.
++	CDWHCIRegister TxFIFOStat (DWHCI_DEV_IN_EP_TX_FIFO_STAT (m_nEP));
++	size_t nSpace = (TxFIFOStat.Read () & DWHCI_DEV_IN_EP_TX_FIFO_STAT_SPACE__MASK) * 4;
++	if (nSpace > nRemaining)
++	{
++		nSpace = nRemaining;
++	}
++
++	volatile u32 *pFIFO = (volatile u32 *) DWHCI_DEV_EP_FIFO (m_nEP);
++	size_t nWords = (nSpace + 3) / 4;
++	for (size_t i = 0; i < nWords; i++)
++	{
++		u32 nWord = 0;
++		for (unsigned j = 0; j < 4; j++)
++		{
++			size_t nIndex = i*4 + j;
++			if (nIndex < nSpace)
++			{
++				nWord |= (u32) m_pSlaveCursor[nIndex] << (j * 8);
++			}
++		}
++
++		*pFIFO = nWord;
++	}
++
++	m_pSlaveCursor += nSpace;
++	m_nSlaveMoved += nSpace;
++}
++
++#endif

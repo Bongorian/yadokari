@@ -6,7 +6,8 @@
 # the catalog-environment gate by design and diverge elsewhere.
 #   host-tests : the host test suite (make test), GCC 13.3 per the
 #                catalog environment lock.
-#   firmware   : full firmware build via scripts/build-firmware.sh,
+#   firmware   : full firmware builds via scripts/build-firmware.sh
+#                (Pi 4) and scripts/build-firmware-pi5.sh (Pi 5),
 #                Arm GNU Toolchain 15.2.rel1 (pinned version + SHA-256),
 #                Circle at its pinned commit (handled by the script).
 #   container  : the dev container (docker/Dockerfile) builds, and the
@@ -121,6 +122,12 @@ jobs:
           export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
           aarch64-none-elf-g++ --version | head -1
           scripts/build-firmware.sh
+      - name: Build firmware (Pi 5)
+        env:
+          UPDATE_PUBLIC_KEY: ${{ runner.temp }}/ci-update-key.pub
+        run: |
+          export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
+          scripts/build-firmware-pi5.sh
       - name: List firmware outputs
         run: ls -la firmware/*.img firmware/*.elf firmware/recovery/*.img 2>/dev/null || true
       - name: Upload firmware images
@@ -130,6 +137,8 @@ jobs:
           path: |
             firmware/kernel8-rpi4.img
             firmware/recovery/kernel8-rpi4.img
+            firmware/kernel_2712.img
+            firmware/recovery/kernel_2712.img
           if-no-files-found: warn
           retention-days: 14
 

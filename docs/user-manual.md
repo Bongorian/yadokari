@@ -1,11 +1,11 @@
 # YADOKARI User Manual
 
-A user manual for the Raspberry Pi 4 firmware that turns a MASCHINE MK3 into a standalone groovebox.
+A user manual for the Raspberry Pi 4 / 5 firmware that turns a MASCHINE MK3 into a standalone groovebox.
 
 For an overview of operation, see [UI and purpose-based workflows](ui-pages.md); for LED brightness, blinking, and recording indications, see [Lighting rules and legend](led-behavior.md). In SETTINGS, moving the 4-D encoder left/right moves between APPEARANCE / DISPLAY / LIGHTS / PAD / AUDIO / MIDI / SYSTEM. In SYNTH, left/right is limited to edit pages within the same screen; for entrances such as MODULATION / TRIM, press the displayed Top button. Pads light in the target Track's color or a neutral color: normally 55%, selected 100%, muted 18%; motion = performing / playing back, warn = waiting, danger = recording, and empty pads stay dark. You can check the legend and the current output of all 16 pads under SETTINGS → Top3 LIGHTS.
 
 
-The target hardware is a combination of a Pi 4 (4 GB RAM or more) and a MASCHINE MK3. Operation differs from Native Instruments' own MASCHINE software.
+The target hardware is a combination of a Pi 4 or Pi 5 (4 GB RAM or more) and a MASCHINE MK3. The Pi 4 is the recommended environment. Operation differs from Native Instruments' own MASCHINE software.
 
 For features and limitations, see the [feature list](feature-matrix.md); for a list of the Top buttons and knobs on the normal screens, see the [controls table](manual/controls.tsv).
 

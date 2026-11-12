@@ -1,11 +1,11 @@
 # YADOKARI 取扱説明書
 
-MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4用ファームウェアの取扱説明書です。
+MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用ファームウェアの取扱説明書です。
 
 操作の全体像は[UI・目的別ワークフロー](ui-pages.md)、LEDの強弱・点滅と録音表示は[点灯規則と凡例](led-behavior.md)を参照してください。SETTINGSの4-D左右はAPPEARANCE／DISPLAY／LIGHTS／PAD／AUDIO／MIDI／SYSTEMを移動します。SYNTHの左右は同一画面の編集ページに限定し、MODULATION／TRIM等の入口は表示されたTopを押します。パッドは対象Track色または中立色で通常55%／選択100%／Mute18%、motion＝演奏／再生、warn＝待機、danger＝録音、空きは消灯。SETTINGS → Top3 LIGHTSで凡例と現在の16 Pad出力を確認できます。
 
 
-対象はPi 4（RAM 4GB以上）とMASCHINE MK3の組合せです。NI純正MASCHINEソフトウェアとは操作が異なります。
+対象はPi 4またはPi 5（RAM 4GB以上）とMASCHINE MK3の組合せです。推奨環境はPi 4です。NI純正MASCHINEソフトウェアとは操作が異なります。
 
 機能と制限は[機能表](feature-matrix.md)、通常画面のTop/ノブ一覧は[操作表](manual/controls.tsv)を参照してください。
 

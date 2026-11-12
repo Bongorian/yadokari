@@ -47,7 +47,7 @@ void CProjectStorage::end_read_session(){if(m_ReadOpen){f_close(&m_ReadFile);m_R
 bool CProjectStorage::read(const char* name,uint64_t offset,void* data,unsigned wanted,unsigned& got){
 #ifdef GROOVE_CPU_HEAP
  // Files may be encoded from CPU-owned objects. DMA must only see LOW buffers.
- if(uintptr_t(data)>=MEM_CPU_HEAP_START && uintptr_t(data)<MEM_CPU_HEAP_END){
+ if(CMemorySystem::IsCpuHeapPointer(data)){
   got=0;if(!m_CpuIo)m_CpuIo=groove::alloc_array<u8>(65536);if(!m_CpuIo)return false;
   while(got<wanted){unsigned n=wanted-got;if(n>65536)n=65536;unsigned read_count=0;if(!read(name,offset+got,m_CpuIo,n,read_count))return false;memcpy(static_cast<u8*>(data)+got,m_CpuIo,read_count);got+=read_count;if(read_count<n)break;}return true;
  }
@@ -71,7 +71,7 @@ bool CProjectStorage::finish_recording(const char* name,const void* header,unsig
 }
 bool CProjectStorage::write(const char* name,uint64_t offset,const void* data,unsigned count,bool truncate){
 #ifdef GROOVE_CPU_HEAP
- if(uintptr_t(data)>=MEM_CPU_HEAP_START && uintptr_t(data)<MEM_CPU_HEAP_END){
+ if(CMemorySystem::IsCpuHeapPointer(data)){
   if(!m_CpuIo)m_CpuIo=groove::alloc_array<u8>(65536);if(!m_CpuIo)return false;
   unsigned at=0;do{unsigned n=count-at;if(n>65536)n=65536;memcpy(m_CpuIo,static_cast<const u8*>(data)+at,n);if(!write(name,offset+at,m_CpuIo,n,truncate && !at))return false;at+=n;}while(at<count);return true;
  }

@@ -23,6 +23,11 @@ with tempfile.TemporaryDirectory() as directory:
  assert '#define MEM_CPU_HEAP_START 0xC0000000ULL' in text
  assert '#define MEM_CPU_HEAP_END 0xFC000000ULL' in text
  assert '#define MEM_PCIE_RANGE_START_VIRTUAL MEM_PCIE_RANGE_START' in text
+ # Pi 5: capacity-only arena (top of DRAM, carved out of the high heap);
+ # the fixed Pi 4 window macros must not leak into a Pi 5 build.
+ text5=subprocess.check_output(['g++','-E','-dM','-x','c++','-DAARCH=64','-DRASPPI=5','-DGROOVE_CPU_HEAP','-I'+str(d/'include'),'-I'+str(circle/'include'),'-include','circle/sysconfig.h','/dev/null'],text=True)
+ assert '#define MEM_CPU_HEAP_SIZE (960ULL * MEGABYTE)' in text5
+ assert 'MEM_CPU_HEAP_START' not in text5
  before={p:(d/p).read_bytes() for p in paths}
  subprocess.run(['python3',str(root/'scripts/patch-circle-cpu-heap.py'),str(d)],check=True)
  assert before=={p:(d/p).read_bytes() for p in paths}

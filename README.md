@@ -9,7 +9,7 @@
 
 ### 🐚 VIBE GROOVEBOX
 
-**A standalone groovebox firmware for the MASCHINE MK3 — no computer, no Linux, just a Raspberry Pi 4 and the controller.**
+**A standalone groovebox firmware for the MASCHINE MK3 — no computer, no Linux, just a Raspberry Pi 4 or 5 and the controller.**
 
 *Yadokari* (ヤドカリ) is Japanese for the hermit crab — an animal that
 borrows an empty shell, lives in it without changing it, and walks away
@@ -21,7 +21,7 @@ the shell exactly as it found it.
 [![Release](https://img.shields.io/github/v/release/Bongorian/yadokari)](https://github.com/Bongorian/yadokari/releases)
 [![Build](https://github.com/Bongorian/yadokari/actions/workflows/ci.yml/badge.svg)](https://github.com/Bongorian/yadokari/actions/workflows/ci.yml)
 [![Downloads](https://img.shields.io/github/downloads/Bongorian/yadokari/total)](https://github.com/Bongorian/yadokari/releases)
-[![Platform: Raspberry Pi 4](https://img.shields.io/badge/Platform-Raspberry%20Pi%204-red.svg)](#-requirements)
+[![Platform: Raspberry Pi 4 / 5](https://img.shields.io/badge/Platform-Raspberry%20Pi%204%20%2F%205-red.svg)](#-requirements)
 [![Language: C++](https://img.shields.io/badge/Language-C%2B%2B-orange.svg)](#-building-from-source)
 [![Vibe coded](https://img.shields.io/badge/vibe--coded-with%20Muse%20%26%20Codex-ff69b4.svg)](#-how-this-was-made)
 
@@ -58,7 +58,7 @@ leaves no trace on the controller.
 | | |
 |---|---|
 | 🎹 Controller | MASCHINE MK3 |
-| 🥧 Computer | Raspberry Pi 4 (4 GB RAM or more) |
+| 🥧 Computer | Raspberry Pi 4 or 5 (4 GB RAM or more) — Pi 4 recommended |
 | 💾 Storage | microSD (image) |
 | 🔌 Connection | USB-A (Pi) → USB-B (MK3) cable; the Pi is powered over USB-C |
 
@@ -66,7 +66,7 @@ leaves no trace on the controller.
 
 1. **Download** the latest Pi image from [Releases](https://github.com/Bongorian/yadokari/releases).
 2. **Copy** the zip's contents onto a FAT32-formatted microSD card.
-3. **Insert** the card into a Raspberry Pi 4 (4 GB RAM or more), connect the MK3 to the Pi's USB-A port (USB-B on the MK3), power on.
+3. **Insert** the card into a Raspberry Pi 4 or 5 (4 GB RAM or more) — the same card boots either — connect the MK3 to the Pi's USB-A port (USB-B on the MK3), power on.
 4. **Play.** The factory library (187 presets & kits, level-normalised) is built in. 🎶
 
 No SoundFont is bundled: SF2-based presets light up once you drop your own
@@ -199,7 +199,7 @@ between them means flashing a fresh card image.
 | Path | What |
 |---|---|
 | `src/` | The instrument core (engine, sequencer, UI) — shared by firmware and PC builds |
-| `firmware/` | Bare-metal Pi 4 entry, USB/MK3 surface drivers |
+| `firmware/` | Bare-metal Pi 4 / Pi 5 entry, USB/MK3 surface drivers |
 | `platform/` | Desktop (virtual MK3) and mock backends |
 | `assets/factory-library/` | Factory presets & kits (data + generation) |
 | `third_party/` | Vendored dependencies, each with provenance and licence |

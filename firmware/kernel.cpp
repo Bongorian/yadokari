@@ -9,6 +9,8 @@
 #include "../src/midi_output_pump.h"
 #include "../src/midi_input_router.h"
 #include "../src/alloc_policy.h"
+#include "../src/hardware_profile.h"
+#include <circle/machineinfo.h>
 #include "cpu_memory.h"
 // Circle initialization derived from Circle sample 05 (GPL-3.0-or-later).
 #include "kernel.h"
@@ -154,6 +156,11 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  // monitors temperature and returns to its safe low clock above its configured limit.
  CCPUThrottle cpu_throttle(CPUSpeedMaximum);bool cpu_monitor_failed=false;
  m_Logger.Write(FromKernel,LogNotice,"CPU clock control dynamic %u min %u max %u",unsigned(cpu_throttle.IsDynamic()),cpu_throttle.GetMinClockRate(),cpu_throttle.GetMaxClockRate());
+ // HardwareProfile: decode board + RAM once, before the engine exists;
+ // every budget decision afterwards reads the active profile.
+ groove::hardware::set_active_profile(groove::hardware::decode(CMachineInfo::Get()->GetRevisionRaw()));
+ const auto& hw_profile=groove::hardware::active_profile;
+ m_Logger.Write(FromKernel,LogNotice,"Hardware profile board %u ram %u MB cpu heap %u MB budget scale %u permille baseline %u",unsigned(hw_profile.board),hw_profile.ram_mb,hw_profile.cpu_heap_bytes/(1024*1024),hw_profile.budget_scale_permille,unsigned(hw_profile.baseline));
  m_Storage.SetWatchdog(&m_Watchdog);
  auto* engine=groove::alloc_cpu_new<groove::Engine>(48000);
  auto* project=groove::alloc_cpu_new<groove::ProjectState>();

@@ -1,6 +1,7 @@
 #include "drum_gm.h"
 #include "engine.h"
 #include "alloc_policy.h"
+#include "hardware_profile.h"
 #include "pcm_output.h"
 #include "note_transform.h"
 #include "instrument_math.h"
@@ -22,17 +23,24 @@ uint8_t Engine::reserve_shared(unsigned t,Instrument engine,unsigned model,bool 
  const auto* descriptor=engine_descriptor(unsigned(engine));if(!descriptor)return 255;
  const auto& policy=descriptor->polyphony;const auto resource=policy.resource;
  if(resource==VoiceResource::None || !policy.shared_slots || policy.shared_slots>kSharedVoiceCapacity)return 255;
- unsigned limit=instrument_voice_limit(engine,model),incoming=engine_voice_cost(engine,model);
+ // HardwareProfile: cost unit prices stay common; the live polyphony
+ // budgets (voice limit, shared cost budget, shared slots) scale with the
+ // board profile. The factor is 1.0 until on-device measurement lands
+ // (src/hardware_profile.h). Layer admission stays baseline -- see
+ // layer_admission() below.
+ const unsigned budget=hardware::scaled(policy.shared_budget);
+ const unsigned slot_count=hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity);
+ unsigned limit=hardware::scaled(instrument_voice_limit(engine,model)),incoming=engine_voice_cost(engine,model);
  unsigned main=poly && engine_voice_resource(voices_[t].instrument)==resource && voices_[t].env>=0.00001f?1:0;
- if(!limit || limit<=main || incoming>policy.shared_budget)return 255;
+ if(!limit || limit<=main || incoming>budget)return 255;
  unsigned allowed=limit-1-main;
  unsigned count=0;for(const auto& p:poly_voices_)if(p.owner==t && engine_voice_resource(p.voice.instrument)==resource)++count;
  while(!layer_launching_ && count>allowed){auto* old=oldest_shared(resource,t,protect);if(!old)return 255;release_poly(*old,true);--count;}
  if(!poly)return 255;
  unsigned cost=0;for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource)cost+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);
- while(cost+incoming>policy.shared_budget){if(layer_launching_)return 255;auto* old=oldest_shared(resource,kTracks,protect);if(!old)return 255;cost-=engine_voice_cost(Instrument(old->voice.instrument),old->voice.model);release_poly(*old,true);}
- bool used[kSharedVoiceCapacity]{};for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource && p.voice.shared_slot<policy.shared_slots)used[p.voice.shared_slot]=true;
- for(unsigned i=0;i<policy.shared_slots;++i)if(!used[i])return uint8_t(i);
+ while(cost+incoming>budget){if(layer_launching_)return 255;auto* old=oldest_shared(resource,kTracks,protect);if(!old)return 255;cost-=engine_voice_cost(Instrument(old->voice.instrument),old->voice.model);release_poly(*old,true);}
+ bool used[kSharedVoiceCapacity]{};for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource && p.voice.shared_slot<slot_count)used[p.voice.shared_slot]=true;
+ for(unsigned i=0;i<slot_count;++i)if(!used[i])return uint8_t(i);
  return 255;
 }
 bool Engine::note_off_main(unsigned t) {
@@ -82,6 +90,9 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  if(local+incoming>VoiceBudget::layer_track || total+incoming>VoiceBudget::layer_total)return LayerReason::Cost;
  if(free<unsigned(__builtin_popcount(unsigned(selected))))return LayerReason::Voices;
  for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);++need_shared[r];need_shared_cost[r]+=engine_voice_cost(child.instrument,child.model);}}
+ // Layer hard gate: baseline (unscaled) budgets by policy option (a) --
+ // a layer accepted on a larger board must stay accepted on Pi 4 / 4 GB,
+ // so this check deliberately does not use hardware::scaled().
  for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:granular_!=nullptr;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:Instrument::Granular))->polyphony;if(!ready || shared[resource]+need_shared[resource]>policy.shared_slots || shared_cost[resource]+need_shared_cost[resource]>policy.shared_budget)return LayerReason::Voices;}
  return LayerReason::Ready;
 }

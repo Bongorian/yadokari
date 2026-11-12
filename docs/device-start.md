@@ -1,6 +1,6 @@
 # YADOKARI — device start
 
-This card runs on a Raspberry Pi 4 (4 GB RAM or more) as a bare-metal AArch64 Circle instrument — not Linux, and not Native Instruments software.
+This card runs on a Raspberry Pi 4 or 5 (4 GB RAM or more) as a bare-metal AArch64 Circle instrument — not Linux, and not Native Instruments software.
 
 Connect MASCHINE MK3 to Pi USB-A with suitable power. Connect LINE OUT to monitors and PHONES for Cue. Start at low monitoring volume. PAD MODE plays sounds; STEP edits notes; PLAY/STOP controls transport.
 

@@ -2,6 +2,7 @@
 #include "update_key.h"
 #include "../src/update/view.h"
 #include "../src/update/pi4_policy.h"
+#include "../src/hardware_profile.h"
 #include <circle/alloc.h>
 #include <circle/memory.h>
 #include <circle/devicenameservice.h>
@@ -23,12 +24,74 @@ using namespace groove::update;
 unsigned GrooveFirmwareVersion(){return GROOVE_FW_VERSION;}
 CUpdateDisk::CUpdateDisk():m_Buffer(static_cast<u8*>(palloc())){}
 bool CUpdateDisk::sector(unsigned lba,uint8_t* bytes,bool write){auto* d=CDeviceNameService::Get()->GetDevice("emmc1",TRUE);if(!d||!m_Buffer||d->Seek(u64(lba)*512)!=u64(lba)*512)return false;if(write){memcpy(m_Buffer,bytes,512);return d->Write(m_Buffer,512)==512;}if(d->Read(m_Buffer,512)!=512)return false;memcpy(bytes,m_Buffer,512);return true;}
-bool CUpdateReboot::supported()const{
- auto* info=CMachineInfo::Get();if(info->GetMachineModel()!=MachineModel4B)return false;
- if(pi4_tryboot_allowed(info->GetRevisionRaw(),false))return true;
+// The operator EEPROM acknowledgement (EEPROM.OK) is the evidence a
+// rev-1.0-class board may use firmware tryboot (the early-Pi 4 caution,
+// carried to Pi 5 rev 1.0 by the strict rule). Round 1 on the real Pi 5
+// proved the ambient lookup can false-negative: EEPROM.OK sat on partition
+// 1 root, yet f_stat("SD:/EEPROM.OK") failed inside supported() at trial
+// time. So the probe must not depend on the mount state other flows happen
+// to leave behind. It tries the boot volume as found; if nothing has the
+// volume registered (this FatFs is built with FF_USE_LABEL == 0, so the
+// stat result is the mount probe: FR_NOT_ENABLED means no work area is
+// registered for the drive), it mounts the volume into its own static
+// FATFS and looks again; it also accepts the DATA volume, which project
+// storage keeps mounted in normal operation. It never unmounts or
+// replaces a registration owned by someone else, and it reports which
+// source satisfied the ack so a boot log can prove where it was found.
+enum class EepromAckSource:uint8_t { None, Sd, SdRemount, Data };
+struct EepromAck { bool present=false;EepromAckSource source=EepromAckSource::None; };
+static const char* EepromAckName(EepromAckSource source){
+ switch(source){
+ case EepromAckSource::Sd:return "sd";
+ case EepromAckSource::SdRemount:return "sd_remount";
+ case EepromAckSource::Data:return "data";
+ default:return "none";
+ }
+}
+static bool EepromAckFile(const char* path){FILINFO info{};return f_stat(path,&info)==FR_OK&&!(info.fattrib&AM_DIR);}
+static EepromAck ProbeEepromAck(){
+ EepromAck result{};
+ FILINFO info{};const FRESULT first=f_stat("SD:/EEPROM.OK",&info);
+ if(first==FR_OK&&!(info.fattrib&AM_DIR)){result.present=true;result.source=EepromAckSource::Sd;return result;}
+ if(first==FR_NOT_ENABLED){
+  // Left mounted on purpose: deregistering could race a later user of
+  // the volume, and a mounted boot volume is the normal state anyway.
+  static FATFS mount{};
+  if(f_mount(&mount,"SD:",1)==FR_OK&&EepromAckFile("SD:/EEPROM.OK")){result.present=true;result.source=EepromAckSource::SdRemount;return result;}
+ }
+ if(EepromAckFile("DATA:/EEPROM.OK")){result.present=true;result.source=EepromAckSource::Data;}
+ return result;
+}
+// One gate, two Pi 5 rules: pi5_tryboot_allowed_strict for release builds
+// (GROOVE_STRICT_UPDATE_GATE), the relaxed pi5_tryboot_allowed otherwise
+// (this tree's default). The Pi 4 rule is the same in both modes; only its
+// ack lookup became robust (ProbeEepromAck). Pi 5 tryboot uses the same
+// autoboot.txt, mailbox-flag and watchdog-partition mechanism as Pi 4; the
+// stock Pi 5 EEPROM bootloader needs no configuration change for
+// tryboot_a_b. A caller that already probed (BOOTDIAG) passes its result
+// in `probed` instead of probing twice.
+static bool TrybootSupported(bool strict_pi5,const EepromAck* probed=nullptr){
+ auto* info=CMachineInfo::Get();if(!info)return false;
+ const uint32_t revision=info->GetRevisionRaw();
+ if(info->GetMachineModel()==MachineModel5){
+  if(!strict_pi5)return pi5_tryboot_allowed(revision,false);
+  if(pi5_tryboot_allowed_strict(revision,false))return true;
+  const EepromAck ack=probed?*probed:ProbeEepromAck();
+  return pi5_tryboot_allowed_strict(revision,ack.present);
+ }
+ if(info->GetMachineModel()!=MachineModel4B)return false;
+ if(pi4_tryboot_allowed(revision,false))return true;
  // Early Pi4 revisions require EEPROM write protection to be disabled. This
  // operator-provisioned acknowledgement is never created by the updater.
- FILINFO status;return pi4_tryboot_allowed(info->GetRevisionRaw(),f_stat("SD:/EEPROM.OK",&status)==FR_OK);
+ const EepromAck ack=probed?*probed:ProbeEepromAck();
+ return pi4_tryboot_allowed(revision,ack.present);
+}
+bool CUpdateReboot::supported()const{
+#ifdef GROOVE_STRICT_UPDATE_GATE
+ return TrybootSupported(true);
+#else
+ return TrybootSupported(false);
+#endif
 }
 bool CUpdateReboot::restart(unsigned partition,bool trial){
  if(partition<1||partition>3||(trial&&!supported()))return false;
@@ -61,6 +124,7 @@ public:
  }
 };
 CUpdateRuntime::CUpdateRuntime(CInterruptSystem* interrupt):m_Storage(m_Disk,"SD:","SLOTA:","SLOTB:"),m_Manager(m_Storage,m_Reboot,UpdatePublicKey),m_Receiver(m_Manager),m_Interrupt(interrupt),m_Status("LOCAL UPDATE MODE ONLY"){}
+
 bool CUpdateRuntime::Initialize(bool recovery){
  m_Ready=m_Storage.mount()&&m_Manager.load();
  const bool storage_ready=m_Ready;
@@ -72,6 +136,15 @@ bool CUpdateRuntime::Initialize(bool recovery){
  // Keep STATUS and logs available after a boot-identity failure; mutating
  // remote commands still require m_Ready and m_Identity via remote_ready().
  FILINFO remote_marker{};m_Remote=storage_ready && f_stat("DATA:/REMOTE.ON",&remote_marker)==FR_OK && !(remote_marker.fattrib&AM_DIR);
+#if defined(GROOVE_CDC_DEFAULT_ON) && RASPPI >= 5
+ // 0.9.1 Pi 5 release configuration (firmware/circle-pi5.mk): the
+ // USB-C CDC gadget and the remote control channel are on by
+ // default, with the behaviour a Pi 4 shows when DATA:/REMOTE.ON
+ // is present; no opt-in marker file is required. The marker
+ // still works -- it is simply not needed. The define is never
+ // set for Pi 4 or development builds.
+ if(storage_ready)m_Remote=true;
+#endif
  if(m_Remote && !StartGadget())m_Status="USB-C GADGET INITIALIZATION FAILED";
  if(m_Remote && m_TrialFallback){Enter();StartNetwork(false);}
  if(!m_Ready)m_Status="INVALID UPDATE SD LAYOUT / JOURNAL";
@@ -79,7 +152,8 @@ bool CUpdateRuntime::Initialize(bool recovery){
  CLogger::Get()->Write("update",LogNotice,"Compiled version %u; partition %u trial %u; layout/journal %u",unsigned(GROOVE_FW_VERSION),m_Partition,unsigned(m_Tryboot),unsigned(m_Ready));
  return m_Ready;
 }
-void CUpdateRuntime::Enter(uint16_t held_pads){m_PadLatch.preset(held_pads);m_Active=true;m_Manager.arm(m_Ready&&m_Identity);m_Start=CTimer::GetClockTicks();}
+void CUpdateRuntime::Enter(uint16_t held_pads){m_PadLatch.preset(held_pads);m_Active=true;m_Manager.arm(m_Ready&&m_Identity);m_Start=CTimer::GetClockTicks();
+}
 void CUpdateRuntime::RemoteStatus(CString& out)const{
  CString ip;if(m_Net&&m_Net->IsRunning())m_Net->GetConfig()->GetIPAddress()->Format(&ip);else ip.Format("none");
  const auto& state=m_Manager.state();out.Format("GBX1 STATUS remote=%u active=%u ready=%u armed=%u phase=%u version=%u highest=%u partition=%u trial=%u journal_trial=%u error=%u ip=%s diagnostic_busy=%u\n",unsigned(m_Remote),unsigned(m_Active),unsigned(m_Ready),unsigned(m_Manager.armed()),unsigned(state.phase),unsigned(GROOVE_FW_VERSION),unsigned(state.highest),m_Partition,unsigned(m_Tryboot),unsigned(m_JournalTrial),unsigned(m_Manager.error()),static_cast<const char*>(ip),unsigned(m_DiagnosticBusy));
@@ -125,7 +199,17 @@ bool CUpdateRuntime::Remote(SerialCommand command){
 }
 // pid.codes private-test PID: not unique and unsuitable for distribution.
 // https://pid.codes/1209/0001/
-bool CUpdateRuntime::StartGadget(){if(!m_Gadget){m_Gadget=new CUSBCDCGadget(m_Interrupt,0x1209,0x0001);m_GadgetReady=m_Gadget->Initialize();if(!m_GadgetReady)m_Status="USB-C GADGET INITIALIZATION FAILED";}return m_GadgetReady;}
+bool CUpdateRuntime::StartGadget(){
+#ifdef GROOVE_PI5_NO_GADGET
+ // PI5 BUILD EXPERIMENT ONLY (not for release): Circle's USB gadget library
+ // builds empty for RASPPI=5, so no CDC gadget can be created. Report the
+ // same failure status this runtime already uses for a failed gadget init;
+ // every caller already handles a false return.
+ m_Status="USB-C GADGET INITIALIZATION FAILED";return false;
+#else
+ if(!m_Gadget){m_Gadget=new CUSBCDCGadget(m_Interrupt,0x1209,0x0001);m_GadgetReady=m_Gadget->Initialize();if(!m_GadgetReady)m_Status="USB-C GADGET INITIALIZATION FAILED";}return m_GadgetReady;
+#endif
+}
 void CUpdateRuntime::StartNetwork(bool wifi,bool diagnostics){
  if((!m_Ready&&!m_TrialFallback)||m_Net||m_Manager.receiving())return;
  #ifndef GROOVE_UPDATE_WIFI

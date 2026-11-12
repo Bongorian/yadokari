@@ -1950,6 +1950,13 @@ test-run-cpu-heap-patch:
 test-all: test-run-cpu-heap-patch
 .PHONY: test-run-cpu-heap-patch
 
+build/test-pi5-gate-policy: tests/pi5_gate_policy_test.cpp src/update/pi4_policy.h
+	$(CXX) -std=c++17 -Isrc -Wall -Wextra -Werror $(SAN) tests/pi5_gate_policy_test.cpp -o build/test-pi5-gate-policy
+test-run-pi5-gate-policy: build/test-pi5-gate-policy
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-pi5-gate-policy
+test-all: test-run-pi5-gate-policy
+.PHONY: test-run-pi5-gate-policy
+
 
 # Immutable attachment snapshots are prepared before their sample-timed event.
 build/test-prepared-sound: tests/prepared_sound_queue_test.cpp src/prepared_sound_queue.h src/normal_copy.h src/spsc_queue.h $(DEMO_HEADERS)

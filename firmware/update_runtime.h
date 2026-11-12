@@ -99,6 +99,14 @@ public:
  template<class Enter> void PollUsbControl(Enter enter,groove::bulk::Port* files=nullptr){
   using groove::update::SerialCommand;
   if(!m_GadgetReady || !m_Gadget)return;
+#if RASPPI >= 5
+  // PI5 EXPERIMENT (CDC step 5, 2026-11-12): on BCM2712 the gadget
+  // can initialize and pull up yet never see its interrupt, which
+  // starves EP0 and stalls enumeration (v1011). Service pending
+  // events from this poll when the vector stays silent; a no-op
+  // while interrupts are delivered.
+  m_Gadget->PollServiceInterrupts();
+#endif
   if(m_Gadget->UpdatePlugAndPlay()){if(files)files->disconnected();if(m_Channel==Serial)Disconnect();m_UsbPeer=nullptr;m_UsbControl={};m_UsbReplyUsed=m_UsbReplySent=0;}
   auto* serial=m_Gadget->GetSerialDevice();
   if(serial!=m_UsbPeer){if(files)files->disconnected();if(m_Channel==Serial)Disconnect();m_UsbPeer=serial;m_UsbControl={};m_UsbReplyUsed=m_UsbReplySent=0;}

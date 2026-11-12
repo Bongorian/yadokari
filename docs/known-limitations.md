@@ -38,7 +38,9 @@ story, kept current per release.
 
 ## Performance ceiling
 
-- The engine is real-time software on a Pi 4. The heaviest
+- The engine is real-time software on a Pi 4 (a Pi 5 raises
+  the polyphony budget by a measured factor of about 3x;
+  the ceiling is still there). The heaviest
   combinations — large layered patches with full effects at high
   polyphony — can reach the CPU ceiling; FREEZE (bounce a track
   to audio) and TWIN (sample a heavy track in advance) exist
@@ -46,6 +48,27 @@ story, kept current per release.
 
 ## Hardware scope
 
-- Raspberry Pi 4 (4 GB RAM or more) only. The MASCHINE MK3 must be stock and
+- Raspberry Pi 4 (4 GB RAM or more) is the recommended and
+  reference environment; Raspberry Pi 5 (4 GB RAM or more)
+  is also supported (see "Pi 5" below). The MASCHINE MK3
+  must be stock and
   unmodified (that is the point), and is used over USB exactly as
   a computer would use it.
+
+## Pi 5
+
+- **Supported from 0.9.1, next to the recommended Pi 4.**
+  Projects are fully portable between the two: polyphony
+  budgets scale up on the Pi 5 (a measured factor, not a
+  guess), while layer admission stays at the Pi 4 budget, so
+  a project that loads on a Pi 5 also loads on the reference
+  Pi 4.
+- **USB-C CDC is on by default on Pi 5**: the control/update
+  channel enumerates with no opt-in file. (On Pi 4 the
+  channel is enabled with the remote marker file or from
+  the update screen, as in 0.9.0.)
+- **A 16 GB Pi 5 currently gets no CPU-heap arena** (the
+  Circle memory map covers at most 8 GiB of DRAM); it runs
+  with the pre-arena memory layout.
+- **Wi-Fi is disabled on Pi 5 builds too**, for the same
+  licensing reason as on Pi 4 (see Connectivity).
