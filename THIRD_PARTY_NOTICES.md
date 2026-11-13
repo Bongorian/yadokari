@@ -14,8 +14,8 @@ components. Full license texts live with each component under
   `scripts/patch-circle-*.py`. Circle is the foundation the whole
   firmware stands on — and the reason this work is GPL-3.0.
 
-- **encdr** — Analog74 — GPL-3.0
-  https://github.com/Analog74/encdr
+- **encdr** — RufusIbiza — GPL-3.0
+  https://github.com/RufusIbiza/Encdr
   Open research into the MASCHINE MK3's USB protocol. Not vendored:
   YADOKARI's display framing, LED encoding and control reports were
   implemented from our own hardware study, guided by encdr's published

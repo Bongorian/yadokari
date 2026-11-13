@@ -247,8 +247,8 @@ is told in [the story so far](docs/story.md).*
 **Built on [Circle](https://github.com/rsta2/circle) by Rene Stange** —
 the bare-metal C++ framework for Raspberry Pi that this firmware stands on.
 
-**MASCHINE MK3 protocol knowledge from [encdr](https://github.com/Analog74/encdr)**
-by Analog74 — its MK3 descriptor was the reference for the display framing,
+**MASCHINE MK3 protocol knowledge from [encdr](https://github.com/RufusIbiza/Encdr)**
+by RufusIbiza — its MK3 descriptor was the reference for the display framing,
 LED encoding and control-report layouts.
 
 DSP and components from Mutable Instruments (Plaits / Rings / Clouds),
