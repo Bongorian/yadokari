@@ -174,8 +174,9 @@ What the instrument does, area by area. File formats are specified in
 ## Connectivity
 
 - MIDI: Notes, CC, Program Change, NRPN/RPN and Clock, with recording
-  and Standard MIDI File exchange. An external Clock is followed as a
-  tempo source. There is no SysEx route and no tempo-map import.
+  and Standard MIDI File exchange. SLAVE CLOCK makes this unit a
+  phase-locked MIDI Clock slave on MIDI IN (Start / Stop / Continue /
+  Song Position, fractional tempo, flywheel through a lost Clock). There is no SysEx route and no tempo-map import.
 - Multitimbral mode: fixed Ch 1–16 → Track 1–16, pool selection by
   Program Change with Bank Select 0/1 × 128, and transport stop on
   entry and exit; normal routes are retained. AUDIO / Looper slots are

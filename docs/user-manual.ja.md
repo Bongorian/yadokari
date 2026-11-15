@@ -612,7 +612,9 @@ MK3のMIDI OUT → MIDI INの短いループバックでは、全16chのNote・C
 
 ### Clock同期
 
-AUTO / MIDIのK8 `SLAVE CLOCK`を使うと外部Clockのテンポに追従します。<strong>位相ロックを完成させたslaveではありません。</strong> BPM表示が合うことと、外部機器の頭拍が長時間一致することを分けて確認します。外部Clock追従では本機からのClockエコーを抑制します。DINループを作らず、まず一方向で試します。
+AUTO / MIDIのK8 `SLAVE CLOCK`をONにすると、本機はMK3 MIDI INのMIDI Clockに従うslaveになります。masterのStart・Stop・Continue・Song Positionで再生が動き、シーケンサーはmasterの最初のClockで始まり、その後も位相をロックしたまま追従します。Tempo表示は最も近い整数BPMで、端数（例：120.4 BPM）はロックが吸収します。テンポ変更には数Step以内に追従し、小節位置は失われません。Stop → Continueはその位置から再開します。
+
+再生中にClockが途切れると、本機は最後にロックしたテンポで走り続け、Clockが戻ると再びロックします。Clockがないときに本機のPLAYを押すと内部テンポで再生します。受信したStartの後にClockが来ない場合は最大1.5 tick待ってから自走で始まります。Count-inは使いません。SLAVE CLOCKがONの間、本機はClockもtransportも送信しません。DINループを作らず、まず一方向で試します。MIDI INのActive Sensing・SysEx・MTCは無視します。
 
 ### RPN / NRPN
 
@@ -702,7 +704,7 @@ DIN接続の外部機器がある場合の実例です。機器がなければ�
 
 - **DINで外部音源を鳴らし、その音を録る** — **MK3 MIDI OUT → 外部音源MIDI IN**とつなぎ、外部音源の音声を聴けるようにします。空きDをENGINEでMIDI OUTにし、**AUTO → Top4 MIDI → K1 CHANNEL**を受信chへ合わせる。**STEP → Pad1 → PLAY**で1音を繰り返し、**STOP**で止めます。外部音源が指定した音高で鳴り、停止後にノートは残りません。LINE接続もできる場合は外部音源OUT → MK3 LINE IN、ROUTINGのMONITORはOFF、空き**E → SAMPLING → SHIFT+Top5 REC INPUT**。PLAYで数秒録り、**SHIFT+Top5 STOP RECORD**の完了後にSTOP、**SHIFT+Top6 PREVIEW**で聴きます。EのWAVに実音が入り、意図した片ch／両ch構成で再生できます。
 - **外部鍵盤で内部音源を弾き、音符を録る** — DIN出力ケーブルを外し、**外部鍵盤MIDI OUT → MK3 MIDI IN**とつなぎます。空きFをVA SAWなどの内部音源にする。**AUTO → Top4 MIDI → SHIFT+K1 INPUT CH／K2 INPUT TRACK**で鍵盤chをF（Track6）へ割当。**KEYBOARD**へ移り、鍵盤の1音を押して離すと、Fが鳴り、設定されたReleaseの後に止まります。**REC → PLAY**で1小節に2音を弾き、RECを解除して**STOP → PLAY**。録音した音符がFに残り、再現します。SAMPLERのRECは音声録音なので、この実例ではKEYBOARDを使います。
-- **外部Clockへテンポを追従させる** — 同じ一方向のDIN接続で、Clock送信できる外部機器をmasterにし、**AUTO → MIDI → K8 SLAVE CLOCK＝ON**。120 BPMで短く再生し、100 BPMへ変更すると、本機のTempoと演奏速度が追従します。これはテンポの追従で、頭拍の位相同期ではありません。終了後はSLAVE CLOCKをOFFへ戻します。
+- **外部Clockへテンポを追従させる** — 同じ一方向のDIN接続で、Clock送信できる外部機器をmasterにし、**AUTO → MIDI → K8 SLAVE CLOCK＝ON**。masterでPLAYすると本機も頭拍から一緒に始まります。masterを120 BPMから100 BPMへ変更すると、本機のTempoが数Step以内に追従し、頭拍はそろったままです。masterのStop・Continueで両方がその位置から再開します。終了後はSLAVE CLOCKをOFFへ戻します。
 
 ### 音源を試す：WAVETABLEとVA
 
@@ -922,7 +924,7 @@ Top1–8は絵＋文字を読み、操作は従来と同じです。ENGINE＝音
 | 2 | 行＋矢印＝FOLLOW有効 |
 | 3 | 南京錠＝Lock編集（SHIFT／保持step） |
 | 4 | メトロノーム＝クリック有効 |
-| 5 | 時計＝外部Clock follower設定。同期精度を保証する表示ではない |
+| 5 | 時計＝SLAVE CLOCKがON（MIDI INのMIDI Clockに従う） |
 | 6 | 縦Strip＋形＝PERFORM／PITCH／MOD／NOTES。現在の割当てを形でも区別 |
 
 右ヘッダー先頭とENGINE一覧の印は音源familyです。全9テーマで形と意味は同じで、色だけでは判断しません。

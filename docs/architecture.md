@@ -50,7 +50,7 @@ The DIN [loopback probe](../src/midi_loopback_probe.h) is owned inside a core-0 
 
 ## Sequences and parameters
 
-16 tracks, 16 patterns, 256 steps, 16 scenes. Each Track's Clip can play a different Pattern simultaneously. Scene launch and Song/Arrangement are control above that. Time is in rendered-sample units; the Arrangement is 960 PPQN. Clock input uses a tempo follower and does not guarantee physical phase lock.
+16 tracks, 16 patterns, 256 steps, 16 scenes. Each Track's Clip can play a different Pattern simultaneously. Scene launch and Song/Arrangement are control above that. Time is in rendered-sample units; the Arrangement is 960 PPQN. In SLAVE CLOCK mode, [MidiClockSync](../src/midi_clock_sync.h) phase-locks the transport to received 24 PPQN Clock: it counts master ticks against internal tick boundaries and, per sample, advances the transport by 0, 1 or 2 samples, moving every tempo accumulator and the step grid together. A PI loop carries the fraction of a BPM that the whole-number tempo cannot; the [tempo estimator](../src/midi_clock_estimator.h) sets that whole number. A lost Clock leaves the transport on its last locked pace. With the mode off, the transport is untouched.
 
 The order in [parameter_resolver.h](../src/parameter_resolver.h):
 

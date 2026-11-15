@@ -152,7 +152,7 @@ void Engine::gesture_capture(const CommandState& c){
 void Engine::gesture_tick(){
  if(!playing_ || (!gesture_recording_ && !gesture_playing_)){return;}const auto& g=project_->gesture;uint64_t unit=uint64_t(rate_)*60;
  if(gesture_playing_){unsigned tick=unsigned(gesture_phase_/unit);bool changed=false;while(gesture_cursor_<g.count && g.points[gesture_cursor_].tick<=tick){gesture_overlay_.apply(g.points[gesture_cursor_++]);changed=true;}if(changed)control_refresh_mask_=0xffff;}
- gesture_phase_+=uint64_t(bpm_)*96;if(gesture_phase_>=unit*g.ticks){gesture_phase_-=unit*g.ticks;gesture_cursor_=0;if(gesture_recording_){gesture_recording_=false;event(EngineEventType::GestureState,0,0);}}
+ gesture_phase_+=uint64_t(transport_bpm_)*96;if(gesture_phase_>=unit*g.ticks){gesture_phase_-=unit*g.ticks;gesture_cursor_=0;if(gesture_recording_){gesture_recording_=false;event(EngineEventType::GestureState,0,0);}}
 }
 void Engine::release_local_midi(unsigned pad){if(pad>=16)return;for(auto& n:local_midi_[pad])if(n.held){n.releasing=true;if(midi(uint8_t(0x80|n.channel),n.note,0))n.held=false;}}
 void Engine::release_local(){

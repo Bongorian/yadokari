@@ -4,6 +4,18 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## Unreleased
+
+- SLAVE CLOCK is now a phase-locked MIDI Clock slave on MIDI IN:
+  the sequencer starts on the master's first tick, holds phase at
+  fractional tempos, follows tempo changes without losing the bar,
+  resumes in place on Continue and keeps running through a lost
+  Clock.
+- MIDI IN ignores Active Sensing, SysEx, MTC and other system
+  messages instead of logging each one as a rejected packet.
+- The Clock tempo estimate no longer drops when several ticks
+  arrive together.
+
 ## 0.9.0 — 2026-11-11
 
 First public release.

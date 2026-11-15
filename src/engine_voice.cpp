@@ -64,7 +64,7 @@ void Engine::repeat_tick(){
  if(repeat_next_gate_ && sample_count_>=repeat_next_gate_){for(unsigned i=0;i<16*kStepNotes+16;++i){auto& pad=input(i);if(pad.gate_due && sample_count_>=pad.gate_due){if(release_note(pad.track,pad.note,pad.channel))finish_repeat_pad(pad);else pad.gate_due=sample_count_+64;}}refresh_repeat_gate();}
  if(!repeat_mode_)return;
  static const uint8_t divisions[8]={1,2,4,8,16,3,6,12};
- repeat_phase_+=uint64_t(bpm_)*divisions[repeat_rate_];const uint64_t quarter=uint64_t(rate_)*60;if(repeat_phase_<quarter)return;repeat_phase_-=quarter;
+ repeat_phase_+=uint64_t(transport_bpm_)*divisions[repeat_rate_];const uint64_t quarter=uint64_t(rate_)*60;if(repeat_phase_<quarter)return;repeat_phase_-=quarter;
  uint8_t order[16*kStepNotes+16];bool released[16*kStepNotes+16]{};unsigned count=0;
  for(unsigned i=0;i<16*kStepNotes+16;++i)if(input(i).held){auto& pad=input(i);released[i]=release_note(pad.track,pad.note,pad.channel);if(released[i])finish_repeat_pad(pad);order[count++]=uint8_t(i);}
  if(!count){refresh_repeat_gate();return;}

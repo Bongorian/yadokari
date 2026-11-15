@@ -609,7 +609,9 @@ External keyboard MIDI OUT → MK3 MIDI IN. In <strong>AUTO → MIDI → hold SH
 
 ### Clock synchronization
 
-Using AUTO / MIDI's K8 `SLAVE CLOCK` makes it follow the tempo of an external Clock. <strong>It is not a slave with completed phase lock.</strong> Check separately that the BPM display matches and that the external equipment's downbeats stay aligned over a long period. While following an external Clock, Clock echo from this unit is suppressed. Do not create a DIN loop; try one direction first.
+AUTO / MIDI's K8 `SLAVE CLOCK` makes this unit a MIDI Clock slave on MK3 MIDI IN. Start, Stop, Continue and Song Position from the master drive the transport; the sequencer starts on the master's first Clock tick and stays phase-locked to it. The Tempo display shows the nearest whole BPM, and the lock carries any fraction (for example 120.4 BPM). Tempo changes are followed within a few steps without losing the bar position. Stop → Continue resumes in place.
+
+If the Clock stops arriving while playing, this unit keeps running at the last locked tempo and locks again when the Clock returns. PLAY on this unit without any Clock runs on the internal tempo. A received Start that no Clock follows waits for at most one and a half ticks, then starts on its own. Count-in is not used. While SLAVE CLOCK is on, this unit sends no Clock or transport of its own. Do not create a DIN loop; try one direction first. Active Sensing, SysEx and MTC on MIDI IN are ignored.
 
 ### RPN / NRPN
 
@@ -699,7 +701,7 @@ These are examples for when you have external equipment connected via DIN. If yo
 
 - **Sounding an external sound source via DIN, and recording that sound** — Connect **MK3 MIDI OUT → external sound source MIDI IN**, and make the external sound source's audio audible. Make empty D MIDI OUT in ENGINE, and match **AUTO → Top4 MIDI → K1 CHANNEL** to the receive channel. Repeat 1 note with **STEP → Pad1 → PLAY**, and stop with **STOP**. The external sound source sounds at the specified pitch, and no notes remain after stopping. If a LINE connection is also possible, go external sound source OUT → MK3 LINE IN, set ROUTING's MONITOR to OFF, and use empty **E → SAMPLING → SHIFT+Top5 REC INPUT**. Record a few seconds with PLAY, and after **SHIFT+Top5 STOP RECORD** completes, STOP, and listen with **SHIFT+Top6 PREVIEW**. The actual sound is in E's WAV, and it plays in the intended one-channel/both-channel configuration.
 - **Playing an internal engine from an external keyboard, and recording the notes** — Remove the DIN output cable, and connect **external keyboard MIDI OUT → MK3 MIDI IN**. Make empty F an internal engine such as VA SAW. With **AUTO → Top4 MIDI → SHIFT+K1 INPUT CH / K2 INPUT TRACK**, assign the keyboard channel to F (Track6). Move to **KEYBOARD**, press and release 1 note on the keyboard, and F sounds and stops after the set Release. With **REC → PLAY**, play 2 notes in 1 bar, release REC, and **STOP → PLAY**. The recorded notes remain on F and are reproduced. SAMPLER's REC is audio recording, so this example uses KEYBOARD.
-- **Following the tempo of an external Clock** — With the same one-way DIN connection, make an external device that can send Clock the master, and set **AUTO → MIDI → K8 SLAVE CLOCK = ON**. Play briefly at 120 BPM, and when you change it to 100 BPM, this unit's Tempo and performance speed follow. This is tempo following, not phase synchronization of the downbeats. When finished, return SLAVE CLOCK to OFF.
+- **Following the tempo of an external Clock** — With the same one-way DIN connection, make an external device that can send Clock the master, and set **AUTO → MIDI → K8 SLAVE CLOCK = ON**. Press PLAY on the master: this unit starts with it on the downbeat. Change the master from 120 BPM to 100 BPM: this unit's Tempo follows within a few steps and the downbeats stay together. Stop and Continue on the master resume both in place. When finished, return SLAVE CLOCK to OFF.
 
 ### Trying engines: WAVETABLE and VA
 
@@ -919,7 +921,7 @@ The small marks in the left header mean the following, from the left.
 | 2 | Line + arrow = FOLLOW active |
 | 3 | Padlock = Lock editing (SHIFT / held step) |
 | 4 | Metronome = click active |
-| 5 | Clock = external Clock follower setting. Not a display that guarantees sync accuracy |
+| 5 | Clock = SLAVE CLOCK is on (this unit follows MIDI Clock on MIDI IN) |
 | 6 | Vertical Strip + shape = PERFORM / PITCH / MOD / NOTES. The current assignment is also distinguished by shape |
 
 The marks at the start of the right header and in the ENGINE list are the engine families. The shape and meaning are the same in all nine themes; they are not judged by colour alone.

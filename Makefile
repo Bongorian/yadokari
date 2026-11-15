@@ -1220,6 +1220,15 @@ test-run-midi-transport-echo: build/test-midi-transport-echo
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-midi-transport-echo
 test-all: test-run-midi-transport-echo
 
+build/test-midi-clock-sync.o: tests/midi_clock_sync_test.cpp $(DEMO_HEADERS)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs -c $< -o $@
+build/test-midi-clock-sync: build/test-midi-clock-sync.o build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@ $(UI_BASE_ARCHIVE)
+.PHONY: test-run-midi-clock-sync
+test-run-midi-clock-sync: build/test-midi-clock-sync
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-midi-clock-sync
+test-all: test-run-midi-clock-sync
+
 build/test-ui-navigation-led.o: tests/ui_navigation_led_test.cpp $(DEMO_HEADERS)
 	$(CXX) $(HOST_FLAGS) $(SAN) -O0 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs -c $< -o $@
 build/test-ui-navigation-led: build/test-ui-navigation-led.o build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)

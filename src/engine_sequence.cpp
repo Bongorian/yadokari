@@ -14,6 +14,29 @@ void Engine::reset_track(unsigned t,bool reset_position) {
  refresh_parameters(t);update_timing(t);
 }
 uint64_t Engine::step_period(unsigned t) const {return runtime_[t].period_q32;}
+// The nominal tempo stays a whole number; the phase lock carries the rest.
+// The eight-interval estimate sets it, with hysteresis against flapping
+// between neighbours, until the lock has had a beat to settle after the last
+// real tempo change. From then on that estimate is noisier than the loop's
+// own trim, and the nominal tempo moves only when the trim says another whole
+// value is nearer.
+void Engine::follow_external_tempo(){
+ unsigned ticks=clock_burst_,tempo=0;clock_burst_=0;
+ if(!external_clock_ || !external_clock_estimator_.observe(sample_count_,rate_,tempo,ticks))return;
+ const unsigned estimate=external_clock_estimator_.tempo_q8(rate_);const int nominal=int(bpm_*256);int offset=int(estimate)-nominal;
+ int jump=nominal/25;if(jump<768)jump=768; // 4 %, at least 3 BPM
+ if(clock_sync_.state()!=MidiClockSync::Locked || offset>jump || offset<-jump)clock_settle_=24;
+ const bool settling=clock_settle_!=0;
+ if(settling){--clock_settle_;if(offset<=192 && offset>=-192)tempo=bpm_;}
+ else{int trimmed=int(double(nominal)*(1.0+clock_sync_.trim())+0.5);offset=trimmed-nominal;int whole=(trimmed+128)>>8;tempo=(offset>141 || offset<-141)?unsigned(whole<20?20:whole>300?300:whole):bpm_;}
+ if(tempo!=bpm_){unsigned previous=bpm_;flush_grid_shift();set_tempo(tempo);for(unsigned t=0;t<16;++t)update_timing(t);clock_sync_.retune(previous,bpm_,settling?estimate:0);external_tempo_pending_=true;}
+ if(external_tempo_pending_ && events_.free_space()){event(EngineEventType::TempoChanged,0,0,0,0,float(bpm_));external_tempo_pending_=false;}
+}
+// Slave mode moves the whole grid by the samples its pace gained or held.
+void Engine::flush_grid_shift(){
+ const int64_t shift=grid_shift_;grid_shift_=0;if(!shift)return;
+ for(unsigned t=0;t<16;++t){auto& r=runtime_[t];r.grid+=shift;if(r.retriggers){r.retrigger_origin+=shift;schedule_retrigger(t);}r.due=step_due(t);retime_kit_early(t);}
+}
 // Keep an absolute integer and a fractional component so long sessions do not
 // overflow an absolute Q32 sample clock. Origins may precede sample zero after
 // slowing an already-running step.
@@ -24,7 +47,7 @@ void Engine::set_tempo(unsigned tempo){if(tempo<20 || tempo>300 || tempo==bpm_)r
 bool Engine::seek_song(unsigned position,bool send_midi){
  if(playing_ || position>16383 || (project_->song.enabled && song_has_snapshots(project_->song))){seek_armed_=false;event(EngineEventType::SongPosition,0,0,1,uint16_t(position));return false;}
  if(send_midi && !external_clock_ && !midi(0xf2,uint8_t(position&127),uint8_t(position>>7))){seek_armed_=false;event(EngineEventType::SongPosition,0,0,1,uint16_t(position));return false;}
- reset_clip_follow_seeds();stopped_at_=sample_count_;song_position_=uint16_t(position);song_phase_=0;lfo_transport_beat_=position/4;lfo_transport_fraction_=uint64_t(position%4)*uint64_t(rate_)*60/4;for(auto& r:runtime_)r.tempo_lfo.initialized=false;clock_phase_=0;bar_phase_=uint64_t(position%16)*uint64_t(rate_)*60;metro_ticks_=position*6;pending_scene_=-1;pending_stop_=0;for(auto& pending:pending_pattern_)pending=-1;chain_bars_=chain_position_=0;chain_armed_=true;song_armed_=true;song_finished_=false;song_section_=song_bars_=0;song_transpose_=0;song_mute_mask_=0;
+ reset_clip_follow_seeds();grid_shift_=0;clock_sync_.seek();stopped_at_=sample_count_;song_position_=uint16_t(position);song_phase_=0;lfo_transport_beat_=position/4;lfo_transport_fraction_=uint64_t(position%4)*uint64_t(rate_)*60/4;for(auto& r:runtime_)r.tempo_lfo.initialized=false;clock_phase_=0;bar_phase_=uint64_t(position%16)*uint64_t(rate_)*60;metro_ticks_=position*6;pending_scene_=-1;pending_stop_=0;for(auto& pending:pending_pattern_)pending=-1;chain_bars_=chain_position_=0;chain_armed_=true;song_armed_=true;song_finished_=false;song_section_=song_bars_=0;song_transpose_=0;song_mute_mask_=0;
  for(unsigned t=0;t<16;++t){note_off(t);reset_track(t,true);auto& r=runtime_[t];const auto& state=track(t);unsigned numerator=position*state.speed_num,den=state.speed_den;unsigned index=(numerator+den-1)/den;unsigned rem=index*den-numerator;unsigned len=state.length;
   if(state.direction==PlaybackDirection::Forward){r.position=uint8_t(index%len);r.cycle=index/len;r.backward=false;}
   else if(state.direction==PlaybackDirection::Reverse){r.position=uint8_t(len-1-index%len);r.cycle=index/len;r.backward=false;}

@@ -33,6 +33,7 @@
 #include "tempo_lfo.h"
 #include "generative.h"
 #include "midi_clock_estimator.h"
+#include "midi_clock_sync.h"
 #include "parameter_resolver.h"
 #include "visual_telemetry.h"
 #include "backends.h"
@@ -192,6 +193,8 @@ public:
  bool preset_assets_ready(const SoundState& sound)const{if(sound.instrument!=Instrument::Layer)return leaf_assets_ready(sound);if(layer_status(sound.layer)!=LayerReason::Ready)return false;for(unsigned i=0;i<sound.layer.count;++i)if(!leaf_assets_ready(sound.layer.parts[i].sound))return false;return true;}
  bool pop_clock(ClockEvent& event) { return clock_events_.pop(event); }
  uint32_t clock_dropped() const { return __atomic_load_n(&clock_dropped_,__ATOMIC_RELAXED); }
+ // Slave clock status for any thread: 0 off, 1 free-running (no clock), 2 waiting for the first tick, 3 locked.
+ unsigned external_clock_state()const{return __atomic_load_n(&clock_sync_state_,__ATOMIC_RELAXED);}
  static bool carries_sound(CommandType type){return type==CommandType::SetSound || type==CommandType::ApplySound || type==CommandType::RegisterPreset;}
  bool multitimbral()const{return __atomic_load_n(&module_route_,__ATOMIC_ACQUIRE)!=0;}
  uint32_t midi_route_epoch()const{return __atomic_load_n(&module_route_epoch_,__ATOMIC_ACQUIRE);}
@@ -368,6 +371,12 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  PatternState* pattern_staging_;PatternRevisions* pattern_revisions_;uint32_t pattern_pending_=0,pattern_revision_serial_=0;float effects_target_[13]={0,0.35f,250,0,0.5f,0.5f,0.5f,4,10,120,0,0,0},effects_current_[13]={0,0.35f,250,0,0.5f,0.5f,0.5f,4,10,120,0,0,0};
  CreativeVoice* creative_;uint32_t rate_;float inverse_rate_=0,kit_mix_alpha_=0; ProjectState* project_; ProjectState* staging_;TrackViews track_views_; uint32_t snapshot_pending_=0,snapshot_generation_=0,published_generation_=0,generation_=0,panic_requested_=0;
  uint64_t lfo_transport_beat_=0,lfo_transport_fraction_=0;
+ // Slave mode: pace of the transport against the audio clock, and the step-grid
+ // movement that pace has earned but a held transport has not yet applied.
+ MidiClockSync clock_sync_{};int64_t grid_shift_=0;uint32_t transport_bpm_=120,clock_sync_state_=0;uint8_t clock_burst_=0,clock_settle_=0;
+ void flush_grid_shift();void follow_external_tempo();
+ // One and a half ticks: long enough for the master's first tick, short enough to go unnoticed without one.
+ uint32_t clock_start_wait(bool remote)const{if(!remote && !clock_sync_.present(sample_count_))return 0;return uint32_t(uint64_t(rate_)*60*3/(uint64_t(bpm_)*48))+2;}
  uint64_t stopped_at_=0; MidiClockEstimator external_clock_estimator_{};bool external_clock_=false,external_tempo_pending_=false,seek_armed_=false,transport_resend_=false,restart_pending_=false;
  uint32_t clip_follow_seed_[16]{};
  SceneTake scene_take_{};
