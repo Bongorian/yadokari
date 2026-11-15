@@ -13,7 +13,12 @@ class MidiInputRouter {
  bool release(Engine& engine,unsigned idx){uint8_t value=notes_[idx];if(!value)return true;unsigned channel=(idx/128)%16,note=idx%128,cable=idx/(16*128);MidiPacket off{0,uint8_t(cable),3,{uint8_t(0x80|channel),uint8_t(note),0}};if(!engine.receive_midi(off,uint8_t((value&kOwnerMask)-1)))return false;if(value&kPending)--pending_;notes_[idx]=0;return true;}
 public:
  bool accept(Engine& engine,const ProjectState& project,const MidiPacket& packet){
-  sync(engine);if(packet.sample || packet.cable>=16 || !valid_midi_packet(packet))return false;uint8_t status=packet.bytes[0];if(status>=0xf0)return engine.receive_midi(packet,15);
+  sync(engine);if(packet.sample || packet.cable>=16)return false;
+  // A master's Active Sensing or a SysEx dump is not a fault: consume it, so
+  // the caller neither reports nor logs every packet of it.
+  if(ignored_midi_packet(packet))return true;
+  if(!valid_midi_packet(packet))return false;
+  uint8_t status=packet.bytes[0];if(status>=0xf0)return engine.receive_midi(packet,15);
   unsigned channel=status&15,type=status&0xf0,target=engine.multitimbral()?channel:project.midi_input_route[channel];if(target>16)return false;
   unsigned idx=index(packet.cable,channel,packet.bytes[1]);
   if(type==0x80 || (type==0x90 && !packet.bytes[2])){if(!notes_[idx])return true;if(pedal_[packet.cable*16+channel] && !(notes_[idx]&kPending)){notes_[idx]|=kSustained;return true;}if(!engine.receive_midi(packet,uint8_t((notes_[idx]&kOwnerMask)-1))){if(!(notes_[idx]&kPending))++pending_;notes_[idx]=(notes_[idx]&~kSustained)|kPending;}else{if(notes_[idx]&kPending)--pending_;notes_[idx]=0;}return true;}

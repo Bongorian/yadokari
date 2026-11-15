@@ -10,6 +10,14 @@ inline bool valid_midi_packet(const MidiPacket& packet) {
  unsigned length=(status&0xf0)==0xc0 || (status&0xf0)==0xd0?2:3;
  return packet.length==length && packet.bytes[1]<128 && (length==2 || packet.bytes[2]<128);
 }
+// Well-formed traffic this instrument takes no action on: SysEx (its first
+// packet and the data-led ones that continue it), MTC, Song Select, Tune
+// Request, Active Sensing and Reset. Receiving it is normal, not an error.
+inline bool ignored_midi_packet(const MidiPacket& packet) {
+ if(packet.length<1 || packet.length>3)return false;
+ const uint8_t status=packet.bytes[0];
+ return status<0x80 || (status>=0xf0 && status!=0xf2 && status!=0xf8 && status!=0xfa && status!=0xfb && status!=0xfc);
+}
 struct ControllerInput { enum class Type:uint8_t { Pad, Knob, Mode, Strip, Shift, Play, Stop, Track, Pattern, Undo, Redo, Euclidean, StoreMorph, Fill, Stutter, Instrument, StepPage, SoftKey, MuteModifier, SoloModifier, ControlAll, WaveProfile, Panic, Control, Encoder, KnobTouch }; Type type; uint8_t index=0; int32_t value=0; uint16_t pressure=0; };
 class IAudioBackend { public: virtual ~IAudioBackend(){} virtual bool start()=0; virtual void stop()=0; virtual unsigned sample_rate() const=0; };
 class IMidiBackend { public: virtual ~IMidiBackend(){} virtual bool receive(MidiPacket& packet)=0; virtual bool send(const MidiPacket& packet)=0; };
