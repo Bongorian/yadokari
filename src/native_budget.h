@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "voice_budget.h"
+#include "hardware_profile.h"
 namespace groove {
 // Pi 4 / 1.5 GHz costs per 24 output frames. Authored T1/T3 calibration
 // (docs/dsp-efficiency.md) replaces only measured Resonator model2 / Texture mode0 mono q1
@@ -18,7 +19,17 @@ class NativeBudget {
  NativeCost held_[16]{};
 public:
  static constexpr unsigned average_limit=VoiceBudget::voice_us,burst_limit=1200;
- bool admit(unsigned track,NativeCost cost){if(track>=16)return false;if(held_[track].average_us==cost.average_us && held_[track].burst_us==cost.burst_us)return true;unsigned average=cost.average_us,burst=cost.burst_us;for(unsigned t=0;t<16;++t)if(t!=track){average+=held_[t].average_us;burst+=held_[t].burst_us;}if(average>average_limit || burst>burst_limit)return false;held_[track]=cost;return true;}
+ // Perf port (item 1, recalibrated form adopted 2026-11-15): the AVERAGE limit scales with the
+ // board profile (sustained voices are what the faster board buys), but
+ // the BURST limit does NOT scale. The burst reservation protects the
+ // 192-frame render-ahead against synchronised work -- a real-time
+ // wall, not a throughput budget. On device: full 2984 scaling overran
+ // the 500us deadline (v1020 cases 94-97: over500 212-396 per case),
+ // and a 1500 cap still overran on the burst-600 Texture modes
+ // (v1027 stress cases 130/132: over500 188/94, max-us ~720), while
+ // the unscaled limit matches the baseline's clean deadline record.
+ static unsigned burst_limit_scaled(){return burst_limit;}
+ bool admit(unsigned track,NativeCost cost){if(track>=16)return false;if(held_[track].average_us==cost.average_us && held_[track].burst_us==cost.burst_us)return true;unsigned average=cost.average_us,burst=cost.burst_us;for(unsigned t=0;t<16;++t)if(t!=track){average+=held_[t].average_us;burst+=held_[t].burst_us;}if(average>hardware::scaled(average_limit) || burst>burst_limit_scaled())return false;held_[track]=cost;return true;}
  void release(unsigned track){if(track<16)held_[track]={};}
  void clear(){for(auto& cost:held_)cost={};}
  bool held(unsigned track)const{return track<16 && held_[track].average_us;}

@@ -1,6 +1,7 @@
 #include "engine.h"
 #include "performance.h"
 #include "project_codec.h"
+#include "voice_seed.h"
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -17,7 +18,14 @@ int main(){
   assert(engine->stage_project(*project));engine->render(main,0);
   assert(engine->start_live_record(false,2400,19)); // Track 1 dry, pre mixer/FX
   Command on{CommandType::MidiInput,0,uint8_t(pitch),0x90};on.scalar=100;assert(engine->submit(on));
-  reference->init(project->random_seed);
+  // W1: the note event owns the resonator random stream from its first
+  // block; the engine reseeds at note-on with note_event_seed(project seed,
+  // track, step tick, pitch, ordinal). This scenario is a stopped transport
+  // (tick 0) and the first note-on of the pitch (ordinal 0), so the
+  // reference is initialised with that event seed. Pre-W1 the stream came
+  // from the bare project seed at init; old-version identity is not
+  // required, within-version determinism is what this comparison pins.
+  reference->init(note_event_seed(project->random_seed,0,0,pitch,0));
   for(unsigned frame=0;frame<2400;frame+=24){
    rings::Patch patch{.5f,.5f,.5f,.5f};rings::PerformanceState state{};
    state.internal_exciter=true;state.tonic=12;state.note=float(pitch)-12;state.strum=frame==0;

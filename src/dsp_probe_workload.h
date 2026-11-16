@@ -4,7 +4,7 @@
 namespace groove {
 inline constexpr unsigned kDspProbeRevision=5,kWave4ProbeRevision=3; // engine retirement changes coverage and the legacy mixed score.
 struct DspCondition {
- enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension};
+ enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate};
  Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1;
 };
 inline unsigned dsp_variants(Instrument i){return i==Instrument::PlaitsMacro?24:i==Instrument::Texture?16:i==Instrument::Resonator || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums?3:1;}
@@ -12,14 +12,30 @@ inline bool dsp_leaf(Instrument i){return i!=Instrument::ExternalMidi && i!=Inst
 inline unsigned dsp_leaf_cases(){unsigned count=1;for(unsigned i=0;i<instrument_count();++i)if(dsp_leaf(Instrument(i)))count+=dsp_variants(Instrument(i));return count;}
 inline unsigned dsp_legacy_stress_start(){return dsp_leaf_cases()+kFxCount;}
 inline unsigned dsp_stress_start(){return dsp_legacy_stress_start()+16+3+3+4+1;}
-inline unsigned dsp_case_count(){return dsp_stress_start()+9;}
+inline unsigned dsp_case_count(){return dsp_stress_start()+16;}
 inline DspCondition dsp_condition(unsigned index){
  if(index>=dsp_stress_start()){static const DspCondition cases[]={
  {DspCondition::Extension,Instrument::Formant,0,1,8},{DspCondition::Extension,Instrument::Formant,1,1,8},
  {DspCondition::Extension,Instrument::VirtualAnalog,2,1,8},{DspCondition::Extension,Instrument::VirtualAnalog,3,1,8},
  {DspCondition::Extension,Instrument::Granular,4,1,2},{DspCondition::Extension,Instrument::Granular,5,1,4},
  {DspCondition::Extension,Instrument::VirtualAnalog,6,1,1},{DspCondition::Extension,Instrument::VirtualAnalog,7,1,1},
- {DspCondition::Extension,Instrument::VirtualAnalog,8,1,1}};return cases[index-dsp_stress_start()<9?index-dsp_stress_start():0];}
+ {DspCondition::Extension,Instrument::VirtualAnalog,8,1,1},
+ // Saturating fixtures (perf investigation): shared-pool pressure that
+ // the stock cases never create. The probe re-hits these every 500 ms
+ // with rotating pitches (see DspProbe::trigger), so held voices from
+ // successive rounds coexist and pool exhaustion (held steals) plus
+ // reserve_shared budget trims actually fire inside the window.
+ {DspCondition::Saturate,Instrument::PlaitsMacro,2,8,8},
+ {DspCondition::Saturate,Instrument::Granular,4,4,8},
+ {DspCondition::Saturate,Instrument::PlaitsMacro,6,8,8},
+ // NativeBudget discriminators (perf investigation): the four heavy-burst
+ // Texture modes whose scaled admission overran the block deadline in the
+ // v1020 full suite (cases 94-97), duplicated into the stress set so a
+ // short stress run can judge burst-limit recalibration.
+ {DspCondition::Extension,Instrument::Texture,12,16,1},
+ {DspCondition::Extension,Instrument::Texture,13,16,1},
+ {DspCondition::Extension,Instrument::Texture,14,16,1},
+ {DspCondition::Extension,Instrument::Texture,15,16,1}};return cases[index-dsp_stress_start()<16?index-dsp_stress_start():0];}
  if(!index)return {};
  unsigned n=index-1;
  for(unsigned i=0;i<instrument_count();++i)if(dsp_leaf(Instrument(i))){unsigned count=dsp_variants(Instrument(i));if(n<count)return {DspCondition::Leaf,Instrument(i),n,1,1};n-=count;}
@@ -30,7 +46,16 @@ inline DspCondition dsp_condition(unsigned index){
  if(n<4)return {DspCondition::Layers,Instrument::Layer,n,16,n>=2?4u:1u};
  return {DspCondition::Chain,Instrument::DrumKit,0,16,1};
 }
-inline bool dsp_retrigger(Instrument i){return i==Instrument::Acid || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums || i==Instrument::Resonator;}
+// Retriggered cases: engines whose sound is a one-shot utterance/decay
+// rather than a sustained render. Plaits models 15 (Speech) and 18
+// (Particle noise) belong here: under the probe's single held trigger
+// their output reaches digital silence within the first quanta, the
+// product silence gate (PlaitsVoice O-01) shuts the voice, and the
+// per-voice timing bin is never populated (PI5_PERF_PROFILE.md S9.4).
+// Periodic retriggering is the same treatment Acid / Daisy drums /
+// Resonator already get, and it exercises the same render path a
+// sequencer step would.
+inline bool dsp_retrigger(Instrument i,unsigned variant=0){return i==Instrument::Acid || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums || i==Instrument::Resonator || (i==Instrument::PlaitsMacro && (variant==15 || variant==18));}
 inline void dsp_set_sound(TrackSettings& state,Instrument engine,unsigned variant){
  state.instrument=engine;state.level=.12f;state.cutoff=1;state.root_note=60;state.plaits_model=uint8_t(variant);state.sample_loop=true;
  if(engine==Instrument::Texture){state.texture.values[0]=float(variant/4);state.texture.values[11]=float(variant%4);state.texture.values[12]=52;state.texture.values[2]=state.texture.values[4]=state.texture.values[7]=state.texture.values[8]=state.texture.values[9]=1;}

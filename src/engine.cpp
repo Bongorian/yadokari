@@ -34,7 +34,7 @@ Engine::Engine(uint32_t sample_rate):pattern_staging_(new PatternState()),patter
  va_triggers_.init(rate_);
  // Complete descriptor initialization before the real-time owner starts.
  (void)engine_descriptor(0);
- if(rate_==48000){granular_=alloc_array<GranularVoice>(4);if(granular_){bool ready=true;for(unsigned i=0;i<4;++i)ready=ready && granular_[i].ready();if(!ready){delete[] granular_;granular_=nullptr;}else for(unsigned i=0;i<4;++i)granular_[i].init(rate_);}}
+ if(rate_==48000){granular_=alloc_array<GranularVoice>(kSharedVoiceCapacity);if(granular_){bool ready=true;for(unsigned i=0;i<kSharedVoiceCapacity;++i)ready=ready && granular_[i].ready();if(!ready){delete[] granular_;granular_=nullptr;}else for(unsigned i=0;i<kSharedVoiceCapacity;++i)granular_[i].init(rate_);}}
  if(rate_==48000){resonators_=alloc_array<ResonatorVoice>(16);if(resonators_){bool ready=true;for(unsigned t=0;t<16;++t)ready=ready && resonators_[t].ready();if(!ready){delete[] resonators_;resonators_=nullptr;}else for(unsigned t=0;t<16;++t)resonators_[t].init(0x12345678u+t);}}
  if(rate_==48000){textures_=alloc_array<TextureVoice>(16);if(textures_){bool ready=true;for(unsigned t=0;t<16;++t)ready=ready && textures_[t].ready();if(!ready){delete[] textures_;textures_=nullptr;}else for(unsigned t=0;t<16;++t)textures_[t].init(0x12345678u+t);}}
  inverse_rate_=1.0f/float(rate_);kit_mix_alpha_=1-expf(-1/(float(rate_)*0.005f));

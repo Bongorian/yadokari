@@ -15,13 +15,20 @@ t={p:(root/p).read_text() for p in paths}
 marker='GROOVE_CPU_HEAP_PATCH'
 mp,mh,mc,tt,hh,hc=paths
 def current_shape():
+ # The marker alone does not identify the applied content: this patch's
+ # content was rewritten once under the same marker (the perf port added
+ # the runtime DRAM sizing), and a stale-patched tree then silently
+ # skipped and failed to compile (IsCpuHeapPointer missing). Recognise
+ # the current shape by its defining content, as in the 0.9.2 fix.
  return ('MEM_CPU_HEAP_SIZE' in t[mp] and 'IsCpuHeapPointer' in t[mh]
-  and 'm_nCpuHeapStart' in t[mh] and 'm_nCpuHeapStart' in t[mc])
+  and 'm_nCpuHeapStart' in t[mh] and 'm_nCpuHeapStart' in t[mc]
+  and 'nRAMSize >= 8192 ? (2048ULL * 1024 * 1024) : MEM_CPU_HEAP_SIZE' in t[mc])
 # A tree patched by an older version of this script carries the marker in
 # all six files without the current definitions (0.9.0: no Pi 5 arena, no
-# IsCpuHeapPointer). That shape must migrate, never silently skip: the
-# (stale, current) replacement pairs below are exactly the difference
-# between the two applied shapes, verified against both.
+# IsCpuHeapPointer; the 0.9.2 shape: Pi 5 arena at the fixed 960 MiB).
+# Those shapes must migrate, never silently skip: the (stale, current)
+# replacement pairs below are exactly the differences between the applied
+# shapes, verified against each.
 migration=[
 ('include/circle/memorymap64.h','#if RASPPI != 4 || AARCH != 64 || defined(KASAN_SUPPORTED)\n#error GROOVE_CPU_HEAP requires Pi4 AArch64 without KASAN\n#endif\n#define MEM_CPU_HEAP_START 0xC0000000ULL\n#define MEM_CPU_HEAP_END   0xFC000000ULL // exclusive, 960 MiB\n','#if (RASPPI != 4 && RASPPI != 5) || AARCH != 64 || defined(KASAN_SUPPORTED)\n#error GROOVE_CPU_HEAP requires Pi4/Pi5 AArch64 without KASAN\n#endif\n#if RASPPI == 4\n#define MEM_CPU_HEAP_START 0xC0000000ULL\n#define MEM_CPU_HEAP_END   0xFC000000ULL // exclusive, 960 MiB\n#elif RASPPI == 5\n// BCM2712 places no peripheral hole inside DRAM, so instead of a fixed\n// window the arena is the top MEM_CPU_HEAP_SIZE bytes of installed DRAM,\n// carved out of the high heap in CMemorySystem::SetupHighMem. Only the\n// capacity is fixed here, at the Pi 4 baseline value; keep it equal to\n// groove::hardware::kCpuHeapBytes (src/hardware_profile.h).\n#define MEM_CPU_HEAP_SIZE  (960ULL * MEGABYTE)\n#endif\n'),
 ('include/circle/memory.h','#endif\n\t// GROOVE_FALLIBLE_HEAP: no logging/allocation in an out-of-memory path.\n','#endif\n#ifdef GROOVE_CPU_HEAP\n\tstatic boolean IsCpuHeapPointer (const void *pBlock)\n\t{\n#if RASPPI == 5\n\t\treturn (uintptr) pBlock >= s_pThis->m_nCpuHeapStart && (uintptr) pBlock < s_pThis->m_nCpuHeapStart + s_pThis->m_nMemSizeCpu;\n#else\n\t\treturn (uintptr) pBlock >= MEM_CPU_HEAP_START && (uintptr) pBlock < MEM_CPU_HEAP_END;\n#endif\n\t}\n#endif\n\t// GROOVE_FALLIBLE_HEAP: no logging/allocation in an out-of-memory path.\n'),
@@ -36,19 +43,26 @@ migration=[
 ('lib/translationtable64.cpp','\n#ifdef GROOVE_CPU_HEAP\n\tconst bool cpuRAM = CMachineInfo::GetRAMSizeEarly () >= 4096;\n','\n#if defined(GROOVE_CPU_HEAP) && RASPPI == 4\n\tconst bool cpuRAM = CMachineInfo::GetRAMSizeEarly () >= 4096;\n'),
 ('lib/translationtable64.cpp','\t\t\t    || (nBaseAddress > MEM_HIGHMEM_END\n#ifdef GROOVE_CPU_HEAP\n','\t\t\t    || (nBaseAddress > MEM_HIGHMEM_END\n#if defined(GROOVE_CPU_HEAP) && RASPPI == 4\n'),
 ]
+sizing=[(mc,'\t\tm_nMemSizeCpu = MEM_CPU_HEAP_SIZE;','\t\t// RAM-scaled arena (perf investigation): 8 GiB boards carve\n\t\t// 2 GiB; 4 GiB boards keep the 960 MiB baseline. Mirrors the\n\t\t// rule in groove::hardware::decode (src/hardware_profile.h),\n\t\t// so the reported profile and the real carve agree.\n\t\tm_nMemSizeCpu = nRAMSize >= 8192 ? (2048ULL * 1024 * 1024) : MEM_CPU_HEAP_SIZE;')]
 if all(marker in s for s in t.values()):
  if current_shape():raise SystemExit(0)
+ migrated=False
  if all(t[p].count(a)==1 for p,a,b in migration):
   for p,a,b in migration:t[p]=t[p].replace(a,b)
-  if not current_shape():raise SystemExit('CPU heap patch migration did not reach the current shape; inspect before rebuilding')
+  migrated=True
+ if all(t[p].count(a)==1 for p,a,b in sizing):
+  for p,a,b in sizing:t[p]=t[p].replace(a,b)
+  migrated=True
+ if migrated and current_shape():
   for p,s in t.items():(root/p).write_text(s)
-  print('CPU heap patch migrated from the 0.9.0 shape to the current Pi4/Pi5 shape')
+  print('CPU heap patch migrated from a stale shape to the current Pi4/Pi5 shape')
   raise SystemExit(0)
- raise SystemExit('Unrecognised CPU heap patch state: marker present but neither the 0.9.0 nor the current shape; reset the Circle checkout to the pinned revision and rebuild')
+ raise SystemExit('Unrecognised CPU heap patch state: marker present but neither a known stale shape nor the current shape; reset the Circle checkout to the pinned revision and rebuild')
 if any(marker in s for s in t.values()):raise SystemExit('Partial CPU heap patch; inspect before rebuilding')
 def change(p,a,b):
  if t[p].count(a)!=1:raise SystemExit('Unexpected pinned Circle anchor: '+p+' '+repr(a))
  t[p]=t[p].replace(a,b)
+mp,mh,mc,tt,hh,hc=paths
 change(mp,'// PCIe memory range (outbound)', '''// GROOVE_CPU_HEAP_PATCH: explicitly allocated, never submitted to DMA.
 // BCM2711 low-peripheral mode reserves FC000000..FFFFFFFF; Circle also
 // maps PCIe separately at 0x600000000 in AArch64. Preserve low peripherals.
@@ -159,7 +173,11 @@ change(mc,'\tif (nRAMSize > 1024)','''#ifdef GROOVE_CPU_HEAP
 	// behaviour: Circle maps at most 8 GiB (src/hardware_profile.h).
 	if (nRAMSize >= 4096 && nRAMSize <= 8192)
 	{
-		m_nMemSizeCpu = MEM_CPU_HEAP_SIZE;
+		// RAM-scaled arena (perf investigation): 8 GiB boards carve
+		// 2 GiB; 4 GiB boards keep the 960 MiB baseline. Mirrors the
+		// rule in groove::hardware::decode (src/hardware_profile.h),
+		// so the reported profile and the real carve agree.
+		m_nMemSizeCpu = nRAMSize >= 8192 ? (2048ULL * 1024 * 1024) : MEM_CPU_HEAP_SIZE;
 	}
 #endif
 #endif

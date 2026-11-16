@@ -27,6 +27,7 @@
 #include "fluid_probe.h"
 #include "display_worker.h"
 #include "dsp_probe.h"
+#include "render_hash_probe.h"
 #include "efficiency_probe.h"
 #include "ui_probe.h"
 #include "../src/update/preparation.h"
@@ -222,7 +223,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  else m_Logger.Write(FromKernel,LogWarning,"Audio render worker unavailable; using USB callback");
  if(cores_started && display_worker->Probe() && display.UseWorker(&display_worker->Slot()))m_Logger.Write(FromKernel,LogNotice,"Display worker core 1 enabled");
  else m_Logger.Write(FromKernel,LogWarning,"Display worker initialization failed");
- if(cores_started && display_worker->ProbeAnalysis()){if(audio_worker_ready)engine->set_va_helper(&display_worker->VaSlot());performance.set_visual_analysis_worker(&display_worker->VisualSlot());files.set_resident_analysis_worker(&display_worker->AnalysisSlot());files.set_project_save_worker(&display_worker->ProjectSaveSlot());files.set_project_load_worker(&display_worker->ProjectLoadSlot());m_Storage.SetSoundFontWorker(&display_worker->SoundFontSlot());m_Logger.Write(FromKernel,LogNotice,"Sample analysis and project encode worker core 2 enabled");m_Logger.Write(FromKernel,display_worker->ProjectLoadSlot().pooled()?LogNotice:LogWarning,"Project decode pooled %u",unsigned(display_worker->ProjectLoadSlot().pooled()));}
+ if(cores_started && display_worker->ProbeAnalysis()){if(audio_worker_ready)engine->set_va_helper(&display_worker->VaSlot());engine->set_bundle_helper(&display_worker->BundleSlot());performance.set_visual_analysis_worker(&display_worker->VisualSlot());files.set_resident_analysis_worker(&display_worker->AnalysisSlot());files.set_project_save_worker(&display_worker->ProjectSaveSlot());files.set_project_load_worker(&display_worker->ProjectLoadSlot());m_Storage.SetSoundFontWorker(&display_worker->SoundFontSlot());m_Logger.Write(FromKernel,LogNotice,"Sample analysis and project encode worker core 2 enabled");m_Logger.Write(FromKernel,display_worker->ProjectLoadSlot().pooled()?LogNotice:LogWarning,"Project decode pooled %u",unsigned(display_worker->ProjectLoadSlot().pooled()));}
  else m_Logger.Write(FromKernel,LogWarning,"Sample analysis worker unavailable; using main core");
 #endif
  auto* efficiency_panic_tap=groove::alloc_new<CDiagnosticPanicTap>(m_Serial,m_BootGadget);if(efficiency_panic_tap)m_Logger.SetNewTarget(efficiency_panic_tap);
@@ -413,6 +414,16 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
    if(ok && !dsp_probe)dsp_probe=groove::alloc_new<CDspProbe>();
    if(ok){native_stop_requested=false;ok=dsp_probe && dsp_probe->start(*engine,*project,performance,files,audio,request==21);}
    m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"DSP request kind %u accepted %u",request,unsigned(ok));
+  }
+  if(updater->TakeClockStateRequest()){
+   auto s=engine->slave_clock_state();
+   m_Logger.Write(FromKernel,LogNotice,"MIDI slave clock locked %u anchored %u freerun %u phase-mt %d max-phase-mt %d master-ticks %llu resyncs %u tempo-q16 %u",unsigned(s.locked),unsigned(s.anchored),unsigned(s.freerun),int(s.phase_error_milliticks),int(s.max_phase_error_milliticks),(unsigned long long)s.master_ticks,unsigned(s.resyncs),unsigned(s.applied_tempo_q16));
+  }
+  if(updater->TakeRenderHashRequest()){
+   bool ok=!files.recording_busy() && !updater->active() && !file_transfer->active() && !fx_stress_running && !native_running && !(dsp_probe && dsp_probe->busy()) && !audio_stress_preparing && !wave4_original && !preset_check.busy();
+   if(ok)ok=QuiesceAudio(audio,*engine,performance,false);
+   if(ok){CRenderHashProbe probe;ok=probe.run(*engine,*project,performance,files);}
+   m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"RENDERHASH request accepted %u",unsigned(ok));
   }
   if(optimization_dsp_pending && !ui_probe.busy()){
    optimization_dsp_pending=false;native_stop_requested=false;if(!dsp_probe)dsp_probe=groove::alloc_new<CDspProbe>();

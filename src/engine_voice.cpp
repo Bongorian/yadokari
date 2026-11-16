@@ -4,6 +4,7 @@
 #include "hardware_profile.h"
 #include "pcm_output.h"
 #include "note_transform.h"
+#include "voice_seed.h"
 #include "instrument_math.h"
 #include <math.h>
 namespace groove {
@@ -11,6 +12,13 @@ PlaitsVoice* Engine::plaits_dsp(unsigned t,Voice& v){
  if(v.instrument!=unsigned(Instrument::PlaitsMacro) || !plaits_)return nullptr;
  if(&v==&voices_[t])return &plaits_[t];
  return poly_plaits_ && v.shared_slot<kSharedVoiceCapacity?&poly_plaits_[v.shared_slot]:nullptr;
+}
+uint32_t Engine::next_event_seed(unsigned t,unsigned pitch){
+ const uint64_t tick=runtime_[t].automation_tick;
+ if(!event_seed_tick_valid_[t] || event_seed_tick_[t]!=tick){event_seed_tick_valid_[t]=true;event_seed_tick_[t]=tick;event_seed_entries_[t]=0;}
+ for(unsigned i=0;i<event_seed_entries_[t];++i)if(event_seed_pitches_[t][i]==pitch){unsigned ordinal=event_seed_counts_[t][i]++;return note_event_seed(project_->random_seed,t,tick,pitch,ordinal);}
+ if(event_seed_entries_[t]<16){event_seed_pitches_[t][event_seed_entries_[t]]=uint8_t(pitch);event_seed_counts_[t][event_seed_entries_[t]]=1;++event_seed_entries_[t];return note_event_seed(project_->random_seed,t,tick,pitch,0);}
+ return note_event_seed(project_->random_seed,t,tick,pitch,event_seed_entries_[t]);
 }
 Engine::PolyVoice* Engine::oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect){
  PolyVoice* chosen=nullptr;
@@ -25,8 +33,8 @@ uint8_t Engine::reserve_shared(unsigned t,Instrument engine,unsigned model,bool 
  if(resource==VoiceResource::None || !policy.shared_slots || policy.shared_slots>kSharedVoiceCapacity)return 255;
  // HardwareProfile: cost unit prices stay common; the live polyphony
  // budgets (voice limit, shared cost budget, shared slots) scale with the
- // board profile. The factor is 1.0 until on-device measurement lands
- // (src/hardware_profile.h). Layer admission stays baseline -- see
+ // board profile (src/hardware_profile.h; factor measured on device,
+ // PI5_PERF_PROFILE.md S9-S10). Layer admission scales too -- see
  // layer_admission() below.
  const unsigned budget=hardware::scaled(policy.shared_budget);
  const unsigned slot_count=hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity);
@@ -35,20 +43,20 @@ uint8_t Engine::reserve_shared(unsigned t,Instrument engine,unsigned model,bool 
  if(!limit || limit<=main || incoming>budget)return 255;
  unsigned allowed=limit-1-main;
  unsigned count=0;for(const auto& p:poly_voices_)if(p.owner==t && engine_voice_resource(p.voice.instrument)==resource)++count;
- while(!layer_launching_ && count>allowed){auto* old=oldest_shared(resource,t,protect);if(!old)return 255;release_poly(*old,true);--count;}
+ while(!layer_launching_ && count>allowed){auto* old=oldest_shared(resource,t,protect);if(!old)return 255;release_poly(*old,true);__atomic_add_fetch(&probe_budget_releases_,1,__ATOMIC_RELAXED);--count;}
  if(!poly)return 255;
  unsigned cost=0;for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource)cost+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);
- while(cost+incoming>budget){if(layer_launching_)return 255;auto* old=oldest_shared(resource,kTracks,protect);if(!old)return 255;cost-=engine_voice_cost(Instrument(old->voice.instrument),old->voice.model);release_poly(*old,true);}
+ while(cost+incoming>budget){if(layer_launching_)return 255;auto* old=oldest_shared(resource,kTracks,protect);if(!old)return 255;cost-=engine_voice_cost(Instrument(old->voice.instrument),old->voice.model);release_poly(*old,true);__atomic_add_fetch(&probe_budget_releases_,1,__ATOMIC_RELAXED);}
  bool used[kSharedVoiceCapacity]{};for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource && p.voice.shared_slot<slot_count)used[p.voice.shared_slot]=true;
  for(unsigned i=0;i<slot_count;++i)if(!used[i])return uint8_t(i);
  return 255;
 }
 bool Engine::note_off_main(unsigned t) {
- auto& v=voices_[t]; v.step_mono=v.tie_pending=false;v.step_pitch.reset();capture_voice_off(v);if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release(); v.daisy.note_off(); if(v.instrument==unsigned(Instrument::PolySaw) || v.instrument==unsigned(Instrument::PlaitsMacro) || v.instrument==unsigned(Instrument::FM) || v.instrument==unsigned(Instrument::Acid) || v.instrument>=unsigned(Instrument::WaveSequence))v.released=true;if(auto* dsp=plaits_dsp(t,v))dsp->release(); v.off_at=0;
+ auto& v=voices_[t]; ++v.voice_epoch;v.step_mono=v.tie_pending=false;v.step_pitch.reset();capture_voice_off(v);if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release(); v.daisy.note_off(); if(v.instrument==unsigned(Instrument::PolySaw) || v.instrument==unsigned(Instrument::PlaitsMacro) || v.instrument==unsigned(Instrument::FM) || v.instrument==unsigned(Instrument::Acid) || v.instrument>=unsigned(Instrument::WaveSequence))v.released=true;if(auto* dsp=plaits_dsp(t,v))dsp->release(); v.off_at=0;
  if(v.midi_note && !midi(uint8_t(0x80|v.channel),v.note,0)){pending_midi_off_|=uint16_t(1u<<t);return false;}
  v.midi_note=false;pending_midi_off_&=uint16_t(~(1u<<t));return true;
 }
-bool Engine::release_poly(PolyVoice& p,bool immediate){va_candidates_dirty_=true;auto& v=p.voice;if(p.owner>=16)return true;capture_voice_off(v);if(v.midi_note){if(!midi(uint8_t(0x80|v.channel),v.note,0)){p.pending=true;return false;}v.midi_note=false;p.pending=false;set_poly_owner(p,255);return true;}if(immediate){if(auto* dsp=plaits_dsp(p.owner,v))dsp->stop();v.sampler.stop();v.daisy.note_off();v.env=0;set_poly_owner(p,255);return true;}if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release();v.daisy.note_off();if(auto* dsp=plaits_dsp(p.owner,v))dsp->release();v.released=true;v.off_at=0;return true;}
+bool Engine::release_poly(PolyVoice& p,bool immediate){va_candidates_dirty_=true;auto& v=p.voice;if(p.owner>=16)return true;++v.voice_epoch;capture_voice_off(v);if(v.midi_note){if(!midi(uint8_t(0x80|v.channel),v.note,0)){p.pending=true;return false;}v.midi_note=false;p.pending=false;set_poly_owner(p,255);return true;}if(immediate){if(auto* dsp=plaits_dsp(p.owner,v))dsp->stop();v.sampler.stop();v.daisy.note_off();v.env=0;set_poly_owner(p,255);return true;}if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release();v.daisy.note_off();if(auto* dsp=plaits_dsp(p.owner,v))dsp->release();v.released=true;v.off_at=0;return true;}
 bool Engine::note_off(unsigned t){kit_midi_release(255,t);bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !release_poly(p))ok=false;return note_off_main(t) && ok;}
 bool Engine::release_sequence(unsigned t){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && p.sequenced && !p.voice.released && !release_poly(p))ok=false;return ok;}
 void Engine::clear_poly(unsigned t){for(auto& p:poly_voices_)if(p.owner==t)release_poly(p,true);}
@@ -64,7 +72,7 @@ void Engine::repeat_tick(){
  if(repeat_next_gate_ && sample_count_>=repeat_next_gate_){for(unsigned i=0;i<16*kStepNotes+16;++i){auto& pad=input(i);if(pad.gate_due && sample_count_>=pad.gate_due){if(release_note(pad.track,pad.note,pad.channel))finish_repeat_pad(pad);else pad.gate_due=sample_count_+64;}}refresh_repeat_gate();}
  if(!repeat_mode_)return;
  static const uint8_t divisions[8]={1,2,4,8,16,3,6,12};
- repeat_phase_+=uint64_t(bpm_)*divisions[repeat_rate_];const uint64_t quarter=uint64_t(rate_)*60;if(repeat_phase_<quarter)return;repeat_phase_-=quarter;
+ repeat_phase_+=uint64_t(tempo_eff_)*divisions[repeat_rate_];const uint64_t quarter=uint64_t(rate_)*60;if(repeat_phase_<quarter)return;repeat_phase_-=quarter;
  uint8_t order[16*kStepNotes+16];bool released[16*kStepNotes+16]{};unsigned count=0;
  for(unsigned i=0;i<16*kStepNotes+16;++i)if(input(i).held){auto& pad=input(i);released[i]=release_note(pad.track,pad.note,pad.channel);if(released[i])finish_repeat_pad(pad);order[count++]=uint8_t(i);}
  if(!count){refresh_repeat_gate();return;}
@@ -87,13 +95,18 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  auto reason=layer_status(layer);if(reason!=LayerReason::Ready)return reason;unsigned incoming=layer_note_cost(layer,key,velocity,&selected);if(!selected)return LayerReason::Ready;if(!leaf_runtime_)return LayerReason::Voices;
  unsigned free=0,total=0,local=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
  for(const auto& p:poly_voices_){if(p.owner==255){++free;continue;}if(p.voice.composite){total+=p.voice.layer_cost;if(p.owner==t)local+=p.voice.layer_cost;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){++shared[unsigned(resource)];shared_cost[unsigned(resource)]+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
- if(local+incoming>VoiceBudget::layer_track || total+incoming>VoiceBudget::layer_total)return LayerReason::Cost;
+ if(local+incoming>hardware::scaled(VoiceBudget::layer_track) || total+incoming>hardware::scaled(VoiceBudget::layer_total))return LayerReason::Cost; // Perf port (item 1): layer cost gate scales with the board factor
  if(free<unsigned(__builtin_popcount(unsigned(selected))))return LayerReason::Voices;
  for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);++need_shared[r];need_shared_cost[r]+=engine_voice_cost(child.instrument,child.model);}}
- // Layer hard gate: baseline (unscaled) budgets by policy option (a) --
- // a layer accepted on a larger board must stay accepted on Pi 4 / 4 GB,
- // so this check deliberately does not use hardware::scaled().
- for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:granular_!=nullptr;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:Instrument::Granular))->polyphony;if(!ready || shared[resource]+need_shared[resource]>policy.shared_slots || shared_cost[resource]+need_shared_cost[resource]>policy.shared_budget)return LayerReason::Voices;}
+ // Perf port (item 1, decision A 2026-11-15): layer admission uses the
+ // scaled budgets. This deliberately gives up the option-(a) portability
+ // guarantee -- a layer accepted on Pi 5 may be refused on Pi 4 -- and
+ // the asymmetry is documented as a known constraint (hardware_profile.h),
+ // the same class as the shared-budget scaling above. Measured basis:
+ // with saturating fixtures the scaled gates convert silent refusals
+ // into budget trims while the deadline record stays at baseline
+ // (PI5_MAX_PERF_INVESTIGATION.md, 2026-11-15 verdicts).
+ for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:granular_!=nullptr;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:Instrument::Granular))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget))return LayerReason::Voices;}
  return LayerReason::Ready;
 }
 Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic) {
@@ -127,8 +140,8 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  unsigned resolved_model=step && step->sound<kPresetSlots?project_->sounds[step->sound].model:state.plaits_model;
  int model_local=engine_model_parameter(state.instrument);if(!layer_part && actual==state.instrument && model_local>=0){const auto& r=runtime_[t];resolved_model=unsigned(resolve_target_value(*project_,state,t,engine_target(actual,unsigned(model_local)),float(resolved_model),step?step->locks:r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value);}
  uint8_t shared_slot=255;if(engine_voice_resource(unsigned(actual))!=VoiceResource::None){if(actual==Instrument::PlaitsMacro && (!plaits_ || !poly_plaits_))return nullptr;shared_slot=reserve_shared(t,actual,resolved_model,poly,protected_voice);if(poly && shared_slot==255)return nullptr;}
- if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;return nullptr;}++poly_steals_.triggered;if(occupied){if(released)++poly_steals_.released;else ++poly_steals_.held;}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
- auto& v=*chosen;v.kit_watch_lane=uint8_t(watch_lane);v.layer_peer=nullptr;v.composite=layer_part!=nullptr;v.layer_cost=layer_part?uint8_t(layer_part_cost(*layer_part)):0;v.layer_gain=layer_mix?layer_mix[0]:1;v.layer_pan=layer_mix?layer_mix[1]:0;v.layer_detune=layer_mix?layer_mix[2]/100:0;v.pitch_bend+=v.layer_detune;v.shared_slot=shared_slot;if(layer_part){v.leaf->fx=layer_part->fx;for(auto& insert:v.leaf->inserts)insert.reset();}
+ if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}++poly_steals_.triggered;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);if(occupied){if(released){++poly_steals_.released;__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);}else{++poly_steals_.held;__atomic_add_fetch(&probe_steals_held_,1,__ATOMIC_RELAXED);}}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
+ auto& v=*chosen;++v.voice_epoch;++v.voice_instance;v.kit_watch_lane=uint8_t(watch_lane);v.layer_peer=nullptr;v.composite=layer_part!=nullptr;v.layer_cost=layer_part?uint8_t(layer_part_cost(*layer_part)):0;v.layer_gain=layer_mix?layer_mix[0]:1;v.layer_pan=layer_mix?layer_mix[1]:0;v.layer_detune=layer_mix?layer_mix[2]/100:0;v.pitch_bend+=v.layer_detune;v.shared_slot=shared_slot;if(layer_part){v.leaf->fx=layer_part->fx;for(auto& insert:v.leaf->inserts)insert.reset();}
  if(velocity>127) velocity=127;
  v.instrument=uint8_t(actual);v.kit_pad=kit?uint8_t(kit_pad):255;if(kit){v.kit_insert.reset();v.kit_fx_locked=false;for(unsigned i=0;i<4;++i){auto& lock=v.kit_fx_locks[i];lock.enabled=kit_step && kit_step->fx_lock[i]!=255;lock.id=uint16_t(320+kit_pad*4+i);lock.value=lock.enabled?(i?float(kit_step->fx_lock[i])/127:float(kit_step->fx_lock[i])):0;v.kit_fx_locked|=lock.enabled;}auto& rt=runtime_[t];for(unsigned i=0;i<4;++i)v.kit_insert_target[i]=resolve_parameter(*project_,state,t,uint16_t(320+kit_pad*4+i),rt.active_locks,unsigned(rt.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,rt.automation_live,&gesture_overlay_,rt.pattern,nullptr,v.kit_fx_locks,&mod).value;for(unsigned i=0;i<3;++i)v.kit_insert_current[i]=v.kit_insert_target[i+1];}if(kit){const unsigned fields[]={0,2,3,4};const uint8_t values[]={uint8_t(kit_step?kit_step->level_lock:255),uint8_t(kit_step?kit_step->filter_lock:255),uint8_t(kit_step?kit_step->delay_lock:255),uint8_t(kit_step?kit_step->reverb_lock:255)};v.kit_mix_locked=false;for(unsigned i=0;i<4;++i){auto& lock=v.kit_mix_locks[i];lock.id=kit_mix_parameter_id(unsigned(kit_pad),fields[i]);lock.enabled=values[i]<128;lock.value=lock.enabled?float(values[i])/127:0;v.kit_mix_locked|=lock.enabled;}auto& rt=runtime_[t];for(unsigned i=0;i<5;++i)v.kit_mix_target[i]=resolve_parameter(*project_,state,t,kit_mix_parameter_id(unsigned(kit_pad),i),rt.active_locks,unsigned(rt.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,rt.automation_live,&gesture_overlay_,rt.pattern,nullptr,v.kit_mix_locks,&mod).value;v.kit_mix.reset(v.kit_mix_target[2],v.kit_mix_target[0],v.kit_mix_target[1],v.kit_mix_target[3],v.kit_mix_target[4]);} unsigned model=state.plaits_model; float params[5]; for(unsigned i=0;i<5;++i) params[i]=state.engine_parameters[i];
  if(!kit && step && step->sound<kPresetSlots) { const auto& sound=project_->sounds[step->sound]; v.instrument=uint8_t(sound.instrument); model=sound.model; for(unsigned i=0;i<5;++i) params[i]=sound.parameters[i]; }
@@ -168,19 +181,23 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
   for(unsigned i=0;i<5;++i)v.parameters[i]=params[i];
   for(unsigned i=0;i<5;++i){v.parameters[i]=(i<macro_controls(v.instrument)?resolve_target_value(*project_,state,t,engine_target(Instrument(v.instrument),i),v.base_parameters[i],runtime_[t].active_locks,unsigned(runtime_[t].automation_cell),control_all_,control_all_id_,control_all_delta_,runtime_[t].automation_live,&gesture_overlay_,runtime_[t].pattern).value:v.base_parameters[i]);}const auto* descriptor=engine_descriptor(v.instrument);unsigned declared=descriptor?descriptor->instrument.macro_controls:0;if(declared)descriptor->bind(descriptor->parameters,v.parameters,declared,{v.targets});for(unsigned i=declared;i<5;++i)v.targets[i]=v.parameters[i];v.saw.reset();
  }
+ // Seeded instruments draw exactly one event seed per note-on, computed
+ // lazily so unseeded instruments never consume an ordinal.
+ uint32_t event_seed=0;bool event_seed_ready=false;
+ auto event_seed_for=[&](){if(!event_seed_ready){event_seed=next_event_seed(t,unsigned(v.note));event_seed_ready=true;}return event_seed;};
  if(actual==Instrument::SoundFont){auto sf=v.soundfont_base;resolve_voice_bank(t,actual,v.soundfont_base.values,sf.values);if(!v.soundfont.trigger(samples_[state.sample_slot].soundfont,v.frequency,velocity,sf,!(incoming_midi_ || (step && step->native_drum)),v.note)){v.env=0;layer_failure_[t]=uint8_t(LayerReason::Assets);if(poly)for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}layer_failure_[t]=0;}
  if(actual==Instrument::Additive){float values[25];resolve_voice_bank(t,actual,v.additive_base.values,values);v.additive.trigger(float(velocity)/127,values);}
  if(actual==Instrument::PhaseDist){float values[9];resolve_voice_bank(t,actual,v.phase_dist_base.values,values);v.phase_dist.trigger(float(velocity)/127,values);}
- if(actual==Instrument::Granular){float values[kGranularParameterCount];resolve_voice_bank(t,actual,v.granular_base.values,values);if(v.shared_slot>=4 || !granular_[v.shared_slot].trigger(samples_[state.sample_slot],project_->assets[state.sample_slot].metadata.root,float(velocity)/127,values,project_->random_seed^uint32_t(sample_count_)^t)){v.env=0;for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
+ if(actual==Instrument::Granular){float values[kGranularParameterCount];resolve_voice_bank(t,actual,v.granular_base.values,values);if(v.shared_slot>=4 || !granular_[v.shared_slot].trigger(samples_[state.sample_slot],project_->assets[state.sample_slot].metadata.root,float(velocity)/127,values,event_seed_for())){v.env=0;for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
  if(actual==Instrument::Formant){float values[9];resolve_voice_bank(t,actual,v.formant_base.values,values);v.formant.trigger(float(velocity)/127,values);}
  if(actual==Instrument::Fm6){auto state=v.fm6_base;resolve_voice_bank(t,actual,v.fm6_base.values,state.values);v.fm6.trigger(v.frequency,velocity,state);}
- if(actual==Instrument::VirtualAnalog){auto clock=dsp_profile_.control_clock();unsigned start=clock?clock():0;float values[kVirtualAnalogParameterCount];resolve_voice_bank(t,actual,v.va_base.values,values);v.va.trigger(float(velocity)/127,values,project_->random_seed^uint32_t(sample_count_)^t);if(clock)dsp_profile_.va_trigger(clock()-start);}
+ if(actual==Instrument::VirtualAnalog){auto clock=dsp_profile_.control_clock();unsigned start=clock?clock():0;float values[kVirtualAnalogParameterCount];resolve_voice_bank(t,actual,v.va_base.values,values);v.va.trigger(float(velocity)/127,values,event_seed_for());if(clock)dsp_profile_.va_trigger(clock()-start);}
  if(actual==Instrument::Wavetable){float values[8];auto& r=runtime_[t];for(unsigned i=0;i<8;++i)values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Wavetable,i),v.wavetable_base.values[i],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;v.wavetable.trigger(v.frequency,float(velocity)/127,values);}
- if(actual==Instrument::Texture){textures_suspended_=false;textures_[t].trigger();}
- if(actual==Instrument::Resonator && !resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}
+ if(actual==Instrument::Texture){textures_suspended_=false;textures_[t].reseed(event_seed_for());textures_[t].trigger();}
+ if(actual==Instrument::Resonator){resonators_[t].reseed(event_seed_for());if(!resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
  v.step_pitch.reset();v.tie_pending=false;v.step_accent=step && step->accent();v.step_sound=step?step->sound:kNoPreset;v.step_mono=step && !poly && !kit && !layer_part && !state.arp_mode && step_monophonic(*step);
  v.a=float(velocity)/127.0f;v.released=false;v.env=velocity?1:0;
- if(auto* dsp=plaits_dsp(t,v)){dsp->set_model(model);dsp->set_note_float(float(v.note)+tuning+v.pitch_bend);for(unsigned i=0;i<5;++i)dsp->set_parameter(i,v.parameters[i]);dsp->trigger(uint8_t(velocity),live_poly || step!=nullptr);}
+ if(auto* dsp=plaits_dsp(t,v)){if(&v!=&voices_[t])dsp->seed(event_seed_for());dsp->set_model(model);dsp->set_note_float(float(v.note)+tuning+v.pitch_bend);for(unsigned i=0;i<5;++i)dsp->set_parameter(i,v.parameters[i]);dsp->trigger(uint8_t(velocity),live_poly || step!=nullptr);}
  if(actual==Instrument::DaisySynth){float adsr[4];for(unsigned i=0;i<4;++i)adsr[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::DaisySynth,i),engine_parameter_value(state,i),runtime_[t].active_locks,unsigned(runtime_[t].automation_cell),control_all_,control_all_id_,control_all_delta_,runtime_[t].automation_live,&gesture_overlay_,runtime_[t].pattern).value;v.daisy.set_adsr(adsr[0],adsr[1],adsr[2],adsr[3]);v.daisy.trigger(uint8_t(velocity));}
  if(v.instrument==unsigned(Instrument::FM))v.fm.Reset();
  if(v.instrument==unsigned(Instrument::DaisyAnalogDrums) || v.instrument==unsigned(Instrument::DaisySyntheticDrums))public_drums_[t].trigger(v.instrument-unsigned(Instrument::DaisyAnalogDrums),v.parameters,float(velocity)/127.0f,v.frequency);
@@ -217,7 +234,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  event(EngineEventType::Note,uint8_t(t),v.note);if(kit && kit_layer<0 && kit->layer_mode==3 && kit->sample[1]<kSampleAssets && (kit->sample[0]<kSampleAssets || (kit_step && kit_step->sample_lock<kSampleAssets)))v.layer_peer=trigger(t,original_velocity,original_note,step,source,accumulator,degrees,live_poly,slice_override,kit_pad,kit_step,1,&v);return &v;
 }
 bool Engine::slide_voice(unsigned t,unsigned velocity,int note,const StepState& step,ConstTrackView state,int accumulator,bool degrees){
- auto& v=voices_[t];const auto& r=runtime_[t];
+ auto& v=voices_[t];const auto& r=runtime_[t];++v.voice_epoch;
  if(!velocity || !v.step_mono || v.released || v.a<=0 || state.arp_mode || !step_monophonic(step) || v.step_sound!=step.sound || v.instrument!=unsigned(state.instrument) || !step_legato_engine(state.instrument) || v.source_pattern!=r.pattern)return false;
  if(note<0)note=state.root_note;
  note=step.chromatic?bounded(note+int(state.transpose),0,127):transform_note(note,state);

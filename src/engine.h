@@ -6,6 +6,7 @@
 #include "formant_voice.h"
 #include "granular_voice.h"
 #include "va_sample_slot.h"
+#include "render_bundle_slot.h"
 #include <stdint.h>
 #include <stddef.h>
 #include "polyblep_saw.h"
@@ -75,7 +76,7 @@ struct LiveRecordFrame {float l=0,r=0;};
 class Engine {
 public:
  static constexpr unsigned kPolyVoiceCapacity=VoiceBudget::pool_slots;
- static constexpr unsigned kSharedVoiceCapacity=4;
+ static constexpr unsigned kSharedVoiceCapacity=16; // Perf port (item 4, adopted 2026-11-15): storage bound only; effective slots = scaled_slots(declared, this) -- baseline descriptors declare 4 and factor 1000 keeps Pi 4 at 4
  static_assert(kPolyVoiceCapacity<=32,"poly voice render mask is 32-bit");
  explicit Engine(uint32_t sample_rate=48000);
  ~Engine();
@@ -87,6 +88,10 @@ public:
  bool replace_track_phrase(unsigned pattern,unsigned track,const TrackState&);
  bool replace_pattern(unsigned index,const PatternState& pattern,uint16_t changed_tracks=0xffff,bool preserve_phase=false,const Command* sample_binding=nullptr,const WavView* bindings=nullptr,const SampleAssetState* assets=nullptr);
  DspProfile& dsp_profile(){return dsp_profile_;}
+ // External-clock slave lock snapshot, in the same counter style as the DSP
+ // profiler: readable by the GBX1 probe/log path and by host tests.
+ struct SlaveClockState {int32_t phase_error_milliticks=0,max_phase_error_milliticks=0;uint64_t master_ticks=0;uint32_t resyncs=0,applied_tempo_q16=0;bool locked=false,freerun=false,anchored=false;};
+ SlaveClockState slave_clock_state() const;
  RenderAudit& render_audit(){return render_audit_;}
  void begin_stage_profile(AudioStageProfile::Clock clock,unsigned interval=64){stage_profile_.begin(clock,interval);}
  AudioStageProfile::Snapshot end_stage_profile(){return stage_profile_.end();}
@@ -117,9 +122,13 @@ public:
  bool diagnostic_playing()const{return playing_;} // DSP consumer only
  // Diagnostic read by the DSP consumer only, never from a UI/task thread.
  void set_va_helper(VaSampleSlot* helper){va_helper_=helper;va_candidates_dirty_=true;} // before starting the DSP owner
+ void set_bundle_helper(RenderBundleSlot* helper){bundle_helper_=helper;} // before starting the DSP owner
+ BundleCounts bundle_counts()const{return bundle_helper_?bundle_helper_->counts():BundleCounts{};} // DSP owner only
  DspAssistCounts va_helper_counts()const{return va_helper_?va_helper_->counts():DspAssistCounts{};} // DSP owner only
  PreparedSoundQueue::Counters prepared_sound_counts()const{return attached_payload_?attached_payload_->counters():PreparedSoundQueue::Counters{};}
- PolyStealCounts poly_steal_counts()const{return poly_steals_;} // DSP owner only
+ PolyStealCounts poly_steal_counts()const{return poly_steals_;}
+ struct ProbeSteals{unsigned triggered=0,released=0,held=0,refused=0,budget_releases=0;};
+ ProbeSteals probe_steals()const{ProbeSteals s;s.triggered=__atomic_load_n(&probe_steals_triggered_,__ATOMIC_RELAXED);s.released=__atomic_load_n(&probe_steals_released_,__ATOMIC_RELAXED);s.held=__atomic_load_n(&probe_steals_held_,__ATOMIC_RELAXED);s.refused=__atomic_load_n(&probe_steals_refused_,__ATOMIC_RELAXED);s.budget_releases=__atomic_load_n(&probe_budget_releases_,__ATOMIC_RELAXED);return s;} // DSP owner only
  EfficiencyAudioMeter::Population efficiency_population()const{
   EfficiencyAudioMeter::Population out;out.event_work=event_work_;
   for(const auto& v:voices_)if(v.env>=.00001f){++out.main;if(v.instrument==unsigned(Instrument::VirtualAnalog)){++out.va;++out.va_main;}out.sampler+=v.instrument==unsigned(Instrument::Sampler) && v.sampler.active();}
@@ -254,12 +263,13 @@ private:
   WavetableState wavetable_base{};WavetableVoice wavetable;
   PolyBlepSaw saw; WavView sample{}; WavVoice sampler; DaisySynth daisy; daisysp::Fm2 fm;
   uint8_t instrument=unsigned(Instrument::Empty),channel=0,note=60,source_pattern=0,model=0,sample_slot=0,sample_root=60,choke_group=0;float sample_origin=0,sample_extent=1; SampleEdit base_sample_edit{};float sample_speed=1;uint32_t sampler_source_epoch=0;SampleMode sample_mode=SampleMode::OneShot;bool midi_note=false,capture_note=false,released=false,looping=false;uint8_t capture_channel=0,capture_pitch=60; uint8_t input_note=60,kit_pad=255,kit_watch_lane=255;float kit_mix_target[5]={0.8f,0,1,0,0};ParameterLock kit_mix_locks[kLocks]{};bool kit_mix_locked=false;KitVoiceMix kit_mix{};float kit_speed_bend=0,kit_speed_tuning=0,kit_speed_value=1;TrackInsertSlot kit_insert{};ParameterLock kit_fx_locks[kLocks]{};bool kit_fx_locked=false;float kit_insert_target[4]={0,0.5f,0.25f,1},kit_insert_current[3]={0.5f,0.25f,1};uint16_t received_channel=65535; uint64_t off_at=0;
+  uint32_t voice_epoch=0,voice_instance=0; // W2 bundle invalidation stamps (runtime only)
  };
  struct TrackRuntime {
   DaisyTrackDrive drive;TrackInsertSlot insert[2];float insert_target[8]={0,0.5f,0.25f,1,0,0.5f,0.25f,1},insert_current[8]={0,0.5f,0.25f,1,0,0.5f,0.25f,1};float send_pre[2]{};
   uint8_t pattern=0; uint16_t position=0; bool playing=true,backward=false,automation_live=false; uint32_t cycle=0;bool follow_due=false;
   uint64_t automation_cell=0,automation_tick=0;uint16_t nrpn_sent[4]={65535,65535,65535,65535},nrpn_number[4]={65535,65535,65535,65535};uint8_t nrpn_channel=255,nrpn_type[4]={255,255,255,255};int16_t strip_pitch=0;float strip_mod=0,strip_mod_current=0;bool strip_pitch_active=false,strip_mod_active=false;uint16_t expression_bend=65535,expression_sent_bend=65535;uint8_t expression_sent_pressure=255,expression_channel=255;bool expression_held_bend=false,expression_held_pressure=false;uint8_t program_channel=255,program_sent=255,cc_channel=255,cc_sent[128]{};bool cc_held[128]{};uint64_t cc_hash=0;bool cc_primed=false,cc_dirty=true;uint64_t lane_triggers=0; StepState effective_step{}; int16_t accumulator_offset=0; bool accumulator_degrees=false;
-  uint64_t period_q32=1,due=0;uint16_t timing_bpm=0;uint8_t timing_num=0,timing_den=0;
+  uint64_t period_q32=1,due=0;uint16_t timing_bpm=0;uint8_t timing_num=0,timing_den=0;uint32_t timing_tempo_q16=0;
   int64_t grid=0,last_grid=0;uint64_t last_period_q32=0,step_serial=0; uint32_t fraction=0;
   float reverb_target=0,reverb_current=0;bool compressor_active=false;float compressor_target[7]={0.5f,4,10,120,0,0,0},compressor_current[7]={0.5f,4,10,120,0,0,0};
   float target[kTrackParameters]={0.8f,0,1,0,0,0,0,1},current[kTrackParameters]={0.8f,0,1,0,0,0,0,1};
@@ -281,6 +291,7 @@ private:
  GestureOverlay gesture_overlay_{};
  void gesture_capture(const CommandState& c);void gesture_tick();
  Voice* trigger(unsigned track,unsigned velocity,int note=-1,const StepState* step=nullptr,const TrackView* source=nullptr,int accumulator=0,bool degrees=false,bool live_poly=false,int slice_override=-1,int kit_pad=-1,const KitStepState* kit_step=nullptr,int kit_layer=-1,Voice* protected_voice=nullptr,const LayerPart* layer_part=nullptr,const float* layer_mix=nullptr,bool chromatic=false);
+ uint32_t next_event_seed(unsigned track,unsigned pitch);
  void trigger_frozen(unsigned t);
  void publish_voice_visual(AudioVisualFrame&,unsigned,Voice&);
  struct PolyVoice {Voice voice{};uint64_t age=0;uint8_t owner=255;bool sequenced=false,pending=false;};PolyVoice poly_voices_[kPolyVoiceCapacity]{};uint32_t poly_track_mask_[16]{};void set_poly_owner(PolyVoice& voice,unsigned owner){va_candidates_dirty_=true;unsigned index=unsigned(&voice-poly_voices_);uint32_t bit=uint32_t(1u)<<index;if(voice.owner<16)poly_track_mask_[voice.owner]&=~bit;voice.owner=uint8_t(owner);if(owner<16)poly_track_mask_[owner]|=bit;}uint8_t kit_round_robin_[16][16]{};
@@ -300,6 +311,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
 
  void reset_track(unsigned t,bool reset_position);
  void set_tempo(unsigned tempo);void schedule_retrigger(unsigned track);bool seek_song(unsigned position,bool send_midi);
+ void slave_clock_tick();void slave_anchor(bool reset_loop);void slave_resync(int64_t error_q32);int64_t slave_phase_error_q32() const;
  // A source replacement retires the old sampler instance, while ordinary
  // live parameter edits still reach voices attached to the current instance.
  uint32_t sampler_source_epoch_[kTracks]{};
@@ -363,15 +375,17 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
   }
  }
  void start_click(bool accent){click_remaining_=click_length_;click_phase_=0;click_increment_=6.2831853f*(accent?1500.0f:1000.0f)/float(rate_);}
- void clock_event(ClockEventType type,bool transmit=true) { if(type==ClockEventType::Tick){if(project_->ui.metronome && metro_ticks_%24==0)start_click(metro_ticks_%96==0);++metro_ticks_;}if(!clock_events_.push({type,sample_count_})) __atomic_add_fetch(&clock_dropped_,1,__ATOMIC_RELAXED); if(transmit && !external_clock_)midi(type==ClockEventType::Start?0xfa:type==ClockEventType::Stop?0xfc:0xf8,0,0,1); }
+ void clock_event(ClockEventType type,bool transmit=true) { if(type==ClockEventType::Tick){if(project_->ui.metronome && metro_ticks_%24==0)start_click(metro_ticks_%96==0);++metro_ticks_;++tick_count_;}if(!clock_events_.push({type,sample_count_})) __atomic_add_fetch(&clock_dropped_,1,__ATOMIC_RELAXED); if(transmit && !external_clock_)midi(type==ClockEventType::Start?0xfa:type==ClockEventType::Stop?0xfc:0xf8,0,0,1); }
  struct PatternRevisions {uint32_t published[kPatterns][kTracks]{},audio[kPatterns][kTracks]{};};
  PatternState* pattern_staging_;PatternRevisions* pattern_revisions_;uint32_t pattern_pending_=0,pattern_revision_serial_=0;float effects_target_[13]={0,0.35f,250,0,0.5f,0.5f,0.5f,4,10,120,0,0,0},effects_current_[13]={0,0.35f,250,0,0.5f,0.5f,0.5f,4,10,120,0,0,0};
  CreativeVoice* creative_;uint32_t rate_;float inverse_rate_=0,kit_mix_alpha_=0; ProjectState* project_; ProjectState* staging_;TrackViews track_views_; uint32_t snapshot_pending_=0,snapshot_generation_=0,published_generation_=0,generation_=0,panic_requested_=0;
  uint64_t lfo_transport_beat_=0,lfo_transport_fraction_=0;
  uint64_t stopped_at_=0; MidiClockEstimator external_clock_estimator_{};bool external_clock_=false,external_tempo_pending_=false,seek_armed_=false,transport_resend_=false,restart_pending_=false;
+ uint32_t tempo_q16_=120u<<16,tempo_dither_=0,tempo_eff_=120;uint64_t tick_count_=0;
+ uint64_t slave_anchor_q32_=0,slave_master_ticks_=0,slave_last_tick_sample_=0;int64_t slave_integrator_q32_=0;uint32_t slave_base_q16_=0,slave_last_applied_q16_=0;bool slave_have_tick_=false,slave_base_valid_=false,slave_freerun_=false,slave_locked_=false,slave_anchored_=false;int32_t slave_phase_mt_=0,slave_phase_max_mt_=0;uint32_t slave_resyncs_=0;
  uint32_t clip_follow_seed_[16]{};
  SceneTake scene_take_{};
- uint32_t bpm_=120,random_=0x13579bdf,meta_random_=0x13579bdf; uint64_t clock_phase_=0,bar_phase_=0,sample_count_=0,count_phase_=0,song_phase_=0;uint16_t song_position_=0;uint32_t metro_ticks_=0,click_remaining_=0,click_length_=0;uint8_t count_beat_=0;bool counting_=false;float click_phase_=0,click_increment_=0; bool note_record_armed_=false;uint8_t note_record_track_=0;uint64_t (*record_erased_)[kSteps];SpscQueue<StepState,65>* erase_payload_;bool playing_=false,first_=false,fill_=false;
+ uint32_t bpm_=120,random_=0x13579bdf,meta_random_=0x13579bdf; uint64_t event_seed_tick_[16]={};bool event_seed_tick_valid_[16]={};uint8_t event_seed_pitches_[16][16]{};uint8_t event_seed_counts_[16][16]{};uint8_t event_seed_entries_[16]={}; uint64_t clock_phase_=0,bar_phase_=0,sample_count_=0,count_phase_=0,song_phase_=0;uint16_t song_position_=0;uint32_t metro_ticks_=0,click_remaining_=0,click_length_=0;uint8_t count_beat_=0;bool counting_=false;float click_phase_=0,click_increment_=0; bool note_record_armed_=false;uint8_t note_record_track_=0;uint64_t (*record_erased_)[kSteps];SpscQueue<StepState,65>* erase_payload_;bool playing_=false,first_=false,fill_=false;
  struct RecordedHeld {uint64_t start=0,period=0;uint32_t id=0;uint8_t track=0,note=0;uint16_t channel=0;uint8_t pattern=0,step=0;uint32_t pattern_revision=0;};RecordedHeld recorded_held_[64]{};uint32_t recording_serial_=0;
  struct VaResolved {uint64_t sample=~uint64_t(0);unsigned generation=0;float values[kVirtualAnalogParameterCount]{};};VaResolved va_resolved_[16]{};
  bool insert_resources_ready_=true;float* modulation_storage_=nullptr;WavView samples_[kSampleAssets]{},staged_samples_[kSampleAssets]{},pattern_samples_[kSampleAssets]{};SampleMetadata pattern_sample_metadata_[kSampleAssets]{};bool pattern_assets_=false,staged_assets_=false; TrackRuntime runtime_[16]{}; Voice voices_[16]{}; uint8_t sample_zone_round_robin_[16]{}; GranularVoice* granular_=nullptr;TextureVoice* textures_=nullptr;bool textures_suspended_=false;TextureStereo texture_previous_[61]{},texture_next_[61]{};ResonatorVoice* resonators_=nullptr;PlaitsVoice* plaits_=nullptr;PlaitsVoice* poly_plaits_=nullptr; DaisyDrumBank* public_drums_=nullptr;
@@ -418,10 +432,19 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  VaSampleSlot* va_helper_=nullptr;VaCandidate va_candidates_[16+kPolyVoiceCapacity]{};unsigned va_candidate_count_=0;
  uint64_t va_job_sample_[16+kPolyVoiceCapacity]{};uint8_t va_job_[16+kPolyVoiceCapacity]{};
  PolyStealCounts poly_steals_{};
+ // Measurement mirrors (DSPTEST steal accounting, 2026-11-13 investigation):
+ // updated with atomic adds at the same sites as poly_steals_ / the
+ // reserve_shared budget trims, so the probe on another core can read a
+ // consistent steal picture. Path A = pool-exhaustion steals in trigger();
+ // path B = budget_releases (reserve_shared trims, inaudible in poly_steals_).
+ mutable unsigned probe_steals_triggered_=0,probe_steals_released_=0,probe_steals_held_=0,probe_steals_refused_=0,probe_budget_releases_=0;
  uint64_t sound_payload_epoch_=1;bool sound_payload_plan_dirty_=true;
  void prepare_sound_payloads();
  RenderAudit::EventCounts event_work_{}; // append: retain voice/runtime offsets
  bool va_candidates_dirty_=true; // DSP-only; live eligibility is still checked per sample
+ RenderBundleSlot* bundle_helper_=nullptr;
+ int bundle_job_[16+kPolyVoiceCapacity];bool bundle_sub_from_job_[16+kPolyVoiceCapacity]{};bool bundle_prev_from_job_[16+kPolyVoiceCapacity]{};bool bundle_tracking_ready_=false;uint64_t bundle_adopted_subblocks_=0;
  void prepare_va_candidates();void dispatch_va_samples();
+ void build_render_bundles();bool bundle_take(unsigned track,Voice& voice,unsigned voice_key,float& l,float& r);void bundle_forget(unsigned voice_key);
 };
 }

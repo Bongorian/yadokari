@@ -70,6 +70,7 @@ public:
  // Logical reset is constant-time. Old buffers cannot be read before the next
  // audio-owner use has performed the same seeded init as an eager reset.
  void reset(uint32_t seed){seed_=seed;pending_=true;position_=0;strum_=false;}
+ void reseed(uint32_t seed){if(pending_)seed_=seed;else dsp_.reseed(seed);}
  void trigger(){prepare();strum_=true;}
  bool boundary()const{return position_==0;}
  bool frozen()const{return !pending_ && dsp_.frozen();}

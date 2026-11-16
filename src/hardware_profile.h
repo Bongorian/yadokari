@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 namespace groove { namespace hardware {
 // Boot-time hardware profile (PI5_SUPPORT_POLICY.md + 2026-11-12 addendum):
 // optimization and performance scale by board type AND installed RAM, both
@@ -11,9 +12,11 @@ namespace groove { namespace hardware {
 // its behaviour is bit-identical to the pre-profile build -- the arena
 // capacity below equals the existing Pi 4 CPU-heap window and every budget
 // factor is 1.0. Cost unit prices (EnginePolyphony) stay common on all
-// boards; only budget-side values scale. Layer admission is a hard gate
-// pinned to the baseline budget (policy option (a)) and never consults the
-// scale; headroom applies to live polyphony / voice stealing only.
+// boards; only budget-side values scale. Layer admission scales with the
+// same factor (perf port, decision A 2026-11-15): a layer admitted on a
+// larger board may be refused on the Pi 4 baseline. That asymmetry is
+// accepted and documented as a known constraint -- the same class as the
+// shared-budget scaling -- rather than pinning admission to the floor.
 
 enum class Board:uint8_t { Unknown, Pi4B, Pi5 };
 
@@ -55,6 +58,12 @@ inline HardwareProfile decode(uint32_t revision){
  // PI5_PERF_PROFILE.md S9-S10. Pi 4 keeps 1000 (baseline definition).
  p.budget_scale_permille=1000;
  if(p.board==Board::Pi5)p.budget_scale_permille=2984;
+ // RAM-scaled arena (perf port; verified on device 2026-11-15:
+ // cpu_ram_mb=2048, heap headroom 1979 MB): Pi 5 / 8 GB carves 2 GiB;
+ // the 4 GB floor and all Pi 4 profiles keep the 960 MiB baseline. The
+ // real carve is decided in scripts/patch-circle-cpu-heap.py by the
+ // same rule; this value is the reported profile and must agree.
+ if(p.board==Board::Pi5&&p.ram_mb>=8192)p.cpu_heap_bytes=2048u*1024u*1024u;
  if(p.ram_mb<4096){
   // Below the supported minimum (Pi 4 with 4 GB or more): no arena.
   p.cpu_heap_bytes=0;
@@ -78,6 +87,17 @@ inline void set_active_profile(const HardwareProfile& p){active_profile=p;}
 // factor (1000 permille returns the input unchanged).
 inline unsigned scaled(unsigned value){
  return unsigned((uint64_t(value)*active_profile.budget_scale_permille)/1000u);
+}
+// Per-model board-specific Plaits cost tables were measured on Pi 5
+// (DSPTEST v1016 factors) and prototyped, but showed no measurable
+// effect in two A/B rounds (L3 identical to L2 on every stress case),
+// so they are deliberately NOT ported (decision B, 2026-11-15). Cost
+// unit prices stay common on all boards.
+// RAM-scaled SoundFont resident budget (perf port). Baseline
+// 512 MiB everywhere (the 4 GB floor is unchanged); Pi 5 / 8 GB gets
+// 1536 MiB so GB-class fonts stay resident instead of evicting.
+inline size_t sf2_budget_bytes(){
+ return (active_profile.board==Board::Pi5&&active_profile.ram_mb>=8192)?size_t(1536)*1024*1024:size_t(512)*1024*1024;
 }
 // Slot counts additionally cap at the physical pool capacity.
 inline unsigned scaled_slots(unsigned slots,unsigned capacity){

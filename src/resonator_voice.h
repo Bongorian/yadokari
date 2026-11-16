@@ -9,6 +9,7 @@ public:
  bool ready()const{return dsp_.ready();}
  void init(uint32_t seed=1){dsp_.init(seed);position_=24;head_=count_=0;note_=60;active_=false;dropped_=0;pending_=false;}
  void reset(uint32_t seed){seed_=seed;pending_=true;position_=24;head_=count_=dropped_=0;active_=false;}
+ void reseed(uint32_t seed){if(pending_)seed_=seed;else dsp_.reseed(seed);}
  bool trigger(float note){if(pending_)init(seed_);if(count_==16){++dropped_;return false;}notes_[(head_+count_)&15]=note;++count_;active_=true;return true;}
  bool boundary()const{return position_==24;}
  unsigned dropped()const{return dropped_;}

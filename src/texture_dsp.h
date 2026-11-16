@@ -11,6 +11,9 @@ public:
  TextureDsp(const TextureDsp&)=delete;TextureDsp& operator=(const TextureDsp&)=delete;
  bool ready()const{return impl_!=nullptr;}
  void init(uint32_t seed=1);
+ // Note-on reseed: redirect the random stream without re-initialising
+ // the processor, so a note event can own the stream from its first block.
+ void reseed(uint32_t seed){random_=seed;}
  // p: mode, position, size, pitch, density, texture, blend, spread,
  // feedback, reverb, freeze, quality, input, trigger, gate.
  void process(const float* p,const TextureFrame* input,TextureFrame* output,bool strum=false);

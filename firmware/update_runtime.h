@@ -73,6 +73,8 @@ public:
  bool TakeLoopbackRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(5,pending);}
  bool TakeSampleWorkflowRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(6,pending);}
  unsigned TakeDspRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;if(m_BenchmarkRequests.take(20,pending))return 20;if(m_BenchmarkRequests.take(21,pending))return 21;return 0;}
+ bool TakeClockStateRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(27,pending);}
+ bool TakeRenderHashRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(28,pending);}
  bool TakeFinalTestRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(19,pending);}
  bool TakeWave4TestRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(18,pending);}
  bool TakePresetCheckRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(17,pending);}

@@ -25,9 +25,15 @@ static double power(const std::vector<float>& x,unsigned first,unsigned last,dou
 static double energy(const std::vector<float>& x,unsigned first,unsigned last){double sum=0;for(unsigned i=first*2;i<last*2;++i){assert(__builtin_isfinite(x[i]));sum+=double(x[i])*x[i];}return sum;}
 int main(){
  std::setvbuf(stdout,nullptr,_IONBF,0);
- const char* expected[]={"c16ad2dc6967d3cf528a77ac632704db01bc11f963aae36853e57a112e6d4f6b","441603f8519641a7c25d847664c2a45f14b1ccecba61c021faae90feb831200d","3e2ef5cbace6b27a5b31a6d5cc578e906185cd0c4953873f77423e9105305864","532e24870a6d84492f90895c74d3e590d79289511b19a5a5978872fdd02c7ae8"};
+ const char* expected[]={"c16ad2dc6967d3cf528a77ac632704db01bc11f963aae36853e57a112e6d4f6b","441603f8519641a7c25d847664c2a45f14b1ccecba61c021faae90feb831200d","3e2ef5cbace6b27a5b31a6d5cc578e906185cd0c4953873f77423e9105305864","c6c4da0e727be275c24c3312b5f06bcc2eb61a449bede35992da9fd9999d593d"};
  const Instrument engines[]={Instrument::Acid,Instrument::PolySaw,Instrument::FM,Instrument::VirtualAnalog};
- for(unsigned i=0;i<4;++i){uint8_t hash[32];render_plain_phrase(engines[i],hash);char text[65];for(unsigned j=0;j<32;++j)std::snprintf(text+j*2,3,"%02x",hash[j]);assert(!__builtin_strcmp(text,expected[i]));}puts("plain: four 96000-frame float PCM hashes match pre-change master");
+ for(unsigned i=0;i<4;++i){uint8_t hash[32];render_plain_phrase(engines[i],hash);char text[65];for(unsigned j=0;j<32;++j)std::snprintf(text+j*2,3,"%02x",hash[j]);assert(!__builtin_strcmp(text,expected[i]));}// Acid/PolySaw/FM hashes still match pre-change master. The VirtualAnalog
+ // golden was re-baselined under W1: the VA voice is reseeded per note event
+ // (note_event_seed), so its noise-bearing render legitimately changes.
+ // Evidence: the W1-only tree produces this same hash, and on the integrated
+ // tree the hash is identical with render bundles disabled vs enabled
+ // (bundles submit zero jobs for these four instruments).
+ puts("plain: four 96000-frame float PCM hashes match (VA re-baselined for W1 event seeding)");
  StepPitchSlide motion;motion.start(110,220,48000);float f=110;for(unsigned n=0;n<3840;++n){float next=motion.next(f);assert(next>=f && next<=220.01f);f=next;}assert(f==220 && !motion.remaining);motion.start(220,110,48000);f=220;for(unsigned n=0;n<3840;++n){float next=motion.next(f);assert(next<=f && next>=109.99f);f=next;}assert(f==110);
  auto normal=phrase(false,false),slid=phrase(true,false),short_slid=phrase(true,false,24),accent=phrase(false,true),both=phrase(true,true),rest=phrase(true,false,24,true),skip=phrase(true,false,24,false,TrigCondition::Fill),reverse=phrase(true,false,24,false,TrigCondition::Always,PlaybackDirection::Reverse),chord=phrase(true,false,24,false,TrigCondition::Always,PlaybackDirection::Forward,true),ratchet=phrase(true,false,24,false,TrigCondition::Always,PlaybackDirection::Forward,false,2);
  auto loop=phrase(true,false,24,false,TrigCondition::Always,PlaybackDirection::Forward,false,1,Instrument::Acid,true);unsigned loop_seen=0;for(const auto& frame:loop.visuals)if(frame.sample>12200 && frame.sample<16000){assert(frame.envelope[0]<.31f);++loop_seen;}assert(loop_seen);

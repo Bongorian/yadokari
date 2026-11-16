@@ -1,5 +1,6 @@
 #include "drum_gm.h"
 #include "soundfont.h"
+#include "hardware_profile.h"
 #include "file_access.h"
 #include "project_codec.h"
 #include <stdlib.h>
@@ -7,7 +8,7 @@
 namespace {
 struct alignas(16) SfAllocation {size_t bytes;bool high;};
 size_t sf_bytes=0;unsigned sf_allocations=0;
-void* sf_alloc(size_t n){constexpr size_t budget=512u*1024u*1024u,largest=512u*1024u*1024u;if(n>largest-sizeof(SfAllocation) || n>budget-__atomic_load_n(&sf_bytes,__ATOMIC_RELAXED))return nullptr;bool high=false;unsigned char* raw=nullptr;
+void* sf_alloc(size_t n){const size_t budget=groove::hardware::sf2_budget_bytes(),largest=budget;if(n>largest-sizeof(SfAllocation) || n>budget-__atomic_load_n(&sf_bytes,__ATOMIC_RELAXED))return nullptr;bool high=false;unsigned char* raw=nullptr;
 #if !defined(__linux__)
  if(n>=1024u*1024u){high=true;raw=static_cast<unsigned char*>(CMemorySystem::HeapTryAllocate(n+sizeof(SfAllocation),HEAP_HIGH));}
  else

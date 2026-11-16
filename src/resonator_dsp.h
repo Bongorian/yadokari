@@ -14,6 +14,9 @@ public:
  ResonatorDsp(const ResonatorDsp&)=delete;ResonatorDsp& operator=(const ResonatorDsp&)=delete;
  bool ready()const{return part_!=nullptr;}
  void init(uint32_t seed=1);
+ // Note-on reseed: redirect the random stream without re-initialising
+ // the part, so a note event can own the stream from its first block.
+ void reseed(uint32_t seed){random_=seed;}
  void process(unsigned model,unsigned polyphony,const rings::Patch& patch,
               const rings::PerformanceState& performance,const float* input,float* out,float* aux);
 private:

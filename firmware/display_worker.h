@@ -3,6 +3,7 @@
 #include "../src/sample_analysis_slot.h"
 #include "../src/audio_render_slot.h"
 #include "../src/va_sample_slot.h"
+#include "../src/render_bundle_slot.h"
 #include "../src/project_save_slot.h"
 #include "../src/project_load_slot.h"
 #include "../src/soundfont_load_slot.h"
@@ -17,9 +18,10 @@
 #include <circle/logger.h>
 class CDisplayWorker:public CMultiCoreSupport {
  public:
-  CDisplayWorker():CMultiCoreSupport(CMemorySystem::Get()){m_Slot.enable_coalescing();m_Work.clock([](){return CTimer::GetClockTicks();});m_ProjectLoad.initialize(&m_Audio);m_ProjectSave.set_snapshot_copy(CopySnapshot,this,BeginSnapshot,EndSnapshot);m_ProjectSave.set_buffer_copy(CopySnapshot,this);}
+  CDisplayWorker():CMultiCoreSupport(CMemorySystem::Get()){m_Bundle.set_render(&groove::render_bundle_job);m_Slot.enable_coalescing();m_Work.clock([](){return CTimer::GetClockTicks();});m_ProjectLoad.initialize(&m_Audio);m_ProjectSave.set_snapshot_copy(CopySnapshot,this,BeginSnapshot,EndSnapshot);m_ProjectSave.set_buffer_copy(CopySnapshot,this);}
   void set_snapshot_pump(void (*pump)(void*),void* context){m_CopyPump=pump;m_CopyContext=context;}
   groove::VaSampleSlot& VaSlot(){return m_Va;}
+  groove::RenderBundleSlot& BundleSlot(){return m_Bundle;}
   groove::CoreWorkMeter& Work(){return m_Work;}
   groove::DisplayJobSlot& Slot(){return m_Slot;}
   groove::LiveVisualAnalysisSlot& VisualSlot(){return m_VisualAnalysis;}
@@ -58,14 +60,14 @@ class CDisplayWorker:public CMultiCoreSupport {
   }
   void Run(unsigned core)override{
    if(core==1)__atomic_store_n(&m_Ready,1u,__ATOMIC_RELEASE);
-   if(core==2){m_Va.worker_ready();__atomic_store_n(&m_AnalysisReady,1u,__ATOMIC_RELEASE);}
+   if(core==2){m_Va.worker_ready();m_Bundle.worker_ready();__atomic_store_n(&m_AnalysisReady,1u,__ATOMIC_RELEASE);}
    if(core==3)__atomic_store_n(&m_AudioReady,1u,__ATOMIC_RELEASE);
    for(;;){auto stamp=m_Work.begin();bool productive=core==1?m_Slot.process_one():core==2?ProcessAnalysis():core==3?m_Audio.process_one():false;m_Work.end(core,stamp,productive);if(!productive)asm volatile("wfe" ::: "memory");}
   }
 
  private:
-  bool ProcessAnalysis(){if(m_Va.process_one())return true;if(m_ProjectSave.busy()){unsigned before=m_Audio.missing(),begin=CTimer::GetClockTicks();if(m_ProjectSave.process_one()){CLogger::Get()->Write("groove",LogNotice,"Project encode completed us %u worker-missing %u",uint32_t(CTimer::GetClockTicks()-begin),m_Audio.missing()-before);return true;}}return m_SoundFont.process_one() || m_ProjectLoad.process_one() || m_Analysis.process_one() || m_VisualAnalysis.process_one();}
-  groove::CoreWorkMeter m_Work;groove::VaSampleSlot m_Va;
+  bool ProcessAnalysis(){if(m_Va.process_one())return true;if(m_Bundle.process_one())return true;if(m_ProjectSave.busy()){unsigned before=m_Audio.missing(),begin=CTimer::GetClockTicks();if(m_ProjectSave.process_one()){CLogger::Get()->Write("groove",LogNotice,"Project encode completed us %u worker-missing %u",uint32_t(CTimer::GetClockTicks()-begin),m_Audio.missing()-before);return true;}}return m_SoundFont.process_one() || m_ProjectLoad.process_one() || m_Analysis.process_one() || m_VisualAnalysis.process_one();}
+  groove::CoreWorkMeter m_Work;groove::VaSampleSlot m_Va;groove::RenderBundleSlot m_Bundle;
   // One total budget covers all project spans and preserved payloads. Buffer copies
   // run after publication to core 2 and keep their independent local budget.
   static void BeginSnapshot(void* context,size_t bytes){auto& self=*static_cast<CDisplayWorker*>(context);self.m_CopyBegin=CTimer::GetClockTicks();self.m_CopyMissing=self.m_Audio.missing();self.m_CopyWaits=self.m_CopyMaxWait=self.m_CopyPumpUs=0;self.m_CopyBytes=bytes;self.m_CopyBatch=true;}

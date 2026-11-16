@@ -1,6 +1,7 @@
 #pragma once
 #include "soundfont_state.h"
 #include "file_access.h"
+#include "hardware_profile.h"
 namespace groove {
 class IFileAccess;struct WavView;struct SoundFontBank;
 unsigned soundfont_allocation_count();
@@ -9,9 +10,9 @@ uint32_t soundfont_crc(SoundFontBank*);
 bool soundfont_resident(SoundFontBank*);
 inline bool soundfont_file_header(IFileAccess& fs,const char* path){uint8_t h[12];unsigned got=0;return fs.read(path,0,h,12,got) && got==12 && wav_tag(h,"RIFF") && wav_tag(h+8,"sfbk") && uint64_t(wav_u32(h+4))+8==fs.size(path);}
 class SoundFontCache {
- SoundFontBank* head_=nullptr;size_t budget_=512u*1024u*1024u;unsigned handles_=0;const char* failure_="";
+ SoundFontBank* head_=nullptr;size_t budget_=hardware::sf2_budget_bytes();unsigned handles_=0;const char* failure_="";
 public:
- explicit SoundFontCache(size_t budget=512u*1024u*1024u):budget_(budget){}
+ explicit SoundFontCache(size_t budget=hardware::sf2_budget_bytes()):budget_(budget){}
  const char* failure()const{return failure_;}
  unsigned evict_unused(size_t required=0);
  ~SoundFontCache();bool load(IFileAccess& fs,const char* path,WavView& out);WavView lookup(const char* path)const;
