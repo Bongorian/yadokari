@@ -156,6 +156,10 @@ void Engine::slave_clock_tick(){
  uint64_t now=sample_count_;
  uint64_t tick_gap_samples=slave_have_tick_?now-slave_last_tick_sample_:0;
  uint32_t base_q16=0;bool fresh=external_clock_estimator_.observe_q16(now,rate_,base_q16);
+ // Until one real interval has been measured the applied tempo is the
+ // project's saved tempo, not the master's: it must not be used to infer
+ // lost ticks, and any error it caused is a start-up artefact to remove.
+ bool had_base=slave_base_valid_;
  // The estimator treats any interval beyond a 20 BPM tick (rate/8 samples)
  // as a new stream; use the same bound to spot clock dropouts.
  bool gap=slave_have_tick_ && now-slave_last_tick_sample_>uint64_t(rate_)/8;
@@ -186,7 +190,7 @@ void Engine::slave_clock_tick(){
   // (or the master paused): credit the master with the whole ticks that
   // elapsed at the applied tempo, so the phase error stays a true phase
   // (fractional) measurement and a dropout re-locks without a jump.
-  if(slave_have_tick_ && tempo_q16_){
+  if(had_base && slave_have_tick_ && tempo_q16_){
    uint64_t gap_samples=tick_gap_samples;
    uint64_t period_samples=(uint64_t(rate_)*60*65536)/(24*uint64_t(tempo_q16_));
    if(period_samples && gap_samples>period_samples+period_samples/2){
@@ -199,7 +203,9 @@ void Engine::slave_clock_tick(){
   slave_phase_mt_=int32_t((e*1000)>>32);
   int32_t magnitude=slave_phase_mt_<0?-slave_phase_mt_:slave_phase_mt_;
   if(magnitude>slave_phase_max_mt_)slave_phase_max_mt_=magnitude;
-  if(e>(int64_t(3)<<32) || e<-(int64_t(3)<<32))slave_resync(e);
+  const int64_t startup_slack=int64_t(1)<<30; // 0.25 tick
+  if(!had_base && (e>startup_slack || e<-startup_slack)){slave_resync(e);if(slave_base_valid_)tempo_q16_=slave_base_q16_;}
+  else if(e>(int64_t(3)<<32) || e<-(int64_t(3)<<32))slave_resync(e);
   else if(slave_base_valid_){
    // PI trim around the measured average; e>0 (ahead) slows the transport.
    slave_integrator_q32_-=e/200;
