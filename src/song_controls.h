@@ -18,7 +18,7 @@ inline SongControl song_button_control(unsigned index,const SongControlContext& 
   case 1:return {"DELETE",SongAction::Delete,!c.recording && c.cursor<c.length};
   case 2:return {c.import_armed?"SURE?":"IMPORT",SongAction::Import,!c.recording && !c.length && c.chain_length>0};
   case 3:return {c.clear_armed?"SURE?":"CLEAR",SongAction::Clear,!c.recording && c.length>0};
-  case 4:return {c.recording?"END TAKE":"REC ARRANGE",SongAction::Record,c.recording || (!c.playing && !c.counting_in)};
+  case 4:return {c.recording?"END TAKE":"REC ARRANGE",SongAction::Record,c.recording || !c.counting_in};
   case 5:return c.recording?SongControl{"CANCEL TAKE",SongAction::Cancel,true}:SongControl{"SKELETON",SongAction::Skeleton,true};
   default:return {};
  }

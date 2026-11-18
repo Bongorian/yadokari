@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <filesystem>
 #include <cstdlib>
 using namespace groove;
@@ -16,6 +17,64 @@ static void grammar(const Performance& u){
   if(type!=ui::ScreenType::Selection && type!=ui::ScreenType::Transient){bool bad=i<4?top.work!=ui::TopWork::Selection:top.work==ui::TopWork::Selection;if(bad){++violations;std::printf("grammar mode=%s shift=%d top=%u label=%s role=%s\n",mode_name(u.mode()),u.shifted(),i+1,top.label,ui::top_work_name(top.work));}}
  }
 }
+static void live_tools(){
+ auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+ p->tracks[0].instrument=Instrument::PolySaw;p->routing.groups[2].members=1;
+ auto e=std::make_unique<Engine>();CHECK(e->stage_project(*p));
+ auto u=std::make_unique<Performance>(*e,*p);
+ auto renderer=std::make_unique<UiRenderer>();
+ std::string words;
+ renderer->text_observer=[](const SoftwareCanvas::TextPlacement& item,void* data){
+  auto& out=*static_cast<std::string*>(data);out+=item.text;out+='\n';
+ };
+ renderer->text_observer_context=&words;
+ auto draw=[&]{words.clear();renderer->invalidate();renderer->draw(*p,*u);};
+ auto seen=[&](const char* label){return words.find(std::string(label)+"\n")!=std::string::npos;};
+ auto tick=[&]{float audio[128]{};e->render(audio,64);u->poll();};
+ auto tools=[&]{
+  CHECK(u->control(6,1) && u->control(6,0));
+  u->set_shift(true);CHECK(u->soft_key(7));u->set_shift(false);
+  CHECK(u->on_perform_page(PerformTools));
+ };
+ tick();
+ u->set_mode(UiMode::Perform);
+ CHECK(u->soft_key(5) && u->vocoder_ready());
+ CHECK(p->tracks[0].insert_fx[0]==19 && p->tracks[0].insert_fx[1]==1 &&
+       p->tracks[0].insert_fx[2]==0 && p->tracks[0].insert_fx[3]==1);
+ CHECK(u->pad(12,0x10,4095) && u->pad(12,0x20,0));
+ CHECK(u->knob(2,-1000) && p->tracks[0].insert_fx[3]<1);
+ grammar(*u);
+ tools();CHECK(u->soft_key(5) && u->on_perform_page(PerformFxMap));grammar(*u);
+ draw();
+ for(const char* item:{"TRACK FX","GROUP C","MASTER FX","LIVE FX","PRESET FX","ON","OFF","PLAY"})CHECK(seen(item));
+ CHECK(u->soft_key(0) && u->mode()==UiMode::Effects && u->fx_page()==5);
+ tools();CHECK(u->soft_key(5) && u->soft_key(4) && u->mode()==UiMode::Routing && u->group_cursor()==2);
+ tools();CHECK(u->soft_key(5) && u->soft_key(5) && u->mode()==UiMode::Effects && u->fx_page()==0);
+ tools();CHECK(u->soft_key(5) && u->soft_key(6) && u->on_perform_page(PerformLiveFx));
+ tools();CHECK(u->soft_key(5) && u->soft_key(7) && u->browser_editing());
+ CHECK(!std::strcmp(u->knob_label(2),"INCLUDE FX"));u->cancel_browser_edit();
+ tools();CHECK(u->soft_key(4) && u->recording_page());grammar(*u);
+ CHECK(!std::strcmp(u->knob_label(0),"RECORD BUS"));
+ CHECK(u->soft_key(4) && u->take_file_action()==FileAction::Capture);
+ CHECK(u->play());tick();
+ tools();CHECK(u->soft_key(6) && u->playing() && !u->multitimbral());grammar(*u);
+ draw();CHECK(seen("ENTER STOPS THE SEQUENCER AND RELEASES HELD NOTES"));
+ CHECK(u->soft_key(4));tick();CHECK(u->multitimbral() && !u->playing());
+ CHECK(u->soft_key(4));tick();CHECK(!u->multitimbral() && !u->playing());
+ u->set_mode(UiMode::Mixer);
+ CHECK(!std::strcmp(u->soft_label(6),"PAT NEXT"));
+ CHECK(u->soft_key(6) && p->active_pattern==1);
+ u->set_mode(UiMode::Keyboard);
+ CHECK(u->pad(12,0x10,4095));tick();
+ TransferView transfer;transfer.active=true;transfer.started=true;u->transfer_view(transfer);
+ CHECK(!u->pad(12,0x10,4095));draw();
+ CHECK(seen("PERFORMANCE PAUSED / CLOSE TO RESUME"));
+ u->transfer_view({});
+ CHECK(u->pad(12,0x10,4095) && u->pad(12,0x20,0));tick();
+ for(unsigned i=0;i<kPageDescriptorCount;++i){
+  u->set_mode(UiMode(i));draw();CHECK(seen(page_family_name(UiMode(i))));
+ }
+}
 int main(){
  auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->tracks[0].instrument=Instrument::PlaitsMacro;p->ui.motion=0;
  auto e=std::make_unique<Engine>();CHECK(e->stage_project(*p));Performance u(*e,*p);uint64_t samples=0;
@@ -25,7 +84,7 @@ int main(){
  CHECK(u.macro_route(0,0,route) && u.macro_value(0,1,true));advance();CHECK(u.knob_display_value(edit_knob)>.8f);CHECK(parameter_base(*p,track_at(*p,0,0),id)==base);
  CHECK(u.set_parameter(id,.5f));CHECK(u.set_lock(0,id,.2f));u.set_mode(UiMode::Step);CHECK(u.pad(12,0x10,4000));CHECK(u.pad(12,0x20,0));u.set_mode(UiMode::Synth);CHECK(u.play());advance(1000);advance(2400);CHECK(fabsf(u.knob_display_value(edit_knob)-.2f)<.02f);u.stop();advance(64);
  u.set_mode(UiMode::Perform);CHECK(u.soft_key(3) && u.performance_page()==3);CHECK(u.soft_key(2) && u.performance_page()==2);CHECK(u.soft_key(0) && u.performance_page()==0);CHECK(u.soft_key(1) && u.performance_page()==1);
- for(unsigned shift=0;shift<2;++shift){u.set_shift(shift);CHECK(!std::strcmp(u.soft_label(7),"AUDIO"));}u.set_shift(false);CHECK(u.soft_key(7) && u.audio_page());u.soft_key(7);CHECK(!u.audio_page());
+ for(unsigned shift=0;shift<2;++shift){u.set_shift(shift);CHECK(!std::strcmp(u.soft_label(7),shift?"LIVE TOOLS":"LOOPER"));}u.set_shift(false);CHECK(u.soft_key(7) && u.audio_page());u.soft_key(7);CHECK(!u.audio_page());
  u.set_mode(UiMode::Settings);for(unsigned page=0;page<7;++page){while(u.settings_page()<page)CHECK(u.encoder_direction(0x08));CHECK(*u.knob_label(0));for(unsigned k=1;k<8;++k){CHECK(!*u.knob_label(k));CHECK(!u.knob(k,1000));}if(u.settings_count()>1){const char* name=u.knob_label(0);CHECK(u.encoder(1));CHECK(std::strcmp(name,u.knob_label(0)));CHECK(u.encoder(-1));}}
  CHECK(!std::strcmp(u.knob_label(0),"SPACE UNIT"));CHECK(u.knob(0,1000) && u.system_space_unit()==1);
  u.set_mode(UiMode::Browser);u.take_file_action();CHECK(!std::strcmp(u.knob_label(6),"AUDITION LEVEL"));CHECK(!std::strcmp(u.knob_label(7),"FAV FILTER"));CHECK(u.knob(7,1000));CHECK(u.browser().favorites_only && u.take_file_action()==FileAction::Refresh);CHECK(!std::strcmp(u.soft_label(6),"PROJECT"));
@@ -49,6 +108,7 @@ int main(){
  CHECK(!violations);CHECK(controls>500);CHECK(ui::Layout::legend_y==242 && ui::Layout::tracker_rows==9);
  for(unsigned i=0;i<ui::Theme::kCount;++i){const auto& theme=ui::Theme::by_index(i);CHECK(theme.value_edit==theme.accent);}
 
+ live_tools();
  std::printf("Wave11 grammar: %u Top controls, all modes/engines, K1 settings, live macro/lock values, single diagnostics, audio entry, cancellation and palette inspected\n",controls);
  std::printf("Collected failures=%u, placement violations=%u\n",failures,violations);
  return failures || violations?1:0;

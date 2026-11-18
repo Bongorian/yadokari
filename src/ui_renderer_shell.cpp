@@ -57,9 +57,95 @@ auto UiRenderer::diagnostics(const Performance& perf) -> void{
   for(unsigned i=0;i<3 && i+offset<d.log_count;++i){const auto& e=d.log[(d.log_cursor+15-i-offset)%16];int y=162+int(i)*23;label(1,24,y,e.kind==DiagnosticKind::TransferError?"TRANSFER ERROR":e.kind==DiagnosticKind::Hid?"HID":e.kind==DiagnosticKind::MidiIn?"MIDI IN":"MIDI OUT",e.kind==DiagnosticKind::TransferError?theme.danger:theme.secondary,Font::Small,170);value(1,204,y,170,float(e.timestamp/1000),theme.text,Font::Small,0);label(1,390,y,"ms",theme.secondary,Font::Small,40);}
   advice("TURN: LOG SCROLL / EVENTS: UNDO");
  }
+auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) -> void{
+ const unsigned track_index=perf.selected_track();
+ const auto t=track_at(p,p.active_pattern,track_index);
+ auto amount=[&](unsigned side,int x,int y,const char* name,float level){
+  level=ui::clamp01(level);
+  label(side,x,y,name,theme.secondary,Font::Small,117);
+  label(side,x+119,y,level>.001f?"ON":"OFF",level>.001f?theme.teal:theme.dim,Font::Small,30);
+  value(side,x+150,y,28,int(level*100+.5f),theme.text,Font::Small,0);
+  label(side,x+179,y,"%",theme.secondary,Font::Small,16);
+  progress(side,x+197,y+6,234,4,level,theme.teal);
+ };
+ if(perf.on_perform_page(PerformFxMap)){
+  unsigned group=8;
+  for(unsigned i=0;i<8;++i)if(p.routing.groups[i].members&(1u<<track_index)){group=i;break;}
+  const float* ins=t.insert_fx;
+  char group_name[]="GROUP A";
+  if(group<8)group_name[6]=char('A'+group);
+  // The preset snapshot is separate from the audio path.
+  line(0,12,83,12,group<8?226:159,theme.border,1);
+  line(1,12,83,12,185,theme.border,1);
+  fill(0,10,81,5,5,theme.accent);
+  if(group<8)fill(0,10,181,5,5,theme.accent);
+  static constexpr int stages[]={83,135,184};
+  for(int y:stages)fill(1,10,y-2,5,5,theme.accent);
+  label(0,20,76,"TRACK FX",theme.text,Font::Bold,210);
+  amount(0,20,96,"FILTER",1-t.cutoff);amount(0,20,111,"DRIVE / CRUSH",fmaxf(t.drive,t.crusher));
+  amount(0,20,126,"INSERT 1",ins[0] && !(t.insert_disabled&1)?ins[3]:0);
+  amount(0,20,141,"INSERT 2",ins[4] && !(t.insert_disabled&2)?ins[7]:0);
+  amount(0,20,156,"TRACK COMP",t.compressor[5]);
+  label(0,20,176,group<8?group_name:"GROUP FX / UNASSIGNED",theme.text,Font::Bold,230);
+  if(group<8){
+   const auto& route=p.routing.groups[group];
+   amount(0,20,195,"INSERT 1",route.insert_fx[0]?route.insert_fx[3]:0);
+   amount(0,20,210,"INSERT 2",route.insert_fx[4]?route.insert_fx[7]:0);
+   amount(0,20,225,"DELAY / REVERB",fmaxf(route.send[0],route.send[1]));
+  }else amount(0,20,195,"GROUP FX",0);
+  label(1,20,76,"MASTER FX",theme.text,Font::Bold,210);
+  amount(1,20,96,"DELAY",p.effects.delay_mix);amount(1,20,111,"REVERB",p.effects.reverb_mix);
+  label(1,20,129,"LIVE FX",theme.text,Font::Bold,210);
+  amount(1,20,148,"PERFORMANCE",perf.visual_fresh() && perf.visual().performance_fx_actual_mode?perf.visual().performance_fx_amount:0);
+  amount(1,20,163,"SONG FX",p.effects.live_fx_type?p.effects.live_fx_amount:0);
+  amount(1,20,178,"MASTER COMP",p.effects.compressor[5]);
+  label(1,20,207,"PRESET FX",theme.text,Font::Bold,210);
+  const auto& fx=t.preset_fx;
+  amount(1,20,226,"ATTACHED SNAPSHOT",fx.present?fmaxf(fmaxf(fx.delay,fx.reverb),fmaxf(fx.inserts[0] && !(fx.disabled&1)?fx.inserts[3]:0,fx.inserts[4] && !(fx.disabled&2)?fx.inserts[7]:0)):0);
+  return;
+ }
+ if(perf.vocoder_page()){
+  const bool ready=perf.vocoder_ready();
+  label(0,24,83,ready?(perf.vocoder_slot()?"TRACK INSERT 2":"TRACK INSERT 1"):"CHOOSE WHICH INSERT TO REPLACE",theme.text,Font::Bold,432);
+  label(0,24,110,ready?"MODULATOR: EXTERNAL INPUT":"SELECT INSERT 1 OR 2 TO ENABLE",theme.secondary,Font::Small,432);
+  label(1,24,83,"VOCODER / 16 BANDS",theme.text,Font::Bold,432);
+  label(0,24,132,"PADS: CARRIER NOTES / SELECT + PAD: TRACK",theme.secondary,Font::Small,432);
+  if(ready)for(unsigned i=0;i<16;++i){
+   const float level=perf.visual_fresh()?perf.visual().vocoder_bands[track_index][perf.vocoder_slot()][i]:0;
+   fill(1,24+int(i)*27,110,22,95,theme.surface);
+   const int h=int(ui::clamp01(level)*95);
+   if(h)fill(1,24+int(i)*27,205-h,22,h,theme.teal);
+  }
+  return;
+ }
+ if(perf.recording_page()){
+  char name[32];label(0,24,82,"RECORD BUS",theme.secondary,Font::Small,430);
+  label(0,24,104,audio_input_name(perf.capture_source(),name),theme.text,Font::Heading,426);
+  label(0,24,141,"CAPTURE AUDIO SAVES THE LAST 4 SECONDS",theme.secondary,Font::Small,430);
+  label(0,24,167,perf.recording_status(),theme.teal,Font::Small,432);
+  auto signal=ui::pcm_visual(perf,VisualSource::CapturePcm);
+  draw_visual(1,kCaptureVisual,signal,perf,perf.visual().sample,24,82,432,119);
+  return;
+ }
+ if(perf.on_perform_page(PerformModule)){
+  if(perf.multitimbral())module_picture(p,perf);
+  else label(0,24,91,"MIDI CHANNELS 1-16 PLAY TRACKS 1-16",theme.text,Font::Body,440);
+  label(1,24,216,perf.multitimbral()?"EXIT RELEASES MIDI NOTES / USE PLAY TO RESUME":"ENTER STOPS THE SEQUENCER AND RELEASES HELD NOTES",theme.warn,Font::Small,436);
+  return;
+ }
+ label(0,24,84,"AUDIO RECORDING AND CAPTURE",theme.text,Font::Body,430);
+ label(0,24,111,"TRACK, GROUP, MASTER, LIVE AND PRESET FX",theme.secondary,Font::Small,436);
+ label(0,24,138,"MIDI MODULE ROUTES CHANNELS DIRECTLY TO TRACKS",theme.secondary,Font::Small,436);
+}
 auto UiRenderer::audio_lane_page(const ProjectState& p,const Performance& perf) -> void{
   unsigned t=perf.selected_track();const auto& a=p.audio[t];bool loop=a.kind==TrackKind::Looper;unsigned selected=loop?0:perf.audio_clip_cursor();const auto& clip=a.clips[selected];uint32_t color=ui::track_color(p,t,theme);
-  label(0,16,82,loop?"LOOPER / SIGNAL FLOW":a.kind==TrackKind::Audio?"AUDIO / SONG TIMELINE":"SELECT LOOPER OR AUDIO ABOVE",theme.text,Font::Bold,450);
+  if(perf.on_perform_page(PerformLooper)?!loop:a.kind!=TrackKind::Audio){
+   const bool empty=a.kind==TrackKind::Instrument;
+   const char* instruction=perf.on_perform_page(PerformLooper)?"TOP5 PREPARE + REC":empty?"TOP2 CREATE AUDIO TRACK":"SELECT AN AUDIO OR EMPTY TRACK";
+   label(0,16,82,instruction,theme.text,Font::Bold,450);
+   return;
+  }
+  label(0,16,82,loop?"LOOPER / SIGNAL FLOW":"AUDIO / SONG TIMELINE",theme.text,Font::Bold,450);
   if(loop){
    for(unsigned i=0;i<8;++i){if(!*perf.knob_label(i))continue;auto shown=formatted_knob(p,perf,i);value_row(0,24+int(i/4)*224,104+int(i%4)*25,206,23,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar,0,true,perf.knob_touched(i)});}
    VisualData data;data.available=clip.asset<64;data.point=perf.visual().sample_active[t];data.phase=perf.visual().sample_position[t];data.layers=data.available?(perf.audio_undo_available(t)?2:1):0;data.recording=perf.live_recording();data.recorded=data.recording?ui::clamp01(float(perf.visual().record_columns)/512):data.available?1:0;data.live=data.point || data.recording;data.label=data.available?filename(p.assets[clip.asset].path):"EMPTY / RECORD A LOOP";draw_visual(1,kLoopVisual,data,perf,perf.visual().sample,24,82,430,118);return;
@@ -222,10 +308,10 @@ auto UiRenderer::knobs_active(const Performance& perf,uint64_t now) const  -> bo
 auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned peak,unsigned load,WavView sample) -> void{
   (void)peak;(void)load;theme=ui::Theme::by_index(perf.visual_settings().theme);brightness(perf.device_settings().screen);uint64_t now=perf.ui_time();if(last_mode_!=int(perf.mode()))page_ms_=now;
   if(perf.transfer_view().active){const auto& v=perf.transfer_view();layout_reset();clip_y();transition_.cancel();text_clock(now,false);for(unsigned side=0;side<2;++side)fill(side,0,0,480,272,theme.background);
-   for(unsigned i=0;i<8;++i){unsigned side=i/4;int x=8+int(i%4)*117;auto control=perf.soft_presentation(i);bool selected=perf.soft_selected(i);rounded(side,x,2,113,18,0,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x,2,113,18);label_band(side,x+3,2,107,18,control.label,perf.soft_enabled(i)?theme.accent:theme.disabled,Font::Small);}label_band(0,24,30,430,28,"FILE TRANSFER",theme.text,Font::Heading);label_band(1,24,30,430,28,v.usb?"USB-C / FILES":"WI-FI / FILES",theme.text,Font::Heading);
+   for(unsigned i=0;i<8;++i){unsigned side=i/4;int x=8+int(i%4)*117;auto control=perf.soft_presentation(i);bool selected=perf.soft_selected(i);rounded(side,x,2,113,18,0,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x,2,113,18);label_band(side,x+3,2,107,18,control.label,perf.soft_enabled(i)?theme.accent:theme.disabled,Font::Small);}label_band(0,24,30,430,28,"FILE TRANSFER",theme.text,Font::Heading);label_band(1,24,30,280,28,v.usb?"USB-C / FILES":"WI-FI / FILES",theme.text,Font::Heading);label_band(1,321,30,92,28,page_family_name(UiMode::Settings),theme.secondary,Font::Small);
    label_band(0,24,78,430,22,v.usb?"TRANSPORT":"SSID",theme.secondary,Font::Small);label_band(0,24,100,430,34,v.ssid,theme.text,Font::Heading);
    label_band(0,24,151,430,22,v.usb?"HOST TOOL":"CONNECTION CODE",theme.secondary,Font::Small);label_band(0,24,174,430,40,v.usb?"tools/files/usb_files.py":v.code,theme.accent,v.usb?Font::Body:Font::Number);
-   label_band(1,24,78,430,22,v.usb?"SESSION":"ADDRESS",theme.secondary,Font::Small);label_band(1,24,100,430,30,v.usb?"PHYSICAL CABLE / NO CODE":v.address,theme.text,Font::Heading);label_band(1,24,130,430,18,v.discovery,theme.secondary,Font::Small);label_band(1,24,155,430,24,v.status,theme.secondary,Font::Small);
+   label_band(1,24,78,430,22,v.usb?"SESSION":"ADDRESS",theme.secondary,Font::Small);label_band(1,24,100,430,30,v.usb?"PHYSICAL CABLE / NO CODE":v.address,theme.text,Font::Heading);label_band(1,24,130,430,18,v.discovery,theme.secondary,Font::Small);label_band(1,24,155,430,24,v.status,theme.secondary,Font::Small);label_band(0,24,224,430,20,"PERFORMANCE PAUSED / CLOSE TO RESUME",theme.warn,Font::Small);
    fill(1,24,188,430,4,theme.surface);if(v.length)fill(1,24,188,int(430.0*double(v.received)/double(v.length)),4,theme.accent);char remaining[24];format_value(remaining,float(v.remaining),0);label_band(1,24,222,220,24,v.usb?"IDLE TIMEOUT":"CLOSES IN",theme.secondary,Font::Small);label_band(1,252,222,202,24,remaining,theme.text,Font::Heading);
    initialized_=false;return;
   }
@@ -247,7 +333,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   for(const char* name=t.preset_name;*name;++name)context=(context^uint8_t(*name))*1099511628211ull;
   if(perf.mode()==UiMode::Project){for(const char* n=perf.project_path();*n;++n)context=(context^uint8_t(*n))*1099511628211ull;context=(context^perf.asset_cursor())*1099511628211ull;context=(context^perf.midi_capture_state())*1099511628211ull;for(const char* n=perf.midi_capture_path();*n;++n)context=(context^uint8_t(*n))*1099511628211ull;for(const auto& asset:p.assets)for(const char* n=asset.path;*n;++n)context=(context^uint8_t(*n))*1099511628211ull;}
   if(perf.mode()==UiMode::Browser || perf.mode()==UiMode::Library || perf.source_select() || perf.browser_editing()){const auto& b=perf.browser();auto key=[&](unsigned v){context=(context^v)*1099511628211ull;};auto text_key=[&](const char* text){for(;*text;++text)key(uint8_t(*text));key(0);};key(b.library_list);key(b.processing);key(unsigned(perf.pending_file_action()));key(b.library_offset);key(b.library_total);key(b.folder_offset);key(b.folder_total);key(b.library_kits);key(b.library_originals);key(b.edit.duplicate);key(b.cursor);key(b.count);key(unsigned(b.edit.operation));key(b.edit.cursor);key(b.edit.include_fx);key(b.previewing);text_key(b.directory);text_key(b.status);text_key(b.edit.name);for(unsigned i=0;i<b.count;++i){text_key(b.entries[i].name);key(b.entries[i].directory);key(unsigned(b.library_engine[i]));key(b.library_factory[i]);key(b.library_revision[i]);}}
-  if(perf.mode()==UiMode::Sampler || (perf.mode()==UiMode::Routing && !perf.routing_fx_page())){const auto target=perf.recording_target();const auto take=perf.resample_view();const unsigned state[]={target.track,target.pattern,target.kit_pad,perf.recording_source(),unsigned(perf.recording_origin()),unsigned(perf.recording_controls().stopping),unsigned(perf.recording_quantized()),unsigned(perf.pending_file_action()),unsigned(perf.recording_file_busy()),unsigned(perf.resampling()),unsigned(perf.resample_cancel_pending()),take.source,take.bars,take.target.track,take.target.pattern,take.target.kit_pad,unsigned(perf.audio_available()),unsigned(perf.scene_take_requested())};for(unsigned v:state)context=(context^v)*1099511628211ull;}
+  if(perf.recording_page() || perf.mode()==UiMode::Sampler || (perf.mode()==UiMode::Routing && !perf.routing_fx_page())){const auto target=perf.recording_target();const auto take=perf.resample_view();const unsigned state[]={target.track,target.pattern,target.kit_pad,perf.recording_source(),unsigned(perf.recording_origin()),unsigned(perf.recording_controls().stopping),unsigned(perf.recording_quantized()),unsigned(perf.pending_file_action()),unsigned(perf.recording_file_busy()),unsigned(perf.resampling()),unsigned(perf.resample_cancel_pending()),take.source,take.bars,take.target.track,take.target.pattern,take.target.kit_pad,unsigned(perf.audio_available()),unsigned(perf.scene_take_requested())};for(unsigned v:state)context=(context^v)*1099511628211ull;}
   if(perf.mode()==UiMode::Sampler || perf.mode()==UiMode::Browser){const auto& b=perf.browser();context=(context^uintptr_t(b.analysis_source))*1099511628211ull;context=(context^uintptr_t(sample.reader?static_cast<const void*>(sample.reader):static_cast<const void*>(sample.data)))*1099511628211ull;context=(context^sample.frames)*1099511628211ull;context=(context^unsigned(b.analysis_pending))*1099511628211ull;}
   context_matches_=context==last_context_;text_clock(now,!context_matches_);
   const char* toast_text=perf.notice()!=UiNotice::None?perf.notice_text():perf.file_notice_text();
@@ -314,7 +400,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   if(transition_.active())repaint_body_=true;
   for(unsigned side=0;side<2;++side){fill(side,0,0,480,64,theme.background);if(repaint_body_)fill(side,0,64,480,ui::Layout::body_h,theme.background);}
   for(unsigned i=0;i<8;++i){unsigned side=i/4;int x=8+int(i%4)*117;bool chosen=perf.soft_selected(i);rounded(side,x,2,113,18,0,chosen?theme.raised:theme.surface);if(chosen)fill(side,x+6,18,101,2,theme.accent);const auto control=perf.soft_presentation(i);uint32_t ink=!perf.soft_enabled(i)?theme.disabled:chosen?theme.accent:theme.secondary;int tw=ui::text_width(control.label,Font::Small),group=tw+(control.icon?18:0);int left=x+3+(107-(group>107?107:group))/2;if(control.icon)icon(side,left,4,control.icon,ink);label_band(side,left+(control.icon?18:0),2,107-(control.icon?18:0),18,control.label,ink,Font::Small); }
-  const char* right=perf.audio_page()?"Audio / looper":perf.mode()==UiMode::Library?(perf.file_navigation_processing()?"PROCESSING":perf.browser().library_kits?"Kit":"Preset"):perf.mode()==UiMode::Browser?(perf.browser().new_project_list?"Template / empty":perf.file_navigation_processing()?"PROCESSING":perf.midi_browser()?"MIDI import":"Waveform / audition"):perf.mode()==UiMode::Routing?(perf.routing_fx_page()?(perf.group_send_page()?"Group sends":"Group insert"):"Audio buses"):perf.mode()==UiMode::Diagnostics?"Hardware monitor":perf.mode()==UiMode::Mixer?"Channel / routing":perf.mode()==UiMode::Effects?(perf.fx_page()==5?"FX chain":perf.fx_page()==4?"Pad insert":perf.fx_page()==3?"Track inserts":perf.fx_page()==2?"Track compressor":perf.fx_page()==1?"Master compressor":"Delay / Reverb"):perf.mode()==UiMode::Sampler?(perf.sampler_page()==1?"Trim / envelope":perf.sampler_page()==2?(t.instrument==Instrument::DrumKit?"Kit layers":"Slice mapping"):"Sample playback"):perf.mode()==UiMode::Perform?(perf.performance_page()==4?"Live FX":perf.performance_page()==3?"Pattern mutation":perf.performance_page()==2?"Gesture recorder":perf.performance_page()==1?"Performance macros":perf.control_all()?"Control All":"A/B morph"):perf.mode()==UiMode::Clip?"Clip detail":perf.mode()==UiMode::Scene?"Scene follow":perf.mode()==UiMode::Settings?"Device settings":perf.mode()==UiMode::Project?"Project assets":perf.mode()==UiMode::Modulation?(perf.modulation_page()==0?"LFO / pressure":perf.modulation_page()==1?"Automation":perf.modulation_page()==2?"Macro routing":perf.modulation_page()==4?"RPN / NRPN":"MIDI routing"):perf.mode()==UiMode::Generate?"Generative tools":track_display_name(t,p.audio[perf.selected_track()].kind);
+  const char* right=perf.on_perform_page(PerformTimeline)?"Song audio":perf.audio_page()?"Loop recording":perf.mode()==UiMode::Perform && perf.performance_page()>=PerformTools?perf.page_title():perf.mode()==UiMode::Library?(perf.file_navigation_processing()?"PROCESSING":perf.browser().library_kits?"Kit":"Preset"):perf.mode()==UiMode::Browser?(perf.browser().new_project_list?"Template / empty":perf.file_navigation_processing()?"PROCESSING":perf.midi_browser()?"MIDI import":"Waveform / audition"):perf.mode()==UiMode::Routing?(perf.routing_fx_page()?(perf.group_send_page()?"Group sends":"Group insert"):"Audio buses"):perf.mode()==UiMode::Diagnostics?"Hardware monitor":perf.mode()==UiMode::Mixer?"Channel / routing":perf.mode()==UiMode::Effects?(perf.fx_page()==5?"FX chain":perf.fx_page()==4?"Pad insert":perf.fx_page()==3?"Track inserts":perf.fx_page()==2?"Track compressor":perf.fx_page()==1?"Master compressor":"Delay / Reverb"):perf.mode()==UiMode::Sampler?(perf.sampler_page()==1?"Trim / envelope":perf.sampler_page()==2?(t.instrument==Instrument::DrumKit?"Kit layers":"Slice mapping"):"Sample playback"):perf.mode()==UiMode::Perform?(perf.performance_page()==4?"Live FX":perf.performance_page()==3?"Pattern mutation":perf.performance_page()==2?"Gesture recorder":perf.performance_page()==1?"Performance macros":perf.control_all()?"Control All":"A/B morph"):perf.mode()==UiMode::Clip?"Clip detail":perf.mode()==UiMode::Scene?"Scene follow":perf.mode()==UiMode::Settings?"Device settings":perf.mode()==UiMode::Project?"Project assets":perf.mode()==UiMode::Modulation?(perf.modulation_page()==0?"LFO / pressure":perf.modulation_page()==1?"Automation":perf.modulation_page()==2?"Macro routing":perf.modulation_page()==4?"RPN / NRPN":"MIDI routing"):perf.mode()==UiMode::Generate?"Generative tools":track_display_name(t,p.audio[perf.selected_track()].kind);
   header(0,perf.twin_dialog()?"TWIN":perf.composition_dialog()?"DUPLICATE":perf.page_title(),perf,p);header(1,perf.twin_dialog()?"Prepare instrument":perf.composition_dialog()==2?"Scene destination":perf.composition_dialog()?"Pattern variation":right,perf,p);
   layout_band(76,131,64,ui::Layout::body_h);clip_y(ui::Layout::body_y,ui::Layout::legend_y);
   if(repaint_body_)page_advice.clear();
@@ -330,7 +416,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    case UiMode::Mixer:mixer(p,perf);break;
    case UiMode::Effects:effects(p,perf);break;
    case UiMode::Modulation:modulation_editor(p,perf);break;
-   case UiMode::Perform:if(perf.audio_page())audio_lane_page(p,perf);else if(perf.performance_page()==4)performance_fx_page(perf);else if(perf.performance_page()==3)mutation(p,perf);else if(perf.performance_page()==2)gesture_page(p,perf);else if(perf.performance_page()==1)macro_performance(p);else performance(p,perf);break;
+   case UiMode::Perform:if(perf.audio_page())audio_lane_page(p,perf);else if(perf.performance_page()>=PerformTools)live_tools_page(p,perf);else if(perf.performance_page()==4)performance_fx_page(perf);else if(perf.performance_page()==3)mutation(p,perf);else if(perf.performance_page()==2)gesture_page(p,perf);else if(perf.performance_page()==1)macro_performance(p);else performance(p,perf);break;
    case UiMode::Generate:generate(p,perf);break;
    case UiMode::Project:project(p,perf);break;
    case UiMode::Settings:settings(perf);break;
@@ -372,6 +458,9 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
   if(perf.step_attribute_knob(i)){out.append(raw>=.5f?"ON":"OFF");return out;}
   if(perf.input_values()){if(i==4 && !perf.step_chord_editor()){out.number(raw*100,0);out.append("%");return out;}if(i==1){char pitch[12];pitch_name(unsigned(raw),pitch);out.append(pitch);}else if(i==2)out.append(scale_name(unsigned(raw)));else if(i==6)out.append(chord_shape_definition(unsigned(raw)).name);else if(i==7){static const char* inversions[]={"ROOT","INV 1","INV 2","INV 3"};out.append(inversions[unsigned(raw)%4]);}else{out.number(raw,0);if(i==0)out.append("bpm");if(i==5)out.append("t");}return out;}
   if(perf.mode()==UiMode::Settings){out.append(perf.setting_text(perf.settings_cursor()));return out;}
+  if(perf.vocoder_page() && i<2){if(const char* choice=fx_choice_name(19,i+1,perf.knob_value(i)))out.append(choice);return out;}
+  if(perf.vocoder_page() && i==2){char mix[24];format_value(mix,perf.knob_value(i)*100,0);out.append(mix);out.append("%");return out;}
+  if(perf.recording_page() && i==0){char name[32];out.append(audio_input_name(perf.capture_source(),name));return out;}
   if(perf.browser_editing()){if(perf.preset_fx_editing() && (i==2 || i==3)){out.append((i==2?perf.browser().edit.include_fx:perf.browser().edit.duplicate)?"ON":"OFF");return out;}const auto& edit=perf.browser().edit;if(!i)out.number(edit.cursor+1,0);else{char ch[2]={edit.name[edit.cursor],0};out.append(!ch[0]?"End":ch[0]==' '?"Space":ch);}return out;}
    if(engine_target(parameter)){const auto* d=engine_parameter(target_engine(parameter),target_local(parameter));if(d && d->choice_count){out.append(d->choices[unsigned(raw)<d->choice_count?unsigned(raw):0]);return out;}}
    if(perf.native_synth_page() && parameter==engine_target(Instrument::Texture,0)){static const char* modes[]={"GRANULAR","STRETCH","LOOP DELAY","SPECTRAL"};out.append(modes[unsigned(raw)%4]);return out;}
@@ -493,7 +582,7 @@ auto UiRenderer::twin_panel(const Performance& perf) -> void{
  const auto& config=perf.twin_config();bool running=perf.twin_dialog()==2;
  for(unsigned side=0;side<2;++side){fill(side,0,64,480,ui::Layout::overlay_y-64,theme.background);panel(side,10,79,460,128);}
  label(0,24,85,"TWIN / PREPARE",theme.text,Font::Heading,420);
- label(1,24,85,running?"AUTO SAMPLING / MAIN ISOLATED":"SYNTH < > SAMPLE / NEXT BAR",theme.secondary,Font::Small,430);
+ label(1,24,85,running?(perf.twin_waiting_bar()?"ARMED / NEXT BAR":"AUTO SAMPLING / TRACK ISOLATED"):"SYNTH < > SAMPLE / NEXT BAR",theme.secondary,Font::Small,430);
  label(0,24,111,config.valid()?"RANGE / UP TO 16 ZONES":"INVALID RANGE / MAX 16 NOTES",config.valid()?theme.secondary:theme.warn,Font::Small,350);
  value(0,390,111,55,config.count(),config.valid()?theme.text:theme.warn,Font::Small,0);
  unsigned count=config.count();if(count>16)count=16;

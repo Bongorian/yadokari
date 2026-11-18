@@ -4,6 +4,16 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 0.9.8
+
+- Added quick VOCODER, LOOPER, RECORDING, FX MAP and MIDI MODULE pages
+  to PERFORM. Grouped source selection, recording, resampling and
+  retrospective audio capture on RECORDING.
+- Moved PAT NEXT to MIXER Top7. TWIN isolates the selected Track at the
+  next bar and automatically resumes it after preparation.
+- Added next-bar arming for Arrangement recording during playback,
+  mode family tags and a persistent file transfer pause notice.
+
 ## 0.9.7
 
 - Added shared CHIMERA polyphony, Poly/Mono/Legato voice modes and

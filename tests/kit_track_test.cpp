@@ -97,8 +97,8 @@ int main(){
   auto wet=std::make_unique<Engine>(8000),dry=std::make_unique<Engine>(8000);assert(wet->stage_project(*with_fx,assets));pad.insert_fx[0]=0;assert(dry->stage_project(*with_fx,assets));
   float a[512]{},b[512]{};wet->render(a,0);dry->render(b,0);Command hit{CommandType::Trigger,0,0,100};hit.parameter=4;hit.scalar=0;assert(wet->submit(hit) && dry->submit(hit));wet->render(a,256);dry->render(b,256);
   float difference=0;for(unsigned i=0;i<512;++i)difference+=std::abs(a[i]-b[i]);assert(difference>1);
-  Performance ui(*wet,*with_fx);ui.set_mode(UiMode::Effects);assert(ui.soft_key(6) && ui.fx_page()==4);assert(ui.knob(1,1000));assert(track_at(*with_fx,0,0).kit.pads[0].insert_fx[0]==1);
-  assert(ui.encoder(1) && ui.selected_kit_pad()==1);assert(ui.encoder(-1) && ui.selected_kit_pad()==0);assert(ui.encoder_push() && ui.encoder(1));assert(pad.insert_fx[0]==2 && std::abs(ui.knob_normalized(1)-2.0f/18)<0.0001f);assert(ui.encoder_push());ui.set_shift(true);assert(ui.knob(1,1000) && ui.knob(1,1000));assert(track_at(*with_fx,0,0).kit.steps[0][0].fx_lock[0]==4 && ui.knob_value(1)==4);ui.set_shift(false);assert(ui.control(1,0x10) && ui.selected_kit_pad()==1);assert(ui.control(1,0));assert(ui.control(1,0x04) && ui.selected_kit_pad()==0);assert(ui.control(1,0));
+  Performance ui(*wet,*with_fx);ui.set_mode(UiMode::Effects);assert(ui.soft_key(6) && ui.fx_page()==4);assert(ui.knob(1,1000));assert(track_at(*with_fx,0,0).kit.pads[0].insert_fx[0]==19);
+  assert(ui.encoder(1) && ui.selected_kit_pad()==1);assert(ui.encoder(-1) && ui.selected_kit_pad()==0);assert(ui.encoder_push() && ui.encoder(1));assert(pad.insert_fx[0]==20 && std::abs(ui.knob_normalized(1)-20.0f/(kFxCount-1))<0.0001f);assert(ui.encoder_push());ui.set_shift(true);assert(ui.knob(1,1000) && ui.knob(1,1000));assert(track_at(*with_fx,0,0).kit.steps[0][0].fx_lock[0]==7 && ui.knob_value(1)==7);ui.set_shift(false);assert(ui.control(1,0x10) && ui.selected_kit_pad()==1);assert(ui.control(1,0));assert(ui.control(1,0x04) && ui.selected_kit_pad()==0);assert(ui.control(1,0));
   ui.set_shift(true);assert(ui.knob(2,1000));assert(track_at(*with_fx,0,0).kit.steps[0][0].fx_lock[1]!=255);assert(track_at(*with_fx,0,0).kit.steps[1][0].fx_lock[1]==255);assert(ui.clear_step_locks());assert(track_at(*with_fx,0,0).kit.steps[0][0].fx_lock[1]==255);ui.set_shift(false);
  }
  {
@@ -137,7 +137,7 @@ int main(){
   assert(workflow.modifier(0x10,true));assert(workflow.pad(12,0x10,4095));assert(track_at(*layers,0,0).kit.solo_mask==1 && !track_at(*layers,0,0).kit.pads[0].muted);assert(workflow.pad(12,0x20,0));assert(workflow.modifier(0x10,false));layered->render(audio,128);assert(layered->active_sample_voices()==0);
   assert(layered->submit(hit_other));layered->render(audio,128);assert(layered->active_sample_voices()==0);assert(layered->submit(hit));layered->render(audio,128);assert(layered->active_sample_voices()==1);
   Buffer solo_saved;assert(encode_project(solo_saved,*layers));auto solo_restored=std::make_unique<ProjectState>();assert(decode_project(solo_saved,*solo_restored));assert(track_at(*solo_restored,0,0).kit.solo_mask==1);
-  workflow.set_mode(UiMode::Routing);assert(workflow.knob(6,1000) && workflow.capture_source()==1);assert(workflow.knob(6,-1000) && workflow.capture_source()==0);workflow.set_mode(UiMode::Sampler);
+  workflow.set_mode(UiMode::Routing);workflow.set_shift(false);assert(workflow.soft_key(4));assert(workflow.knob(0,1000) && workflow.capture_source()==1);assert(workflow.knob(0,-1000) && workflow.capture_source()==0);workflow.set_mode(UiMode::Sampler);
   assert(workflow.control(6,0x40));assert(workflow.take_file_action()==FileAction::RecordToggle);assert(workflow.control(6,0));workflow.set_shift(true);assert(workflow.control(6,0x40));assert(workflow.take_file_action()==FileAction::SampleRecordToggle);assert(workflow.control(6,0));workflow.set_shift(false);
  }
  auto engine=std::make_unique<Engine>(8000);assert(engine->stage_project(*project,assets));float frame[2]{};engine->render(frame,0);
@@ -216,8 +216,8 @@ int main(){
  for(unsigned i=0;i<2048;i+=256)engine->render(out.data(),256);
  for(float v:out)assert(std::isfinite(v));
  for(unsigned hw=0;hw<16;++hw){ui.pad(uint8_t(hw),0x20,0);}
- ui.set_mode(UiMode::Effects);assert(ui.soft_key(3) && ui.fx_page()==3);assert(ui.knob(0,1000));assert(track_at(*project,0,0).insert_fx[0]==1);ui.set_shift(true);assert(ui.knob(1,1000));bool insert_lock=false;for(const auto& lock:track_at(*project,0,0).steps[ui.selected_step()].locks)insert_lock|=lock.enabled && lock.id==95;assert(insert_lock);ui.set_shift(false);
- assert(ui.control(1,0x10) && ui.fx_focus_slot()==1);assert(ui.control(1,0));assert(ui.encoder_push() && ui.encoder(1));assert(track_at(*project,0,0).insert_fx[4]==1);assert(ui.encoder_push());ui.set_shift(true);assert(ui.knob(4,1000) && ui.knob(4,1000));assert(ui.knob_value(4)==3);ui.set_shift(false);assert(ui.control(1,0x04) && ui.fx_focus_slot()==0);assert(ui.control(1,0));
+ ui.set_mode(UiMode::Effects);assert(ui.soft_key(3) && ui.fx_page()==3);assert(ui.knob(0,1000));assert(track_at(*project,0,0).insert_fx[0]==19);ui.set_shift(true);assert(ui.knob(1,1000));bool insert_lock=false;for(const auto& lock:track_at(*project,0,0).steps[ui.selected_step()].locks)insert_lock|=lock.enabled && lock.id==95;assert(insert_lock);ui.set_shift(false);
+ assert(ui.control(1,0x10) && ui.fx_focus_slot()==1);assert(ui.control(1,0));assert(ui.encoder_push() && ui.encoder(1));assert(track_at(*project,0,0).insert_fx[4]==19);assert(ui.encoder_push());ui.set_shift(true);assert(ui.knob(4,1000) && ui.knob(4,1000));assert(ui.knob_value(4)==21);ui.set_shift(false);assert(ui.control(1,0x04) && ui.fx_focus_slot()==0);assert(ui.control(1,0));
  auto poly_project=std::make_unique<ProjectState>();make_empty_project(*poly_project);track_at(*poly_project,0,0).instrument=Instrument::FM;
  auto crowded=std::make_unique<Engine>(),reference_engine=std::make_unique<Engine>();
  assert(crowded->stage_project(*poly_project) && reference_engine->stage_project(*poly_project));

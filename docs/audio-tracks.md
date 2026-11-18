@@ -18,7 +18,7 @@ Audio slots are not driven by steps, notes, or Pattern changes. The instrument s
 
 A host screen generated from the common renderer and real data — not a photograph of the hardware. On the left are values such as input, length and Feedback; on the right is the Ring at the actual playback position.
 
-The canonical entry point is **PERFORM → Top8 AUDIO**. The implicit repurposing from an audio slot and the SONG shortcut have been removed. 4-D movement inside PERFORM is retained. **Top1 LOOPER** switches the selected track. Pads select tracks and K1 is also TRACK. Operating a Pad while holding MUTE/SOLO works as usual.
+Use **PERFORM → Top8 LOOPER → Top5 RECORD**. If needed, an unused Track receives a free audio lane, and playback starts if it was stopped. Re-entering LOOPER recalls its last Track. Pads, 4-D navigation and K1 select Tracks. Operating a Pad while holding MUTE/SOLO works as usual.
 
 | Operation | LOOPER |
 |---|---|
@@ -27,7 +27,7 @@ The canonical entry point is **PERFORM → Top8 AUDIO**. The implicit repurposin
 | K4 BARS | With Bars, 1–64 bars. Pattern rounds the playing Pattern length at record-arm time up to whole bars |
 | K5 FEEDBACK | The amount of the existing loop retained when overdubbing, 0–1 |
 | K6 LEVEL / K7 PAN | The loop's output level and pan |
-| Top5 RECORD | During PLAY, recording starts at the next bar line. Pressing again is a priority STOP |
+| Top5 RECORD | Recording starts at a bar line. Pressing again is a priority STOP |
 | Top6 OVERDUB | At the next bar line, cues the existing loop from the top and overdubs the same number of frames |
 | Top7 PLAY / STOP | Restarts / stops the loop at the next bar line |
 | SHIFT+Top7 CLEAR → Top1 confirm | Releases the loop assignment |
@@ -44,7 +44,7 @@ An overdub mixes and verifies "existing PCM × FEEDBACK + the new input" on the 
 
 A shared host-generated screen. The upper diagram shows clip placements; the lower row shows the selected clip's start bar, trim and gain.
 
-**Top2 AUDIO** on the same page. Return to Song with **SHIFT+Top8 SONG**, prepare sections, enable the Song, and PLAY. Go to **PERFORM → Top8 AUDIO** again, choose an empty Track and a CLIP, and press Top5 RECORD. Both start and end are confirmed on bar lines, and the WAV is placed automatically at the actual punch-in position. The input is K8. The recording destination is fixed at arm time. A fixed-length / AUDIO recording interrupted mid-bar by a global STOP is not substituted into the existing assignment. Use Top5 for a normal punch-out.
+Open **Top2 TIMELINE** from LOOPER. Select an empty Track and press **Top2 CREATE AUDIO** if needed. Prepare and enable a Song, press PLAY, then select a CLIP on TIMELINE and press Top5 RECORD. Both start and end are confirmed on bar lines, and the WAV is placed automatically at the actual punch-in position. The input is K8. The recording destination is fixed at arm time. A fixed-length / AUDIO recording interrupted mid-bar by a global STOP is not substituted into the existing assignment. Use Top5 for a normal punch-out.
 
 | Operation | AUDIO |
 |---|---|

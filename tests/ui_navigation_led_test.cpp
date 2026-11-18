@@ -37,6 +37,12 @@ static void live_surface_regressions(){
  assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
  assert(ui->soft_key(7) && ui->performance_page()==5);flush();
  assert(!ui->performance_fx_latched() && engine->performance_fx_current()==PerformanceFx::Off);
+ assert(ui->control(6,1) && ui->control(6,0) && ui->soft_key(6));
+ assert(ui->set_performance_fx(PerformanceFx::Gate,.75f,true));flush();
+ assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
+ assert(ui->set_control_all(true));flush();
+ assert(ui->on_perform_page(PerformMorph) && !ui->performance_fx_latched() && engine->performance_fx_current()==PerformanceFx::Off);
+ assert(ui->set_control_all(false));
  assert(ui->launch_scene(2,true));flush();
  assert(ui->pending_scene()==2);
  MidiInputRouter router;

@@ -94,7 +94,7 @@ public:
  bool multitimbral()const{return engine_.multitimbral();}
  bool set_multitimbral(bool on);
  LayerReason layer_warning(bool runtime=true)const;
- bool module_transport_blocked(){if(!multitimbral())return false;copy_text(browser_.status,sizeof browser_.status,"SETTINGS > MIDI > MULTITIMBRAL: OFF, then PLAY");notify(UiNotice::ModuleTransport);return true;}
+ bool module_transport_blocked(){if(!multitimbral())return false;copy_text(browser_.status,sizeof browser_.status,"PERFORM > LIVE TOOLS > MIDI MODULE: EXIT");notify(UiNotice::ModuleTransport);return true;}
  bool play() ;
  bool restart_transport(bool quantized=false);
  bool start_count_in_record();
@@ -180,7 +180,18 @@ public:
  ParameterTarget held_model_target(unsigned index)const;
  void toggle_edit() { set_mode(mode_==UiMode::Step?UiMode::Pad:UiMode::Step); }
  void set_shift(bool shift) { controls_[0]=uint8_t((controls_[0]&~0x40)|(shift?0x40:0)); }
- bool audio_page()const{return mode_==UiMode::Perform && performance_page_==5;}
+ bool on_perform_page(PerformPage page)const{return mode_==UiMode::Perform && performance_page_==page;}
+ bool audio_page()const{return on_perform_page(PerformLooper) || on_perform_page(PerformTimeline);}
+ bool vocoder_page()const{return on_perform_page(PerformVocoder);}
+ bool recording_page()const{return on_perform_page(PerformRecording);}
+ unsigned vocoder_slot()const{return vocoder_slot_;}
+ bool vocoder_ready()const;
+ AudioControl audio_control(unsigned index)const;
+ bool enter_audio_surface(PerformPage page);
+ bool prepare_looper_track();
+ bool use_vocoder(unsigned slot);
+ bool open_vocoder();
+ bool toggle_record_monitor();
  unsigned audio_clip_cursor()const{return audio_clip_cursor_;}
  const AudioLane& audio_lane()const{return project_.audio[selected_];}
  uint32_t audio_revision(unsigned t)const{return t<16?audio_revision_[t]:0;}
@@ -312,6 +323,7 @@ public:
  TwinConfig twin_config_{};bool twin_switch_pending_[16]{};unsigned twin_pct_=0,twin_note_index_=0,twin_note_count_=0;char twin_message_[96]="DRY capture / source stays intact";
  mutable TwinStatus twin_cached_=TwinStatus::Empty;mutable unsigned twin_cached_track_=16;mutable uint64_t twin_checked_ms_=0,twin_checked_edit_=uint64_t(-1);
  const TwinConfig& twin_config()const{return twin_config_;}TwinConfig& twin_config(){return twin_config_;}
+ bool twin_waiting_bar()const{return engine_.freeze_capture_state()==1;}
  unsigned twin_dialog()const{return twin_modal_;}unsigned twin_progress()const{return twin_pct_;}unsigned twin_note_index()const{return twin_note_index_;}unsigned twin_note_count()const{return twin_note_count_;}const char* twin_message()const{return twin_message_;}
  void twin_invalidate(){twin_cached_track_=16;dirty_=true;}
  TwinStatus twin_status(unsigned track=16)const;
@@ -359,7 +371,7 @@ public:
  const ui::VisualSettings& visual_settings()const{return settings_;}
  unsigned settings_cursor()const{return settings_cursor_;}
  unsigned settings_page()const{return settings_page_;}
- unsigned settings_count()const{static const uint8_t counts[]={1,4,2,1,2,2,1};return counts[settings_page_];}
+ unsigned settings_count()const{static const uint8_t counts[]={1,4,2,1,2,1,1};return counts[settings_page_];}
  float setting_raw_value(unsigned id)const;
  float setting_row_normalized(unsigned row)const;
  unsigned setting_knob_control(unsigned index)const{return index==0?setting_control(settings_cursor_):255;}
@@ -588,7 +600,7 @@ public:
  bool dirty() const { return dirty_; }
  bool stop_audition(){if(!send({CommandType::StopPreview,0,0,0}))return false;browser_.previewing=false;browser_.audition_path[0]=0;return true;}
  const TransferView& transfer_view()const{return transfer_view_;}
- void transfer_view(const TransferView& view){if(__builtin_memcmp(&transfer_view_,&view,sizeof view)){transfer_view_=view;dirty_=true;}}
+ void transfer_view(const TransferView& view);
  bool take_transfer_request(){bool requested=transfer_request_;transfer_request_=false;return requested;}
  bool take_transfer_start(){bool start=transfer_start_;transfer_start_=false;return start;}
  bool take_transfer_browse(){bool browse=transfer_browse_;transfer_browse_=false;return browse;}
@@ -744,6 +756,7 @@ private:
  bool arrangement_ui_active_=false;uint16_t arrangement_ui_mute_=0,arrangement_ui_solo_=0;
  bool scene_take_requested_=false;char scene_take_message_[96]{};
  uint16_t song_position_=0;bool seek_ready_=false;
+ uint8_t looper_track_=255,timeline_track_=255,vocoder_slot_=0;
  bool performance_fx_tail_=true;uint8_t fx_page_=0,fx_focus_slot_=0,performance_fx_quantize_=0,live_repeat_rate_=1,performance_fx_bank_=0;uint8_t repeat_mode_=0,repeat_rate_=2;bool repeat_release_pending_=false,repeat_latch_=false,repeat_ignore_release_=false;
  uint64_t edit_serial_=0;
  class EditGroup {

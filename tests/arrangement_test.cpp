@@ -55,5 +55,17 @@ int main(){
  SongState previous=p->song;assert(ui.scene_take_toggle());run(1);for(unsigned batch=0;batch<24;++batch){for(unsigned i=0;i<48;++i)assert(engine->submit({CommandType::LaunchClip,0,0,7}));engine->render(audio,1);}assert(engine->project_event_loss());assert(engine->submit({CommandType::SceneTakeControl,0,1,0}));
  for(unsigned i=0;i<300 && engine->scene_take_state()!=SceneTake::Ready;++i){engine->render(audio,64);}
  assert(engine->scene_take_state()==SceneTake::Ready);ui.poll();assert(!ui.scene_take_requested() && p->song.length==previous.length && p->song.sections[0].ticks==previous.sections[0].ticks);
+ // The last bar of a captured Song can hand over to a new live take.
+ p->song.length=1;p->song.enabled=true;p->song.loop=false;
+ auto& last=p->song.sections[0];last.ticks=kSongTicksPerBar;last.mute_mask=2;last.transpose=5;
+ assert(engine->stage_project(*p));ui.project_loaded();run(1);
+ assert(ui.play());run(257);
+ assert(ui.scene_take_toggle());run(1);
+ assert(engine->diagnostic_playing() && engine->scene_take_state()==SceneTake::Armed);
+ for(unsigned frames=0;frames<20000 && engine->scene_take_state()==SceneTake::Armed;frames+=64)run(64);
+ assert(engine->diagnostic_playing() && engine->scene_take_state()==SceneTake::Recording);
+ assert(ui.scene_take_toggle());
+ for(unsigned frames=0;frames<20000 && ui.scene_take_requested();frames+=64)run(64);
+ assert(!ui.scene_take_requested() && p->song.sections[0].mute_mask==2 && p->song.sections[0].transpose==5);
  std::puts("Arrangement: sub-bar clip/stop/mute/scene capture, retriggers, preserved track phase, exact-tick replay and seek, independent Scene definitions, SONG2, Undo and UI passed");
 }

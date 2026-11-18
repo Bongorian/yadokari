@@ -11,18 +11,20 @@ auto Performance::navigation()const -> NavigationLocation{
   for(unsigned i=0;i<54;++i)n.value[i]=values[i];
   copy_text(n.directory,sizeof n.directory,browser_.directory);return n;
  }
-auto Performance::restore_navigation(const NavigationLocation& n) -> void{selected_=uint8_t(n.value[0]);apply_mode(UiMode(n.mode));if(mode_!=UiMode(n.mode))return;const auto* v=n.value;
-  selected_=uint8_t(v[0]);selected_kit_pad_=uint8_t(v[1]);selected_step_=uint8_t(v[2]);page_=uint8_t(v[3]);instrument_view_=uint8_t(v[4]);fx_page_=uint8_t(v[5]);set_performance_page(uint8_t(v[6]));gen_page_=uint8_t(v[7]);sampler_page_=uint8_t(v[8]);modulation_page_=uint8_t(v[10]);settings_page_=uint8_t(v[11]);settings_cursor_=uint8_t(v[12]);group_cursor_=uint8_t(v[13]);group_fx_slot_=uint8_t(v[14]);group_send_page_=v[15];routing_fx_page_=v[16];gen_lane_=uint8_t(v[17]);gen_cell_=uint8_t(v[18]);slice_cursor_=uint8_t(v[19]);audio_clip_cursor_=uint8_t(v[20]);macro_index_=uint8_t(v[21]);macro_route_=uint8_t(v[22]);automation_lane_=uint8_t(v[23]);automation_cell_=uint8_t(v[24]);midi_cc_cursor_=uint8_t(v[25]);nrpn_slot_=uint8_t(v[26]);scene_slot_=uint8_t(v[27]);song_cursor_=uint8_t(v[28]);sound_slot_=uint8_t(v[29]);tracker_view_=v[30];step_overview_=v[31];zone_vel_=v[32];clip_follow_page_=v[33];encoder_edit_=v[34];follow_display_=v[35];browser_.cursor=v[36];layer_cursor_=uint8_t(v[37]);layer_pool_cursor_=v[38];midi_input_cursor_=uint8_t(v[39]);axes_.focus=n.focus;following_clip_=v[41];project_.active_pattern=following_clip_?project_.clips[selected_].pattern:uint8_t(v[40]);chain_node_=uint8_t(v[42]);fx_focus_slot_=uint8_t(v[43]);source_select_=v[44];source_cursor_=uint8_t(v[45]<instrument_count()?v[45]:0);browser_.favorites_only=v[46];performance_fx_bank_=uint8_t(v[47]);note_edit_=v[48];if(mode_==UiMode::Library){browser_.library_kits=v[49];browser_.library_instrument=Instrument(v[50]);browser_.library_originals=v[51];browser_.library_offset=v[52];browser_.library_return=uint8_t(v[53]);browser_.library_list=true;browser_refresh_pending_=true;}else if(source_select_){browser_.library_instrument=Instrument(source_cursor_);browser_.library_kits=v[49];browser_.library_originals=v[51];browser_.library_offset=v[52];browser_.library_list=true;browser_.library_resume=true;browser_refresh_pending_=true;}if(__builtin_strcmp(browser_.directory,n.directory)){copy_text(browser_.directory,sizeof browser_.directory,n.directory);browser_.count=0;browser_refresh_pending_=true;}refresh_steps();dirty_=true;
+auto Performance::restore_navigation(const NavigationLocation& n) -> void{apply_mode(UiMode(n.mode));if(mode_!=UiMode(n.mode))return;const auto* v=n.value;set_performance_page(uint8_t(v[6]));
+  selected_=uint8_t(v[0]);selected_kit_pad_=uint8_t(v[1]);selected_step_=uint8_t(v[2]);page_=uint8_t(v[3]);instrument_view_=uint8_t(v[4]);fx_page_=uint8_t(v[5]);gen_page_=uint8_t(v[7]);sampler_page_=uint8_t(v[8]);modulation_page_=uint8_t(v[10]);settings_page_=uint8_t(v[11]);settings_cursor_=uint8_t(v[12]);group_cursor_=uint8_t(v[13]);group_fx_slot_=uint8_t(v[14]);group_send_page_=v[15];routing_fx_page_=v[16];gen_lane_=uint8_t(v[17]);gen_cell_=uint8_t(v[18]);slice_cursor_=uint8_t(v[19]);audio_clip_cursor_=uint8_t(v[20]);macro_index_=uint8_t(v[21]);macro_route_=uint8_t(v[22]);automation_lane_=uint8_t(v[23]);automation_cell_=uint8_t(v[24]);midi_cc_cursor_=uint8_t(v[25]);nrpn_slot_=uint8_t(v[26]);scene_slot_=uint8_t(v[27]);song_cursor_=uint8_t(v[28]);sound_slot_=uint8_t(v[29]);tracker_view_=v[30];step_overview_=v[31];zone_vel_=v[32];clip_follow_page_=v[33];encoder_edit_=v[34];follow_display_=v[35];browser_.cursor=v[36];layer_cursor_=uint8_t(v[37]);layer_pool_cursor_=v[38];midi_input_cursor_=uint8_t(v[39]);axes_.focus=n.focus;following_clip_=v[41];project_.active_pattern=following_clip_?project_.clips[selected_].pattern:uint8_t(v[40]);chain_node_=uint8_t(v[42]);fx_focus_slot_=uint8_t(v[43]);source_select_=v[44];source_cursor_=uint8_t(v[45]<instrument_count()?v[45]:0);browser_.favorites_only=v[46];performance_fx_bank_=uint8_t(v[47]);note_edit_=v[48];if(mode_==UiMode::Library){browser_.library_kits=v[49];browser_.library_instrument=Instrument(v[50]);browser_.library_originals=v[51];browser_.library_offset=v[52];browser_.library_return=uint8_t(v[53]);browser_.library_list=true;browser_refresh_pending_=true;}else if(source_select_){browser_.library_instrument=Instrument(source_cursor_);browser_.library_kits=v[49];browser_.library_originals=v[51];browser_.library_offset=v[52];browser_.library_list=true;browser_.library_resume=true;browser_refresh_pending_=true;}if(__builtin_strcmp(browser_.directory,n.directory)){copy_text(browser_.directory,sizeof browser_.directory,n.directory);browser_.count=0;browser_refresh_pending_=true;}refresh_steps();dirty_=true;
  }
 auto Performance::set_performance_page(unsigned page) -> void{
  if(performance_page_==4 && page!=4 && performance_fx_mode_!=PerformanceFx::Off){
   release_performance_fx_=true;retry_releases();
  }
+ if(audio_page()){if(performance_page_==PerformLooper && audio_lane().kind==TrackKind::Looper)looper_track_=selected_;else if(performance_page_==PerformTimeline && audio_lane().kind==TrackKind::Audio)timeline_track_=selected_;}
  performance_page_=uint8_t(page);
  dirty_=true;
 }
 auto Performance::apply_mode(UiMode mode)  -> void{if(browser_editing() && mode!=mode_)return;
  if(mode!=mode_){
+  if(audio_page()){if(performance_page_==PerformLooper && audio_lane().kind==TrackKind::Looper)looper_track_=selected_;else if(performance_page_==PerformTimeline && audio_lane().kind==TrackKind::Audio)timeline_track_=selected_;}
   browser_move_deferred_=0;
   if(file_action_==FileAction::FolderMove){file_action_=FileAction::None;browser_.folder_delta=0;}
   if(mode_==UiMode::Library || (mode_==UiMode::Synth && source_select_)){if(file_action_==FileAction::LibraryOpen || file_action_==FileAction::LibraryOpenKits || file_action_==FileAction::LibraryMove || file_action_==FileAction::LibraryKind || file_action_==FileAction::LibraryOriginals || file_action_==FileAction::LibraryInspect || file_action_==FileAction::LibraryRestore || file_action_==FileAction::LibraryEngine)file_action_=FileAction::None;browser_.library_list=false;browser_.library_resume=false;browser_.count=0;browser_refresh_pending_=false;}step_chord_edit_=false;encoder_edit_=false;loop_confirm_=false;sn_ref_armed_=false;extend_pending_=false;source_select_=false;source_arm_unknown_=false;if(mode!=UiMode::Step)note_edit_=false;if(mode!=UiMode::Settings)update_confirm_=false;song_import_armed_=song_clear_armed_=false;stretch_modal_=0;freeze_modal_=0;if(mode_==UiMode::Perform && performance_fx_mode_!=PerformanceFx::Off){release_performance_fx_=true;retry_releases();}}if(mode==UiMode::Browser){browser_.library_list=false;if(!browser_.count)browser_refresh_pending_=true;}if(mode==UiMode::Library){browser_.library_list=true;browser_refresh_pending_=true;}if(mode==UiMode::Perform && mode_!=UiMode::Perform)capture_snapshot(reload_point_);if(mode!=UiMode::Browser)browser_.new_project_list=false;mode_=mode; switch(mode){case UiMode::Pad:axes_.pad_mode=PadMode::Play;break;case UiMode::Step:axes_.pad_mode=PadMode::Step;break;case UiMode::Clip:axes_.pad_mode=PadMode::Clip;break;case UiMode::Scene:axes_.pad_mode=PadMode::Scene;break;case UiMode::Keyboard:axes_.pad_mode=PadMode::Keyboard;break;case UiMode::Chord:axes_.pad_mode=PadMode::Chords;break;default:break;} dirty_=true; }
@@ -67,13 +69,99 @@ auto Performance::track_shortcut(unsigned slot,bool down) -> bool{
  }
 auto Performance::service_track_shortcut() -> void{if(modal_active())return;if(track_peek_slot_<8 && !(controls_[1]&(1u<<track_peek_slot_))){track_shortcut(track_peek_slot_,false);return;}if(track_peek_slot_<8 && !track_peek_active_ && now_ms_-track_peek_since_>=kPageHomeMs){track_peek_active_=true;apply_mode(UiMode::Mixer);}}
 auto Performance::held_model_target(unsigned index)const -> ParameterTarget{int local=engine_model_parameter(track_const(selected_).instrument);return index==1 && step_hold_edit() && !shifted() && local>=0?engine_target(track_const(selected_).instrument,unsigned(local)):0;}
-auto Performance::audio_key(unsigned index) -> bool{const auto d=audio_button(index,audio_lane().kind,shifted(),live_recording_ || recording_file_busy_ || file_action_pending(),audio_undo_valid_[selected_],live_recording_);if(!d.enabled)return false;auto a=audio_lane();
+auto Performance::audio_control(unsigned index)const -> AudioControl{
+ const bool busy=live_recording_ || recording_file_busy_ || file_action_pending();
+ auto control=audio_button(index,audio_lane().kind,shifted(),busy,audio_undo_valid_[selected_],live_recording_);
+ if(!shifted() && index==0)return {"LOOPER",AudioAction::Looper,!busy};
+ if(!shifted() && index==1)return {on_perform_page(PerformTimeline) && audio_lane().kind==TrackKind::Instrument?"CREATE AUDIO":"TIMELINE",AudioAction::Audio,!busy};
+ if(index==2 && !busy && !live_recording_ && on_perform_page(PerformLooper) && audio_lane().kind!=TrackKind::Looper)
+  return {"PREPARE + REC",AudioAction::Record,audio_available_ && !multitimbral()};
+ if(index>=2 && index<=6 && !live_recording_ && on_perform_page(PerformTimeline) && audio_lane().kind!=TrackKind::Audio)control.enabled=false;
+ return control;
+}
+auto Performance::enter_audio_surface(PerformPage page) -> bool{
+ if(on_perform_page(page))return true;
+ const bool timeline=page==PerformTimeline;
+ const TrackKind kind=timeline?TrackKind::Audio:TrackKind::Looper;
+ const unsigned previous=timeline?timeline_track_:looper_track_;
+ unsigned destination=selected_;
+ if(audio_lane().kind!=kind){
+  if(previous<kTracks && project_.audio[previous].kind==kind)destination=previous;
+  else{
+   for(unsigned i=0;i<kTracks;++i)if(project_.audio[i].kind==kind){destination=i;break;}
+   if(project_.audio[destination].kind!=kind && audio_lane().kind!=TrackKind::Instrument)
+    for(unsigned i=0;i<kTracks;++i)if(project_.audio[i].kind==TrackKind::Instrument && project_.tracks[i].instrument==Instrument::Empty){destination=i;break;}
+  }
+ }
+ set_mode(UiMode::Perform);
+ set_performance_page(page);
+ if(destination!=selected_)select_track(destination);
+ return true;
+}
+auto Performance::vocoder_ready()const -> bool{
+ const auto track=track_const(selected_);
+ return unsigned(track.insert_fx[4*vocoder_slot_])==19 && !(track.insert_disabled&(1u<<vocoder_slot_));
+}
+auto Performance::use_vocoder(unsigned slot) -> bool{
+ const auto track=track_const(selected_);const unsigned base=slot*4;
+ if(slot>=2)return false;
+ const bool installed=unsigned(track.insert_fx[base])==19;
+ vocoder_slot_=uint8_t(slot);
+ if(vocoder_ready() && track.insert_fx[base+3]>0){dirty_=true;return true;}
+ if(engine_.command_space()<(installed?(track.insert_fx[base+3]>0?1u:2u):5u))return false;
+ EditGroup group(*this);
+ bool ok=installed || (set_parameter(94+base,19) && set_parameter(95+base,1) && set_parameter(96+base,0));
+ if(ok && (!installed || track.insert_fx[base+3]<=0))ok=set_parameter(97+base,1);
+ if(ok && (track.insert_disabled&(1u<<slot)))ok=set_parameter(102+slot,1);
+ return group.finish(ok);
+}
+auto Performance::open_vocoder() -> bool{
+ set_performance_page(PerformVocoder);
+ const auto t=track_const(selected_);
+ for(unsigned slot=0;slot<2;++slot)if(unsigned(t.insert_fx[slot*4])==19)return use_vocoder(slot);
+ for(unsigned slot=0;slot<2;++slot)if(!t.insert_fx[slot*4])return use_vocoder(slot);
+ vocoder_slot_=0;return true;
+}
+auto Performance::toggle_record_monitor() -> bool{
+ Command after{CommandType::SetRouting,0,0,0},before=after;
+ before.routing=after.routing=project_.routing;
+ after.routing.monitor=after.routing.monitor>0?0:.25f;
+ return edit(after,before);
+}
+auto Performance::prepare_looper_track() -> bool{
+ if(audio_lane().kind==TrackKind::Looper)return true;
+ unsigned destination=kTracks;
+ for(unsigned n=0;n<kTracks;++n){
+  const unsigned candidate=(selected_+n)%kTracks;
+  if(project_.audio[candidate].kind==TrackKind::Instrument && project_.tracks[candidate].instrument==Instrument::Empty){
+   destination=candidate;break;
+  }
+ }
+ if(destination==kTracks){
+  copy_text(browser_.status,sizeof browser_.status,"LOOPER NEEDS AN EMPTY TRACK");
+  notify(UiNotice::Failed);return false;
+ }
+ auto loop=project_.audio[destination];loop.kind=TrackKind::Looper;
+ if(!set_audio_lane(destination,loop))return false;
+ if(destination!=selected_)select_track(destination);
+ looper_track_=uint8_t(destination);
+ return true;
+}
+auto Performance::audio_key(unsigned index) -> bool{const auto d=audio_control(index);if(!d.enabled)return false;auto a=audio_lane();
   switch(d.action){
   case AudioAction::Instrument:a.kind=TrackKind::Instrument;break;
-  case AudioAction::Looper:a.kind=TrackKind::Looper;break;
-  case AudioAction::Audio:a.kind=TrackKind::Audio;break;
+  case AudioAction::Looper:return on_perform_page(PerformLooper)?prepare_looper_track():enter_audio_surface(PerformLooper);
+  case AudioAction::Audio:
+   if(on_perform_page(PerformTimeline)){if(a.kind!=TrackKind::Instrument)return true;a.kind=TrackKind::Audio;break;}
+   return enter_audio_surface(PerformTimeline);
   case AudioAction::Song:set_mode(UiMode::Song);return true;
-  case AudioAction::Record:return request_file(FileAction::AudioRecord);
+  case AudioAction::Record:
+   if(on_perform_page(PerformLooper) && !live_recording_){
+    if(!recording_start_allowed(recording_controls()) || multitimbral() || engine_.command_space()<2)return false;
+    if(!prepare_looper_track())return false;
+    if(!playing_ && !play())return false;
+   }
+   return request_file(FileAction::AudioRecord);
   case AudioAction::Overdub:return request_file(FileAction::AudioOverdub);
   case AudioAction::Toggle:a.enabled=!a.enabled;break;
   case AudioAction::Delete:return confirm_erase(UiErase::AudioDelete);
@@ -84,8 +172,8 @@ auto Performance::audio_key(unsigned index) -> bool{const auto d=audio_button(in
   default:return false;
   }return set_audio_lane(selected_,a);
  }
-auto Performance::common_top_key(unsigned index) -> bool{const auto d=common_top(index);if(!d.enabled)return false;switch(d.action){case CommonTopAction::TrackName:return begin_track_rename();case CommonTopAction::Source:return toggle_source_select();case CommonTopAction::Modulation:set_mode(UiMode::Modulation);return true;case CommonTopAction::Store:return store_sound(sound_slot_);case CommonTopAction::Recall:return recall_sound(sound_slot_);case CommonTopAction::Audio:set_mode(UiMode::Perform);set_performance_page(5);return true;default:return false;}}
-auto Performance::page_title()const -> const char*{if(mode_==UiMode::Browser && browser_.new_project_list)return "NEW PROJECT";if(mode_==UiMode::Library)return browser_.library_kits?"KITS":"PRESETS";if(source_select_)return "ENGINE";if(kit_edit_page())return "KIT PADS";if(mode_==UiMode::Perform){const char* names[]={"A/B MORPH","MACROS","GESTURE","MUTATION","LIVE FX","AUDIO"};return names[performance_page_];}return mode_name(mode_);}
+auto Performance::common_top_key(unsigned index) -> bool{const auto d=common_top(index);if(!d.enabled)return false;switch(d.action){case CommonTopAction::TrackName:return begin_track_rename();case CommonTopAction::Source:return toggle_source_select();case CommonTopAction::Modulation:set_mode(UiMode::Modulation);return true;case CommonTopAction::Store:return store_sound(sound_slot_);case CommonTopAction::Recall:return recall_sound(sound_slot_);case CommonTopAction::Audio:return enter_audio_surface(PerformLooper);case CommonTopAction::Tools:set_performance_page(PerformTools);return true;default:return false;}}
+auto Performance::page_title()const -> const char*{if(mode_==UiMode::Browser && browser_.new_project_list)return "NEW PROJECT";if(mode_==UiMode::Library)return browser_.library_kits?"KITS":"PRESETS";if(source_select_)return "ENGINE";if(kit_edit_page())return "KIT PADS";if(mode_==UiMode::Perform){const char* names[]={"A/B MORPH","MACROS","GESTURE","MUTATION","LIVE FX","LOOPER","LIVE TOOLS","VOCODER","RECORDING","FX MAP","MIDI MODULE","AUDIO TIMELINE"};return names[performance_page_];}return mode_name(mode_);}
 auto Performance::input_key(unsigned i) -> bool{auto d=input_button(i,mode_==UiMode::Chord,shifted(),history_cursor_>0,history_cursor_<history_size_,track_const(selected_).instrument==Instrument::DrumKit);if(!d.enabled)return false;switch(d.action){
  case InputAction::ScalePrev:return input_scale(-1);case InputAction::ScaleNext:return input_scale(1);case InputAction::OctaveDown:return input_octave(-1);case InputAction::OctaveUp:return input_octave(1);
  case InputAction::ShapePrev:return input_shape(-1,false);case InputAction::ShapeNext:return input_shape(1,false);case InputAction::InvertPrev:return input_shape(-1,true);case InputAction::InvertNext:return input_shape(1,true);
@@ -94,7 +182,7 @@ auto Performance::input_key(unsigned i) -> bool{auto d=input_button(i,mode_==UiM
  case InputAction::Undo:return undo();case InputAction::Redo:return redo();default:return false;}}
 auto Performance::soft_selected(unsigned i)const -> bool{if(transfer_view_.active)return !transfer_view_.usb && i<2 && (i==1)==transfer_view_.station;if(library_catalog_controls())return library_catalog_button(i).selected;if(input_top(i))return i==5 && step_chord_editor() && !shifted();if(source_select_ && !modal_active())return false;unsigned slot=top_slot(i);return slot<8 && page_top_selected(slot);}
 auto Performance::soft_key(unsigned i) -> bool{if(transfer_view_.active){if(i==7)transfer_close_=true;else if(i==5){transfer_browse_=true;transfer_close_=true;}else if(!transfer_view_.started && !transfer_view_.failed && i<2)transfer_view_.station=i==1;else if(!transfer_view_.started && !transfer_view_.failed && i==4)transfer_start_=true;else return false;dirty_=true;return true;}NavigationScope navigation(*this);if(library_catalog_controls())return library_catalog_key(i);if(input_top(i))return input_key(i);if(source_select_ && !modal_active()){if(i==5 && shifted())return begin_track_rename();if(i==4)return source_confirm();if(i==7)return toggle_source_select();return false;}unsigned slot=top_slot(i);return slot<8 && !((source_select_ || kit_edit_page()) && i>=6) && page_top_key(slot);}
-auto Performance::page_top_presentation(unsigned index)const  -> ui::ControlPresentation{if(composition_modal_){if(index>=2)return ui::ControlDescriptor<ModalAction>{};return ui::ControlDescriptor<ModalAction>{modal_label(index),index==0?ModalAction::Accept:ModalAction::Cancel,true};}if(twin_modal_==1){if(index<2)return ui::ControlDescriptor<ModalAction>{modal_label(index),index?ModalAction::Cancel:ModalAction::Accept,index!=0 || twin_config_.valid()};return ui::ControlDescriptor<ModalAction>{};}if(common_top(index).action!=CommonTopAction::None)return common_top(index);if(!browser_editing() && modal_active())return modal_button(index,modal_progress());if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls());if(index==7 && bake_control())return ui::ControlDescriptor<SynthAction>{bake_next_label(),SynthAction::BakePreset,true};if(audio_page())return audio_button(index,audio_lane().kind,shifted(),live_recording_ || recording_file_busy_ || file_action_pending(),audio_undo_valid_[selected_],live_recording_);if(browser_editing())return browser_edit_button_control(index,browser_edit_controls());if(mode_==UiMode::Song)return song_button_control(index,song_controls());
+auto Performance::page_top_presentation(unsigned index)const  -> ui::ControlPresentation{if(composition_modal_){if(index>=2)return ui::ControlDescriptor<ModalAction>{};return ui::ControlDescriptor<ModalAction>{modal_label(index),index==0?ModalAction::Accept:ModalAction::Cancel,true};}if(twin_modal_==1){if(index<2)return ui::ControlDescriptor<ModalAction>{modal_label(index),index?ModalAction::Cancel:ModalAction::Accept,index!=0 || twin_config_.valid()};return ui::ControlDescriptor<ModalAction>{};}if(common_top(index).action!=CommonTopAction::None)return common_top(index);if(!browser_editing() && modal_active())return modal_button(index,modal_progress());if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls());if(index==7 && bake_control())return ui::ControlDescriptor<SynthAction>{bake_next_label(),SynthAction::BakePreset,true};if(audio_page())return audio_control(index);if(browser_editing())return browser_edit_button_control(index,browser_edit_controls());if(mode_==UiMode::Song)return song_button_control(index,song_controls());
   if(!repeat_mode_ && mode_==UiMode::Generate && gen_page_==0 && shifted() && (index==4 || index==5))return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_);
   if(mode_==UiMode::Chord && !repeat_mode_)return input_button(index,true,shifted(),history_cursor_>0,history_cursor_<history_size_,track_const(selected_).instrument==Instrument::DrumKit);
   if(repeat_mode_)return repeat_button_control(index,repeat_rate_);
@@ -113,12 +201,12 @@ auto Performance::page_top_presentation(unsigned index)const  -> ui::ControlPres
   if(mode_==UiMode::Scene)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted());
   if(mode_==UiMode::Project){return project_button(index,shifted(),pending_project_!=ProjectAction::None,midi_capture_state_!=0,history_cursor_,history_size_);}
 if(mode_==UiMode::Settings){return settings_button(index,update_confirm_,settings_page_);}if(mode_==UiMode::Generate)return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_);return default_button(index,page_,history_cursor_,history_size_);}
-auto Performance::page_top_enabled(unsigned index)const -> bool{if(common_top(index).action!=CommonTopAction::None)return common_top(index).enabled;if(!browser_editing() && modal_active())return modal_label(index)[0]!=0;if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls()).enabled;if(index==7 && bake_control())return !recording_configuration_locked(recording_controls()) || shifted();if(audio_page())return audio_button(index,audio_lane().kind,shifted(),live_recording_ || recording_file_busy_ || file_action_pending(),audio_undo_valid_[selected_],live_recording_).enabled;if(browser_editing())return browser_edit_button_control(index,browser_edit_controls()).enabled;if(mode_==UiMode::Song)return song_button_control(index,song_controls()).enabled;if(repeat_mode_)return repeat_button_control(index,repeat_rate_).enabled;if(mode_==UiMode::Synth)return synth_button_control(index,synth_controls()).enabled;if(mode_==UiMode::Step)return step_button_control(index,step_controls()).enabled;if(mode_==UiMode::Chord)return input_button(index,true,shifted(),history_cursor_>0,history_cursor_<history_size_,track_const(selected_).instrument==Instrument::DrumKit).enabled;if(mode_==UiMode::Mixer)return mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).enabled;if(mode_==UiMode::Effects)return effects_button_control(index,effects_controls()).enabled;if(mode_==UiMode::Browser)return browser_button_control(index,browser_controls()).enabled;if(mode_==UiMode::Diagnostics)return diagnostics_button(index).enabled;if(mode_==UiMode::Sampler)return sampler_button_control(index,sampler_controls()).enabled;if(mode_==UiMode::Routing){if(!routing_fx_page_)return recording_button_control(index,recording_controls()).enabled;return routing_fx_button_control(index,routing_fx_controls()).enabled;}if(mode_==UiMode::Project)return project_button(index,shifted(),pending_project_!=ProjectAction::None,midi_capture_state_!=0,history_cursor_,history_size_).enabled;if(mode_==UiMode::Perform)return perform_button_control(index,perform_controls()).enabled;if(mode_==UiMode::Modulation)return modulation_button_control(index,modulation_controls()).enabled;if(mode_==UiMode::Clip)return clip_button_control(index,clip_controls()).enabled;if(mode_==UiMode::Scene)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).enabled;if(mode_==UiMode::Settings)return settings_button(index,update_confirm_,settings_page_).enabled;if(mode_==UiMode::Generate)return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_).enabled;return default_button(index,page_,history_cursor_,history_size_).enabled;}
-auto Performance::page_top_selected(unsigned index)const -> bool{if(mode_==UiMode::Mixer && index==1)return twin_status()==TwinStatus::Active;if(common_top(index).action!=CommonTopAction::None)return common_top(index).selected;if(!browser_editing() && modal_active())return false;if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls()).selected;if(audio_page())return index==unsigned(audio_lane().kind)-1;if(mode_==UiMode::Effects && fx_page_==5 && index>=3 && index<=6)return effects_button_control(index,effects_controls()).selected;if(mode_==UiMode::Clip && index==4)return clip_follow_page_;if(mode_==UiMode::Scene && index==4)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).selected;if(mode_==UiMode::Synth && source_select_)return index==4;if(mode_==UiMode::Synth && index==7)return wave_profile();if(mode_==UiMode::Chord && !repeat_mode_)return false;if(repeat_mode_)return repeat_button_control(index,repeat_rate_).selected;if(mode_==UiMode::Effects)return effects_button_control(index,effects_controls()).selected;if(mode_==UiMode::Step)return step_button_control(index,step_controls()).selected;if(mode_==UiMode::Routing && !routing_fx_page_)return recording_button_selected(index,recording_controls(),project_.routing.monitor>0);if(mode_==UiMode::Routing)return routing_fx_button_control(index,routing_fx_controls()).selected;if(mode_==UiMode::Diagnostics)return diagnostics_button(index).selected;if(mode_==UiMode::Sampler)return sampler_button_control(index,sampler_controls()).selected;if(mode_==UiMode::Browser)return browser_button_control(index,browser_controls()).selected;if(mode_==UiMode::Modulation)return modulation_button_control(index,modulation_controls()).selected;if(mode_==UiMode::Perform)return perform_button_control(index,perform_controls()).selected;if(mode_==UiMode::Clip && index<4)return false;if(mode_==UiMode::Scene && index<4)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).selected;if(mode_==UiMode::Project)return project_button(index,shifted(),pending_project_!=ProjectAction::None,midi_capture_state_!=0,history_cursor_,history_size_).selected;if(mode_==UiMode::Synth && !wave_profile())return index<4 && index==(instrument_view_==4?2:instrument_view_);if(mode_==UiMode::Settings)return settings_button(index,update_confirm_,settings_page_).selected;if(mode_==UiMode::Generate)return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_).selected;if(wave_profile() && mode_==UiMode::Synth)return index<2 && index==wave_clock();if(mode_==UiMode::Mixer)return mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).selected;return default_button(index,page_,history_cursor_,history_size_).selected;}
+auto Performance::page_top_enabled(unsigned index)const -> bool{if(common_top(index).action!=CommonTopAction::None)return common_top(index).enabled;if(!browser_editing() && modal_active())return modal_label(index)[0]!=0;if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls()).enabled;if(index==7 && bake_control())return !recording_configuration_locked(recording_controls()) || shifted();if(audio_page())return audio_control(index).enabled;if(browser_editing())return browser_edit_button_control(index,browser_edit_controls()).enabled;if(mode_==UiMode::Song)return song_button_control(index,song_controls()).enabled;if(repeat_mode_)return repeat_button_control(index,repeat_rate_).enabled;if(mode_==UiMode::Synth)return synth_button_control(index,synth_controls()).enabled;if(mode_==UiMode::Step)return step_button_control(index,step_controls()).enabled;if(mode_==UiMode::Chord)return input_button(index,true,shifted(),history_cursor_>0,history_cursor_<history_size_,track_const(selected_).instrument==Instrument::DrumKit).enabled;if(mode_==UiMode::Mixer)return mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).enabled;if(mode_==UiMode::Effects)return effects_button_control(index,effects_controls()).enabled;if(mode_==UiMode::Browser)return browser_button_control(index,browser_controls()).enabled;if(mode_==UiMode::Diagnostics)return diagnostics_button(index).enabled;if(mode_==UiMode::Sampler)return sampler_button_control(index,sampler_controls()).enabled;if(mode_==UiMode::Routing){if(!routing_fx_page_)return recording_button_control(index,recording_controls()).enabled;return routing_fx_button_control(index,routing_fx_controls()).enabled;}if(mode_==UiMode::Project)return project_button(index,shifted(),pending_project_!=ProjectAction::None,midi_capture_state_!=0,history_cursor_,history_size_).enabled;if(mode_==UiMode::Perform)return perform_button_control(index,perform_controls()).enabled;if(mode_==UiMode::Modulation)return modulation_button_control(index,modulation_controls()).enabled;if(mode_==UiMode::Clip)return clip_button_control(index,clip_controls()).enabled;if(mode_==UiMode::Scene)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).enabled;if(mode_==UiMode::Settings)return settings_button(index,update_confirm_,settings_page_).enabled;if(mode_==UiMode::Generate)return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_).enabled;return default_button(index,page_,history_cursor_,history_size_).enabled;}
+auto Performance::page_top_selected(unsigned index)const -> bool{if(mode_==UiMode::Mixer && index==1)return twin_status()==TwinStatus::Active;if(common_top(index).action!=CommonTopAction::None)return common_top(index).selected;if(!browser_editing() && modal_active())return false;if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls()).selected;if(audio_page())return index==unsigned(on_perform_page(PerformTimeline));if(mode_==UiMode::Effects && fx_page_==5 && index>=3 && index<=6)return effects_button_control(index,effects_controls()).selected;if(mode_==UiMode::Clip && index==4)return clip_follow_page_;if(mode_==UiMode::Scene && index==4)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).selected;if(mode_==UiMode::Synth && source_select_)return index==4;if(mode_==UiMode::Synth && index==7)return wave_profile();if(mode_==UiMode::Chord && !repeat_mode_)return false;if(repeat_mode_)return repeat_button_control(index,repeat_rate_).selected;if(mode_==UiMode::Effects)return effects_button_control(index,effects_controls()).selected;if(mode_==UiMode::Step)return step_button_control(index,step_controls()).selected;if(mode_==UiMode::Routing && !routing_fx_page_)return recording_button_selected(index,recording_controls(),project_.routing.monitor>0);if(mode_==UiMode::Routing)return routing_fx_button_control(index,routing_fx_controls()).selected;if(mode_==UiMode::Diagnostics)return diagnostics_button(index).selected;if(mode_==UiMode::Sampler)return sampler_button_control(index,sampler_controls()).selected;if(mode_==UiMode::Browser)return browser_button_control(index,browser_controls()).selected;if(mode_==UiMode::Modulation)return modulation_button_control(index,modulation_controls()).selected;if(mode_==UiMode::Perform)return perform_button_control(index,perform_controls()).selected;if(mode_==UiMode::Clip && index<4)return false;if(mode_==UiMode::Scene && index<4)return scene_button(index,launch_quantized_,following_clip_,project_.chain.enabled,history_cursor_,history_size_,shifted()).selected;if(mode_==UiMode::Project)return project_button(index,shifted(),pending_project_!=ProjectAction::None,midi_capture_state_!=0,history_cursor_,history_size_).selected;if(mode_==UiMode::Synth && !wave_profile())return index<4 && index==(instrument_view_==4?2:instrument_view_);if(mode_==UiMode::Settings)return settings_button(index,update_confirm_,settings_page_).selected;if(mode_==UiMode::Generate)return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_).selected;if(wave_profile() && mode_==UiMode::Synth)return index<2 && index==wave_clock();if(mode_==UiMode::Mixer)return mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).selected;return default_button(index,page_,history_cursor_,history_size_).selected;}
 #if defined(__GNUC__) && !defined(__clang__)
 __attribute__((optimize("Os"),noinline))
 #endif
-auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigation_scope(*this);if(common_top(index).action!=CommonTopAction::None)return common_top_key(index);if(!browser_editing() && modal_active())return modal_key(index);if(index==7 && bake_control())return bake_next();if(audio_page())return audio_key(index);if(mode_==UiMode::Mixer && index>=2 && index<4)return false;if(browser_editing())return browser_edit_key(index);if(freeze_modal_){if(index==0 || index==1)return request_file(FileAction::CancelFreeze);return true;}if(stretch_modal_){if(stretch_modal_==1){if(index==0)return request_file(FileAction::BeginStretch);if(index==1){stretch_modal_=0;dirty_=true;return true;}return true;}if(index==0 || index==1)return request_file(FileAction::CancelStretch);return true;}if(!page_top_enabled(index))return false;if(mode_==UiMode::Modulation && modulation_button_control(index,modulation_controls()).action==ModulationAction::Multitimbral)return set_multitimbral(!multitimbral());encoder_edit_=false;if(mode_==UiMode::Song){switch(song_button_control(index,song_controls()).action){
+auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigation_scope(*this);if(common_top(index).action!=CommonTopAction::None)return common_top_key(index);if(!browser_editing() && modal_active())return modal_key(index);if(index==7 && bake_control())return bake_next();if(audio_page())return audio_key(index);if(mode_==UiMode::Mixer && index>=2 && index<4)return false;if(browser_editing())return browser_edit_key(index);if(freeze_modal_){if(index==0 || index==1)return request_file(FileAction::CancelFreeze);return true;}if(stretch_modal_){if(stretch_modal_==1){if(index==0)return request_file(FileAction::BeginStretch);if(index==1){stretch_modal_=0;dirty_=true;return true;}return true;}if(index==0 || index==1)return request_file(FileAction::CancelStretch);return true;}if(!page_top_enabled(index))return false;if(mode_==UiMode::Modulation && modulation_button_control(index,modulation_controls()).action==ModulationAction::Multitimbral){set_mode(UiMode::Perform);set_performance_page(PerformModule);return true;}encoder_edit_=false;if(mode_==UiMode::Song){switch(song_button_control(index,song_controls()).action){
  case SongAction::Record:return scene_take_toggle();
  case SongAction::Cancel:return scene_take_cancel();
  case SongAction::Add:return song_add();
@@ -194,8 +282,8 @@ auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigatio
   if(mode_==UiMode::Routing && !routing_fx_page_){switch(recording_button_control(index,recording_controls()).action){
    case RecordingAction::GroupFx:routing_fx_page_=true;dirty_=true;return true;
    case RecordingAction::Mixer:set_mode(UiMode::Mixer);return true;
-   case RecordingAction::Monitor:{Command after{CommandType::SetRouting,0,0,0},before=after;before.routing=project_.routing;after.routing=project_.routing;after.routing.monitor=after.routing.monitor>0?0:0.25f;return edit(after,before);}
-   case RecordingAction::Capture:return request_file(FileAction::Capture);
+   case RecordingAction::Monitor:return toggle_record_monitor();
+   case RecordingAction::Hub:set_mode(UiMode::Perform);set_performance_page(PerformRecording);return true;
    case RecordingAction::Record:case RecordingAction::Stop:return request_file(FileAction::RecordToggle);
    case RecordingAction::Resample:return request_file(FileAction::Resample);
    case RecordingAction::Cancel:return request_file(FileAction::CancelResample);
@@ -221,7 +309,32 @@ auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigatio
 
   if(mode_==UiMode::Step && step_button_control(index,step_controls()).action==StepAction::ViewCycle){if(tracker_view_){tracker_view_=false;step_overview_=false;}else if(step_overview_){step_overview_=false;tracker_view_=true;follow_display_=true;}else step_overview_=true;dirty_=true;return true;}
   if(mode_==UiMode::Mixer && index==1)return twin_button();
+  if(mode_==UiMode::Mixer && index==5)return select_pattern((project_.active_pattern+1)%kPatterns);
   if(mode_==UiMode::Mixer && mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).action==MixerAction::Freeze){if(track_const(selected_).frozen_asset<kSampleAssets)return set_frozen_asset(selected_,project_.active_pattern,255);return request_file(FileAction::BeginFreeze);}if(mode_==UiMode::Perform){switch(perform_button_control(index,perform_controls()).action){
+   case PerformAction::Tools:set_performance_page(PerformTools);return true;
+   case PerformAction::Vocoder:return open_vocoder();
+   case PerformAction::Recording:set_performance_page(PerformRecording);return true;
+   case PerformAction::FxMap:set_performance_page(PerformFxMap);return true;
+   case PerformAction::Module:set_performance_page(PerformModule);return true;
+   case PerformAction::ModuleConfirm:return perform_button_control(index,perform_controls()).enabled && set_multitimbral(!multitimbral());
+   case PerformAction::Looper:return enter_audio_surface(PerformLooper);
+   case PerformAction::Insert1:return use_vocoder(0);
+   case PerformAction::Insert2:return use_vocoder(1);
+   case PerformAction::RecordMonitor:return toggle_record_monitor();
+   case PerformAction::RecordMode:if(recording_configuration_locked(recording_controls()))return false;record_quantized_=!record_quantized_;dirty_=true;return true;
+   case PerformAction::RecordBars:if(recording_configuration_locked(recording_controls()))return false;resample_bars_=uint8_t(resample_bars_%4+1);dirty_=true;return true;
+   case PerformAction::RecordInput:return request_file(FileAction::SampleRecordToggle);
+   case PerformAction::RecordBus:return request_file(FileAction::RecordToggle);
+   case PerformAction::RecordCapture:return recording_start_allowed(recording_controls()) && request_file(FileAction::Capture);
+   case PerformAction::RecordResample:return request_file(resampling_?FileAction::CancelResample:FileAction::Resample);
+   case PerformAction::MapTrack:set_mode(UiMode::Effects);fx_page_=5;return true;
+   case PerformAction::MapGroup:
+    set_mode(UiMode::Routing);routing_fx_page_=true;group_send_page_=false;
+    for(unsigned i=0;i<8;++i)if(project_.routing.groups[i].members&(1u<<selected_)){group_cursor_=uint8_t(i);break;}
+    return true;
+   case PerformAction::MapMain:set_mode(UiMode::Effects);fx_page_=0;return true;
+   case PerformAction::MapLive:set_performance_page(PerformLiveFx);return true;
+   case PerformAction::MapPreset:return begin_preset_save();
    case PerformAction::FxQuantize:performance_fx_quantize_=uint8_t((performance_fx_quantize_+1)%3);dirty_=true;return true;
    case PerformAction::FxBank:performance_fx_bank_^=1;dirty_=true;return true;
    case PerformAction::FxTail:{bool previous=performance_fx_tail_;performance_fx_tail_=!previous;if(!set_performance_fx(performance_fx_mode_,performance_fx_amount_,performance_fx_latched_)){performance_fx_tail_=previous;return false;}return true;}
@@ -404,7 +517,7 @@ auto Performance::encoder_direction_available(uint8_t direction)const -> bool{
    if(mode_==UiMode::Generate)return range(gen_page_,6);
    if(mode_==UiMode::Diagnostics)return false;
    if(mode_==UiMode::Routing && routing_fx_page_)return group_send_page_ || range(group_fx_slot_,2);
-   if(mode_==UiMode::Perform)return range(performance_page_,6);
+   if(mode_==UiMode::Perform)return performance_page_<=PerformLooper && range(performance_page_,PerformLooper+1);
    if(mode_==UiMode::Step && tracker_view_){return range(selected_,16);}if(mode_==UiMode::Step || mode_==UiMode::Pad || mode_==UiMode::Keyboard || mode_==UiMode::Chord)return range(page_,16);
   }
   if(main_encoder_mode_ || (mode_==UiMode::Clip && clip_follow_page_))return true;
@@ -448,7 +561,12 @@ auto Performance::encoder_direction(uint8_t rising) -> bool{NavigationScope navi
   if(mode_==UiMode::Generate){gen_page_=uint8_t(bounded(int(gen_page_)+delta,0,5));return true;}
   if(mode_==UiMode::Diagnostics)return false;
   if(mode_==UiMode::Routing && routing_fx_page_){if(group_send_page_)group_send_page_=false;else group_fx_slot_=uint8_t(bounded(int(group_fx_slot_)+delta,0,1));return true;}
-  if(mode_==UiMode::Perform){set_performance_page(uint8_t(bounded(int(performance_page_)+delta,0,5)));return true;}
+  if(mode_==UiMode::Perform){
+   if(performance_page_>PerformLooper)return false;
+   const unsigned target=unsigned(bounded(int(performance_page_)+delta,0,int(PerformLooper)));
+   if(target==PerformLooper)return enter_audio_surface(PerformLooper);
+   set_performance_page(target);return true;
+  }
   if(mode_==UiMode::Step && tracker_view_){return select_track(unsigned(bounded(int(selected_)+delta,0,15)));}if(mode_==UiMode::Step || mode_==UiMode::Pad || mode_==UiMode::Keyboard || mode_==UiMode::Chord){step_page(unsigned(bounded(int(page_)+delta,0,15)));return true;}
   return encoder(delta);
  }

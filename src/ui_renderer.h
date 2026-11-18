@@ -1,6 +1,7 @@
 #pragma once
 #include "tracker_view.h"
 #include "performance.h"
+#include "page_descriptors.h"
 #include "engine_guids.h"
 #include "note_transform.h"
 #include "instrument_math.h"
@@ -52,6 +53,7 @@ class UiRenderer:public ui::Widgets {
  void twin_panel(const Performance& perf);
  void composition_panel(const ProjectState&,const Performance&);
  void modulation(const ProjectState& p,const Performance& perf);
+ void live_tools_page(const ProjectState&,const Performance&);
  void audio_lane_page(const ProjectState& p,const Performance& perf);
  void performance(const ProjectState& p,const Performance& perf);
  void performance_fx_page(const Performance& perf);

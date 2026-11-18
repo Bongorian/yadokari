@@ -113,8 +113,7 @@ int main() {
   assert(second[0] && fs.exists(second));
 
   // A track tap records only that track, even while another track is audible.
-  ui.set_mode(UiMode::Routing);
-  assert(ui.knob(6, 3000));
+  ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(ui.knob(0, 3000));
   assert(project->routing.capture_bus == 3);
   ui.set_mode(UiMode::Sampler);
   ui.set_shift(true);
@@ -134,9 +133,7 @@ int main() {
   assert(recording.frames >= 1024 && recording.frames <= 1088 && recording.peak_l_u > 1000);
   const char* track_take = project->assets[2].path;
   assert(track_take[0] && fs.exists(track_take));
-  ui.set_mode(UiMode::Routing);
-  ui.set_shift(false);
-  assert(ui.knob(6, 1000));
+  ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(ui.knob(0, 1000));
   assert(project->routing.capture_bus == 4);
   ui.set_mode(UiMode::Sampler);
   ui.set_shift(true);

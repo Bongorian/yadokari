@@ -16,26 +16,26 @@ int main(){
  assert(engine->stage_project(*p));ui.project_loaded();
  auto run=[&](unsigned frames){while(frames){unsigned n=frames>64?64:frames;engine->render_ports(out,nullptr,input,n);ui.poll();files.service();frames-=n;}};
  auto until=[&](auto done,unsigned limit=100000){for(unsigned i=0;i<limit;i+=64){if(done())return;run(64);}assert(false);};
- run(1);ui.set_mode(UiMode::Routing);ui.set_shift(true);assert(!ui.soft_enabled(5) && !ui.soft_key(5));assert(ui.play());run(1);ui.set_mode(UiMode::Routing);ui.set_shift(true);assert(ui.soft_key(3) && ui.resample_bars()==2);assert(ui.soft_key(5));assert(!ui.soft_enabled(3) && !ui.knob(6,1000) && !ui.select_capture_source(1));assert(ui.select_track(1));assert(files.service());assert(ui.resampling() && ui.resample_view().target.track==0 && ui.resample_view().bars==2 && ui.live_record_source()==0);assert(!ui.knob(6,1000) && !ui.soft_key(3));
+ run(1);ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(!ui.soft_enabled(7) && !ui.soft_key(7));assert(ui.play());run(1);ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(ui.soft_key(2) && ui.resample_bars()==2);assert(ui.soft_key(7));assert(!ui.soft_enabled(2) && !ui.knob(0,1000) && !ui.select_capture_source(1));assert(ui.select_track(1));assert(files.service());assert(ui.resampling() && ui.resample_view().target.track==0 && ui.resample_view().bars==2 && ui.live_record_source()==0);assert(!ui.knob(0,1000) && !ui.soft_key(2));
  RecordingResult result;until([&]{return files.take_recording_result(result);});assert(result.saved && result.verified && result.assigned && result.frames==32000 && result.peak_l_u>90000);run(1);
  assert(track_at(*p,0,0).sample_slot==result.slot);assert(ui.select_track(0));unsigned first_slot=result.slot;const char* first_path=p->assets[first_slot].path;assert(fs.exists(first_path));auto old=library.lookup(first_path);assert(old.data && wav_sample(old,0,0)>0.09f);
  // Cancellation before the next bar never replaces a destination or leaves a dummy take.
- assert(ui.knob(6,32000) && ui.knob(6,32000) && p->routing.capture_bus==60 && ui.knob_normalized(6)==1);assert(ui.knob(6,-32000) && ui.knob(6,-32000) && p->routing.capture_bus==0);run(1);
- auto original=track_at(*p,0,0).sample_slot;assert(ui.soft_key(5));assert(files.service());
+ assert(ui.knob(0,32000) && ui.knob(0,32000) && p->routing.capture_bus==60 && ui.knob_normalized(0)==1);assert(ui.knob(0,-32000) && ui.knob(0,-32000) && p->routing.capture_bus==0);run(1);
+ auto original=track_at(*p,0,0).sample_slot;assert(ui.soft_key(7));assert(files.service());
  while(engine->command_space())assert(engine->submit({CommandType::SetTempo,0,0,p->tempo}));
- assert(ui.request_file(FileAction::Refresh));assert(ui.soft_key(5) && ui.pending_file_action()==FileAction::CancelResample);assert(!std::strcmp(ui.soft_label(5),"CANCELLING"));assert(files.service());assert(ui.live_recording() && fs.exists("RECORDINGS/Live-002.part"));assert(!ui.soft_enabled(5));until([&]{return !ui.live_recording();});assert(track_at(*p,0,0).sample_slot==original);assert(!fs.exists("RECORDINGS/Live-002.part"));assert(files.take_recording_result(result) && !result.assigned && !result.saved);
+ assert(ui.request_file(FileAction::Refresh));assert(ui.soft_key(7) && ui.pending_file_action()==FileAction::CancelResample);assert(!std::strcmp(ui.soft_label(7),"CANCELLING"));assert(files.service());assert(ui.live_recording() && fs.exists("RECORDINGS/Live-002.part"));assert(!ui.soft_enabled(7));until([&]{return !ui.live_recording();});assert(track_at(*p,0,0).sample_slot==original);assert(!fs.exists("RECORDINGS/Live-002.part"));assert(files.take_recording_result(result) && !result.assigned && !result.saved);
  // Even a complete DSP take is still cancellable before the file owner
  // finalizes its header and publishes a sample assignment.
- assert(ui.soft_key(5) && files.service());bool complete=false;
+ assert(ui.soft_key(7) && files.service());bool complete=false;
  for(unsigned i=0;i<100000;i+=64){engine->render_ports(out,nullptr,input,64);ui.poll();if(engine->live_record_done()){complete=true;break;}files.service();}
- assert(complete && engine->live_record_bars_complete() && ui.resampling());assert(ui.soft_key(5) && files.service());assert(!ui.resampling());assert(files.take_recording_result(result) && !result.saved && !result.assigned);assert(track_at(*p,0,0).sample_slot==original && !fs.exists("RECORDINGS/Live-002.part"));
+ assert(complete && engine->live_record_bars_complete() && ui.resampling());assert(ui.soft_key(7) && files.service());assert(!ui.resampling());assert(files.take_recording_result(result) && !result.saved && !result.assigned);assert(track_at(*p,0,0).sample_slot==original && !fs.exists("RECORDINGS/Live-002.part"));
  // Occupancy published by a real save job disables new recording/configuration.
- ProjectEncodeSlot worker;files.set_project_save_worker(&worker);assert(files.start_project_save("Test.mgxs"));assert(ui.recording_file_busy() && !ui.soft_enabled(5) && !ui.knob(6,1000));assert(worker.process_one());until([&]{return !files.project_save_busy();});assert(!ui.recording_file_busy() && ui.soft_enabled(5));
+ ProjectEncodeSlot worker;files.set_project_save_worker(&worker);assert(files.start_project_save("Test.mgxs"));assert(ui.recording_file_busy() && !ui.soft_enabled(7) && !ui.knob(0,1000));assert(worker.process_one());until([&]{return !files.project_save_busy();});assert(!ui.recording_file_busy() && ui.soft_enabled(7));
  // A destination assignment changed between queueing and service is
  // rejected with its actual reason, before opening a new take.
- assert(ui.soft_key(5));track_at(*p,0,0).sample_slot=uint8_t((original+1)%kSampleAssets);assert(!files.service());assert(!ui.live_recording() && std::strstr(ui.browser().status,"target changed"));track_at(*p,0,0).sample_slot=original;
+ assert(ui.soft_key(7));track_at(*p,0,0).sample_slot=uint8_t((original+1)%kSampleAssets);assert(!files.service());assert(!ui.live_recording() && std::strstr(ui.browser().status,"target changed"));track_at(*p,0,0).sample_slot=original;
  // Failed audio writes keep the old immutable sample and its assignment.
- assert(ui.soft_key(5));assert(files.service());fs.fail_audio=true;until([&]{return !ui.live_recording();});fs.fail_audio=false;assert(files.take_recording_result(result) && !result.assigned);assert(track_at(*p,0,0).sample_slot==original && wav_sample(old,0,0)>0.09f);
+ assert(ui.soft_key(7));assert(files.service());fs.fail_audio=true;until([&]{return !ui.live_recording();});fs.fail_audio=false;assert(files.take_recording_result(result) && !result.assigned);assert(track_at(*p,0,0).sample_slot==original && wav_sample(old,0,0)>0.09f);
  // A successful wet take can become the existing exact 1-4 bar looper base.
  p->assets[first_slot].metadata.root=36;ui.set_shift(false);assert(ui.loop_take());assert(ui.loop_take());run(64);assert(overdub_track_compatible(track_at(*p,0,0),p->assets[first_slot],32000,8000,p->tempo,0));
  p->routing.capture_bus=19;assert(ui.request_file(FileAction::Overdub));assert(!files.service());assert(!ui.live_recording());

@@ -13,7 +13,7 @@ public:
  void finish(){if(state()==Recording)publish(Finishing);else if(state()==Armed)fail(NoBars);}
  void fail(Error e){if(active()){error_=e;publish(Failed);}}
  void reset(){publish(Idle);}
- void begin(uint64_t tick,unsigned scene,const ClipState* clips,uint16_t muted){if(state()!=Armed)return;opened_=tick;take_.length=1;snapshot(take_.sections[0],scene,clips,muted,0xffff);publish(Recording);}
+ void begin(uint64_t tick,unsigned scene,const ClipState* clips,uint16_t muted,int transpose=0){if(state()!=Armed)return;opened_=tick;take_.length=1;snapshot(take_.sections[0],scene,clips,muted,0xffff,transpose);publish(Recording);}
  void advance(uint64_t tick){
   if(state()!=Recording && state()!=Finishing)return;
   if(tick<opened_)return;
@@ -22,10 +22,10 @@ public:
    auto& next=take_.sections[take_.length++];next=previous;next.ticks=0;next.restart_mask=0;opened_+=kSongMaxTicks;
   }
  }
- void observe(uint64_t tick,unsigned scene,const ClipState* clips,uint16_t muted,uint16_t restarts){
+ void observe(uint64_t tick,unsigned scene,const ClipState* clips,uint16_t muted,uint16_t restarts,int transpose=0){
   if(state()!=Recording && state()!=Finishing)return;
   advance(tick);if(state()==Failed)return;
-  SongSection next;snapshot(next,scene,clips,muted,restarts);auto& previous=take_.sections[take_.length-1];bool changed=previous.playing_mask!=next.playing_mask || previous.mute_mask!=next.mute_mask;
+  SongSection next;snapshot(next,scene,clips,muted,restarts,transpose);auto& previous=take_.sections[take_.length-1];bool changed=previous.playing_mask!=next.playing_mask || previous.mute_mask!=next.mute_mask || previous.transpose!=next.transpose;
   for(unsigned t=0;t<kTracks;++t)changed|=previous.patterns[t]!=next.patterns[t];
   if(!changed && !restarts)return;
   if(tick==opened_){next.restart_mask|=previous.restart_mask;previous=next;return;}
@@ -45,7 +45,7 @@ public:
  Error error()const{return state()==Failed?error_:None;}
  void acknowledge(){auto s=state();if(s==Ready || s==Failed)publish(Idle);}
 private:
- static void snapshot(SongSection& s,unsigned scene,const ClipState* clips,uint16_t muted,uint16_t restarts){s=SongSection{};s.scene=uint8_t(scene);s.playing_mask=0;s.mute_mask=muted;s.restart_mask=restarts;for(unsigned t=0;t<kTracks;++t){s.patterns[t]=clips[t].pattern;if(clips[t].playing)s.playing_mask|=uint16_t(1u<<t);}}
+ static void snapshot(SongSection& s,unsigned scene,const ClipState* clips,uint16_t muted,uint16_t restarts,int transpose){s=SongSection{};s.scene=uint8_t(scene);s.transpose=int8_t(transpose);s.playing_mask=0;s.mute_mask=muted;s.restart_mask=restarts;for(unsigned t=0;t<kTracks;++t){s.patterns[t]=clips[t].pattern;if(clips[t].playing)s.playing_mask|=uint16_t(1u<<t);}}
  void publish(State s){__atomic_store_n(&state_,unsigned(s),__ATOMIC_RELEASE);}
  SongState take_{};uint64_t opened_=0;unsigned state_=Idle;Error error_=None;
 };

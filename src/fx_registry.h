@@ -37,6 +37,13 @@ inline const FxDescriptor* fx_descriptor(unsigned type){
   {21,"mk3.fx.rotary","ROTARY",{{"SPEED",speeds,3},{"DRIVE",nullptr,0}},0,2,false,{VisualElement::Response,VisualSource::Parameters,VisualCadence::Control,VisualFallback::Parameters,ResponseModel::None,"HORN + DRUM / RAMPED SPEED"}},
  };return type<kFxCount?&effects[type]:nullptr;
 }
+inline unsigned next_insert_type(unsigned type,int change){
+ static constexpr uint8_t order[]={0,19,20,21,7,8,9,16,17,18,10,5,6,1,2,3,4,11,12,13,14,15};
+ static_assert(sizeof order==kFxCount);
+ unsigned row=0;while(row+1<kFxCount && order[row]!=type)++row;
+ const int next=int(row)+change;
+ return order[next<0?0:next>=int(kFxCount)?kFxCount-1:unsigned(next)];
+}
 enum class SystemFx:uint8_t {Compressor,Delay,Reverb,Filter,Chain};
 struct SystemFxVisual {const char* name;VisualDeclaration visual;};
 inline const SystemFxVisual& system_fx_visual(SystemFx type){static const SystemFxVisual entries[]={

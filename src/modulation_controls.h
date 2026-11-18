@@ -10,7 +10,7 @@ struct ModulationContext {
  bool shift=false;uint8_t page=0;bool multitimbral=false,input_busy=false,can_undo=false,can_redo=false;
 };
 inline ModulationControl modulation_button_control(unsigned index,const ModulationContext& c){
- if(c.page==3 && index==4){ModulationControl d{c.multitimbral?"EXIT MODULE":"MULTITIMBRAL",ModulationAction::Multitimbral,!c.input_busy};d.selected=c.multitimbral;return d;}
+ if(c.page==3 && index==4){ModulationControl d{"MIDI MODULE",ModulationAction::Multitimbral,!c.input_busy};d.selected=c.multitimbral;return d;}
  if(c.page==1 && index==4)return {"AUTO PAGE -",ModulationAction::AutoPagePrev,true};
  if(c.page==1 && index==5)return {"AUTO PAGE +",ModulationAction::AutoPageNext,true};
  if(index<4){static const char* labels[]={"ROUTES","AUTOMATION","MACRO MAP","MIDI"};ModulationControl d{index==3?"MIDI/RPN":labels[index],ModulationAction::Page,true,index==3?(c.shift?4:c.page==3?4:3):int(index),4};d.selected=index==(c.page==4?3:unsigned(c.page));return d;}

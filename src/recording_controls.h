@@ -8,10 +8,10 @@ constexpr uint8_t icon_for(RecordingOrigin action){switch(action){case Recording
 
 struct LiveRecordRequest {RecordingTarget target{};uint8_t source=0;bool quantized=false;RecordingOrigin origin=RecordingOrigin::Source;};
 struct ResampleRequest {RecordingTarget target{};uint8_t source=0,bars=1;};
-enum class RecordingAction:uint8_t {None,GroupFx,Mixer,Monitor,Capture,Record,Stop,Resample,Cancel,Bars,Quantize,Overdub,Undo,Redo,Source,RecordInput,RecordSource,Preview};
+enum class RecordingAction:uint8_t {None,GroupFx,Mixer,Monitor,Capture,Record,Stop,Resample,Cancel,Bars,Quantize,Overdub,Undo,Redo,Source,RecordInput,RecordSource,Preview,Hub};
 constexpr uint8_t icon_for(RecordingAction action){switch(action){case RecordingAction::Capture:return ui::icons::Record;case RecordingAction::Record:return ui::icons::Record;case RecordingAction::Stop:return ui::icons::Stop;case RecordingAction::Cancel:return ui::icons::Cancel;case RecordingAction::Undo:return ui::icons::Undo;case RecordingAction::Redo:return ui::icons::Redo;case RecordingAction::Source:return ui::icons::Source;case RecordingAction::RecordInput:return ui::icons::Record;case RecordingAction::RecordSource:return ui::icons::Record;case RecordingAction::Preview:return ui::icons::Play;default:return ui::icons::None;}}
 
-constexpr ui::TopWork top_work(RecordingAction a){switch(a){case RecordingAction::None:return ui::TopWork::Empty;case RecordingAction::GroupFx:case RecordingAction::Monitor:case RecordingAction::Quantize:case RecordingAction::Bars:return ui::TopWork::Selection;case RecordingAction::Mixer:return ui::TopWork::Exit;default:return ui::TopWork::Execute;}}
+constexpr ui::TopWork top_work(RecordingAction a){switch(a){case RecordingAction::None:return ui::TopWork::Empty;case RecordingAction::GroupFx:case RecordingAction::Monitor:case RecordingAction::Quantize:case RecordingAction::Bars:return ui::TopWork::Selection;case RecordingAction::Mixer:case RecordingAction::Hub:return ui::TopWork::Exit;default:return ui::TopWork::Execute;}}
 using RecordingControl=ui::ControlDescriptor<RecordingAction>;
 struct RecordingContext {
  bool shift=false,playing=false,audio=false,scene_take=false,live=false,resampling=false,cancelling=false,pending=false,file_busy=false,can_undo=false,can_redo=false,quantized=false;
@@ -30,7 +30,7 @@ inline RecordingControl recording_button_control(unsigned index,const RecordingC
   case 3:
    if(c.resampling)return {c.cancelling?"CANCELLING":"CANCEL",RecordingAction::Cancel,!c.cancelling};
    if(c.live)return {c.stopping?"STOPPING":"STOP RECORD",RecordingAction::Stop,!c.stopping};
-   return {c.shift?"RECORD":"CAPTURE",c.shift?RecordingAction::Record:RecordingAction::Capture,idle && c.audio && !c.scene_take};
+   return {c.shift?"RECORD":"RECORDING",c.shift?RecordingAction::Record:RecordingAction::Hub,!c.shift || (idle && c.audio && !c.scene_take)};
   case 4:
    if(c.shift){if(c.resampling)return {c.cancelling?"CANCELLING":"CANCEL",RecordingAction::Cancel,!c.cancelling};return {"RESAMPLE",RecordingAction::Resample,resample_start_allowed(c)};}
    return {"REC MODE",RecordingAction::Quantize,idle};
@@ -61,7 +61,7 @@ inline bool recording_button_selected(unsigned index,const RecordingContext& c,b
   default:return false;
  }
 }
-inline RecordingControl recording_source_control(const RecordingContext& c){return {"CAPTURE BUS",RecordingAction::Source,!recording_configuration_locked(c),0,int(kCaptureMax)};}
+inline RecordingControl recording_source_control(const RecordingContext& c){return {"RECORD BUS",RecordingAction::Source,!recording_configuration_locked(c),0,int(kCaptureMax)};}
 inline const char* recording_hint(const RecordingContext& c,unsigned state){
  if(c.resampling){if(c.cancelling)return "CANCELLING / destination kept";return state==1 || state==4?"ARMED / next bar / CANCEL available":"RESAMPLING / CANCEL available";}
  if(c.stopping)return "STOPPING / flushing audio";
@@ -70,8 +70,8 @@ inline const char* recording_hint(const RecordingContext& c,unsigned state){
  if(c.file_busy)return "FILE JOB ACTIVE / wait to record";
  if(!c.audio)return "Audio unavailable";
  if(c.scene_take)return "Finish Arrangement take to record";
- if(!c.playing)return "PLAY to resample / SHIFT + Top6: bars";
- return "SHIFT + Top5: RESAMPLE / Top6: bars";
+ if(!c.playing)return "PLAY to resample";
+ return "RESAMPLE / starts next bar";
 }
 inline const char* sampler_recording_hint(const RecordingContext& c,unsigned state){
  if(c.live || c.pending || c.file_busy || !c.audio || c.scene_take)return recording_hint(c,state);

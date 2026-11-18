@@ -42,11 +42,11 @@ bool Engine::refresh_parameters_step(unsigned t,const StepState* step) {
  r.step_fp=h;r.step_fp_valid=true;return true;
 }
 bool Engine::freeze_capture_begin(unsigned t,uint32_t maximum){return capture_buffer_begin(t,maximum,false);}
-bool Engine::twin_capture_begin(unsigned t,unsigned note,unsigned velocity,unsigned hold,unsigned maximum){
+bool Engine::twin_capture_begin(unsigned t,unsigned note,unsigned velocity,unsigned hold,unsigned maximum,bool prepare,bool first){
  if(t>=kTracks || note>127 || !velocity || velocity>127 || hold<10 || hold>4000 || maximum<hold || maximum>10000 || live_record_state())return false;
- return capture_buffer_begin(t,uint32_t(uint64_t(rate_)*maximum/1000),true,note,velocity,unsigned(uint64_t(rate_)*hold/1000));
+ return capture_buffer_begin(t,uint32_t(uint64_t(rate_)*maximum/1000),true,note,velocity,unsigned(uint64_t(rate_)*hold/1000),prepare,first);
 }
-bool Engine::capture_buffer_begin(unsigned track_index,uint32_t maximum_frames,bool twin,unsigned note,unsigned velocity,unsigned hold){
+bool Engine::capture_buffer_begin(unsigned track_index,uint32_t maximum_frames,bool twin,unsigned note,unsigned velocity,unsigned hold,bool prepare,bool first){
  service_freeze_capture();
  if(track_index>=16 || freeze_capture_state()!=0 || freeze_release_pending_)return false;
  const uint64_t limit=uint64_t(rate_)*120;
@@ -54,7 +54,7 @@ bool Engine::capture_buffer_begin(unsigned track_index,uint32_t maximum_frames,b
  if(!capacity || capacity>limit || capacity>0xffffffffu)return false;
  int16_t* storage=twin?nullptr:alloc_array<int16_t>(size_t(capacity)*2);float* floating=twin?alloc_array<float>(size_t(capacity)*2):nullptr;if(twin?!floating:!storage)return false;
  twin_storage_=floating;freeze_storage_=storage;freeze_storage_frames_=uint32_t(capacity);
- freeze_request_track_=track_index;freeze_request_generation_=published_generation_;twin_capture_request_=twin;twin_note_=uint8_t(note);twin_velocity_=uint8_t(velocity);twin_hold_frames_=hold;
+ freeze_request_track_=track_index;freeze_request_generation_=published_generation_;twin_capture_request_=twin;twin_prepare_batch_=prepare;twin_prepare_first_=first;twin_note_=uint8_t(note);twin_velocity_=uint8_t(velocity);twin_hold_frames_=hold;
  __atomic_store_n(&freeze_cancel_,0u,__ATOMIC_RELAXED);
  __atomic_store_n(&freeze_published_frames_,0u,__ATOMIC_RELAXED);
  __atomic_store_n(&freeze_status_,5u,__ATOMIC_RELEASE);return true;
@@ -74,13 +74,16 @@ float Engine::freeze_capture_progress()const{
  float progress=float(frames)/float(estimate?estimate:1);return progress>1?1:progress;
 }
 void Engine::consume_freeze_capture(){
+ if(__atomic_exchange_n(&twin_prepare_end_,0u,__ATOMIC_ACQUIRE))twin_prepare_track_=255;
  if(!freeze_audio_active_ && freeze_capture_state()==5){
   freeze_audio_active_=true;freeze_state_=4;freeze_write_=false;freeze_frames_=0;
   const unsigned t=freeze_request_track_;
   if(t<16 && generation_==freeze_request_generation_ && !__atomic_load_n(&freeze_cancel_,__ATOMIC_ACQUIRE)){
    const auto& st=track(t);
    if(twin_capture_request_){
-    if(twin_capture_allowed(t)){stop_twin_voice(t);freeze_buffer_=freeze_storage_;freeze_capacity_=freeze_storage_frames_;freeze_track_=uint8_t(t);freeze_pattern_=runtime_[t].pattern;freeze_estimate_=freeze_capacity_;freeze_state_=2;twin_isolated_=true;twin_heard_=false;twin_quiet_=0;twin_capture_revision_=cc_generation_;for(auto& lock:runtime_[t].active_locks)lock.enabled=false;refresh_parameters(t);auto* voice=trigger(t,twin_velocity_,twin_note_,nullptr,nullptr,0,false,true,-1,-1,nullptr,-1,nullptr,nullptr,nullptr,true);if(!voice)freeze_state_=4;else for(auto* child=voice;child;child=child->layer_peer){child->off_at=0;child->daisy.hold();}}
+    freeze_track_=uint8_t(t);
+    if(twin_prepare_batch_ && twin_prepare_first_ && playing_)freeze_state_=1;
+    else start_twin_capture();
    }else{
    double step_samples=double(rate_)*60.0/double(bpm_)/4.0*double(st.speed_den)/double(st.speed_num?st.speed_num:1);
    uint64_t estimate=uint64_t(step_samples*st.length+0.5),capacity=estimate+rate_;
@@ -92,6 +95,26 @@ void Engine::consume_freeze_capture(){
   }
  }
  if(freeze_audio_active_ && (generation_!=freeze_request_generation_ || __atomic_load_n(&freeze_cancel_,__ATOMIC_ACQUIRE))){freeze_state_=4;freeze_write_=false;}
+}
+void Engine::start_twin_capture(){
+ const unsigned t=freeze_track_;
+ freeze_state_=4;
+ if(__atomic_load_n(&freeze_cancel_,__ATOMIC_ACQUIRE) || !twin_capture_allowed(t))return;
+ if(twin_prepare_batch_){
+  if(!twin_prepare_first_ && twin_prepare_track_!=t)return;
+  twin_prepare_track_=uint8_t(t);
+ }
+ stop_twin_voice(t);cancel_step_anticipation(t);
+ freeze_buffer_=freeze_storage_;freeze_capacity_=freeze_storage_frames_;
+ freeze_pattern_=runtime_[t].pattern;freeze_estimate_=freeze_capacity_;freeze_state_=2;
+ twin_isolated_=true;twin_heard_=false;twin_quiet_=0;twin_capture_revision_=cc_generation_;
+ for(auto& lock:runtime_[t].active_locks)lock.enabled=false;
+ refresh_parameters(t);
+ twin_capture_triggering_=true;
+ auto* voice=trigger(t,twin_velocity_,twin_note_,nullptr,nullptr,0,false,true,-1,-1,nullptr,-1,nullptr,nullptr,nullptr,true);
+ twin_capture_triggering_=false;
+ if(!voice)freeze_state_=4;
+ else for(auto* child=voice;child;child=child->layer_peer){child->off_at=0;child->daisy.hold();}
 }
 void Engine::publish_freeze_capture(){
  if(!freeze_audio_active_)return;
@@ -115,7 +138,7 @@ void Engine::trigger_frozen(unsigned t){
 bool Engine::twin_capture_allowed(unsigned t){
  if(t>=16 || audio_lane_mask_&(1u<<t) || track(t).frozen_asset<kSampleAssets)return false;
  const auto engine=track(t).instrument;if(engine==Instrument::Empty || engine==Instrument::Unknown || engine==Instrument::ExternalMidi || engine==Instrument::DrumKit || engine==Instrument::Texture)return false;
- if(!playing_ || !runtime_[t].playing)return true;
+ if(twin_prepare_batch_ || !playing_ || !runtime_[t].playing)return true;
  for(const auto& step:track(t).steps)if(step.enabled)return false;
  return true;
 }

@@ -39,7 +39,7 @@ TEXTURE: Top 1 GRAINS maps K1–K8 to Mode / Position / Size / Pitch / Density /
 
 POOL SLOT has 256 slots. In PROJECT, K4 POOL SLOT selects the target slot, and STORE POOL / RECALL POOL in the list are executed by a 4-D press. On sound-target faces, registration/mounting are also placed on the free Top7/8. Registration into the pool and named file saving in FILES are separate operations.
 
-The canonical entry to LOOPER / AUDIO is **PERFORM → Top8 AUDIO**. DIAGNOSTICS is **SETTINGS → SYSTEM by 4-D left/right → Top7 DIAGNOSTICS**. Shortcuts from SONG and implicit diversion by audio role have been removed; STEP / SYNTH / SAMPLER / GENERATE open the designated screen. [Audio operation list](audio-tracks.md).
+**PERFORM → Top8 LOOPER** opens loop recording. Top2 TIMELINE opens linear audio placement. **PERFORM → SHIFT+Top8 LIVE TOOLS** opens the links to RECORDING, FX MAP and MIDI MODULE. The mode heading shows its family. DIAGNOSTICS is **SETTINGS → SYSTEM by 4-D left/right → Top7 DIAGNOSTICS**. Shortcuts from SONG and implicit diversion by audio role have been removed; STEP / SYNTH / SAMPLER / GENERATE open the designated screen. [Audio operation list](audio-tracks.md).
 
 ## Common operation rules
 
@@ -81,8 +81,8 @@ The WAVE PROFILE of external MIDI is switched at the Top MACROS / SN CLOCK, and 
 | Prepare sounds and routing | Select a Track → sound source / TONE on the PLUG-IN Tops → ROUTING / FX in CHANNEL → MIXER | Return to the previous main screen with page-left |
 | Use a sample | FILE → select a File → PREVIEW → LOAD → SAMPLING | TRIM / WAVE / ZONES. Keep preview distinct from assignment to the song |
 | Keep a performance as a configuration | Develop in CLIP / SCENE → edit the SONG or take a take in ARRANGER | Check the whole with PLAY → save with FILE |
-| Record a loop | PERFORM → Top8 AUDIO → Track → Top1 LOOPER → INPUT / LENGTH → PLAY → RECORD | Wait for the finish processing → OVERDUB or TAKE UNDO → save |
-| Place audio onto the song | The same Audio page → Top2 AUDIO → prepare the SONG → Track / CLIP / INPUT → RECORD | Adjust placement with START BAR / TRIM → save |
+| Record a loop | PERFORM → Top8 LOOPER → Top5 RECORD | Wait for the finish processing → OVERDUB or TAKE UNDO → save |
+| Place audio onto the song | LOOPER → Top2 TIMELINE → prepare the SONG → Track / CLIP / INPUT → RECORD | Adjust placement with START BAR / TRIM → save |
 | Save / carry out | SHIFT+FILE; if unnamed, enter a name → APPLY | Gather the assets with FILE → COLLECT. After OPEN, check the song name and assets |
 
 The detailed procedures and discard conditions are canonically defined in the [instruction manual](user-manual.ja.md) and the [audio frame](audio-tracks.md). Correspondence with lighting is in the [LED rules](led-behavior.md). History and RETURN restore the selection position and are separate from the Undo that cancels changes to audio parameters.

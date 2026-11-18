@@ -8,15 +8,16 @@ namespace groove {
 // publication is one acknowledged audio-owner transaction, never partial mount.
 class TwinPrepare {
  IFileAccess& fs_;ISampleLibrary& library_;Engine& engine_;ProjectState& project_;
- TwinInstall* draft_=nullptr;bool published_=false,moved_=false,owns_capture_=false,owns_temporary_=false;FileWriter* writer_=nullptr;
+ TwinInstall* draft_=nullptr;bool prepare_started_=false,published_=false,moved_=false,owns_capture_=false,owns_temporary_=false;FileWriter* writer_=nullptr;
  TwinConfig config_{};unsigned note_=0,written_=0,first_=0,end_=0,total_=0;uint32_t offsets_[17]{};bool writing_=false,revision_set_=false;
  float write_buffer_[2048]{};char temporary_[160]{},path_[160]{};const char* error_=nullptr;bool done_=false,ok_=false;unsigned asset_=64;WavView result_view_{};
  void fail(const char* error){error_=error;if(published_){__atomic_store_n(&draft_->cancel,1u,__ATOMIC_RELEASE);return;}delete writer_;writer_=nullptr;if(owns_capture_){engine_.freeze_capture_abort();engine_.freeze_capture_release();owns_capture_=false;}if(owns_temporary_)fs_.remove(temporary_);if(moved_)fs_.remove(path_);delete draft_;draft_=nullptr;done_=true;ok_=false;}
  bool unchanged(){auto* sound=alloc_new<SoundState>();if(!sound)return false;snapshot_sound(*sound,track_at(project_,project_.active_pattern,draft_->track));uint8_t digest[32];bool same=twin_content_digest(*sound,project_,draft_->track,digest) && !__builtin_memcmp(digest,draft_->twin.digest,32);delete sound;return same;}
- bool capture(){if(!unchanged())return false;owns_capture_=engine_.twin_capture_begin(draft_->track,config_.note(note_),config_.velocity,config_.hold_ms,config_.max_ms);return owns_capture_;}
+ void resume_track(){if(prepare_started_){engine_.end_twin_prepare();prepare_started_=false;}}
+ bool capture(){if(!unchanged())return false;owns_capture_=engine_.twin_capture_begin(draft_->track,config_.note(note_),config_.velocity,config_.hold_ms,config_.max_ms,true,!prepare_started_);prepare_started_|=owns_capture_;return owns_capture_;}
 public:
  TwinPrepare(IFileAccess& fs,ISampleLibrary& library,Engine& engine,ProjectState& project):fs_(fs),library_(library),engine_(engine),project_(project){}
- ~TwinPrepare(){delete writer_;if(draft_){if(published_)__atomic_store_n(&draft_->cancel,1u,__ATOMIC_RELEASE);else delete draft_;}if(!ok_){if(owns_temporary_)fs_.remove(temporary_);if(moved_ && !published_)fs_.remove(path_);}if(owns_capture_)engine_.freeze_capture_release();}
+ ~TwinPrepare(){delete writer_;if(draft_){if(published_)__atomic_store_n(&draft_->cancel,1u,__ATOMIC_RELEASE);else delete draft_;}if(!ok_){if(owns_temporary_)fs_.remove(temporary_);if(moved_ && !published_)fs_.remove(path_);}if(owns_capture_)engine_.freeze_capture_release();resume_track();}
  bool busy()const{return draft_!=nullptr;}bool done()const{return done_;}bool ok()const{return ok_;}const char* error()const{return error_?error_:"TWIN PREPARE FAILED";}
  unsigned asset_slot()const{return asset_;}const char* path()const{return path_;}unsigned note_index()const{return note_;}unsigned note_count()const{return config_.count();}
  unsigned progress()const{return !busy()?100:unsigned((note_*100+engine_.freeze_capture_progress()*100)/config_.count());}
@@ -32,7 +33,7 @@ public:
   if(!available || !copy_text(draft_->material.path,96,path_)){fail("TWIN MATERIAL PATH UNAVAILABLE");return false;}
   if(!fs_.directory(folder) || !(writer_=alloc_new<FileWriter>(fs_,temporary_))){fail("TWIN STORAGE OPEN FAILED");return false;}
   owns_temporary_=true;uint8_t header[44];if(!wav_header_float32(header,0,engine_.sample_rate()) || !writer_->write(header,44)){fail("TWIN STORAGE WRITE FAILED");return false;}
-  if(!capture()){fail("TWIN NEEDS STOPPED OR SILENT TRACK / FREE MEMORY");return false;}return true;
+  if(!capture()){fail("TWIN CAPTURE BUSY / FREE MEMORY");return false;}return true;
  }
  void cancel(){if(busy())fail("TWIN CANCELLED / SOURCE KEPT");}
  #if defined(__GNUC__) && !defined(__clang__)
@@ -56,6 +57,7 @@ public:
   if(count && !writer_->write(reinterpret_cast<const uint8_t*>(write_buffer_),count*8)){fail("TWIN STORAGE WRITE FAILED");return;}written_+=count;if(written_<end_)return;
   total_+=end_-first_;offsets_[++note_]=total_;engine_.freeze_capture_release();owns_capture_=false;writing_=false;
   if(note_<config_.count()){if(!capture())fail("TWIN SOURCE CHANGED / CAPTURE REFUSED");return;}
+  resume_track();
   uint8_t header[44];bool saved=writer_->finish();delete writer_;writer_=nullptr;if(!saved || !wav_header_float32(header,total_,engine_.sample_rate()) || !fs_.write(temporary_,0,header,44,false) || !fs_.move(temporary_,path_)){fail("TWIN WAV FINALIZE FAILED");return;}moved_=true;owns_temporary_=false;
   WavView view;uint32_t crc=0;if(!library_.load_twin(path_,view) || !view.data || view.reader || !file_checksum(fs_,path_,crc) || !unchanged()){fail("TWIN MATERIAL LOAD FAILED / SOURCE KEPT");return;}
   auto& sample=draft_->sampled;sample.instrument=Instrument::Sampler;sample.sample_slot=uint8_t(draft_->asset);sample.sample_slices=uint8_t(config_.count());sample.output_trim=draft_->source.output_trim;copy_text(sample.preset_name,96,"TWIN Sample");

@@ -69,7 +69,8 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
     bar_phase_+=uint64_t(tempo_eff_)*4; if(bar_phase_>=bar_period) { bar_phase_-=bar_period; boundary=true; } }
    first_=false;
    if(performance_fx_quantize_pending_ && (performance_fx_quantize_pending_==1?beat_boundary:boundary)){performance_fx_manual_mode_=performance_fx_pending_mode_;performance_fx_manual_amount_=performance_fx_pending_amount_;performance_fx_applied_=performance_fx_pending_mode_;performance_fx_.set(performance_fx_applied_,performance_fx_pending_amount_);performance_fx_quantize_pending_=0;}
-   bool taking=take_session;
+   const auto take_phase=take_session?scene_take_.state():SceneTake::Idle;
+   const bool taking=take_phase==SceneTake::Recording || take_phase==SceneTake::Finishing || take_phase==SceneTake::Ready || (take_phase==SceneTake::Armed && (!scene_take_live_arm_ || boundary));
    bool song_owner=!taking && song_session && follow_song(boundary,musical_tick);
    if(boundary && playing_) {
     unsigned record_state=__atomic_load_n(&live_record_state_,__ATOMIC_ACQUIRE);
@@ -77,7 +78,8 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
     for(unsigned t=0;t<16;++t){if(twin_pending_&(1u<<t))apply_twin_switch(t);}
     twin_pending_=0;
     apply_launches();
-    if(scene_take_.state()==SceneTake::Armed)scene_take_.begin(arrangement_tick_,project_->active_scene,project_->clips,captured_mute_mask());
+    if(twin_capture_request_ && freeze_state_==1)start_twin_capture();
+    if(scene_take_.state()==SceneTake::Armed)scene_take_.begin(arrangement_tick_,project_->active_scene,project_->clips,captured_mute_mask(),song_transpose_);
     else if(scene_take_.state()==SceneTake::Finishing)scene_take_.end(arrangement_tick_);
     if(record_state==2 && live_record_bars_ && !--live_record_bars_){__atomic_store_n(&live_record_bar_done_,1,__ATOMIC_RELEASE);__atomic_store_n(&live_record_state_,3,__ATOMIC_RELEASE);}
     if(record_state==4){if(live_record_restart_track_<16){if(audio_lane_mask_&(1u<<live_record_restart_track_))start_audio_clip(live_record_restart_track_,0);else launch_clip(live_record_restart_track_,live_record_restart_pattern_,true);}__atomic_store_n(&live_record_tick_,audio_song_tick(),__ATOMIC_RELEASE);__atomic_store_n(&live_record_state_,2,__ATOMIC_RELEASE);}else if(record_state==5)__atomic_store_n(&live_record_state_,3,__ATOMIC_RELEASE);
@@ -86,12 +88,12 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
    if(playing_){
    bool parameter_boundary=boundary;for(unsigned t=0;t<16;++t) {
     auto& r=runtime_[t];
-    if((audio_lane_mask_&(1u<<t)) || (twin_isolated_ && t==freeze_track_))continue;
+    if(audio_lane_mask_&(1u<<t))continue;
     if(r.follow_due && int64_t(sample_count_)>=r.grid)follow_clip(t);
     if((r.playing && sample_count_>=r.due) || (r.retriggers && sample_count_>=r.retrigger_at) ||
        (step_anticipation_mask_&(1u<<t)))parameter_boundary|=service_step_events(t);
    }freeze_write_=freeze_state_==2;if(parameter_boundary)refresh_effects();
-   if(arrangement_clock && (scene_take_.state()==SceneTake::Recording || scene_take_.state()==SceneTake::Finishing)){uint64_t tick=arrangement_tick_+(arrangement_tick_phase_>=clock_period/2);if(arrangement_dirty_)scene_take_.observe(tick,project_->active_scene,project_->clips,captured_mute_mask(),arrangement_restarts_);else if(musical_tick)scene_take_.advance(arrangement_tick_);}
+   if(arrangement_clock && (scene_take_.state()==SceneTake::Recording || scene_take_.state()==SceneTake::Finishing)){uint64_t tick=arrangement_tick_+(arrangement_tick_phase_>=clock_period/2);if(arrangement_dirty_)scene_take_.observe(tick,project_->active_scene,project_->clips,captured_mute_mask(),arrangement_restarts_,song_transpose_);else if(musical_tick)scene_take_.advance(arrangement_tick_);}
    arrangement_dirty_=false;arrangement_restarts_=0;
    }
   }
@@ -135,7 +137,7 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
    if(trim!=1){l*=trim;rr*=trim;kit_delay_l*=trim;kit_delay_r*=trim;kit_reverb_l*=trim;kit_reverb_r*=trim;}
    const bool audible=!audio_muted(t) && (!solo || audio_solo_track(t)) && (!(audio_lane_mask_&(1u<<t)) || !(song_mute_mask_&(1u<<t)));r.audible_gain+=((audible?1.0f:0.0f)-r.audible_gain)*0.01f;
    float pan=r.current[1],level=r.current[0]*r.audible_gain,pan_l=pan>0?1-pan:1,pan_r=pan<0?1+pan:1;for(unsigned bus=0;bus<2;++bus)r.send_pre[bus]+=((track(t).send_prefader&(1u<<bus)?1.0f:0.0f)-r.send_pre[bus])*0.005f;float delay_gain=r.audible_gain*(r.current[0]+(1-r.current[0])*r.send_pre[0]),reverb_gain=r.audible_gain*(r.current[0]+(1-r.current[0])*r.send_pre[1]);float delay_track_l=l*pan_l*delay_gain,delay_track_r=rr*pan_r*delay_gain,reverb_track_l=l*pan_l*reverb_gain,reverb_track_r=rr*pan_r*reverb_gain;kit_delay_l*=delay_gain*pan_l;kit_delay_r*=delay_gain*pan_r;kit_reverb_l*=reverb_gain*pan_l;kit_reverb_r*=reverb_gain*pan_r;l*=level*pan_l;rr*=level*pan_r;node(5);
-   if(twin_isolated_ && t==freeze_track_){twin_capture_frame(dry_l,dry_r);texture_next_[3+t]=texture_next_[19+t]=texture_next_[35+t]={0,0};follower_next_[t]=0;continue;}
+   if(t==twin_prepare_track_ || (twin_isolated_ && t==freeze_track_)){if(twin_isolated_ && t==freeze_track_)twin_capture_frame(dry_l,dry_r);texture_next_[3+t]=texture_next_[19+t]=texture_next_[35+t]={0,0};follower_next_[t]=0;continue;}
    if(twin_fade_[t]){float old=float(twin_fade_[t]--)/64; l=l*(1-old)+twin_tail_l_[t]*old;rr=rr*(1-old)+twin_tail_r_[t]*old;}twin_last_l_[t]=l;twin_last_r_[t]=rr;
    texture_next_[3+t]={l,rr};texture_next_[35+t]={insert_l,insert_r};
    if(capture_track_index==t){track_capture_l=capture_tap==1?dry_l:capture_tap==2?insert_l:l;track_capture_r=capture_tap==1?dry_r:capture_tap==2?insert_r:rr;}if(record_track_index==t){track_record_l=record_tap==1?dry_l:record_tap==2?insert_l:l;track_record_r=record_tap==1?dry_r:record_tap==2?insert_r:rr;}if(!twin_capture_request_ && freeze_write_ && freeze_state_==2 && t==freeze_track_){if(freeze_frames_<freeze_capacity_){freeze_buffer_[freeze_frames_*2]=pcm16(insert_l);freeze_buffer_[freeze_frames_*2+1]=pcm16(insert_r);++freeze_frames_;}else freeze_state_=4;}

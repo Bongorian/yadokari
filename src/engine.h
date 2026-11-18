@@ -105,7 +105,8 @@ public:
  // acquire mailbox. State 5 is a pending start; 1/2 are armed/capturing;
  // 3/4 acknowledge completion/abort. Release never frees an active buffer.
  bool submit_twin_install(TwinInstall*);TwinInstall* twin_install_result()const;void release_twin_install();
- bool twin_capture_begin(unsigned track,unsigned note,unsigned velocity,unsigned hold_ms,unsigned max_ms);
+ bool twin_capture_begin(unsigned track,unsigned note,unsigned velocity,unsigned hold_ms,unsigned max_ms,bool prepare=false,bool first=false);
+ void end_twin_prepare(){__atomic_store_n(&twin_prepare_end_,1u,__ATOMIC_RELEASE);}
  const float* twin_capture_data()const{return freeze_capture_state()==3?twin_storage_:nullptr;}
  uint32_t twin_capture_revision()const{return freeze_capture_state()==3?twin_capture_revision_:0;}
  bool freeze_capture_begin(unsigned track,uint32_t maximum_frames=0);
@@ -407,7 +408,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  uint32_t tempo_q16_=120u<<16,tempo_dither_=0,tempo_eff_=120;uint64_t tick_count_=0;
  uint64_t slave_anchor_q32_=0,slave_master_ticks_=0,slave_last_tick_sample_=0;int64_t slave_integrator_q32_=0;uint32_t slave_base_q16_=0,slave_last_applied_q16_=0;bool slave_have_tick_=false,slave_base_valid_=false,slave_freerun_=false,slave_locked_=false,slave_anchored_=false;int32_t slave_phase_mt_=0,slave_phase_max_mt_=0;uint32_t slave_resyncs_=0;
  uint32_t clip_follow_seed_[16]{};
- SceneTake scene_take_{};
+ SceneTake scene_take_{};bool scene_take_live_arm_=false;
  uint32_t bpm_=120,random_=0x13579bdf,meta_random_=0x13579bdf; uint64_t event_seed_tick_[16]={};bool event_seed_tick_valid_[16]={};uint8_t event_seed_pitches_[16][16]{};uint8_t event_seed_counts_[16][16]{};uint8_t event_seed_entries_[16]={}; uint64_t clock_phase_=0,bar_phase_=0,sample_count_=0,count_phase_=0,song_phase_=0;uint16_t song_position_=0;uint32_t metro_ticks_=0,click_remaining_=0,click_length_=0;uint8_t count_beat_=0;bool counting_=false;float click_phase_=0,click_increment_=0; bool note_record_armed_=false;uint8_t note_record_track_=0;uint64_t (*record_erased_)[kSteps];SpscQueue<StepState,65>* erase_payload_;bool playing_=false,first_=false,fill_=false;
  struct RecordedHeld {uint64_t start=0,period=0;uint32_t id=0;uint8_t track=0,note=0;uint16_t channel=0;uint8_t pattern=0,step=0;uint32_t pattern_revision=0;};RecordedHeld recorded_held_[64]{};uint32_t recording_serial_=0;
  struct VaResolved {uint64_t sample=~uint64_t(0);unsigned generation=0;float values[kVirtualAnalogParameterCount]{};};VaResolved va_resolved_[16]{};
@@ -433,8 +434,10 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  TwinHeld twin_held_[kPolyVoiceCapacity+1]{};unsigned twin_held_count_=0;
  TwinInstall* twin_install_=nullptr;uint16_t twin_pending_=0;float twin_last_l_[16]{},twin_last_r_[16]{},twin_tail_l_[16]{},twin_tail_r_[16]{};uint8_t twin_fade_[16]{};
  float* twin_storage_=nullptr;bool twin_capture_request_=false,twin_isolated_=false,twin_heard_=false;uint8_t twin_note_=60,twin_velocity_=100;uint32_t twin_hold_frames_=0,twin_quiet_=0,twin_capture_revision_=0;
- bool capture_buffer_begin(unsigned,uint32_t,bool,unsigned=60,unsigned=100,unsigned=0);
- bool twin_capture_allowed(unsigned);void stop_twin_voice(unsigned);void twin_capture_frame(float,float);void apply_twin_switch(unsigned);void collect_twin_held(unsigned);void retrigger_twin_held(unsigned);
+ bool capture_buffer_begin(unsigned,uint32_t,bool,unsigned=60,unsigned=100,unsigned=0,bool prepare=false,bool first=false);
+ unsigned twin_prepare_end_=0;uint8_t twin_prepare_track_=255;
+ bool twin_prepare_batch_=false,twin_prepare_first_=false,twin_capture_triggering_=false;
+ bool twin_capture_allowed(unsigned);void start_twin_capture();void stop_twin_voice(unsigned);void twin_capture_frame(float,float);void apply_twin_switch(unsigned);void collect_twin_held(unsigned);void retrigger_twin_held(unsigned);
  void consume_freeze_capture();void publish_freeze_capture();
  bool gesture_recording_=false,gesture_playing_=false,gesture_replay_=false;uint64_t gesture_phase_=0;unsigned gesture_cursor_=0;float feedback_input_=0,follower_master_=0,follower_[16]{},follower_next_[16]{},follower_amount_[16]{};
  bool stutter_=false,control_all_=false; uint8_t stutter_subdivision_=4; uint16_t control_all_id_=3; float stutter_wet_=0,control_all_delta_=0;

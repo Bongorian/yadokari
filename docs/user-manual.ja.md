@@ -130,7 +130,7 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
 | TAP / SHIFT+TAP | Tap tempo / メトロノームON/OFF | STEPのSHIFT操作でClick出力先とCount-in設定 |
 | NOTE REPEAT | 押している音を反復 | SHIFT+NOTE REPEATはArp。上部キーでレート、K1–K4で表示された設定 |
 | FOLLOW | STEP再生位置の表示追従 | SCENEのTop1「FOLLOW」とは別 |
-| PERFORM / Smart Strip | 演奏ページ。Top8 AUDIOが正規入口 | PITCH／MOD／NOTESは他の編集画面でも演奏可能。下記のStrip操作を参照 |
+| PERFORM / Smart Strip | 演奏ページ。Top8でLOOPER、SHIFT+Top8でLIVE TOOLS | PITCH／MOD／NOTESは他の編集画面でも演奏可能 |
 
 パッド表面の副印字（Undo、Redo、Quantizeなど）がすべて対応するわけではありません。Undoは<strong>EVENTS</strong>、Redoは<strong>SHIFT+EVENTS</strong>です。確認画面は<strong>4-D押込みで確定、左で取消</strong>。進行中の処理は取消だけ可能です。ノブのPAN等は、低速で中央を跨ぐと中央へ吸着し、高速回転では通過します。
 
@@ -291,7 +291,7 @@ ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えま�
 
 1. 外部音源のLINE OUTをMK3のLINE INへ接続。最初はROUTINGの`MONITOR`をOFF、外部音源側を低めの音量にします。
 2. <strong>録音を入れたいTrack</strong>をA–Hで選びます。KitならSAMPLINGでSELECT+Padを使い、録音先padも指定します。
-3. <strong>SAMPLING + SHIFT + Top5「REC INPUT」</strong>。外部Inputを録ります。ROUTINGのCAPTURE BUSがMainでも、この操作はInputです。
+3. **RECORDINGのTop6 REC INPUT**、または<strong>SAMPLING + SHIFT + Top5「REC INPUT」</strong>で外部入力を録音します。
 4. 音を鳴らします。再生中で`REC MODE`の量子化がONなら次小節まで`ARMED`。<strong>Transport停止中なら量子化設定ONでも即時録音</strong>です。
 5. <strong>SHIFT+Top5「STOP RECORD」</strong>で止めます。`STOPPING`中は保存処理の完了を待ちます。物理STOPはTransport停止で、通常の自由録音が終わるとは限りません。
 6. 完了後、<strong>SHIFT+Top6「PREVIEW」</strong>でCue試聴。パッド／Stepで鳴らすとTrim等も適用されます。最後に<strong>SHIFT+FILE</strong>で割当を含むProjectを保存します。
@@ -302,21 +302,17 @@ ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えま�
 
 ### Main/Cue、Track、Groupを録音する
 
-![ROUTING / MAIN-CUE](manual/routing.png)
-![ROUTING + SHIFT / RESAMPLE](manual/resample.png)
-
-1. <strong>CHANNEL → ROUTING</strong>。GROUP FXが出ている場合はTop1 `MAIN / CUE`。
-2. K7 <strong>CAPTURE BUS</strong>で録音源を選びます。Main / Input / Cueのほか、TrackのFader／Dry／Insert、Returns、Perform、Groupがあります。Track/Group番号も同じ値欄で確認します。
-3. 連続録音は<strong>SHIFT+Top5「RECORD」</strong>、またはSAMPLINGの<strong>SHIFT+Top7「REC SOURCE」</strong>。停止は画面の`STOP RECORD`／`STOP SOURCE`。
-4. 小節単位なら<strong>PLAY</strong>で再生し、ROUTINGの<strong>SHIFT+Top4</strong>で`1 BAR`～`4 BARS`を選び、<strong>SHIFT+Top6「RESAMPLE」</strong>。
-5. `ARMED`→録音→完了を待ちます。途中で取り消すには<strong>CANCEL RESAMPLE</strong>。録音先の既存素材を保ち、その処理が所有する途中ファイルを取り除きます。
+1. **PERFORM → SHIFT+Top8 LIVE TOOLS → Top5 RECORDING**、または **CHANNEL → ROUTING → Top5 RECORDING** を開きます。
+2. K1 **RECORD BUS** でMain、Input、Cue、TrackのDry／Insert／Fader、Returns、Perform、Groupから録音源を選びます。K2でモニター音量、Top1でモニターのオン／オフ、K4またはパッドで割当先Trackを選びます。
+3. **Top6 REC INPUT** は外部入力、**Top7 REC SOURCE** はRECORD BUSを録ります。Top2で即時／次小節を選べます。停止は **STOP RECORD** です。
+4. 再生中に一定の長さを録音するにはK3またはTop3で1～4小節を選び、**Top8 RESAMPLE** を押します。CANCELで既存の割当を保持します。Top4でLOOPERに進めます。
 
 音声録音とArrangement takeは同時に開始できません。録音中は録音源や小節数を変更できません。FILESの一覧更新は録音等のファイル要求とは分けて扱います。録音の開始・終了は状態表示で確認します。
 
 ### CAPTUREでさかのぼる
 
-1. 先にROUTINGのK7 `CAPTURE BUS`を決めます。<strong>sourceを変えると4秒履歴が消えます。</strong>
-2. 数秒演奏し、割当先Track／Kit padを選び、<strong>SHIFTを離してTop5「CAPTURE」</strong>。
+1. RECORDINGのK1 **RECORD BUS** を設定します。変更すると4秒間の履歴が消えます。
+2. 数秒演奏し、割当先Trackまたは選択中のKit padを指定し、**Top5 CAPTURE AUDIO** を押します。
 3. 保存／割当のメッセージを待ち、SAMPLINGで試聴します。Mainの1秒Performance FX履歴とは別です。
 
 CaptureとOverdubも要求時の対象を固定します。対象の内容を後から編集して整合しなくなった場合は、別のTrackへ割り当てず処理を拒否します。完了メッセージを確認してください。
@@ -408,8 +404,8 @@ Chainから取り込む場合は空のSongで<strong>SHIFT+Top7「IMPORT」→ T
 
 ![REC ARRANGE開始後のSONG](manual/song-take.png)
 
-1. ノート録音・音声録音を終え、Transportを<strong>STOP</strong>。
-2. <strong>ARRANGER → Top5「REC ARRANGE」</strong>。開始操作自体がTransportを始動します。
+1. ノート録音と音声録音を終えます。演奏は続けられます。
+2. <strong>ARRANGER → Top5 REC ARRANGE</strong>。再生中は次小節頭で記録を始め、停止中はこの操作で再生も始まります。
 3. <strong>SCENE</strong>や<strong>PATTERN</strong>へ移って演奏します。Clip／Scene切替、停止、Mute、Followによる構成変化を記録します。
 4. <strong>ARRANGERへ戻る → Top5「END TAKE」</strong>。次の小節境界まで待ち、`Arrangement stored / one Undo restores previous Song`を確認。
 5. <strong>PLAY</strong>で先頭から聴き直し、<strong>SHIFT+FILE</strong>でディスクへ保存。取り消すなら記録中のTop6 `CANCEL TAKE`。完了後はEVENTSで前のSongへ戻せます。
@@ -423,7 +419,7 @@ Chainから取り込む場合は空のSongで<strong>SHIFT+Top7「IMPORT」→ T
 
 ![MIXER](manual/mixer.png)
 
-MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります）。PAT NEXTはSHIFT＋Top5。TWINの詳細は[TWIN](twin.md)を参照してください。
+MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります）。PAT NEXTはTop7です。TWINの詳細は[TWIN](twin.md)を参照してください。
 
 メーター本体はTrackの種別色、ピーク保持の短い横線はmotion色です。警告域はwarn、過大・クリップはdangerが優先します。MASTER／入力の本体は中立色。MONOTONEでは本体の種別色を灰へ投影します。
 ![SEND FX](manual/fx.png)
@@ -440,7 +436,7 @@ MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります
 |---|---|
 | Cutoffを周期的に動かす | AUTO → Top2 `AUTOMATION`。K1 LANE、K2 TARGET、K3 CELL、K4 VALUE、K5 LENGTH、K6 MODE、K7 ENABLED。PadでCell選択、Top5/6で16セルページ移動 |
 | 1ノブで複数対象を動かす | AUTO → Top3 `MACRO MAP`。MACRO／ROUTE／TARGET／LOW／HIGH／MODE／ALL TRACKS／ENABLEDを設定。MACROボタンで8ノブ演奏 |
-| 2つの音色状態を往復 | PERFORM → `STORE A`、音色を変えて`STORE B`。Smart StripかA/B MORPHを操作。STOREは永続基底値を捕捉し、Lock等の一時状態は含めない |
+| 2つの音色状態を往復 | PERFORM → Top5 `STORE A`、音色を変えてSHIFT+Top6 `STORE B`。Smart StripかA/B MORPHを操作。STOREは永続基底値を捕捉し、Lock等の一時状態は含めない |
 | 一時的に全Trackを変える | PERFORM → `CONTROL ALL`。4-Dで対象選択、Stripで相対変化、4-D押下で中心へ |
 | 手の動きをループ | PERFORM → Top3 `GESTURE` → RECORD →ノブ操作→ END RECORD → PLAY LOOP。最大128点 |
 | 演奏FX | PERFORM → Top7 `LIVE FX`。パッドの画面表示に対応したFXを保持。SHIFT併用はLatch。TRIGGER NOW/BEAT/BAR、RELEASE TAIL/DRYを選べる |
@@ -460,15 +456,14 @@ K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定で�
 **SHIFT＋Top6 TWIN** で範囲を設定できます。K1 LOW NOTE／K2 HIGH NOTE／
 K3 INTERVAL（半音）／K4 VELOCITY／K5 HOLD MS／K6 LIMIT MSです。
 最大16音・ベロシティ1層。設定画面の音数が上限を超えるとPREPAREできません。
-Transportを止めるか、対象Clipを停止してください。取り込み音はMain／Cueへ出ず、
-進捗が表示されます。Top1 CANCELまたはSTOPで取消すと元の割当を保持します。
+再生中は次小節頭で対象Trackだけを一時的に演奏から外します。他のTrackは演奏を続け、取り込み音はMain／Cueへ出ません。準備後に対象Trackは自動で復帰します。Top1 CANCELまたはSTOPで取り消すと元の割当を保持します。
 
 **TWIN READY** のTrackでTop6を1回押すと、再生を続けたまま次小節で
 **TWIN ACTIVE**（Sampler版）へ切り替わります。同じTop6をもう1回押すと
 次小節でシンセ版へ戻ります。停止中は直ちに切替。Top6 LEDはREADYで弱い点灯、
 ACTIVEで強い点灯、予約中は速い点滅。音源を編集すると **TWIN STALE** と遅い点滅に
 なり、Top6で再準備します。FREEZEはフレーズそのものの録音、TWINは各音高を
-別々に収録した鍵盤用楽器です。PAT NEXTはSHIFT＋Top5にあります。
+別々に収録した鍵盤用楽器です。PAT NEXTはTop7で直接操作できます。
 
 曲をSAVEすると対と素材参照が残ります。素材を移動するときはCOLLECTも使ってください。
 ACTIVE中に通常のSAVE PRESET ASを使えば、サンプル版だけを名前付きPresetとして
@@ -522,9 +517,9 @@ Layerでは左Top1 LAYER／Top2 TONE、LAYER面の左Top3 USE CHILD／Top4 REMOV
 
 ![AUDIOタイムライン](manual/audio-timeline.png)
 
-**PERFORM → Top8 AUDIO**を正規入口にします。音声枠を選んでもSTEP／SYNTH等を暗黙にAUDIOへ転用しません。**Top1 LOOPER**、**K2 INPUT**、**K3 LENGTH**、**K4 BARS**を選び、**PLAY → Top5 RECORD**。録音中の再押下がSTOPです。**Top6 OVERDUB**で重ね、**K5 FEEDBACK**で前のループを残す割合を調整。**SHIFT+Top6 TAKE UNDO**、通常**Top7 PLAY / STOP**。音声枠は合計4つ、録音は1つです。
+**PERFORM → Top8 LOOPER → Top5 RECORD** で録音します。必要に応じて未使用Trackに空きオーディオレーンを割り当て、停止中は再生を始めます。再入時は前回のLooper Trackとその設定を引き継ぎます。初期値を変える場合はK2 INPUT、K3 LENGTH、K4 BARSを録音前に設定します。
 
-**Top2 AUDIO**ではSongタイムラインへ録音できます。**SHIFT+Top8 SONG**へ戻って区間とSong再生を用意し、同じ入口からTrack／CLIPを選びます。**Top5 RECORD → 再押下**で小節単位のパンチイン／アウト。**K3 START BAR**、**K4／K5**でtrim、**Top6 DUPLICATE**、**Top7 DELETE CLIP → Top1 CONFIRM**、**SHIFT+Top6 TAKE UNDO**。**SHIFT+Top7 CLEAR**も確認を通ります。Tempoで音声速度は変えません。[全操作と境界](audio-tracks.md)。
+LOOPERの **Top2 TIMELINE** で線形音声の配置を開きます。必要なら空きTrackを選んで **Top2 CREATE AUDIO** を押します。Songを有効にして再生し、**Top5 RECORD → 再押下** で小節単位のパンチイン／アウトを行います。
 
 
 ---
@@ -669,7 +664,7 @@ FXの表示と聴こえる効果が対応し、Bの直接音が指定した出�
 
 ### 曲を録音し、波形とトリムを整える
 
-再生を続け、空き**C → CHANNEL → ROUTING**。K7 CAPTURE BUS＝Main、**SHIFT+Top4**で2 BARS、**SHIFT+Top6 RESAMPLE**。録音開始表示後に**D**へ切り替え、完了を待って**C → SAMPLING**へ戻る。**SHIFT+Top6 PREVIEW**で録音を聴き、表示されたSTOP PREVIEWで止める。**Top2 TRIM**で波形とK1 START／K2 ENDを見て、STARTを少し動かす。**STOP → PAD MODE → Pad3**で編集後の素材を鳴らす。
+再生を続け、空きCを選んで **PERFORM → SHIFT+Top8 LIVE TOOLS → Top5 RECORDING** を開きます。K1 RECORD BUSをMain、K3を2 BARSにして **Top8 RESAMPLE** を押します。録音開始表示後に**D**へ切り替え、完了を待って**C → SAMPLING**へ戻る。**SHIFT+Top6 PREVIEW**で録音を聴き、表示されたSTOP PREVIEWで止める。**Top2 TRIM**で波形とK1 START／K2 ENDを見て、STARTを少し動かす。**STOP → PAD MODE → Pad3**で編集後の素材を鳴らす。
 
 2小節で録音が終了し、Cに素材が割り当たります。Dは変わりません。KickとFMが録れ、波形とトリム位置が表示されます。PreviewはCueで鳴り、停止できます。MainとCueを別々に聴ける場合は、Preview中もMainで元の曲が流れ続けます。
 
@@ -687,8 +682,8 @@ FXの表示と聴こえる効果が対応し、Bの直接音が指定した出�
 
 同じ曲へ、ルーパーと線形のAUDIOトラックを追加します。
 
-- **Wetループと追録** — 空きDでPERFORM → Top8 AUDIO → Top1 LOOPER。K2 INPUTをBのInsertまたはFader、K3 Bars、K4 2に設定。PLAY中にTop5 RECORD。2小節で終了後、BをMuteすると、Dから録音した音とFXが聴こえます。Bを戻し、K5 FEEDBACKを0.5、Top6 OVERDUB → 完了待ち → SHIFT+Top6 TAKE UNDO。Top7で停止／再開します。ループは小節頭で動作し、追録とUndoで音の違いが分かります。周回表示と出音が対応します。
-- **線形音声を録る** — Songに8小節の区間を用意して有効化。空きEをTop2 AUDIOへ切替、K8 INPUTをMain。SongのPLAY中、Top5 RECORD、1小節以上待って再押下。K3で配置を後ろへ1小節移動、K4／K5で端を少しtrim。Top6 DUPLICATE、Top7 DELETE CLIP → Top1 CONFIRM、SHIFT+Top6 TAKE UNDO。**STOP → PLAY**で配置を聴きます。録音開始位置・移動・trim・複製が図と音で一致します。保存すれば、次回の起動時にもDのループとEの配置が残ります。
+- **Wetループと追録** — 空きDでPERFORM → Top8 LOOPER。K2 INPUTをBのInsertまたはFader、K3 Bars、K4 2に設定。PLAY中にTop5 RECORD。2小節で終了後、BをMuteすると、Dから録音した音とFXが聴こえます。Bを戻し、K5 FEEDBACKを0.5、Top6 OVERDUB → 完了待ち → SHIFT+Top6 TAKE UNDO。Top7で停止／再開します。ループは小節頭で動作し、追録とUndoで音の違いが分かります。周回表示と出音が対応します。
+- **線形音声を録る** — Songに8小節の区間を用意して有効化。Top2 TIMELINEで空きEを選びTop2 CREATE AUDIO、K8 INPUTをMain。SongのPLAY中、Top5 RECORD、1小節以上待って再押下。K3で配置を後ろへ1小節移動、K4／K5で端を少しtrim。Top6 DUPLICATE、Top7 DELETE CLIP → Top1 CONFIRM、SHIFT+Top6 TAKE UNDO。**STOP → PLAY**で配置を聴きます。録音開始位置・移動・trim・複製が図と音で一致します。保存すれば、次回の起動時にもDのループとEの配置が残ります。
 
 ### Patternを替えても音作りとミックスが残る
 
@@ -900,6 +895,12 @@ LEVEL／PAN／CUTOFF等は音源を跨ぐ共通対象です。MODELもautomation
 
 - **操作例** — 持続するVA等を鳴らし、Vocoderを上記で設定します。入力へ声や変化のある音を送り、MODULATORのL/R、内部／外部CARRIER、MIXを切り替えて聴き比べます。入力を止めるとwet音が減衰し、BYPASSで元の音へ戻ります。設定はSAVE／OPENで残ります。
 
+### ライブ用VOCODERとFX MAP
+
+**PERFORM → Top6 VOCODER** で選択Trackの空きインサートを有効にします。外部音声をInputへ送り、パッドを押してキャリアの持続音を鳴らします。SELECTとパッドでTrackを選びます。初期値は外部L+Rをモジュレーター、インサートに入るTrack音をキャリア、MIX 100%です。K1 MODULATOR、K2 CARRIER、K3 MIXで調整します。両インサートを使用中なら **Top5 USE INSERT 1** または **Top6 USE INSERT 2** で置き換える方を確定します。
+
+**PERFORM → SHIFT+Top8 LIVE TOOLS → Top6 FX MAP** に、Track、割当先Group、Master、LIVEとSongのFX、Presetに含めるFXが並びます。バーは現在の量を示します。Top1とTop5～8でそれぞれの編集面に移れます。各モード見出しにはPLAY／WRITE／ARRANGE／SOUND／MANAGEの家族タグが付きます。
+
 ### STEPのTRACKER表示
 
 **STEPを短く再押下**すると16 STEP／64 STEP／TRACKERを循環します。SHIFT＋Top4も同じ動作です。TRACKERは左右LCDに4Trackずつ、合計8Trackを表示。4-Dノブの左右でTrack、上下・回転でstep、押込みで発音のON/OFF。NOTE／VELOCITY等は元のSTEPノブと同じデータを編集します。Padは従来の16step配置です。
@@ -913,10 +914,10 @@ LEVEL／PAN／CUTOFF等は音源を跨ぐ共通対象です。MODELもautomation
 ### MULTITIMBRAL
 
 1. 使用するInstrumentトラックへ音色を装着し、必要な音色だけpoolへSTORE POOLする。AUDIO／Looper枠はMIDI発音対象外。
-2. SETTINGS → 4-D左右でMIDI → 4-D上下でMULTITIMBRAL → K1をOn。再生が止まり、画面にMIDI Channel→Track対応が表示される。進入時は通知が表示され、演奏画面には`MODULE`が常時表示されます。MULTITIMBRAL中にPLAYを押すと`SETTINGS > MIDI > MULTITIMBRAL: OFF / THEN PLAY`の案内が表示されます。
+2. **PERFORM → SHIFT+Top8 LIVE TOOLS → Top7 MIDI MODULE** へ進みます。MIDIチャンネルとTrackの対応、および進入時に再生停止と発音解除が行われることを表示します。**Top5 ENTER MODULE** で確定します。
 3. 外部鍵盤／DAWからCh1、Ch2、Ch16へNote On/Offを送ると、それぞれTrack1、2、16だけが応答します。サステインとCC120／123にも応答します。
 4. CC0=0・CC32=0/1→Program Change 1–128（生値0–127）でpool 1–256を選べます。空きslotを選んだときは現在の音色が維持されます。
-5. 外部Start／Stopではシーケンサーは始動しません。SETTINGS → MIDIでMULTITIMBRALを選びK1をOffにすると通常へ戻ります。再開はPLAYを押してからで、それまでの通常MIDI入力routeが復元されます。
+5. MODULE中は外部Start／Stopを受けてもシーケンサーは停止状態です。MIDI MODULEへ戻り、**Top5 EXIT MODULE** で発音を解除し、通常のMIDI入力ルートに戻ります。シーケンサーはPLAYで再開します。
 
 
 ---
@@ -989,7 +990,7 @@ Track選択は、対象Trackのボタン（A–H）を押します。SHIFTを押
 
 SHIFT+RESTARTは小節頭での再開を予約し、RESTART単独は即時に再開します。
 
-GENERATEは物理VARIATIONから入り、RHYTHM／ACCUM／GROOVE／LANES・ARPでノートrecipeを生成します。Top4を再押下してLANES／ARPを往復します。PERFORMは左Top1 A/B MORPH、Top2 MACROS、Top3 GESTURE、Top4 MUTATION。Mutationは既存ノートの変異量・seedを扱い、右Top5 GENERATE／Top6 COMMIT、SHIFTでFREEZE／REVERT。Live FXはTop7、音声枠はTop8 AUDIOです。
+GENERATEは物理VARIATIONから入り、RHYTHM／ACCUM／GROOVE／LANES・ARPでノートrecipeを生成します。Top4を再押下してLANES／ARPを往復します。PERFORMは左Top1 A/B MORPH、Top2 MACROS、Top3 GESTURE、Top4 MUTATION。Mutationは既存ノートの変異量・seedを扱い、右Top5 GENERATE／Top6 COMMIT、SHIFTでFREEZE／REVERT。Top6でVOCODER、Top7でLIVE FX、Top8でLOOPER、SHIFT+Top8でLIVE TOOLSを開きます。
 
 SETTINGSは左Topの3分類＋Top4 MORE、または4-D左右で7分類。上下で行を選び、K1だけでその値を編集します。4-D押下後の回転でも編集可能。SYSTEMのSPACE UNITはDATA容量表示のGiB／MiB切替です。AUDIO Top5 ROUTING、MIDI Top6 MIDI ROUTES、SYSTEM Top7 DIAGNOSTICS／Top8 UPDATEが関連出口です。DIAGNOSTICSはUSB／HID／AUDIO／MIDI／LOGが同時に見える単一監視画面です。
 
@@ -1082,7 +1083,7 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 
 ![File transfer receiving](manual/transfer-receiving.png)
 
-実機の操作は **SETTINGS → SYSTEM → Top5 FILE TRANSFER**。左の **Top1 AP** は本体のWi-Fiへ接続、**Top2 STATION** はDATAに設定済みのネットワークへ参加します。選んだら右の **Top5 START**。この間は演奏を停止し、Pad／ノブの編集を止めます。画面のSSID、CONNECTION CODE、ADDRESSを使います。
+実機の操作は **SETTINGS → SYSTEM → Top5 FILE TRANSFER**。左の **Top1 AP** は本体のWi-Fiへ接続、**Top2 STATION** はDATAに設定済みのネットワークへ参加します。選んだら右の **Top5 START** を押します。転送中は性能とストレージを確保するため演奏入力を休止し、画面に「PERFORMANCE PAUSED / CLOSE TO RESUME」を表示します。CLOSE後すぐにパッドとノブを再び使えます。再生はPLAYで再開します。
 
 1. APならスマホ／PCを画面の`Groovebox-...`へ接続します。インターネット接続のないWi-Fiとして維持し、表示された`http://192.168.76.1/`を開きます。STATIONなら本体と同じネットワークで画面のADDRESSを開きます。`groovebox.local`は発見できる環境で使い、開けなければIPアドレスを使います。
 2. ブラウザの **Connection code** へ本体のcodeを入力し **Connect**。**Songs／Presets／Kits／Samples／SoundFonts／MIDI／Recordings** から棚を選びます。空き容量と一覧を確認します。

@@ -57,7 +57,7 @@ uint8_t Engine::plan_shared(unsigned t,Instrument engine,unsigned model,bool pol
  }
  auto plan_release=[&](unsigned owner){
   unsigned old=oldest_shared(resource,owner,protect,planned);
-  if(old==kPolyVoiceCapacity)return false;
+  if(old==kPolyVoiceCapacity || (twin_capture_triggering_ && poly_voices_[old].owner!=t))return false;
   const auto& voice=poly_voices_[old].voice;
   cost-=engine_voice_cost(Instrument(voice.instrument),voice.model);
   --occupied;
@@ -173,7 +173,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  va_candidates_dirty_=true;
  RenderEventScope audit(render_audit_,event_work_,RenderAudit::TriggerWork);
  if(audio_lane_mask_&(1u<<t))return nullptr;
- if(t>=16) return nullptr;
+ if(t>=16 || ((t==twin_prepare_track_ || (twin_isolated_ && t==freeze_track_)) && !twin_capture_triggering_))return nullptr;
  runtime_[t].last_velocity=velocity>127?1.0f:float(velocity)/127.0f;ModRuntime mod=mod_runtime(t);
  const int original_note=note;const unsigned original_velocity=velocity;
  const ConstTrackView base=source?*source:track(t);const bool step_sound=step && step->sound<kPresetSlots;const ConstTrackView state=layer_part?ConstTrackView(base,layer_part->sound):step_sound?ConstTrackView(base,project_->sounds[step->sound]):base;int kit_input_note=note;if(state.instrument==Instrument::DrumKit && kit_pad<0){if(note>=int(state.root_note) && note<int(state.root_note)+16)kit_pad=note-state.root_note;else if(note>=36 && note<52)kit_pad=note-36;else kit_pad=0;}
@@ -244,7 +244,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  // A planned victim is an internal voice and supplies a free pool slot.
  if(poly)release_shared(shared_victims);
  if(reused){chosen=&reused->voice;reused->age=sample_count_;capture_voice_off(*chosen);}
- else if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}++poly_steals_.triggered;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);if(occupied){if(released){++poly_steals_.released;__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);}else{++poly_steals_.held;__atomic_add_fetch(&probe_steals_held_,1,__ATOMIC_RELAXED);}}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
+ else if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && (!twin_capture_triggering_ || p.owner==t) && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}++poly_steals_.triggered;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);if(occupied){if(released){++poly_steals_.released;__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);}else{++poly_steals_.held;__atomic_add_fetch(&probe_steals_held_,1,__ATOMIC_RELAXED);}}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
  if(!poly)release_shared(shared_victims);
 
  auto& v=*chosen;++v.voice_epoch;++v.voice_instance;v.kit_watch_lane=uint8_t(watch_lane);v.layer_peer=nullptr;v.composite=layer_part!=nullptr;v.layer_cost=layer_part?uint8_t(layer_part_cost(*layer_part)):0;v.layer_gain=layer_mix?layer_mix[0]:1;v.layer_pan=layer_mix?layer_mix[1]:0;v.layer_detune=layer_mix?layer_mix[2]/100:0;v.pitch_bend+=v.layer_detune;v.shared_slot=shared_slot;if(layer_part){v.leaf->fx=layer_part->fx;for(auto& insert:v.leaf->inserts)insert.reset();}

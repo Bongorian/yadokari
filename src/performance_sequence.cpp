@@ -74,11 +74,11 @@ auto Performance::launch_clip(unsigned t,unsigned pattern,bool quantized)  -> bo
 auto Performance::stop_clip(unsigned t,bool quantized)  -> bool{ if(t>=16 || !send({CommandType::StopClip,uint8_t(t),uint8_t(quantized),0})) return false;if(queued_scene_>=0){clear_launches();}pending_[t]=-1;queued_stops_|=uint16_t(1u<<t); dirty_=true; return true; }
 auto Performance::launch_scene(unsigned scene,bool quantized)  -> bool{ if(scene>=kScenes || !send({CommandType::LaunchScene,0,uint8_t(quantized),uint16_t(scene)})) return false; clear_launches();queued_scene_=int8_t(scene);project_.chain.enabled=false;for(unsigned t=0;t<16;++t) pending_[t]=int8_t(project_.scenes[scene].pattern_for_track[t]);select_pattern(project_.scenes[scene].pattern_for_track[selected_]);following_clip_=true; dirty_=true; return true; }
 auto Performance::set_clip_follow(const ClipFollow& f) -> bool{if(!valid_clip_follow(f))return false;Command after{CommandType::SetClipFollow,selected_,0,0},before=after;after.clip_follow=f;before.clip_follow=track_const(selected_).clip_follow;return edit(after,before);}
-auto Performance::scene_take_status()const -> const char*{auto state=engine_.scene_take_state();if(scene_take_requested_){if(state==SceneTake::Armed)return "ARMED / clip and scene snapshot capture";if(state==SceneTake::Recording)return "RECORDING / 960 ticks per beat / END at next bar";if(state==SceneTake::Finishing)return "FINISHING / waiting for bar boundary";return "Arrangement / waiting for audio owner";}return scene_take_message_;}
+auto Performance::scene_take_status()const -> const char*{auto state=engine_.scene_take_state();if(scene_take_requested_){if(state==SceneTake::Armed)return "ARMED / starts at next bar";if(state==SceneTake::Recording)return "RECORDING / 960 ticks per beat / END at next bar";if(state==SceneTake::Finishing)return "FINISHING / waiting for bar boundary";return "Arrangement / waiting for audio owner";}return scene_take_message_;}
 auto Performance::scene_take_toggle() -> bool{
   if(scene_take_requested_)return send({CommandType::SceneTakeControl,0,1,0});
-  if(playing_ || counting_in_ || note_recording_ || live_recording_ || !audio_available_ || !engine_.project_snapshot_safe() || engine_.command_space()<2){notify(UiNotice::Failed);return false;}
-  if(!send({CommandType::SceneTakeControl,0,0,0}) || !send({CommandType::Start,0,0,0}))return false;
+  if(counting_in_ || note_recording_ || recording_configuration_locked(recording_controls()) || multitimbral() || !audio_available_ || !engine_.project_snapshot_safe() || engine_.command_space()<(playing_?1u:2u)){notify(UiNotice::Failed);return false;}
+  if(!send({CommandType::SceneTakeControl,0,0,0}) || (!playing_ && !send({CommandType::Start,0,0,0})))return false;
   scene_take_requested_=true;scene_take_message_[0]=0;playing_=true;seek_ready_=false;launch_quantized_=true;dirty_=true;return true;
  }
 auto Performance::service_scene_take() -> void{

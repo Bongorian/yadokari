@@ -12,7 +12,7 @@ void Engine::schedule_step_anticipation(unsigned t){
  if(cue.started && cue.serial==r.step_serial+1 && cue.pattern==r.pattern)return;
  cue.started=false;
  step_anticipation_mask_&=~(1u<<t);
- if(!playing_ || !r.playing || r.follow_due || (audio_lane_mask_&(1u<<t)) || !chimera_slots_)return;
+ if(t==twin_prepare_track_ || (twin_isolated_ && t==freeze_track_) || !playing_ || !r.playing || r.follow_due || (audio_lane_mask_&(1u<<t)) || !chimera_slots_)return;
  const auto base=track(t);
  if(base.instrument!=Instrument::Chimera && base.steps[r.position].sound>=kPresetSlots)return;
  cue.step=mutation_step(base,r.position);
@@ -70,7 +70,10 @@ bool Engine::service_step_events(unsigned t){
  if(step_anticipation_mask_&(1u<<t))service_step_anticipation(t);
  if(r.playing)for(unsigned budget=0;budget<4 && sample_count_>=r.due &&
                   (!r.follow_due || int64_t(sample_count_)>=r.grid);++budget){
-  if(t==freeze_track_ && (freeze_state_==1 || freeze_state_==2) && r.position==0){
+  if(t==twin_prepare_track_ || (twin_isolated_ && t==freeze_track_)){
+   ++r.step_serial;++r.automation_tick;advance(t);continue;
+  }
+  if(!twin_capture_request_ && t==freeze_track_ && (freeze_state_==1 || freeze_state_==2) && r.position==0){
    if(r.pattern!=freeze_pattern_)freeze_state_=4;
    else if(freeze_state_==1){freeze_state_=2;freeze_frames_=0;}
    else freeze_state_=3;
@@ -164,7 +167,7 @@ void Engine::launch_scene(unsigned scene) {
  for(unsigned t=0;t<16;++t) launch_clip(t,state.pattern_for_track[t],!(state.mute_mask&(1u<<t)));
  project_->active_scene=uint8_t(scene); event(EngineEventType::SceneLaunched,0,uint8_t(scene));
 }
-uint16_t Engine::captured_mute_mask()const{uint16_t mask=0;for(unsigned t=0;t<kTracks;++t)if(track_muted(*project_,t) || (project_->solo_tracks && !track_solo(*project_,t)))mask|=uint16_t(1u<<t);return mask;}
+uint16_t Engine::captured_mute_mask()const{uint16_t mask=0;for(unsigned t=0;t<kTracks;++t)if(audio_muted(t) || (audio_has_solo() && !audio_solo_track(t)))mask|=uint16_t(1u<<t);return mask;}
 void Engine::apply_song_section(unsigned index,bool force_restart){
  sound_payload_plan_dirty_=true;
  const auto& song=project_->song;if(index>=song.length)return;const auto& section=song.sections[index];uint16_t previous_mute=song_snapshot_?song_mute_mask_:captured_mute_mask();

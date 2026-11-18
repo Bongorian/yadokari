@@ -208,6 +208,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  bool fx_stress_running=false,fx_profile_started=false;uint64_t fx_stress_start=0,fx_stress_next_morph=0;CMk3Audio* fx_stress_audio=nullptr;unsigned fx_start_underrun=0,fx_start_overrun=0,fx_start_missing=0,fx_stress_last_throw=255;
  const bool trace_requested=CKernelOptions::Get()->GetAppOptionDecimal("mk3trace",0)!=0;bool startup_health_logged=false;unsigned reported_faults[11]{};
  unsigned hid_reenumerations=0,hid_recovery_attempts=0;groove::OutputRetry hid_reenumeration_retry;
+ bool transfer_was_active=false;
  unsigned last_audio_attempt=0,last_led=0, last_dropped=0, last_hid_progress=0,last_command_drops=0, last_midi_drops=0, last_stats=0,midi_output_failures=0;groove::AudioDrainMonitor audio_drain;groove::DisplayPacing display_pacing;groove::UiFrameClock frame_clock;uint64_t frame_window=0;groove::MidiOutputPump midi_output;groove::OutputRetry hid_retry,midi_retry,led_retry[2],display_retry[2];auto* midi_input=groove::alloc_new<groove::MidiInputRouter>();if(!midi_input){m_Logger.Write(FromKernel,LogError,"Boot allocation failed (midi input)");return ShutdownHalt;}
  groove::MidiLoopbackProbe midi_probe;bool midi_probe_reported=true;unsigned midi_probe_missing=0,midi_probe_out=0,midi_probe_in=0;
  struct SaveStages {uint64_t start=0,ui_start=0;unsigned max[7]{},total[7]{},ui[7]{};} save_stages;
@@ -613,7 +614,9 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
   unsigned now=m_Timer.GetTicks();bool stalled=audio_drain.update(audio!=nullptr,audio && audio->IsActive(),audio && audio->operational(),now,MSEC2HZ(3000));if(stalled!=performance.diagnostics().audio_drain_stalled){performance.diagnostics().audio_drain_stalled=stalled;performance.mark_dirty();if(stalled)m_Logger.Write(FromKernel,LogWarning,"USB audio drain stalled; restart may be required");}
   performance.diagnostics().audio_active=audio && audio->operational();if(audio){performance.diagnostics().tx_channels=audio->tx_channels();performance.diagnostics().rx_channels=audio->rx_channels();}else if(!hid){performance.diagnostics().tx_channels=performance.diagnostics().rx_channels=0;}performance.audio_available(audio && audio->operational());if(!audio && !updater->active() && !file_transfer->active()){float maintenance[2];engine->render(maintenance,0);performance.poll();}
   if(audio && !audio->IsActive()) { delete audio; audio=nullptr; last_audio_attempt=now; m_Logger.Write(FromKernel,LogWarning,"USB audio stopped or removed"); }
-  if(!updater->active() && !file_transfer->active() && !audio && now-last_audio_attempt>=MSEC2HZ(2000)) {
+  const bool transfer_closed=transfer_was_active && !file_transfer->active();
+  transfer_was_active=file_transfer->active();
+  if(!updater->active() && !file_transfer->active() && !audio && (transfer_closed || now-last_audio_attempt>=MSEC2HZ(2000))) {
    last_audio_attempt=now;
    // Optional provisional profile uses decimal USB endpoint addresses; absent
    // options never infer a capture-to-playback association.

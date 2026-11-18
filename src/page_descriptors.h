@@ -53,6 +53,11 @@ inline const PageDescriptor* page_descriptor(UiMode mode) {
  for (const auto& d : kPageDescriptors) if (d.id == mode) return &d;
  return nullptr;
 }
+inline const char* page_family_name(UiMode mode){
+ static constexpr const char* names[]={"PLAY","WRITE","ARRANGE","SOUND","MANAGE"};
+ const auto* page=page_descriptor(mode);
+ return page?names[unsigned(page->family)]:"";
+}
 // The pad grammar a page implies, or nullptr for non-grammar pages
 // (entering them leaves the PadMode axis untouched).
 inline const PadMode* page_pad_mode(UiMode mode) {
