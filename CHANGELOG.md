@@ -4,6 +4,26 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 0.9.6
+
+- Completed CHIMERA: all playing surfaces (PAD, KEYBOARD, CHORD and step
+  playback), three bodies (male, female, child), vibrato, glide and breath
+  controls, and all 17 articulation parameters (five macros plus a detail
+  tier), with the tract shown on the right display while sounding.
+- Added CHIMERA programs: Beatbox (articulation presets on pads,
+  step-programmable), Speak (IPA phrases over USB), Sing (syllables timed
+  so vowels land on the beat) and Bestiary (songbird, seal, alligator and
+  elephant sources).
+- Separated sound browsing from file management: the library stays
+  PRESETS/KITS, the folder view is titled FILES with a processing
+  indication, and engines are listed grouped by family.
+- Unified load terminology: OPEN for files and folders, LOAD for putting
+  a sound on a track, PREVIEW for auditioning. "LOAD ENGINE" is now
+  "DEFAULT SOUND".
+- Fixed file-view navigation dropping wheel and button input while a file
+  operation was pending; movement inside the loaded range now applies
+  immediately and further movement is queued.
+
 ## 0.9.5
 
 - Consume unsupported MIDI input messages such as Active Sensing, System
