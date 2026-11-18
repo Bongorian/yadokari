@@ -2,6 +2,7 @@
 bool Engine::preview_preset(unsigned t,const SoundState& sound,const WavView* views,const SampleAssetState* assets,uint64_t mask,uint32_t ticket){
  if(t>=kTracks || !ticket || !views || !assets || !valid_sound(sound) || sound.instrument==Instrument::Empty || sound.instrument==Instrument::Unknown || __atomic_load_n(&preset_preview_pending_,__ATOMIC_ACQUIRE) || !commands_->free_space())return false;
  if(!engine_rate_supported(sound.instrument,rate_))return false;
+ if(!prepare_chimera_sound(sound.chimera_phrase,sound.layer))return false;
  auto& p=*preset_preview_;p.staged=sound;p.staged_mask=mask;for(unsigned i=0;i<kSampleAssets;++i)if(mask&(uint64_t(1)<<i)){p.staged_views[i]=views[i];p.staged_metadata[i]=assets[i].metadata;}
  __atomic_store_n(&preset_preview_pending_,1,__ATOMIC_RELEASE);Command c{CommandType::PreviewPreset,uint8_t(t),0,0};c.frames=ticket;c.pattern_revision=published_generation_;if(submit(c))return true;__atomic_store_n(&preset_preview_pending_,0,__ATOMIC_RELEASE);return false;
 }

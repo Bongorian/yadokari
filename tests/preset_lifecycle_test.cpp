@@ -108,6 +108,14 @@ int main(){
  assert(ui->asset_playback(working_asset,36,160));flush();unsigned edited_asset=p->tracks[0].sample_slot;assert(edited_asset!=working_asset && p->assets[working_asset].metadata.root==48);assert(files->save("PROJECTS/Independent.mgxs"));assert(files->load("PROJECTS/Independent.mgxs"));flush();assert(p->assets[p->tracks[0].sample_slot].metadata.root==36 && p->assets[p->sounds[p->tracks[0].preset_slot].sample_slot].metadata.root==48 && p->assets[p->tracks[1].sample_slot].metadata.root==60);
  // All sample-based Layer children share the descriptor remapper, including Granular.
  SoundState layered;layered.instrument=Instrument::Layer;layered.layer.count=2;layered.layer.parts[0].sound.instrument=Instrument::Sampler;layered.layer.parts[0].sound.sample_slot=0;layered.layer.parts[1].sound.instrument=Instrument::Granular;layered.layer.parts[1].sound.sample_slot=1;uint8_t remap[kSampleAssets];for(unsigned n=0;n<kSampleAssets;++n)remap[n]=uint8_t((n+7)%kSampleAssets);remap_sound_assets(layered,remap);assert(layered.layer.parts[0].sound.sample_slot==7 && layered.layer.parts[1].sound.sample_slot==8);
+ // Saving a named sound carries the track IPA into a standalone CIPA bank.
+ assert(files->save_preset("PRESETS/Voice.mgxp",15));flush();
+ assert(read_project_file(fs,"PRESETS/Voice.mgxp",*decoded));
+ assert(decoded->tracks[0].chimera_phrase.size==sizeof ipa-1 && !decoded->chimera_ipa[0].size);
+ assert(!std::memcmp(decoded->tracks[0].chimera_phrase.data,ipa,sizeof ipa-1));
+ assert(ui->select_track(8) && files->load_preset("PRESETS/Voice.mgxp"));flush();
+ assert(p->tracks[8].instrument==Instrument::Chimera && !p->chimera_ipa[8].size);
+ assert(p->tracks[8].chimera_phrase.size==sizeof ipa-1);
  // A full material bank fails atomically instead of changing a pinned root.
  assert(ui->select_track(1));for(auto& asset:p->assets)if(!asset.path[0])copy_text(asset.path,96,"occupied.wav");assert(!ui->asset_playback(p->tracks[1].sample_slot,55,88));assert(p->assets[p->tracks[1].sample_slot].metadata.root==60);
  std::filesystem::current_path(previous);std::filesystem::remove_all(root);puts("Preset lifecycle: lineage, fixed revision/embedded fallback, pool reuse, explicit duplicate, names/SMF undo and shared picker, material ownership/Undo and bounded full-bank refusal passed");

@@ -34,7 +34,7 @@ auto UiRenderer::library_catalog(const ProjectState& p,const Performance& perf) 
   scrolling_label(0,20,y+4,filename(b.entries[i].name),selected?theme.text:theme.secondary,Font::Small,275);
   kind_chip(0,306,y+2,74,ui::engine_kind(b.library_engine[i]));label(0,390,y+4,b.library_factory[i]?"FACTORY":"USER",theme.secondary,Font::Small,70);
  }
- if(!b.count)empty_state(0,20,90,440,b.library_kits?"NO KITS":"NO SOUNDS FOR THIS ENGINE",b.library_instrument==Instrument::Chimera?"SYNTH / ENGINE / TOP 5: DEFAULT SOUND":"CHANGE KIND, ENGINE OR ORIGIN / FILES");
+ if(!b.count)empty_state(0,20,90,440,b.library_kits?"NO KITS":"NO SOUNDS FOR THIS ENGINE","CHANGE KIND, ENGINE OR ORIGIN / FILES");
  scrolling_label(1,20,86,track_display_name(p.tracks[perf.selected_track()],p.audio[perf.selected_track()].kind),theme.secondary,Font::Small,440);
  if(b.cursor<b.count){scrolling_label(1,20,125,b.entries[b.cursor].name,theme.text,Font::Body,440);label(1,20,160,b.library_factory[b.cursor]?"FACTORY":"USER",theme.secondary,Font::Small,150);label(1,350,139,"TRACK",theme.secondary,Font::Small,100);value(1,351,153,100,perf.selected_track()+1,theme.teal,Font::Body,0);label(1,180,160,"REV",theme.secondary,Font::Small,50);value(1,230,155,100,b.library_revision[b.cursor],theme.text,Font::Small,0);if(b.previewing)badge(1,20,183,150,"PREVIEW",theme.teal);}
  advice(ui::FileToast::instruction(b.status)?b.status:"");
@@ -275,7 +275,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   if(chimera_performance || (perf.mode()==UiMode::Synth && t.instrument==Instrument::Chimera)){
    const auto& frame=perf.visual();
    live_sig=fnv(live_sig,unsigned(perf.visual_fresh() && frame.taps.track==perf.selected_track()));
-   live_sig=fnv(live_sig,unsigned(frame.chimera_available)+2*unsigned(frame.chimera_busy));
+   live_sig=fnv(live_sig,unsigned(frame.chimera_available));
    live_sig=fnv(live_sig,frame.chimera.model);
    if(frame.chimera.gate>0)live_sig=fnv(live_sig,frame.sample);
   }

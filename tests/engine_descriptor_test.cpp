@@ -89,7 +89,20 @@ int main() {
   assert(resolved.sources & FromLock);
   assert(std::fabs(resolved.value - clamp_parameter(uint16_t(id), probe)) < 1e-6f);
  }
- for(unsigned e=0;e<instrument_count();++e){project.tracks[0].instrument=Instrument(e);const auto* descriptor=engine_descriptor(e);for(unsigned local=0;local<descriptor->parameters.count;++local){auto target=engine_target(Instrument(e),local);const auto* d=target_descriptor(target);float probe=clamp_target(target,d->initial+(d->maximum-d->minimum)*.25f);ParameterLock locks[kLocks]={{target,probe,true}};auto resolved=resolve_target_value(project,track,0,target,engine_parameter_value(track,local),locks,0);assert((resolved.sources&FromLock) && resolved.value==probe);}}
+ for(unsigned e=0;e<instrument_count();++e){
+  project.tracks[0].instrument=Instrument(e);
+  const auto* descriptor=engine_descriptor(e);
+  for(unsigned local=0;local<descriptor->parameters.count;++local){
+   const auto target=engine_target(Instrument(e),local);
+   const auto* d=target_descriptor(target);
+   const float probe=clamp_target(target,d->initial+(d->maximum-d->minimum)*.25f);
+   const float base=engine_parameter_value(track,local);
+   ParameterLock locks[kLocks]={{target,probe,true}};
+   const auto resolved=resolve_target_value(project,track,0,target,base,locks,0);
+   if(sound_attribute_target(target))assert(!(resolved.sources&FromLock) && resolved.value==base);
+   else assert((resolved.sources&FromLock) && resolved.value==probe);
+  }
+ }
  // Direct declaration storage round trips without the global numeric adapter.
  for(unsigned e=0;e<instrument_count();++e){auto edit=track_at(project,0,0);edit.instrument=Instrument(e);const auto* descriptor=engine_descriptor(e);
   for(unsigned local=0;local<descriptor->parameters.count;++local){const auto& d=descriptor->parameters.declarations[local];float probe=clamp_target(engine_target(Instrument(e),local),d.value.initial+(d.value.maximum-d.value.minimum)*.25f);

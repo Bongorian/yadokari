@@ -5,7 +5,7 @@
 namespace groove {
 // Bounded audio-to-UI snapshots. Visual consumers may miss frames; audio never waits.
 struct AudioVisualFrame {
- ChimeraGeometry chimera{};bool chimera_available=false,chimera_busy=false;
+ ChimeraGeometry chimera{};bool chimera_available=false;
  uint32_t controls_target[8]{};float controls_value[8]{};
  float engine_envelope[16][4]{},wavetable_controls[16][3]{};uint32_t preview_ticket=0;
  float delay_input=0,performance_fx_phase=0,compressor_input=0,track_compressor_input[16]{},node_activity[16][6]{};uint8_t performance_fx_actual_mode=0;

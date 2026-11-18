@@ -47,7 +47,22 @@ auto Performance::dispatch(const ControllerInput& input)  -> bool{
 auto Performance::set_multitimbral(bool on) -> bool{if(live_recording_ || resampling_ || recording_file_busy_)return false;if(!send({CommandType::SetMultitimbral,0,0,uint16_t(on)}))return false;playing_=counting_in_=note_recording_=false;seek_ready_=false;clear_pad_feedback();clear_launches();notify(on?UiNotice::ModuleEntered:UiNotice::ModuleExited);dirty_=true;return true;}
 auto Performance::play()  -> bool{if(module_transport_blocked())return false; if((controls_[0]&0x40) && mode_==UiMode::Scene && project_.chain.length){if(!send({CommandType::SetChainEnabled,0,0,1}))return false;project_.chain.enabled=true;} bool count=note_recording_ && project_.ui.count_in && !project_.midi_clock_slave && !playing_ && !seek_ready_;CommandType action=count?CommandType::StartCountIn:seek_ready_?CommandType::Continue:CommandType::Start;if(!send({action,0,uint8_t(seek_ready_?2:0),0})) return false;seek_ready_=false;counting_in_=count;count_beat_=count?1:0;playing_=true; return true; }
 auto Performance::restart_transport(bool quantized) -> bool{if(module_transport_blocked())return false;if(!send({CommandType::Start,0,0,uint16_t(quantized && playing_)}))return false;if(quantized && playing_)notify(UiNotice::RestartQueued);counting_in_=false;count_beat_=0;seek_ready_=false;playing_=true;dirty_=true;return true;}
-auto Performance::stop()  -> bool{ if(twin_modal_==2)request_file(FileAction::CancelTwin);if(!send({CommandType::Stop,0,0,0})) return false;strip_active_=strip_note_active_=strip_release_pending_=false; performance_fx_mode_=PerformanceFx::Off;performance_fx_latched_=false;held_performance_pad_=255;release_performance_fx_=false; playing_=false;counting_in_=false;seek_ready_=false;count_beat_=0;clear_pad_feedback();clear_launches();if(following_clip_){project_.active_pattern=project_.clips[selected_].pattern;refresh_steps();}return true; }
+auto Performance::stopped_ui() -> void{
+ strip_active_=strip_note_active_=strip_release_pending_=false;
+ performance_fx_mode_=PerformanceFx::Off;performance_fx_latched_=false;
+ held_performance_pad_=255;release_performance_fx_=false;
+ playing_=counting_in_=seek_ready_=false;count_beat_=0;
+ repeat_mode_=0;repeat_latch_=repeat_ignore_release_=repeat_release_pending_=false;
+ clear_pad_feedback();clear_launches();
+ if(following_clip_){project_.active_pattern=project_.clips[selected_].pattern;refresh_steps();}
+ dirty_=true;
+}
+auto Performance::stop() -> bool{
+ if(twin_modal_==2)request_file(FileAction::CancelTwin);
+ if(!engine_.submit({CommandType::Stop,0,0,0}))engine_.request_stop();
+ stopped_ui();
+ return true;
+}
 auto Performance::panic() -> bool{strip_active_=strip_note_active_=strip_release_pending_=false;note_finish_pending_=note_recording_ || has_record_ids();engine_.request_panic();queued_scene_=-1;queued_stops_=0;clear_pad_feedback();playing_=control_all_=fill_active_=stutter_active_=note_recording_=counting_in_=false;repeat_mode_=0;seek_ready_=false;repeat_latch_=repeat_ignore_release_=false;repeat_release_pending_=false;count_beat_=0;control_all_position_=0.5f;held_stutter_pad_=held_fill_pad_=255;performance_fx_mode_=PerformanceFx::Off;performance_fx_latched_=false;held_performance_pad_=255;release_performance_fx_=false;for(unsigned i=0;i<16;++i){held_[i]=notes_held_[i]=pending_release_[i]=false;pressures_[i]=0;pending_[i]=-1;}dirty_=true;return true;}
 auto Performance::home_or_return()  -> bool{home_navigation_pending_=page_left_down_ && page_right_down_;
   if(modal_active())return false;
@@ -133,9 +148,9 @@ auto Performance::accept_event(const EngineEvent& input)  -> void{
   if(event.type==EngineEventType::GestureState){gesture_recording_=event.value==1;gesture_playing_=event.value==2;if(event.value==1){project_.gesture.count=0;project_.gesture.ticks=event.parameter;}if(event.value==3)project_.gesture.count=0;if(event.value==4)notify(UiNotice::GestureFull);}
   if(event.type==EngineEventType::GesturePoint){GesturePoint p{event.tick,event.parameter,event.scalar,event.track,event.value,GestureTarget(event.flags)};auto& g=project_.gesture;if(g.count && g.points[g.count-1].tick==p.tick && g.points[g.count-1].track==p.track && g.points[g.count-1].pattern==p.pattern && g.points[g.count-1].target==p.target && g.points[g.count-1].parameter==p.parameter)g.points[g.count-1]=p;else if(g.count<128)g.points[g.count++]=p;}
   if(event.type==EngineEventType::TempoChanged)project_.tempo=uint16_t(event.scalar);
-  if(event.type==EngineEventType::Transport){if(!event.value)arrangement_ui_active_=false;playing_=event.value!=0;counting_in_=false;seek_ready_=false;song_position_=event.parameter;}
+  if(event.type==EngineEventType::Transport){if(!event.value){arrangement_ui_active_=false;if(event.flags)stopped_ui();}playing_=event.value!=0;counting_in_=false;seek_ready_=false;song_position_=event.parameter;}
   if(event.type==EngineEventType::SongPosition){if(event.flags){seek_ready_=false;notify(UiNotice::Failed);}else{song_position_=event.parameter;seek_ready_=true;}}
-  if(event.type==EngineEventType::Step){positions_[event.track]=event.value;if(follow_display_ && playing_ && mode_==UiMode::Step && event.track==selected_){bool touched=false;for(unsigned i=0;i<8;++i)touched=touched||knob_touched(i);unsigned pg=event.value/16;if(!touched && tracker_view_ && project_.clips[selected_].pattern==project_.active_pattern){selected_step_=uint8_t(event.value);dirty_=true;}if(!touched && pg!=page_ && pg<16){page_=uint8_t(pg);refresh_steps();dirty_=true;}}}
+  if(event.type==EngineEventType::Step){positions_[event.track]=event.value;if(follow_display_ && playing_ && mode_==UiMode::Step && event.track==selected_ && project_.clips[selected_].pattern==project_.active_pattern){bool touched=false;for(unsigned i=0;i<8;++i)touched=touched||knob_touched(i);unsigned pg=event.value/16;if(!touched && tracker_view_){selected_step_=uint8_t(event.value);dirty_=true;}if(!touched && pg!=page_ && pg<16){page_=uint8_t(pg);refresh_steps();dirty_=true;}}}
   if(event.type==EngineEventType::TwinRejected){twin_switch_pending_[event.track]=false;twin_end_ui("TWIN SWITCH REFUSED / SOUND KEPT");notify(UiNotice::TwinFailed);dirty_=true;}
   if(event.type==EngineEventType::ClipLaunchRejected){pending_[event.track]=-1;queued_stops_&=uint16_t(~(1u<<event.track));notify(UiNotice::Failed);}
   if(event.type==EngineEventType::SoundAttached && event.attached_sound){auto previous=track(event.track).instrument;PresetFxSnapshot strip;if(event.flags)strip.capture(track(event.track));mount_sound(track(event.track),*event.attached_sound);track(event.track).preset_slot=event.parameter;if(event.flags){strip.apply(track(event.track));project_.twins[event.track].active=event.value!=0;twin_switch_pending_[event.track]=false;copy_text(twin_message_,sizeof twin_message_,twin_status_name(event.value?TwinStatus::Active:TwinStatus::Ready));notify(UiNotice::TwinChanged);}else if(previous!=track(event.track).instrument)reset_track_morph(project_,event.track);++assignment_revision_[event.track];dirty_=true;}
@@ -290,8 +305,8 @@ auto Performance::control(unsigned byte,uint8_t value)  -> bool{NavigationScope 
   if(byte==3 && (rising&0x01)){set_strip_mode(StripMode::Notes);dirty_=true;return true;}if(byte==3 && (rising&0x20)){return lock_press();}
   if(byte==3)main_encoder_mode_=(value&0x02)?1:(value&0x04)?2:(value&0x08)?3:0;
   if(byte==6 && (rising&0x04)){bool touched=false;for(unsigned i=0;i<8;++i)touched|=knob_touched(i);if(touched)return reset_touched_knobs();}
-  if(byte==6) { if((rising&0x04) && shifted())return mode_==UiMode::Scene?clear_chain():clear_step_locks(); if(rising&0x20)return play(); if(rising&0x80)return (controls_[0]&0x40)?panic():stop(); if(rising&0x01){if(controls_[0]&0x40)return set_control_all(!control_all_);set_mode(UiMode::Perform);performance_page_=0;set_strip_mode(StripMode::Perform);} }
-  if(byte==7) { if(rising&0x08)set_mode(UiMode::Sampler); if(rising&0x10)set_mode(UiMode::Mixer); if(rising&0x01){set_mode(UiMode::Perform);performance_page_=1;} if(rising&0x20) { if(controls_[0]&0x40)return cycle_instrument(); if(mode_==UiMode::Synth && !wave_profile())return toggle_source_select(); set_mode(UiMode::Synth); } }
+  if(byte==6) { if((rising&0x04) && shifted())return mode_==UiMode::Scene?clear_chain():clear_step_locks(); if(rising&0x20)return play(); if(rising&0x80)return (controls_[0]&0x40)?panic():stop(); if(rising&0x01){if(controls_[0]&0x40)return set_control_all(!control_all_);set_mode(UiMode::Perform);set_performance_page(0);set_strip_mode(StripMode::Perform);} }
+  if(byte==7) { if(rising&0x08)set_mode(UiMode::Sampler); if(rising&0x10)set_mode(UiMode::Mixer); if(rising&0x01){set_mode(UiMode::Perform);set_performance_page(1);} if(rising&0x20) { if(controls_[0]&0x40)return cycle_instrument(); if(mode_==UiMode::Synth && !wave_profile())return toggle_source_select(); set_mode(UiMode::Synth); } }
   if(byte==8) { if(rising&0x01){if(mode_==UiMode::Routing)set_mode(UiMode::Effects);else if(mode_==UiMode::Effects)set_mode(UiMode::Routing);else {routing_fx_page_=false;group_send_page_=false;set_mode(UiMode::Routing);}} if(rising&0x02)set_mode(UiMode::Song); }
   if(byte==3 && ((old^value)&0x10)){bool pressed=value&0x10;if(pressed && repeat_release_pending_)return false;if(pressed && repeat_latch_ && repeat_mode_){bool ok=note_repeat(0,repeat_rate_);if(ok)repeat_ignore_release_=true;return ok;}if(!pressed && repeat_ignore_release_){repeat_ignore_release_=false;return true;}if(!pressed && repeat_latch_)return true;bool ok=note_repeat(pressed?(shifted()?2:1):0,repeat_rate_);if(!ok && !pressed)repeat_release_pending_=true;return ok;}
   if(byte==1)return encoder_direction(rising);
@@ -355,7 +370,7 @@ auto Performance::pad_input(uint8_t hardware,uint8_t tag,uint16_t pressure)  -> 
    case UiMode::Chord: {int note=keyboard_note(p);if(note<0)return false;bool ok=trigger_held_pad(hardware,selected_,note,pressure,3);if(ok && !live_poly_capable(track(selected_).instrument))notify(UiNotice::ChordLiveMono);return ok;}
    case UiMode::Keyboard: {int note=keyboard_note(p);if(note<0)return false;if(step_chord_editor())return toggle_step_chord(unsigned(60+note-int(track(selected_).root_note)));return trigger_held_pad(hardware,selected_,unsigned(note),pressure,2);}
    case UiMode::Library:if(library_catalog_controls()){if(!browser_.previewing)return true;return browser_.preview_instrument==Instrument::DrumKit?trigger_kit_pad(hardware,p,pressure):trigger_held_pad(hardware,selected_,uint8_t(bounded(48+int(p),0,127)),pressure,2); }return false;
-   case UiMode::Browser:browser_.cursor=(browser_.cursor/16)*16+p;if(browser_.cursor>=browser_.count)browser_.cursor=browser_.count?browser_.count-1:0;return true;
+   case UiMode::Browser:return move_browser(int((browser_.cursor/16)*16+p)-int(browser_.cursor));
    case UiMode::Routing:if(routing_fx_page_ && shifted()){selected_step_=uint8_t(page_*16+p);return true;}return select_track(p);
    case UiMode::Effects:if(fx_page_==4 && track_const(selected_).instrument==Instrument::DrumKit)return trigger_kit_pad(hardware,p,pressure);if(controls_[4]&0x08)return select_track(p);return trigger_held_pad(hardware,p,track(p).root_note,pressure,2);
    case UiMode::Diagnostics:return true;
@@ -472,7 +487,7 @@ auto Performance::pad_feedback(unsigned n)const -> ui::LedState{
    case R::Slices:{unsigned count=t.sample_edit.slice_count?t.sample_edit.slice_count:t.sample_slices;if(!count)count=1;state=project_.assets[t.sample_slot].path[0]?S::Assigned:S::Idle;if(t.sample_edit.pads[n]%count==t.sample_slice%count)state=S::Selected;break;}
    case R::Clips:state=S::Assigned;if(project_.active_pattern==n)state=S::Selected;if(project_.clips[selected_].pattern==n && playing_ && project_.clips[selected_].playing)state=S::Playing;if(pending_[selected_]==int(n) || (pending_stop(selected_) && project_.clips[selected_].pattern==n))state=S::Queued;break;
    case R::Scenes:state=n==scene_slot_?S::Selected:S::Assigned;if(project_.active_scene==n && scene_matches_live(n) && playing_)state=S::Playing;if(queued_scene_==int(n))state=S::Queued;break;
-   case R::Mute:state=track_muted_global(project_,n) || track_muted_pattern(project_,n)?S::Muted:S::Assigned;break;
+   case R::Mute:state=audible_muted(n)?S::Muted:S::Assigned;break;
    case R::KitMute:state=t.kit.pads[n].muted?S::Muted:S::Assigned;break;
    case R::Solo:state=track_solo(project_,n)?S::Selected:S::Idle;break;
    case R::KitSolo:state=t.kit.solo_mask&(1u<<n)?S::Selected:S::Idle;break;

@@ -42,6 +42,18 @@ __attribute__((noinline)) void Engine::render_sampler_voice(Voice& v,float& l,fl
   DspTimingScope timer(dsp_profile_,DspProfile::voice(unsigned(Instrument::Sampler),v.model),v.env>=.00001f);sample();
  }else sample();
 }
+void Engine::present_chimera(AudioVisualFrame& frame){
+ frame.chimera_available=chimera_slots_!=0;
+ if(!chimera_slots_)return;
+ const auto selected=frame.taps.track;
+ const PolyVoice* newest=nullptr;
+ for(const auto& poly:poly_voices_)if(poly.owner==selected && poly.voice.env>0 &&
+     poly.voice.instrument==unsigned(Instrument::Chimera) && poly.voice.shared_slot<chimera_slots_ &&
+     (!newest || poly.age>=newest->age))newest=&poly;
+ if(newest)chimeras_[newest->voice.shared_slot].geometry(frame.chimera);
+ else if(track(selected).instrument==Instrument::Chimera)
+  chimeras_[0].geometry(frame.chimera,chimera_model(track(selected).chimera),false);
+}
 __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice& v,float& l,float& rr,bool poly,unsigned voice_key){
  unsigned variant=0;if(dsp_profile_.clock())variant=v.instrument==unsigned(Instrument::Texture)?unsigned(v.texture_values[0])*4+unsigned(v.texture_values[11]):v.instrument==unsigned(Instrument::Resonator)?unsigned(v.resonator_values[0]):v.model;
  bool native=v.instrument==unsigned(Instrument::Texture) || v.instrument==unsigned(Instrument::Resonator);
@@ -52,37 +64,29 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
  // synthesizer branch below and produce sound.
  if(v.instrument==unsigned(Instrument::Layer) || v.instrument==unsigned(Instrument::Empty) || v.instrument>=unsigned(Instrument::Unknown))return;
  if(v.instrument==unsigned(Instrument::Chimera)){
-  if(v.env>0 && chimera_.owner()==t){
-   for(unsigned p=0;p<5;++p)v.parameters[p]+=(v.targets[p]-v.parameters[p])*.005f;
-   const auto& cue=chimera_pickups_[t];
-   const float increment=chimera_score_increment();
-   const bool preroll=cue.started && cue.serial==runtime_[t].step_serial+1;
-   const float aligned=preroll?__builtin_fmaxf(0,cue.lead-float(int64_t(runtime_[t].due)-int64_t(sample_count_))*increment):-1;
-   if(chimera_.control_due()){
-    ChimeraState detail;
-    const auto state=track(t);
-    const auto& runtime=runtime_[t];
-    const auto modulation=mod_runtime(t);
-    const auto& base=v.sound_locked?v.chimera_base:state.chimera;
-    for(unsigned i=0;i<kChimeraDetailCount;++i){
-     detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,kChimeraMacroCount+i),
-       base.values[i],runtime.active_locks,unsigned(runtime.automation_cell),control_all_,control_all_id_,
-       control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&modulation).value;
-    }
-    const bool sequenced=v.off_at!=0 || preroll;
-    const ChimeraPhrase* phrase=nullptr;
-    if(chimera_.attack_pending()){
-     if(sequenced && detail.values[ChimeraProgram-kChimeraMacroCount]==ChimeraSing){
-      unsigned step=preroll?runtime.position:runtime.last_step;
-      phrase=chimera_speech_.phrase(t,128+runtime.pattern*kSteps+step);
-     }
-     if(!phrase)phrase=chimera_speech_.phrase(t,v.note);
-    }
-    float initial=preroll?aligned:(sequenced && phrase?phrase->lead:0);
-    l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters,&detail,phrase,initial,increment,aligned);
-   }else l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters,nullptr,nullptr,0,increment,aligned);
-   if(chimera_.owner()!=t)v.env=0;
-  }
+  auto* dsp=chimera_dsp(v);
+  if(!dsp || v.env<=0)return;
+  for(unsigned p=0;p<5;++p)v.parameters[p]+=(v.targets[p]-v.parameters[p])*.005f;
+  const auto& runtime=runtime_[t];
+  const float increment=chimera_score_increment();
+  const bool early=v.score_before_step && v.score_step==runtime.step_serial+1;
+  const float lead=v.voice_score?v.voice_score->lead:0;
+  const float aligned=early?__builtin_fmaxf(0,lead-float(int64_t(runtime.due)-int64_t(sample_count_))*increment):-1;
+  if(dsp->control_due()){
+   const auto state=track(t);
+   const auto mod=mod_runtime(t);
+   ChimeraState detail=v.sound_locked?v.chimera_base:state.chimera;
+   for(unsigned i=0;i<kChimeraDetailCount;++i){
+    detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,kChimeraMacroCount+i),
+      detail.values[i],runtime.active_locks,unsigned(runtime.automation_cell),control_all_,control_all_id_,
+      control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&mod).value;
+   }
+   if(chimera_voice_mode(detail)!=ChimeraLegato)detail.values[ChimeraGlide-kChimeraMacroCount]=0;
+   dsp->update_model(detail);
+   const float initial=early?aligned:(v.off_at?lead:0);
+   l=rr=dsp->next(v.frequency,v.a,!v.released,v.parameters,&detail,v.voice_score,initial,increment,aligned);
+  }else l=rr=dsp->next(v.frequency,v.a,!v.released,v.parameters,nullptr,nullptr,0,increment,aligned);
+  if(!dsp->active())v.env=0;
   return;
  }
  if(bundle_helper_ && bundle_take(t,v,voice_key,l,rr))return;

@@ -83,9 +83,9 @@ public:
  ~Engine();
  Engine(const Engine&)=delete; Engine& operator=(const Engine&)=delete;
 #ifdef TEST
- float chimera_sing_time()const{return chimera_.sing_time();}
+ float chimera_sing_time()const{float time=-1;for(unsigned i=0;i<chimera_slots_;++i){float next=chimeras_[i].sing_time();if(next>=0)time=next;}return time;}
 #endif
- bool stage_chimera_speech(unsigned track,const char* text,size_t bytes){return !__atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE) && chimera_speech_.prepare(track,text,bytes);}
+ bool stage_chimera_speech(unsigned track,const char* text,size_t bytes){return chimera_slots_ && !__atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE) && chimera_speech_.prepare(track,text,bytes);}
  bool stage_project(const ProjectState& project,const WavView* assets=nullptr); // producer context; one snapshot in flight
  bool stage_morph(unsigned side,const ParameterSnapshot snapshots[kTracks]); // producer context; one snapshot per side in flight
  bool morph_stage_ready(unsigned side)const{return side<2 && !__atomic_load_n(&morph_stage_pending_[side],__ATOMIC_ACQUIRE);}
@@ -214,7 +214,7 @@ public:
   if(c.type==CommandType::SetInputGain && (c.value>48 || c.step>2))return false;
   if((carries_sound(c.type) && !sound_commands_->free_space()) || (c.restore_morph && (!c.morph_payload() || !morph_commands_->free_space())))return false;
   auto* slot=commands_->push_begin();if(!slot)return false;
-  if(carries_sound(c.type) && !sound_commands_->push(c.sound()))return false;
+  if(carries_sound(c.type) && (!prepare_chimera_sound(c.sound().chimera_phrase,c.sound().layer) || !sound_commands_->push(c.sound())))return false;
   if(c.restore_morph && !morph_commands_->push(*c.morph_payload()))return false;
   *slot=static_cast<const CommandState&>(c);if(pattern!=255)slot->pattern=pattern;
   if(c.type==CommandType::SetMultitimbral){__atomic_add_fetch(&midi_epoch_,1,__ATOMIC_RELEASE);__atomic_store_n(&module_route_,unsigned(c.value),__ATOMIC_RELEASE);__atomic_add_fetch(&module_route_epoch_,1,__ATOMIC_RELEASE);}
@@ -223,6 +223,7 @@ public:
  // Called by the single task-side command producer, never by the audio owner.
  uint32_t next_preview_ticket(){preview_serial_=(preview_serial_+1)&0x7fffffffu;if(!preview_serial_)preview_serial_=1;return preview_serial_;}
  uint32_t preview_state()const{return __atomic_load_n(&preview_state_,__ATOMIC_ACQUIRE);}
+ void request_stop(){__atomic_store_n(&stop_requested_,1,__ATOMIC_RELEASE);}
  void request_panic() { __atomic_store_n(&panic_requested_,1,__ATOMIC_RELEASE); }
  // Interleaved stereo floats; called by one audio consumer, no allocation or I/O.
  void render(float* output,size_t frames){render_ports(output,nullptr,nullptr,frames);}
@@ -256,6 +257,9 @@ private:
  struct Voice {
   LayerVoiceRuntime* leaf=nullptr;
   uint8_t shared_slot=255;
+  const ChimeraPhrase* voice_score=nullptr;
+  uint64_t score_step=0;
+  bool score_before_step=false;
   Voice* layer_peer=nullptr;bool composite=false;uint8_t layer_cost=0;float layer_gain=1,layer_pan=0,layer_detune=0;
   CreativeState creative_state{};
   StepPitchSlide step_pitch{};bool step_mono=false,step_accent=false,tie_pending=false;uint16_t step_sound=kNoPreset;
@@ -297,11 +301,16 @@ private:
  void release_shared(const SharedVoicePlan& victims);
  GestureOverlay gesture_overlay_{};
  void gesture_capture(const CommandState& c);void gesture_tick();
- Voice* trigger(unsigned track,unsigned velocity,int note=-1,const StepState* step=nullptr,const TrackView* source=nullptr,int accumulator=0,bool degrees=false,bool live_poly=false,int slice_override=-1,int kit_pad=-1,const KitStepState* kit_step=nullptr,int kit_layer=-1,Voice* protected_voice=nullptr,const LayerPart* layer_part=nullptr,const float* layer_mix=nullptr,bool chromatic=false,bool sing_pickup=false);
+ Voice* trigger(unsigned track,unsigned velocity,int note=-1,const StepState* step=nullptr,const TrackView* source=nullptr,int accumulator=0,bool degrees=false,bool live_poly=false,int slice_override=-1,int kit_pad=-1,const KitStepState* kit_step=nullptr,int kit_layer=-1,Voice* protected_voice=nullptr,const LayerPart* layer_part=nullptr,const float* layer_mix=nullptr,bool chromatic=false,bool anticipatory=false);
  uint32_t next_event_seed(unsigned track,unsigned pitch);
  void trigger_frozen(unsigned t);
  void publish_voice_visual(AudioVisualFrame&,unsigned,Voice&);
- void retire_chimera();
+ unsigned stop_requested_=0;
+ ChimeraVoice* chimera_dsp(Voice& voice){
+  return voice.instrument==unsigned(Instrument::Chimera) && voice.shared_slot<chimera_slots_?chimeras_+voice.shared_slot:nullptr;
+ }
+ bool release_poly_key(PolyVoice&,unsigned note,uint16_t channel,bool immediate=false);
+ void present_chimera(AudioVisualFrame&);
  struct PolyVoice {Voice voice{};uint64_t age=0;uint8_t owner=255;bool sequenced=false,pending=false;};PolyVoice poly_voices_[kPolyVoiceCapacity]{};uint32_t poly_track_mask_[16]{};void set_poly_owner(PolyVoice& voice,unsigned owner){va_candidates_dirty_=true;unsigned index=unsigned(&voice-poly_voices_);uint32_t bit=uint32_t(1u)<<index;if(voice.owner<16)poly_track_mask_[voice.owner]&=~bit;voice.owner=uint8_t(owner);if(owner<16)poly_track_mask_[owner]|=bit;}uint8_t kit_round_robin_[16][16]{};
  struct KitMidiGate {uint64_t due=0;uint8_t note=255,channel=0,hardware=255;};KitMidiGate kit_midi_[16][16]{};uint64_t kit_midi_due_=0;bool incoming_midi_=false;
  void kit_midi_on(unsigned track,unsigned pad,unsigned velocity,const KitStepState* step,ConstTrackView state);void kit_midi_tick();void kit_midi_release(unsigned hardware=255,unsigned track=255);
@@ -309,7 +318,7 @@ private:
  uint32_t kit_watch_active_=0,kit_watch_spec_[2]{},kit_watch_hits_[2]{},kit_watch_notes_[2]{},kit_watch_velocity_[2]{},kit_watch_frames_[2]{};
  KitRepeat kit_early_[16][16]{};uint16_t kit_early_pads_[16]{},kit_early_planned_[16]{},kit_early_started_[16]{},kit_early_tracks_=0;
  void plan_kit_early(unsigned track);void plan_kit_early_pad(unsigned track,unsigned pad);void clear_kit_early(unsigned track);void retime_kit_early(unsigned track);
- bool note_off_main(unsigned track);bool note_off(unsigned track);bool release_poly(PolyVoice& voice,bool immediate=false);bool release_sequence(unsigned track);bool hold_for_slide(unsigned track,Voice& voice);bool slide_voice(unsigned track,unsigned velocity,int note,const StepState& step,ConstTrackView source,int accumulator,bool degrees);void trigger_step_chord(unsigned track,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees);void trigger_step_arp(unsigned track,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees,unsigned index);bool resume_chimera(unsigned t,uint8_t note,uint16_t channel);
+ bool note_off_main(unsigned track);bool note_off(unsigned track);bool release_poly(PolyVoice& voice,bool immediate=false);bool release_sequence(unsigned track);bool hold_for_slide(unsigned track,Voice& voice);bool slide_voice(unsigned track,unsigned velocity,int note,const StepState& step,ConstTrackView source,int accumulator,bool degrees);void trigger_step_chord(unsigned track,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees);void trigger_step_arp(unsigned track,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees,unsigned index);
  bool release_note(unsigned track,uint8_t note,uint16_t channel);void release_midi_channel(unsigned track,uint16_t channel,bool immediate);void clear_poly(unsigned track); bool admit_native(unsigned t,Instrument engine,const float* values);
  uint64_t native_retry_sample_[16]{};NativeBudget native_budget_;float native_values_[16][15]{};unsigned native_refused_=0,native_active_=0;
 bool plain_visual_parameters(unsigned track);
@@ -319,8 +328,10 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  void advance_legacy_voice(Voice& voice);
 
  void reset_track(unsigned t,bool reset_position);
- void plan_chimera_pickup(unsigned t);
- void start_chimera_pickup(unsigned t);
+ void schedule_step_anticipation(unsigned t);
+ void service_step_anticipation(unsigned t);
+ bool service_step_events(unsigned t);
+ void cancel_step_anticipation(unsigned t);
  float chimera_score_increment()const{return float(tempo_q16_)/(65536.0f*120.0f*48000.0f);}
  void set_tempo(unsigned tempo);void schedule_retrigger(unsigned track);bool seek_song(unsigned position,bool send_midi);
  void slave_clock_tick();void slave_anchor(bool reset_loop);void slave_resync(int64_t error_q32);int64_t slave_phase_error_q32() const;
@@ -350,7 +361,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  void retro_push(unsigned t,unsigned cell,unsigned pattern,unsigned kind,unsigned note,unsigned velocity,uint16_t timing,uint64_t serial){RetroEvent& e=retro_[retro_head_];e.serial=serial;e.note=uint16_t(note);e.timing=timing;e.track=uint8_t(t);e.cell=uint8_t(cell);e.pattern=uint8_t(pattern);e.kind=uint8_t(kind);e.velocity=uint8_t(velocity);retro_head_=(retro_head_+1)%128;if(retro_count_<128)++retro_count_;}void record_kit_hit(unsigned track,unsigned pad,unsigned velocity);void record_note(unsigned track,unsigned note,unsigned velocity,unsigned channel,bool gated,bool chromatic=false,bool native_drum=false);
  bool erase_record_step(unsigned track,unsigned step,uint64_t serial);
  void finish_recorded_note(unsigned track,unsigned note,unsigned channel);void finish_recorded_channel(unsigned track,unsigned channel);void finish_recorded_all(bool emit);
- struct RepeatPad {bool held=false;uint8_t track=0,note=0,velocity=0;uint16_t channel=65535;uint8_t pattern=0,slice=0,recorded_note=255;uint64_t gate_due=0;bool down=true,chromatic=false;uint8_t kit_pad=255;bool native_drum=false;uint64_t chimera_order=0;};uint64_t chimera_note_order_=0;RepeatPad repeat_pads_[16*kStepNotes]{},repeat_midi_[16]{};uint32_t repeat_dropped_=0,repeat_index_=0,repeat_random_=0x41c6ce57;uint64_t repeat_phase_=0,repeat_next_gate_=0;uint8_t repeat_mode_=0,repeat_rate_=2;bool repeat_latch_=false;
+ struct RepeatPad {bool held=false;uint8_t track=0,note=0,velocity=0;uint16_t channel=65535;uint8_t pattern=0,slice=0,recorded_note=255;uint64_t gate_due=0;bool down=true,chromatic=false;uint8_t kit_pad=255;bool native_drum=false;};RepeatPad repeat_pads_[16*kStepNotes]{},repeat_midi_[16]{};uint32_t repeat_dropped_=0,repeat_index_=0,repeat_random_=0x41c6ce57;uint64_t repeat_phase_=0,repeat_next_gate_=0;uint8_t repeat_mode_=0,repeat_rate_=2;bool repeat_latch_=false;
  void repeat_tick();void finish_repeat_pad(RepeatPad& pad);void refresh_repeat_gate();void clear_latched_notes();void prepare_repeat_input();void replace_repeat_pad(unsigned hardware);
  void refresh_cc(unsigned t);
  void play_step(unsigned t);
@@ -456,18 +467,30 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  bool va_candidates_dirty_=true; // DSP-only; live eligibility is still checked per sample
  RenderBundleSlot* bundle_helper_=nullptr;
  int bundle_job_[16+kPolyVoiceCapacity];bool bundle_sub_from_job_[16+kPolyVoiceCapacity]{};bool bundle_prev_from_job_[16+kPolyVoiceCapacity]{};bool bundle_tracking_ready_=false;uint64_t bundle_adopted_subblocks_=0;
- ChimeraVoice chimera_;
+ ChimeraVoice* chimeras_=nullptr;
+ unsigned chimera_slots_=0;
  ChimeraSpeechBanks chimera_speech_;
- struct ChimeraPickup {
+ bool prepare_chimera_sound(const ChimeraIpaText& text,const LayerState& layer,bool staging=false){
+  auto prepare=[&](const ChimeraIpaText& phrase){
+   if(!phrase.size)return true;
+   if(!staging && __atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE))return false;
+   return chimera_speech_.prepare_portable(phrase,staging);
+  };
+  if(!prepare(text))return false;
+  for(unsigned part=0;part<layer.count && part<kLayerParts;++part)
+   if(!prepare(layer.parts[part].sound.chimera_phrase))return false;
+  return true;
+ }
+ struct StepAnticipation {
   StepState step{};
   uint64_t serial=0;
   float lead=0;
   int note=0,accumulator=0;
   unsigned pattern=0;
-  bool degrees=false,pending=false,started=false;
+  bool degrees=false,started=false;
  };
- ChimeraPickup chimera_pickups_[kTracks]{};
- unsigned chimera_pickup_mask_=0;
+ StepAnticipation step_anticipation_[kTracks]{};
+ unsigned step_anticipation_mask_=0;
  void prepare_va_candidates();void dispatch_va_samples();
  void build_render_bundles();bool bundle_take(unsigned track,Voice& voice,unsigned voice_key,float& l,float& r);void bundle_forget(unsigned voice_key);
 };

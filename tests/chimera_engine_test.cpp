@@ -96,10 +96,11 @@ int main(){
  engine->visual_focus(1);
  note(*engine,1,67,true);
  assert(render(*engine,4800,visual)>.001f);
- assert(visual.chimera_busy && visual.chimera.gate==0);
+ assert(visual.chimera.gate>0.2f);
  note(*engine,0,57,false);
  render(*engine,4800,visual);
- assert(!visual.chimera_busy && render(*engine,4800,visual)==0);
+ assert(render(*engine,4800,visual)>.001f);
+ note(*engine,1,67,false);render(*engine,4800,visual);
 
  note(*engine,1,67,true);
  assert(render(*engine,4800,visual)>.001f && visual.chimera.gate>.2f);
@@ -121,10 +122,14 @@ int main(){
   while(engine->pop_event(event))if(event.type==EngineEventType::Note && event.track==0)last=event.value;
   return last;
  };
- note(*engine,0,60,true);render(*engine,240,visual);assert(last_note()==60);
- note(*engine,0,67,true);render(*engine,240,visual);assert(last_note()==67);
- note(*engine,0,67,false);render(*engine,240,visual);assert(last_note()==60);
- note(*engine,0,60,false);render(*engine,4800,visual);last_note();
+ for(auto mode:{ChimeraMono,ChimeraLegato}){
+  restored->tracks[0].chimera.values[ChimeraVoiceMode-kChimeraMacroCount]=mode;
+  assert(engine->stage_project(*restored));render(*engine,24,visual);
+  note(*engine,0,60,true);render(*engine,240,visual);assert(last_note()==60);
+  note(*engine,0,67,true);render(*engine,240,visual);assert(last_note()==67);
+  note(*engine,0,67,false);render(*engine,240,visual);assert(last_note()==60);
+  note(*engine,0,60,false);render(*engine,4800,visual);last_note();
+ }
  restored->patterns[0].tracks[0].steps[0].enabled=true;
  restored->patterns[0].tracks[0].steps[0].chord[0]=64;
  restored->patterns[0].tracks[0].steps[0].chord[1]=67;
@@ -246,6 +251,113 @@ int main(){
  assert(render(*engine,8400,visual)>.001f && !visual.invalid_audio);
  assert(render(*engine,24000,visual)<.8f);
 
+ // Portable IPA round-trips as a preset and plays on a different track,
+ // from a step sound slot and from an independent Layer leaf.
+ auto preset=std::make_unique<ProjectState>();
+ make_empty_project(*preset);
+ preset->content_kind=ContentKind::Preset;
+ preset->tracks[0].instrument=Instrument::Chimera;
+ assert(parse_preset_guid("f0123456789abcde0123456789abcdef",preset->tracks[0].preset_identity.guid));
+ preset->tracks[0].preset_identity.revision=1;
+ preset->tracks[0].preset_identity.origin=PresetOrigin::User;
+ preset->tracks[0].chimera.values[ChimeraProgram-kChimeraMacroCount]=ChimeraSing;
+ preset->tracks[0].chimera_phrase.size=sizeof ipa-1;
+ std::memcpy(preset->tracks[0].chimera_phrase.data,ipa,sizeof ipa-1);
+ encoded.clear();
+ assert(encode_project_buffer(encoded,*preset));
+ ChunkSource preset_source{encoded.data,encoded.size,0};
+ assert(decode_project(preset_source,*preset));
+ ChunkBuffer old_engine;
+ assert(write_track_engn(old_engine,track_at(*preset,0,0),nullptr));
+ unsigned version_offset=0;
+ for(unsigned i=0;i+12<=old_engine.size;++i)if(!std::memcmp(old_engine.data+i,"CHIM",4)){
+  version_offset=i+4;break;
+ }
+ assert(version_offset && old_engine.data[version_offset]==2);
+ old_engine.data[version_offset]=1;
+ ChunkSource obsolete{old_engine.data,old_engine.size,0};
+ assert(!parse_track_engn(obsolete,track_at(*details_restored,0,0),nullptr,nullptr));
+ auto portable=std::make_unique<SoundState>(snapshot_sound(track_at(*preset,0,0)));
+ assert(portable->chimera_phrase.size==sizeof ipa-1 &&
+        !std::memcmp(portable->chimera_phrase.data,ipa,sizeof ipa-1));
+ auto song=std::make_unique<ProjectState>();
+ make_empty_project(*song);
+ mount_sound(track_at(*song,0,5),*portable);
+ assert(engine->stage_project(*song));render(*engine,24,visual);
+ note(*engine,5,60,true);
+ assert(render(*engine,4800,visual)>.001f);
+ assert(engine->submit({CommandType::Stop,0,0,0}));render(*engine,24,visual);
+ const char override_ipa[]="62\ti\n";
+ assert(engine->stage_chimera_speech(5,override_ipa,sizeof override_ipa-1));
+ note(*engine,5,60,true);
+ assert(render(*engine,480,visual)==0);
+ note(*engine,5,62,true);
+ assert(render(*engine,4800,visual)>.001f);
+ assert(engine->submit({CommandType::Stop,0,0,0}));render(*engine,24,visual);
+ song->sounds[2]=*portable;
+ song->clips[7]={0,true};
+ auto step_track=track_at(*song,0,7);
+ step_track.instrument=Instrument::PolySaw;
+ step_track.steps[0].enabled=true;step_track.steps[0].sound=2;
+ assert(engine->stage_project(*song));render(*engine,24,visual);
+ assert(engine->submit({CommandType::Start,0,0,0}));
+ assert(render(*engine,4800,visual)>.001f);
+ assert(engine->submit({CommandType::Stop,0,0,0}));render(*engine,24,visual);
+ assert(layer_leaf_supported(Instrument::Chimera));
+ auto layered=track_at(*song,0,6);
+ layered.instrument=Instrument::Layer;layered.layer.count=1;
+ layered.layer.parts[0].sound=*portable;
+ assert(engine->stage_project(*song));render(*engine,24,visual);
+ note(*engine,6,60,true);
+ assert(render(*engine,4800,visual)>.001f);
+ assert(engine->submit({CommandType::Stop,0,0,0}));render(*engine,24,visual);
+
+ const auto mode_target=engine_target(Instrument::Chimera,ChimeraProgram);
+ const auto species_target=engine_target(Instrument::Chimera,ChimeraSpecies);
+ assert(!valid_target_address(mode_target) && !valid_target_address(species_target));
+ ParameterLock locks[kLocks]{};
+ locks[0].enabled=true;locks[0].id=mode_target;locks[0].value=ChimeraBestiary;
+ assert(resolve_target_value(*song,track_at(*song,0,5),5,mode_target,ChimeraSing,locks,0).value==ChimeraSing);
+ auto portable_ui=std::make_unique<Performance>(*engine,*song);
+ assert(portable_ui->select_track(5));portable_ui->set_mode(UiMode::Synth);
+ assert(portable_ui->soft_key(3) && portable_ui->knob(6,1000));
+ assert(track_at(*song,0,5).chimera.values[ChimeraProgram-kChimeraMacroCount]==ChimeraBestiary);
+
+ // Consecutive steps must advance through a sustained score, including
+ // the wrap back to the first step of the clip.
+ make_empty_project(*song);
+ song->clips[0]={0,true};
+ auto sustained_track=track_at(*song,0,0);
+ sustained_track.instrument=Instrument::Chimera;
+ sustained_track.chimera.values[ChimeraProgram-kChimeraMacroCount]=ChimeraSing;
+ const char sustained[]="60\tkaaaa\n";
+ sustained_track.chimera_phrase.size=sizeof sustained-1;
+ std::memcpy(sustained_track.chimera_phrase.data,sustained,sizeof sustained-1);
+ sustained_track.length=2;
+ sustained_track.steps[0].enabled=sustained_track.steps[1].enabled=true;
+ assert(engine->stage_project(*song));render(*engine,24,visual);
+ while(engine->pop_event(seek_event)){}
+ assert(engine->submit({CommandType::Start,0,0,0}));
+ unsigned onsets=0;
+ for(unsigned i=0;i<12024;++i){
+  engine->render(single,1);
+  while(engine->pop_event(seek_event))if(seek_event.type==EngineEventType::Note && seek_event.track==0){
+   const float expected=.060f+.125f*onsets++;
+   assert(std::fabs(engine->chimera_sing_time()-expected)<.001f);
+  }
+ }
+ assert(onsets==3);
+ assert(engine->submit({CommandType::Stop,0,0,0}));render(*engine,24,visual);
+
+ // A default PLAY audition uses the same bounded gate as other presets.
+ portable->chimera.values[ChimeraProgram-kChimeraMacroCount]=ChimeraPlay;
+ WavView preview_assets[kSampleAssets]{};
+ assert(engine->preview_preset(8,*portable,preview_assets,song->assets,0,1));
+ assert(render(*engine,2400,visual)>.001f);
+ render(*engine,39600,visual);
+ assert(render(*engine,2400,visual)==0);
+ assert(engine->submit({CommandType::StopPreview,0,0,0}));render(*engine,24,visual);
+
  // Sweep the full physical control extremes with the firmware's allocator.
  // A port that tries to grow any workspace during rendering fails here.
  ChimeraVoice direct;
@@ -260,18 +372,18 @@ int main(){
  float previous_lip=100;
  for(unsigned body=0;body<3;++body){
   ChimeraGeometry idle{},active{};
-  direct.geometry(0,idle,body);
+  direct.geometry(idle,body,false);
   assert(idle.gate==0 && idle.outer[31].x<previous_lip);
   previous_lip=idle.outer[31].x;
   state.values[0]=float(body);
   state.values[ChimeraTipY-kChimeraMacroCount]=1;
   state.values[ChimeraVelum-kChimeraMacroCount]=1;
   direct.trigger(0);
-  if(body)assert(direct.next(220,1,true,neutral,&state)==0);
+  direct.update_model(state);
   float peak=0;
   for(unsigned frame=0;frame<7200;++frame)peak=std::fmax(peak,std::fabs(direct.next(220,1,true,neutral,&state)));
   assert(peak>.001f);
-  direct.geometry(0,active);
+  direct.geometry(active);
   assert(active.gate>.3f && std::fabs(active.velum[16].y-idle.velum[16].y)>.01f);
   direct.stop();
  }
@@ -279,11 +391,11 @@ int main(){
  float trachea=0;
  for(unsigned species=0;species<4;++species){
   ChimeraGeometry idle{};
-  direct.geometry(0,idle,species+3);
+  direct.geometry(idle,species+3,false);
   assert(idle.model==species+3 && idle.animal[0].length>trachea);
   trachea=idle.animal[0].length;
   state.values[ChimeraSpecies-kChimeraMacroCount]=float(species);
-  direct.trigger(0);
+  direct.trigger(60);direct.update_model(state);
   float peak=0;
   for(unsigned frame=0;frame<9600;++frame){
    float sample=direct.next(261.6256f,1,true,neutral,&state);
@@ -292,5 +404,5 @@ int main(){
   assert(peak>.001f);
   direct.stop();
  }
- std::puts("Chimera: held notes, step chords, detail round trips, body changes, Beatbox, IPA, Sing alignment and four species passed");
+ std::puts("Chimera: shared voices, Mono/Legato, portable IPA, Layer, sustained Sing alignment, Beatbox and four species passed");
 }

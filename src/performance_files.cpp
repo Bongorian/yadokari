@@ -230,6 +230,8 @@ auto Performance::apply_sound(const SoundState& sound) -> bool{if(!engine_.prese
 auto Performance::store_sound(unsigned slot) -> bool{
  if(slot>=kPresetSlots || project_.sounds[slot].instrument==Instrument::Unknown)return false;
  Command after{CommandType::SetSound,0,0,uint16_t(slot)},before=after;snapshot_sound(after.sound(),track_const(selected_));
+ if(after.sound().instrument==Instrument::Chimera && project_.chimera_ipa[selected_].size)
+  after.sound().chimera_phrase=project_.chimera_ipa[selected_];
  const auto source=after.sound().identity;if(source.assigned())for(unsigned i=0;i<kPresetSlots;++i)if(same_preset_revision(source,project_.sounds[i].identity) && after.sound().definition_cookie==project_.sounds[i].definition_cookie && same_preset_content(after.sound(),project_.assets,project_.sounds[i],project_.assets)){sound_slot_=uint16_t(i);dirty_=true;return true;}
  if(project_.sounds[slot].instrument!=Instrument::Empty && preset_slot_referenced(project_,slot)){copy_text(browser_.status,96,"Preset slot is in use / choose an empty slot");notify(UiNotice::Failed);return false;}
  if(preset_guids_.ready() && !preset_guids_.issue(after.sound().identity,&source))return false;

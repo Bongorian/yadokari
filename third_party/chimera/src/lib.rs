@@ -41,7 +41,7 @@ use core::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use voice::human_voice::{HumanVoice, SourcePatch};
 
 const ARENA_BYTES: usize = 512 * 1024;
-const DETAIL_COUNT: usize = 22;
+const DETAIL_COUNT: usize = 23;
 const GEOMETRY_POINTS: usize = 32;
 const REGIONS: usize = 16;
 const ANIMAL_TUBES: usize = 5;
@@ -176,7 +176,7 @@ pub extern "C" fn yadokari_chimera_controls(
     let [tongue_x, tongue_y, jaw, lips, breath] = params.map(f64::from);
     let [_, depth, rate, glide, pressure, breathiness, tip_x, tip_y, tip_curl, root,
         lip_ap, lip_prot, lip_width, labiodental, velum, larynx, epilarynx,
-        ventricular, lateral, dorsum, _, _] = detail.map(f64::from);
+        ventricular, lateral, dorsum, _, _, _] = detail.map(f64::from);
     let jaw = 0.25 + jaw * 1.7;
     let tongue_x = NEUTRAL.tb_x + (tongue_x - 0.5) * 4.0;
     let tongue_y = NEUTRAL.tb_y + (tongue_y - 0.5) * 3.0;

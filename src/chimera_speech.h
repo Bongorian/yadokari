@@ -22,37 +22,91 @@ extern "C" bool yadokari_chimera_compile_ipa(const char*,size_t,ChimeraSpeech*);
 
 class ChimeraSpeechBanks {
  static constexpr unsigned tracks=16;
- ChimeraSpeech* banks_=nullptr;
+ const ChimeraSpeech* tracks_[tracks][2]{};
+ struct PreparedPhrase {
+  uint32_t hash=0;
+  ChimeraIpaText text{};
+  ChimeraSpeech score{};
+ };
+ // A project can hold 256 sounds with four leaves apiece. Keep published
+ // entries immutable until the audio owner has switched project banks.
+ static constexpr unsigned portable_capacity=2048;
+ PreparedPhrase* portable_[2][portable_capacity]{};
+ unsigned portable_active_=0;
+
+ static uint32_t fingerprint(const ChimeraIpaText& text){
+  uint32_t hash=2166136261u;
+  for(unsigned i=0;i<text.size;++i)hash=(hash^uint8_t(text.data[i]))*16777619u;
+  return hash;
+ }
+ unsigned find_portable(unsigned bank,const ChimeraIpaText& text,uint32_t hash)const{
+  for(unsigned i=0;i<portable_capacity;++i){
+   unsigned index=(hash+i)&(portable_capacity-1);
+   const auto* entry=__atomic_load_n(&portable_[bank][index],__ATOMIC_ACQUIRE);
+   if(!entry || (entry->hash==hash && entry->text.size==text.size &&
+      !__builtin_memcmp(entry->text.data,text.data,text.size)))return index;
+  }
+  return portable_capacity;
+ }
+ void clear_portable(unsigned bank){for(auto& entry:portable_[bank]){delete entry;entry=nullptr;}}
+ static const ChimeraPhrase* find_phrase(const ChimeraSpeech& score,unsigned key){
+  for(unsigned i=0;i<score.count;++i)if(score.phrases[i].note==key)return &score.phrases[i];
+  return nullptr;
+ }
  unsigned active_mask_=0;
  // Nonzero means a producer has published a prepared bank for track n-1.
  unsigned pending_=0;
- ChimeraSpeech& bank(unsigned track,unsigned mask){return banks_[track*2+((mask>>track)&1)];}
+ const ChimeraSpeech*& track_bank(unsigned track,unsigned mask){return tracks_[track][(mask>>track)&1];}
+ // Track overrides share the immutable cache with mounted sounds so that an
+ // in-flight voice can finish its phrase after a track bank is republished.
+ const ChimeraSpeech* compile_portable(const ChimeraIpaText& text,bool staging){
+  if(!text.size || text.size>kChimeraIpaBytes)return nullptr;
+  const unsigned bank=__atomic_load_n(&portable_active_,__ATOMIC_ACQUIRE)^unsigned(staging);
+  const uint32_t hash=fingerprint(text);
+  const unsigned index=find_portable(bank,text,hash);
+  if(index>=portable_capacity)return nullptr;
+  auto& entry=portable_[bank][index];
+  if(entry)return &entry->score;
+  auto* prepared=alloc_new<PreparedPhrase>();
+  if(!prepared)return nullptr;
+  if(!yadokari_chimera_compile_ipa(text.data,text.size,&prepared->score)){delete prepared;return nullptr;}
+  prepared->text=text;prepared->hash=hash;
+  __atomic_store_n(&entry,prepared,__ATOMIC_RELEASE);
+  return &prepared->score;
+ }
 public:
  ChimeraSpeechBanks()=default;
  ChimeraSpeechBanks(const ChimeraSpeechBanks&)=delete;
  ChimeraSpeechBanks& operator=(const ChimeraSpeechBanks&)=delete;
- ~ChimeraSpeechBanks(){delete[] banks_;}
- void init(){banks_=alloc_array<ChimeraSpeech>(tracks*2);}
+ ~ChimeraSpeechBanks(){clear_portable(0);clear_portable(1);}
  bool busy()const{return __atomic_load_n(&pending_,__ATOMIC_ACQUIRE)!=0;}
  bool prepare(unsigned track,const char* text,size_t bytes){
-  if(!banks_ || track>=tracks || !bytes || bytes>kChimeraIpaBytes || busy())return false;
+  if(track>=tracks || !bytes || bytes>kChimeraIpaBytes || busy())return false;
+  ChimeraIpaText phrase{};
+  phrase.size=uint16_t(bytes);__builtin_memcpy(phrase.data,text,bytes);
+  auto* score=compile_portable(phrase,false);
+  if(!score)return false;
   unsigned inactive=~__atomic_load_n(&active_mask_,__ATOMIC_ACQUIRE);
-  if(!yadokari_chimera_compile_ipa(text,bytes,&bank(track,inactive)))return false;
+  track_bank(track,inactive)=score;
   __atomic_store_n(&pending_,track+1,__ATOMIC_RELEASE);
   return true;
  }
+ bool prepare_portable(const ChimeraIpaText& text,bool staging){
+  return !text.size || compile_portable(text,staging);
+ }
  bool prepare_project(const ChimeraIpaText text[tracks]){
   if(busy())return false;
+  clear_portable(__atomic_load_n(&portable_active_,__ATOMIC_ACQUIRE)^1u);
   unsigned inactive=~__atomic_load_n(&active_mask_,__ATOMIC_ACQUIRE);
   for(unsigned t=0;t<tracks;++t){
-   if(text[t].size){
-    if(!banks_ || !yadokari_chimera_compile_ipa(text[t].data,text[t].size,&bank(t,inactive)))return false;
-   }else if(banks_)bank(t,inactive).count=0;
+   auto* score=text[t].size?compile_portable(text[t],true):nullptr;
+   if(text[t].size && !score)return false;
+   track_bank(t,inactive)=score;
   }
   return true;
  }
  // Project publication shares the existing ApplySnapshot command.
- void apply_project(){__atomic_fetch_xor(&active_mask_,0xffffu,__ATOMIC_RELEASE);}
+ void apply_project(){__atomic_fetch_xor(&active_mask_,0xffffu,__ATOMIC_RELEASE);__atomic_fetch_xor(&portable_active_,1u,__ATOMIC_RELEASE);}
  bool consume(){
   unsigned pending=__atomic_load_n(&pending_,__ATOMIC_ACQUIRE);
   if(!pending)return false;
@@ -60,12 +114,21 @@ public:
   __atomic_store_n(&pending_,0,__ATOMIC_RELEASE);
   return true;
  }
- const ChimeraPhrase* phrase(unsigned track,unsigned note)const{
-  if(!banks_ || track>=tracks)return nullptr;
+ const ChimeraSpeech* effective(unsigned track,const ChimeraIpaText& text)const{
+  if(track>=tracks)return nullptr;
   unsigned mask=__atomic_load_n(&active_mask_,__ATOMIC_RELAXED);
-  const auto& selected=banks_[track*2+((mask>>track)&1)];
-  for(unsigned i=0;i<selected.count;++i)if(selected.phrases[i].note==note)return &selected.phrases[i];
-  return nullptr;
+  const auto* selected=tracks_[track][(mask>>track)&1];
+  if(selected)return selected;
+  if(!text.size || text.size>kChimeraIpaBytes)return nullptr;
+  const unsigned bank=__atomic_load_n(&portable_active_,__ATOMIC_RELAXED);
+  unsigned index=find_portable(bank,text,fingerprint(text));
+  if(index>=portable_capacity)return nullptr;
+  const auto* prepared=__atomic_load_n(&portable_[bank][index],__ATOMIC_ACQUIRE);
+  return prepared?&prepared->score:nullptr;
+ }
+ const ChimeraPhrase* phrase(unsigned track,unsigned note,const ChimeraIpaText& text={})const{
+  const auto* score=effective(track,text);
+  return score?find_phrase(*score,note):nullptr;
  }
 };
 }

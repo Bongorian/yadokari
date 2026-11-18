@@ -446,6 +446,8 @@ Use <strong>MIXER</strong> for levels, and move to FX with <strong>CHANNEL</stro
 
 ![A/B MORPH](manual/perform.png)
 ![MACROS](manual/macros.png)
+K4 **SONG FX TYPE** and K5 **SONG FX AMT** edit values stored in the Song. Leaving LIVE FX releases the latched pad effect.
+
 ![LIVE FX](manual/live-fx.png)
 ![GESTURE](manual/gesture.png)
 
@@ -842,23 +844,25 @@ The Factory Library holds 187 items in MGXC13 format (163 Presets + 24 Kits). Fi
 
 ### Play the CHIMERA vocal tract
 
-Choose CHIMERA under **SYNTH → ENGINE → PHYSICAL** and press **DEFAULT SOUND** (Top5). CHIMERA shares one voice across tracks at 48 kHz. In PAD, press the pad assigned to the track. KEYBOARD, CHORD and STEP also play it. The latest note has priority. A chord plays its last note, and held notes connect with the configured glide. The right screen shows the tract and air pressure in these modes and on SYNTH.
+Choose CHIMERA under **SYNTH → ENGINE → PHYSICAL** and press **DEFAULT SOUND** (Top5). At 48 kHz, CHIMERA tracks and LAYER leaves share up to two voices on Pi 4 and three on Pi 5, within a DSP budget that depends on the active models. In PAD, press the pad assigned to the track. KEYBOARD, CHORD and STEP also play it. The right screen shows the tract and air pressure in these modes and on SYNTH.
 
 - **GENERATOR** keeps K1 TONGUE X, K2 TONGUE Y, K3 JAW, K4 LIP ROUND and K5 BREATH.
 - **ARTICULATION** (Top3) opens two pages. Press it again for the second page. The knobs cover tongue tip X/Y and curl, tongue root, lips, lip-to-teeth contact, velum, larynx, epilarynx, ventricular folds, lateral contact and dorsum.
 - **VOICE** (Top4) provides BODY (male, female, child), vibrato depth and rate, glide, pressure, breathiness, MODE and SPECIES. Pressure and breathiness trim the BREATH macro. Body and detail settings are saved with the sound. A body change silences and rebuilds the model.
 
-Set VOICE K7 **MODE** to one of the following.
+Use **VOICE → SHIFT+K8 VOICE MODE** to select **POLY** (default), **MONO** (last held note), or **LEGATO** (last held note with glide while the gate stays open).
+
+Set VOICE K7 **MODE** to one of the following. MODE, SPECIES and VOICE MODE are saved as sound settings and edited directly in VOICE.
 
 - **PLAY** uses the tract as a pitched instrument.
-- **BEATBOX** maps each four semitones to kick, snare, closed hat and open hat. C4 through D♯4 play that order. Use chromatic KEYBOARD pads or enter the same notes in STEP. Each trigger starts a scored transient and takes the shared voice. STEP retains its swing and clock source.
+- **BEATBOX** maps each four semitones to kick, snare, closed hat and open hat. C4 through D♯4 play that order. Use chromatic KEYBOARD pads or enter the same notes in STEP. Each trigger starts a scored transient. STEP retains its swing and clock source.
 - **SPEAK** plays the IPA phrase assigned to the triggered MIDI note at a fixed speaking rate.
-- **SING** uses the same note assignments. On STEP, the consonants start ahead of the step and the first vowel target lands at the step's musical time. If playback starts directly on the step, the score starts at the vowel. Pitch follows the note, and the score follows the transport tempo. Where one note's lead meets the previous note, the latest note takes the voice.
+- **SING** uses the same note assignments. On STEP, the consonants start ahead of the step and the first vowel target lands at the step's musical time. If playback starts directly on the step, the score starts at the vowel. Pitch follows the note, and the score follows the transport tempo. Consecutive steps with the same pitch and phrase keep the score running while the phrase is active.
 - **BESTIARY** uses VOICE K8 **SPECIES** to choose Songbird, Seal, Alligator or Elephant. GENERATOR shows the species-specific controls. The live display draws the model's airway cross-sections and pressure.
 
 #### Import a Speak or Sing file
 
-Send a UTF-8 `.ipa` file using the [USB file CLI](reference/usb-files.md). Select a CHIMERA track, then use **FILE → ASSETS → SPEECH**, select the file and press **LOAD** (Top4). On that track use **VOICE → MODE → SPEAK** or **SING**. Loading compiles the score before playback. The song saves the assignments. While stopped, use MODULATION → MIDI → SHIFT+K8 or MIDI Song Position Pointer to start from a saved section.
+Send a UTF-8 `.ipa` file using the [USB file CLI](reference/usb-files.md). Select a CHIMERA track, then use **FILE → ASSETS → SPEECH**, select the file and press **LOAD** (Top4). On that track use **VOICE → MODE → SPEAK** or **SING**. Loading compiles the score before playback and saves the track assignment in the Song. Saving the track as a SOUND in the pool or as a .mgxp preset carries its phrase to other tracks, Songs, step sound slots and LAYER leaves. A track assignment overrides the mounted SOUND phrase. CHIMERA content saved in 0.9.6 uses an older format and must be recreated. While stopped, use MODULATION → MIDI → SHIFT+K8 or MIDI Song Position Pointer to start from a saved section.
 
 Write one MIDI note number (0–127), a tab, then its IPA phrase on each line. A file can contain up to 8 assignments, 16 symbols per phrase and 1024 bytes. Blank lines and lines starting with `#` are accepted. For Sing, a 1-based pattern/step such as `1/2` takes priority over the MIDI-note assignment on that step. Space or `.` inserts a short gap. Unsupported symbols reject the file. The supported symbols are `a ɑ i u ɯ e o ə ɛ æ ɔ ɪ ʊ ɐ ʌ p b m t d n ɾ l k ɡ g ŋ s z ʃ ʒ f v h ç x w j`. The example uses a tab between each address and its phrase.
 

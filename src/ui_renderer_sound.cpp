@@ -87,7 +87,6 @@ auto UiRenderer::chimera_picture(const Performance& perf) -> void{
   const auto& frame=perf.visual();
   if(!perf.visual_fresh() || frame.taps.track!=perf.selected_track())return;
   if(!frame.chimera_available){label(1,24,139,"48 KHZ ENGINE UNAVAILABLE",theme.warn,Font::Small,400);return;}
-  if(frame.chimera_busy)label(1,288,86,"VOICE IN USE ON ANOTHER TRACK",theme.warn,Font::Small,164);
   const auto& tract=frame.chimera;
   if(tract.model>=3 && tract.model<7){
    label(1,155,86,kChimeraSpecies[tract.model-3],theme.text,Font::Small,130);

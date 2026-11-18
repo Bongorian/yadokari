@@ -690,6 +690,8 @@ public:
 
 private:
  bool move_file_rows(int delta,bool library);
+ void stopped_ui();
+ void set_performance_page(unsigned page);
  int64_t browser_move_deferred_=0;
  SynthControlContext synth_controls()const ;
  bool synth_key(unsigned index) ;

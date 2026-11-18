@@ -8,8 +8,7 @@
 namespace groove {
 void Engine::reset_track(unsigned t,bool reset_position) {
  clear_kit_early(t);
- if(chimera_pickups_[t].started && chimera_.owner()==t)chimera_.stop();
- chimera_pickups_[t]=ChimeraPickup{};chimera_pickup_mask_&=~(1u<<t);
+ cancel_step_anticipation(t);
  auto& r=runtime_[t]; const auto& state=track(t); r.retriggers=0;for(auto& repeat:kit_repeat_[t])repeat.remaining=0;kit_repeat_pads_[t]=0;kit_repeat_tracks_&=uint16_t(~(1u<<t)); for(auto& lock:r.active_locks)lock.enabled=false;
  if(reset_position) { r.position=state.direction==PlaybackDirection::Reverse?uint8_t(state.length-1):0; r.backward=false; r.cycle=0;r.follow_due=false; r.automation_live=false;r.lane_triggers=r.automation_tick=r.automation_cell=0;event_seed_tick_valid_[t]=false;r.arp_random=project_->random_seed^(0x9e3779b9u*(t+1));if(!r.arp_random)r.arp_random=1;r.last_step=r.position;r.grid=r.last_grid=sample_count_;r.last_period_q32=0; r.fraction=0; }
  else r.position%=state.length;
@@ -83,7 +82,7 @@ void Engine::update_timing(unsigned t){
  const auto& state=track(t);auto& r=runtime_[t];
  // Recompute the period only when its inputs change. The deadline still needs
  // refreshing: edits to swing, microtiming, groove or mutation can move it.
- if(r.timing_bpm==bpm_ && r.timing_tempo_q16==tempo_q16_ && r.timing_num==state.speed_num && r.timing_den==state.speed_den){r.due=step_due(t);retime_kit_early(t);return;}
+ if(r.timing_bpm==bpm_ && r.timing_tempo_q16==tempo_q16_ && r.timing_num==state.speed_num && r.timing_den==state.speed_den){r.due=step_due(t);retime_kit_early(t);schedule_step_anticipation(t);return;}
  r.timing_bpm=uint16_t(bpm_);r.timing_tempo_q16=tempo_q16_;r.timing_num=state.speed_num;r.timing_den=state.speed_den;
  // Step period in Q32 samples from the Q16 tempo. The two-step division is
  // exact (floor) and identical to the historical integer formula whenever
@@ -98,7 +97,7 @@ void Engine::update_timing(unsigned t){
  }
  if(r.period_q32>1 && next!=r.period_q32 && r.due>anchor){double remaining=double(r.grid-int64_t(anchor))+double(r.fraction)/4294967296.0;double scaled=remaining*double(next)/double(r.period_q32);double integral=floor(scaled);r.grid=int64_t(anchor)+int64_t(integral);r.fraction=uint32_t((scaled-integral)*4294967296.0);}
  r.period_q32=next;
- r.due=step_due(t);retime_kit_early(t);
+ r.due=step_due(t);retime_kit_early(t);schedule_step_anticipation(t);
 }
 uint64_t Engine::step_due(unsigned t) const {
  const auto& r=runtime_[t]; const auto& pattern=project_->patterns[r.pattern]; const auto& state=track_views_.at(r.pattern,t);
@@ -139,6 +138,7 @@ void Engine::advance(unsigned t) {
  bool follow_owner=(scene_take_.active() || (!(project_->song.enabled && project_->song.length) && !(project_->chain.enabled && project_->chain.length))) && scene_take_.state()!=SceneTake::Ready;
  r.follow_due=r.cycle!=previous_cycle && follow_owner && state.clip_follow.action!=ClipFollowAction::Off && r.cycle%state.clip_follow.cycles==0;
  if(r.follow_due)clear_kit_early(t);else plan_kit_early(t);
+ schedule_step_anticipation(t);
 }
 }
 

@@ -104,7 +104,7 @@ int main() {
  // is never used and service() returns after one poll quantum.
  assert(perf.request_file(FileAction::Open));
  // Navigation before OPEN is taken cannot change the file it will open.
- assert(perf.encoder(1) && position()==0);
+ assert(perf.pad(13,0x10,3000) && perf.pad(13,0x20,0) && position()==0);
  files.service();
  assert(lib.begin_count == 1 && lib.blocking_loads == 0 && perf.browser().processing);
  assert(position()==1 && !std::strcmp(lib.load_path,"assets/KICK.WAV"));

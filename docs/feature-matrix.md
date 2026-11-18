@@ -68,7 +68,10 @@ What the instrument does, area by area. File formats are specified in
 - CHIMERA: human voice, Beatbox, IPA Speak and Sing, and four Bestiary
   species with live airway cross-sections. Male, female and child bodies
   share five performance macros and detailed articulation and voice controls.
-  One voice is shared across tracks at 48 kHz.
+  At 48 kHz, tracks and Layer leaves share up to two voices on Pi 4
+  and three on Pi 5 subject to the model cost budget. Voice modes are
+  Poly, Mono and Legato. Presets carry optional IPA text, with a Song
+  track assignment taking priority.
 - PHYSICAL groups RESONATOR, TEXTURE and CHIMERA. SAMPLER groups
   SAMPLER, SOUNDFONT and GRANULAR in the engine lists.
 - Polyphony: basic voices plus shared additional voices. Plaits sounds

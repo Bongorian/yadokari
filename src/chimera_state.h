@@ -14,11 +14,13 @@ enum ChimeraParameter : unsigned {
  ChimeraBody, ChimeraVibratoDepth, ChimeraVibratoRate, ChimeraGlide, ChimeraPressure, ChimeraBreathiness,
  ChimeraTipX, ChimeraTipY, ChimeraTipCurl, ChimeraRoot, ChimeraLipAperture, ChimeraLipProtrusion, ChimeraLipWidth,
  ChimeraLabiodental, ChimeraVelum, ChimeraLarynx, ChimeraEpilarynx, ChimeraVentricular, ChimeraLateral, ChimeraDorsum,
- ChimeraProgram, ChimeraSpecies, kChimeraParameterCount
+ ChimeraProgram, ChimeraSpecies, ChimeraVoiceMode, kChimeraParameterCount
 };
 constexpr unsigned kChimeraMacroCount=5;
 inline constexpr const char* kChimeraBodies[]={"MALE","FEMALE","CHILD"};
 inline constexpr const char* kChimeraPrograms[]={"PLAY","BEATBOX","SPEAK","SING","BESTIARY"};
+enum ChimeraVoiceModeValue : unsigned { ChimeraPoly, ChimeraMono, ChimeraLegato };
+inline constexpr const char* kChimeraVoiceModes[]={"POLY","MONO","LEGATO"};
 enum ChimeraProgramValue : unsigned { ChimeraPlay, ChimeraBeatbox, ChimeraSpeak, ChimeraSing, ChimeraBestiary };
 inline constexpr const char* kChimeraSpecies[]={"SONGBIRD","SEAL","ALLIGATOR","ELEPHANT"};
 inline constexpr ParameterDescriptor kChimeraDetails[]={
@@ -44,6 +46,7 @@ inline constexpr ParameterDescriptor kChimeraDetails[]={
  {ChimeraDorsum,"DORSUM",0,1,0,Interpolation::Linear,"",2,.02f},
  {ChimeraProgram,"MODE",0,4,0,Interpolation::Discrete,"",0,1},
  {ChimeraSpecies,"SPECIES",0,3,0,Interpolation::Discrete,"",0,1},
+ {ChimeraVoiceMode,"VOICE MODE",0,2,ChimeraPoly,Interpolation::Discrete,"",0,1},
 };
 constexpr unsigned kChimeraDetailCount=kChimeraParameterCount-kChimeraMacroCount;
 static_assert(sizeof kChimeraDetails/sizeof *kChimeraDetails==kChimeraDetailCount);
@@ -51,6 +54,15 @@ struct ChimeraState {
  float values[kChimeraDetailCount]{};
  constexpr ChimeraState(){for(unsigned i=0;i<kChimeraDetailCount;++i)values[i]=kChimeraDetails[i].initial;}
 };
+inline unsigned chimera_voice_mode(const ChimeraState& s){return unsigned(s.values[ChimeraVoiceMode-kChimeraMacroCount]);}
+inline bool valid_chimera_ipa(const ChimeraIpaText& text){
+ return !text.size || (text.size<=kChimeraIpaBytes && yadokari_chimera_valid_ipa(text.data,text.size));
+}
+inline bool chimera_sound_attribute(unsigned local){
+ return local==ChimeraProgram || local==ChimeraSpecies || local==ChimeraVoiceMode;
+}
+inline constexpr uint8_t kChimeraModelCosts[]={2,2,2,1,2,3,2};
+inline constexpr unsigned kChimeraPoolCapacity=3;
 inline unsigned chimera_model(const ChimeraState& state){
  return state.values[ChimeraProgram-kChimeraMacroCount]==ChimeraBestiary?
         3+unsigned(state.values[ChimeraSpecies-kChimeraMacroCount]):unsigned(state.values[0]);

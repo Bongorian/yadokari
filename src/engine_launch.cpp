@@ -6,13 +6,13 @@
 #include "instrument_math.h"
 #include <math.h>
 namespace groove {
-void Engine::plan_chimera_pickup(unsigned t){
+void Engine::schedule_step_anticipation(unsigned t){
  auto& r=runtime_[t];
- auto& cue=chimera_pickups_[t];
+ auto& cue=step_anticipation_[t];
  if(cue.started && cue.serial==r.step_serial+1 && cue.pattern==r.pattern)return;
- cue.pending=cue.started=false;
- chimera_pickup_mask_&=~(1u<<t);
- if(!playing_ || !r.playing || r.follow_due || (audio_lane_mask_&(1u<<t)) || !chimera_.ready())return;
+ cue.started=false;
+ step_anticipation_mask_&=~(1u<<t);
+ if(!playing_ || !r.playing || r.follow_due || (audio_lane_mask_&(1u<<t)) || !chimera_slots_)return;
  const auto base=track(t);
  if(base.instrument!=Instrument::Chimera && base.steps[r.position].sound>=kPresetSlots)return;
  cue.step=mutation_step(base,r.position);
@@ -32,29 +32,57 @@ void Engine::plan_chimera_pickup(unsigned t){
                          groove_velocity(base.groove,r.position)*base.groove.amount/100,int64_t(0),int64_t(127)));
  if(!step.velocity)return;
  cue.note=bounded(int(base.root_note)+int(step.note)+int(song_transpose_)-60,0,127);
- for(uint8_t chord:step.chord)if(chord<128)cue.note=bounded(int(base.root_note)+int(chord)+int(song_transpose_)-60,0,127);
+ if(chimera_voice_mode(state.chimera)!=ChimeraPoly)for(uint8_t chord:step.chord)if(chord<128)cue.note=bounded(int(base.root_note)+int(chord)+int(song_transpose_)-60,0,127);
  cue.accumulator=accumulated_pitch(a,r.cycle);cue.degrees=a.scale_degrees;
  int pitch=step.chromatic?bounded(cue.note+state.transpose,0,127):transform_note(cue.note,state);
  pitch=cue.degrees?scale_move(pitch,cue.accumulator,state):bounded(pitch+cue.accumulator,0,127);
- const auto* phrase=chimera_speech_.phrase(t,128+r.pattern*kSteps+r.position);
- if(!phrase)phrase=chimera_speech_.phrase(t,unsigned(pitch));
+ const auto* phrase=chimera_speech_.phrase(t,128+r.pattern*kSteps+r.position,state.chimera_phrase);
+ if(!phrase)phrase=chimera_speech_.phrase(t,unsigned(pitch),state.chimera_phrase);
  if(!phrase || phrase->lead<=0)return;
- cue.serial=r.step_serial+1;cue.pattern=r.pattern;cue.lead=phrase->lead;cue.pending=true;
- chimera_pickup_mask_|=1u<<t;
+ cue.serial=r.step_serial+1;cue.pattern=r.pattern;cue.lead=phrase->lead;
+ step_anticipation_mask_|=1u<<t;
 }
-void Engine::start_chimera_pickup(unsigned t){
- auto& cue=chimera_pickups_[t];
+void Engine::service_step_anticipation(unsigned t){
+ auto& cue=step_anticipation_[t];
  const auto& r=runtime_[t];
- if(sample_count_>=r.due || !chimera_.can_play(t))return;
+ if(sample_count_>=r.due || !chimera_slots_)return;
  if(float(r.due-sample_count_)*chimera_score_increment()>cue.lead)return;
  if(audio_muted(t) || (audio_has_solo() && !audio_solo_track(t)) ||
     !step_condition_passes(cue.step,r.cycle,fill_) ||
     (note_record_armed_ && project_->ui.note_replace && t==note_record_track_))return;
  if(trigger(t,cue.step.velocity,cue.note,&cue.step,nullptr,cue.accumulator,cue.degrees,false,-1,-1,
             nullptr,-1,nullptr,nullptr,nullptr,false,true)){
-  cue.pending=false;cue.started=true;
-  chimera_pickup_mask_&=~(1u<<t);
+  cue.started=true;
+  step_anticipation_mask_&=~(1u<<t);
  }
+}
+void Engine::cancel_step_anticipation(unsigned t){
+ for(auto& poly:poly_voices_)if(poly.owner==t && poly.voice.score_before_step){
+  release_poly(poly,true);
+  poly.voice.score_before_step=false;
+ }
+ step_anticipation_[t]={};
+ step_anticipation_mask_&=~(1u<<t);
+}
+bool Engine::service_step_events(unsigned t){
+ auto& r=runtime_[t];
+ bool boundary=false;
+ if(step_anticipation_mask_&(1u<<t))service_step_anticipation(t);
+ if(r.playing)for(unsigned budget=0;budget<4 && sample_count_>=r.due &&
+                  (!r.follow_due || int64_t(sample_count_)>=r.grid);++budget){
+  if(t==freeze_track_ && (freeze_state_==1 || freeze_state_==2) && r.position==0){
+   if(r.pattern!=freeze_pattern_)freeze_state_=4;
+   else if(freeze_state_==1){freeze_state_=2;freeze_frames_=0;}
+   else freeze_state_=3;
+  }
+  play_step(t);advance(t);boundary=true;
+ }
+ if(r.retriggers && sample_count_>=r.retrigger_at){
+  if(track(t).arp_mode)trigger_step_arp(t,r.retrigger_velocity,r.retrigger_note,r.effective_step,r.accumulator_offset,r.accumulator_degrees,r.retrigger_index);
+  else trigger_step_chord(t,r.retrigger_velocity,r.retrigger_note,r.effective_step,r.accumulator_offset,r.accumulator_degrees);
+  --r.retriggers;++r.retrigger_index;schedule_retrigger(t);
+ }
+ return boundary;
 }
 void Engine::play_step(unsigned t) {
  RenderEventScope audit(render_audit_,event_work_,RenderAudit::StepWork);
@@ -81,10 +109,10 @@ void Engine::play_step(unsigned t) {
  }
  fire=fire && step_condition_passes(step,r.cycle,fill_);
  if(fire)fire=step_probability_draw(project_->random_seed,t,r.pattern,r.automation_cell)<step.probability;
- if(!fire){if(chimera_pickups_[t].started && chimera_.owner()==t)chimera_.stop();if(voices_[t].tie_pending)note_off_main(t);refresh_parameters_step(t,nullptr);return;}
+ if(!fire){cancel_step_anticipation(t);if(voices_[t].tie_pending)note_off_main(t);refresh_parameters_step(t,nullptr);return;}
  // Parameter-only triggers share the ordinary grid and conditions, but never
  // start, release, or retrigger a note and do not advance melodic lanes.
- if(!step.enabled){if(chimera_pickups_[t].started && chimera_.owner()==t)chimera_.stop();if(voices_[t].tie_pending)note_off_main(t);refresh_parameters_step(t,&step);return;}
+ if(!step.enabled){cancel_step_anticipation(t);if(voices_[t].tie_pending)note_off_main(t);refresh_parameters_step(t,&step);return;}
  if(state.lanes_enabled){step.note=state.lanes[0].values[lane_cell(state.lanes[0],r.lane_triggers)];step.velocity=state.lanes[1].values[lane_cell(state.lanes[1],r.lane_triggers)];step.gate=state.lanes[2].values[lane_cell(state.lanes[2],r.lane_triggers)];++r.lane_triggers;}
  const auto& a=state.accumulator;uint32_t cycle=a.reset?r.cycle%a.reset:r.cycle;
  // Use wide intermediates for indefinitely running performances.

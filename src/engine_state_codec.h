@@ -75,7 +75,7 @@ template<template<class> class Q> struct BasicEngineStateView {
  Q<SampleEdit>* sample_edit;Q<CreativeState>* creative;Q<KitDefinition>* kit;
  Q<bool>* sample_loop;Q<bool>* sample_reverse;
  Q<uint8_t>* sample_slice;Q<uint8_t>* sample_slices;Q<char>* preset_name=nullptr;
- Q<float>* daisy_adsr=nullptr;Q<uint8_t>* midi_program=nullptr;Q<uint8_t>* midi_cc=nullptr;Q<uint8_t>* midi_cc_used=nullptr;Q<WavetableState>* wavetable=nullptr;Q<VirtualAnalogState>* virtual_analog=nullptr;Q<Fm6State>* fm6=nullptr;Q<AdditiveState>* additive=nullptr;Q<PhaseDistState>* phase_dist=nullptr;Q<SoundFontState>* soundfont=nullptr;Q<LayerState>* layer=nullptr;Q<FormantState>* formant=nullptr;Q<GranularState>* granular=nullptr;Q<ChimeraState>* chimera=nullptr;
+ Q<float>* daisy_adsr=nullptr;Q<uint8_t>* midi_program=nullptr;Q<uint8_t>* midi_cc=nullptr;Q<uint8_t>* midi_cc_used=nullptr;Q<WavetableState>* wavetable=nullptr;Q<VirtualAnalogState>* virtual_analog=nullptr;Q<Fm6State>* fm6=nullptr;Q<AdditiveState>* additive=nullptr;Q<PhaseDistState>* phase_dist=nullptr;Q<SoundFontState>* soundfont=nullptr;Q<LayerState>* layer=nullptr;Q<FormantState>* formant=nullptr;Q<GranularState>* granular=nullptr;Q<ChimeraState>* chimera=nullptr;Q<ChimeraIpaText>* chimera_phrase=nullptr;
 };
 template<class T> using EngineMutable=T;
 template<class T> using EngineConst=const T;
@@ -104,12 +104,7 @@ inline bool emit_parm(const EngineStateSource&,bool){return true;}
 inline bool encode_parm(ChunkBuffer& out,const EngineStateSource& s){ChunkWriter<ChunkBuffer> w(out);if(!w.u8(*s.model))return false;for(unsigned i=0;i<5;++i)if(!w.f32(s.parameters[i]))return false;return w.u8(*s.sample_slot);}
 inline bool decode_parm(ChunkSource& src,const EngineStateView& s){ChunkReader<ChunkSource> r(src);if(!r.u8(*s.model))return false;for(unsigned i=0;i<5;++i)if(!r.f32(s.parameters[i]))return false;return r.u8(*s.sample_slot) && src.at_end();}
 inline void defaults_parm(const EngineStateView& s){*s.model=0;for(unsigned i=0;i<5;++i)s.parameters[i]=0.5f;*s.sample_slot=0;}
-inline bool emit_chimera(const EngineStateSource& s,bool){
- if(!s.chimera)return false;
- const ChimeraState defaults{};
- for(unsigned i=0;i<kChimeraDetailCount;++i)if(s.chimera->values[i]!=defaults.values[i])return true;
- return false;
-}
+inline bool emit_chimera(const EngineStateSource& s,bool){return s.chimera!=nullptr;}
 inline bool encode_chimera(ChunkBuffer& dst,const EngineStateSource& s){
  if(!s.chimera)return false;
  ChunkWriter<ChunkBuffer> w(dst);
@@ -123,12 +118,26 @@ inline bool decode_chimera(ChunkSource& src,const EngineStateView& s){
  return src.at_end() && valid_chimera(*s.chimera);
 }
 inline void defaults_chimera(const EngineStateView& s){if(s.chimera)*s.chimera=ChimeraState{};}
+inline constexpr uint32_t kChunkChimera=0x4d494843u;
+inline bool emit_chimera_phrase(const EngineStateSource& s,bool){return s.chimera_phrase && s.chimera_phrase->size;}
+inline bool encode_chimera_phrase(ChunkBuffer& out,const EngineStateSource& s){
+ const auto& phrase=*s.chimera_phrase;
+ return valid_chimera_ipa(phrase) && out.write(reinterpret_cast<const uint8_t*>(phrase.data),phrase.size);
+}
+inline bool decode_chimera_phrase(ChunkSource& in,const EngineStateView& s){
+ if(!s.chimera_phrase || !in.size || in.size>kChimeraIpaBytes)return false;
+ auto& phrase=*s.chimera_phrase;
+ phrase.size=uint16_t(in.size);
+ return in.read(reinterpret_cast<uint8_t*>(phrase.data),in.size) && valid_chimera_ipa(phrase);
+}
+inline void defaults_chimera_phrase(const EngineStateView& s){if(s.chimera_phrase)s.chimera_phrase->size=0;}
 inline EngineStateContract chimera_state_contract(){
  static const EngineChunkDescriptor chunks[]={
   {kChunkParm,2,emit_parm,encode_parm,decode_parm,defaults_parm},
-  {0x4d494843u,1,emit_chimera,encode_chimera,decode_chimera,defaults_chimera}
+  {kChunkChimera,2,emit_chimera,encode_chimera,decode_chimera,defaults_chimera},
+  {0x41504943u,1,emit_chimera_phrase,encode_chimera_phrase,decode_chimera_phrase,defaults_chimera_phrase}
  };
- return {chunks,2,1};
+ return {chunks,3,3};
 }
 inline bool emit_smpl(const EngineStateSource& s,bool required){return required || !same_sample_edit(*s.sample_edit,SampleEdit{}) || *s.sample_loop || *s.sample_reverse || *s.sample_slice || *s.sample_slices!=1;}
 inline bool encode_smpl(ChunkBuffer& out,const EngineStateSource& s){ChunkWriter<ChunkBuffer> w(out);return write_sample_edit(w,*s.sample_edit) && write_zones(w,*s.sample_edit) && write_warp(w,*s.sample_edit) && w.u8(*s.sample_slice) && w.u8(*s.sample_slices) && w.u8(*s.sample_loop) && w.u8(*s.sample_reverse);}

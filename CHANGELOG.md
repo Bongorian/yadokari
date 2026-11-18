@@ -4,6 +4,19 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 0.9.7
+
+- Added shared CHIMERA polyphony, Poly/Mono/Legato voice modes and
+  CHIMERA leaves in Layer. Speak and Sing sounds can carry IPA text in
+  presets, with separate Song track overrides.
+- Preserved STEP edit focus while another pattern plays. MIXER pads now
+  show the audible mute state during a recorded Song.
+- Made physical STOP reliable during command queue saturation. STOP also
+  clears pending launches and repeat indicators, including on MIDI STOP.
+- Released latched pad effects on exit from LIVE FX. Its Song FX controls
+  now show that their values are saved with the Song.
+- Kept a queued FILES OPEN bound to the selected row when a pad is pressed.
+
 ## 0.9.6
 
 - Completed CHIMERA: all playing surfaces (PAD, KEYBOARD, CHORD and step

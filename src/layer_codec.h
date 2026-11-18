@@ -1,8 +1,8 @@
 #pragma once
 // Included after engine_registry.h: child state uses the same GUID/chunk contract.
 namespace groove {
-inline EngineStateSource leaf_state_source(const SoundLeaf& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,nullptr,&s.formant,&s.granular};}
-inline EngineStateView leaf_state_view(SoundLeaf& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,nullptr,&s.formant,&s.granular};}
+inline EngineStateSource leaf_state_source(const SoundLeaf& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,nullptr,&s.formant,&s.granular,&s.chimera,&s.chimera_phrase};}
+inline EngineStateView leaf_state_view(SoundLeaf& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,nullptr,&s.formant,&s.granular,&s.chimera,&s.chimera_phrase};}
 inline const char* layer_engine_name(Instrument i){const auto* d=instrument_descriptor(unsigned(i));return d?d->name:"UNKNOWN";}
 // Exclusions are explicit: native Texture/Resonator and Daisy drum banks own
 // one DSP per track; MIDI emits externally; kits/composites cannot nest.
@@ -16,7 +16,7 @@ inline const char* layer_leaf_exclusion(Instrument i){
 }
 inline bool layer_leaf_supported(Instrument i){return layer_leaf_exclusion(i)==nullptr;}
 inline bool layer_part_matches(const LayerPart& p,unsigned key,unsigned velocity){return key>=p.key_low && key<=p.key_high && velocity>=p.velocity_low && velocity<=p.velocity_high;}
-inline unsigned layer_part_cost(const LayerPart& p){unsigned cost=engine_voice_cost(p.sound.instrument,p.sound.model);if(p.fx.present)for(unsigned i=0;i<2;++i)if(!(p.fx.disabled&(1u<<i))){unsigned type=unsigned(p.fx.inserts[i*4]);if(type){const auto* fx=fx_descriptor(type);if(fx)cost+=fx->cost;}}return cost;}
+inline unsigned layer_part_cost(const LayerPart& p){unsigned cost=engine_voice_cost(p.sound.instrument,p.sound.instrument==Instrument::Chimera?chimera_model(p.sound.chimera):p.sound.model);if(p.fx.present)for(unsigned i=0;i<2;++i)if(!(p.fx.disabled&(1u<<i))){unsigned type=unsigned(p.fx.inserts[i*4]);if(type){const auto* fx=fx_descriptor(type);if(fx)cost+=fx->cost;}}return cost;}
 inline unsigned layer_note_cost(const LayerState& s,unsigned key,unsigned velocity,uint8_t* selected=nullptr){unsigned cost=0;uint8_t mask=0;for(unsigned i=0;i<s.count;++i)if(layer_part_matches(s.parts[i],key,velocity)){mask|=uint8_t(1u<<i);cost+=layer_part_cost(s.parts[i]);}if(selected)*selected=mask;return cost;}
 enum class LayerReason:uint8_t {Ready,Empty,Missing,Unknown,Unsupported,Cost,Voices,Assets};
 // Compact common-header wording; full Layer/admission notices keep layer_reason.
@@ -47,6 +47,7 @@ inline bool layer_read_child(ChunkSource src,LayerPart& p){
  for(unsigned i=0;i<length;++i){uint8_t c;if(!r.u8(c))return unknown();guid[i]=char(c);}if(!r.u16(schema) || schema!=1 || !engine_from_guid(guid,length,inst))return unknown();if(inst==Instrument::Layer)return false;
  p.sound=SoundLeaf{};p.fx=PresetFxSnapshot{};p.sound.instrument=inst;p.raw_size=0;const auto* d=engine_descriptor(unsigned(inst));auto view=leaf_state_view(p.sound);unsigned seen=0;bool name_seen=false;
  while(!src.at_end()){unsigned begin=src.pos;uint32_t kind,bytes;uint16_t version,flags;if(!r.u32(kind)||!r.u16(version)||!r.u16(flags)||!r.u32(bytes)||bytes>src.remaining())return unknown();ChunkSource sub{src.data+src.pos,bytes,0};src.pos+=bytes;bool handled=false;
+  if(inst==Instrument::Chimera && kind==kChunkChimera && version==1)return false;
   if(kind==kChunkPfxs && version==1 && !flags){if(p.fx.present || !read_fx_frame(sub,p.fx))return unknown();handled=true;}
   if(kind==0x4d414e50u && version==1 && !flags){if(name_seen || bytes>=96)return unknown();name_seen=true;for(unsigned i=0;i<bytes;++i){unsigned c=sub.data[i];if(c<32 || c>126)return unknown();p.sound.preset_name[i]=char(c);}p.sound.preset_name[bytes]=0;handled=true;}
   for(unsigned i=0;i<d->state.count;++i){const auto& chunk=d->state.chunks[i];if(chunk.fourcc==kind && chunk.version==version && !flags){if((seen&(1u<<i)) || !chunk.decode(sub,view))return unknown();seen|=1u<<i;handled=true;break;}}

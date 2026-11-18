@@ -1,9 +1,64 @@
 #include "performance.h"
+#include "midi_input_router.h"
+#include <cstring>
 #include <cassert>
 #include <cstdio>
 #include <memory>
 using namespace groove;
 using ui::LedState;
+static void live_surface_regressions(){
+ auto project=std::make_unique<ProjectState>();make_empty_project(*project);
+ project->clips[0]={0,true};
+ track_at(*project,0,0).instrument=Instrument::PolySaw;
+ track_at(*project,0,0).length=64;
+ auto engine=std::make_unique<Engine>(8000);
+ assert(engine->stage_project(*project));
+ auto ui=std::make_unique<Performance>(*engine,*project);
+ auto flush=[&](unsigned frames=1){
+  while(frames){
+   float audio[128]{};
+   const unsigned count=frames<64?frames:64;
+   engine->render(audio,count);ui->poll();frames-=count;
+  }
+ };
+ flush();
+ assert(ui->play());flush();
+ assert(ui->select_pattern(1));ui->set_mode(UiMode::Step);ui->step_page(0);
+ assert(ui->control(6,0x10) && ui->control(6,0) && ui->follow_display());
+ flush(19300);
+ assert(ui->page()==0);
+ assert(ui->pad(12,0x10,3000) && ui->pad(12,0x20,0) && ui->selected_step()==0);
+ ui->set_mode(UiMode::Perform);
+ assert(ui->soft_key(6) && ui->performance_page()==4);
+ assert(!std::strcmp(ui->knob_label(3),"SONG FX TYPE") && !std::strcmp(ui->knob_label(4),"SONG FX AMT"));
+ ui->set_shift(true);
+ assert(ui->pad(14,0x10,3000) && ui->pad(14,0x20,0));
+ ui->set_shift(false);flush();
+ assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
+ assert(ui->soft_key(7) && ui->performance_page()==5);flush();
+ assert(!ui->performance_fx_latched() && engine->performance_fx_current()==PerformanceFx::Off);
+ assert(ui->launch_scene(2,true));flush();
+ assert(ui->pending_scene()==2);
+ MidiInputRouter router;
+ assert(router.accept(*engine,*project,{0,0,1,{0xfc}}));flush();
+ assert(ui->pending_scene()<0 && !engine->diagnostic_playing());
+ assert(ui->play());flush();
+ assert(ui->set_repeat_latch(true) && ui->control(3,0x10) && ui->control(3,0));
+ flush();
+ assert(ui->repeat_latch() && ui->note_repeat_mode());
+ for(unsigned space=engine->command_space();space;--space)assert(engine->submit({CommandType::SetFill,0,0,0}));
+ assert(ui->control(6,0x80) && ui->control(6,0));flush();
+ assert(!ui->note_repeat_mode() && !ui->repeat_latch() && !engine->diagnostic_playing());
+
+ project->song.enabled=true;project->song.length=1;
+ auto& section=project->song.sections[0];
+ section.ticks=kSongTicksPerBar;section.playing_mask=1;section.mute_mask=1;section.restart_mask=0xffff;
+ assert(engine->stage_project(*project));
+ ui=std::make_unique<Performance>(*engine,*project);flush();
+ assert(ui->play());flush();
+ ui->set_mode(UiMode::Mixer);
+ assert(ui->audible_muted(0) && ui->pad_feedback(0)==LedState::Muted);
+}
 int main(){
  auto project=std::make_unique<ProjectState>();make_empty_project(*project);
  auto engine=std::make_unique<Engine>();assert(engine->stage_project(*project));
@@ -118,5 +173,6 @@ int main(){
  assert(ui.knob(0,1000));ui.led_frame(frame);unsigned lit=0;
  for(auto level:frame.strip_level)lit+=level!=0;
  assert(lit==1);
+ live_surface_regressions();
  std::puts("UI navigation, recording ownership, LED priority and motion passed");
 }

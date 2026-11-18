@@ -42,16 +42,17 @@ uint8_t Engine::plan_shared(unsigned t,Instrument engine,unsigned model,bool pol
  // PI5_PERF_PROFILE.md S9-S10). Layer admission scales too -- see
  // layer_admission() below.
  const unsigned budget=hardware::scaled(policy.shared_budget);
- const unsigned slot_count=hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity);
+ const unsigned slot_count=hardware::scaled_slots(policy.shared_slots,resource==VoiceResource::Chimera?chimera_slots_:kSharedVoiceCapacity);
  unsigned limit=hardware::scaled(instrument_voice_limit(engine,model)),incoming=engine_voice_cost(engine,model);
  unsigned main=poly && engine_voice_resource(voices_[t].instrument)==resource && voices_[t].env>=0.00001f?1:0;
  if(!limit || limit<=main || incoming>budget)return 255;
  unsigned allowed=limit-1-main;
  uint32_t planned=0;
  SharedVoicePlan plan{};
- unsigned count=0,cost=0;
+ unsigned count=0,cost=0,occupied=0;
  for(const auto& p:poly_voices_)if(p.owner<kTracks && engine_voice_resource(p.voice.instrument)==resource){
   count+=p.owner==t;
+  ++occupied;
   cost+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);
  }
  auto plan_release=[&](unsigned owner){
@@ -59,13 +60,14 @@ uint8_t Engine::plan_shared(unsigned t,Instrument engine,unsigned model,bool pol
   if(old==kPolyVoiceCapacity)return false;
   const auto& voice=poly_voices_[old].voice;
   cost-=engine_voice_cost(Instrument(voice.instrument),voice.model);
+  --occupied;
   planned|=uint32_t(1)<<old;
   plan.indices[plan.count++]=uint8_t(old);
   return true;
  };
  while(!layer_launching_ && count>allowed){if(!plan_release(t))return 255;--count;}
  if(!poly){victims=plan;return 255;}
- while(cost+incoming>budget){if(layer_launching_ || !plan_release(kTracks))return 255;}
+ while(cost+incoming>budget || (resource==VoiceResource::Chimera && occupied>=slot_count)){if(layer_launching_ || !plan_release(kTracks))return 255;}
  bool used[kSharedVoiceCapacity]{};
  for(unsigned i=0;i<kPolyVoiceCapacity;++i){
   const auto& p=poly_voices_[i];
@@ -80,40 +82,41 @@ void Engine::release_shared(const SharedVoicePlan& victims){
   __atomic_add_fetch(&probe_budget_releases_,1,__ATOMIC_RELAXED);
  }
 }
-void Engine::retire_chimera(){
- unsigned owner=chimera_.owner();
- if(owner<kTracks && (voices_[owner].instrument!=unsigned(Instrument::Chimera) || voices_[owner].env<=0 || (audio_lane_mask_&(1u<<owner))))chimera_.stop();
-}
 bool Engine::note_off_main(unsigned t) {
  auto& v=voices_[t]; ++v.voice_epoch;v.step_mono=v.tie_pending=false;v.step_pitch.reset();capture_voice_off(v);if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release(); v.daisy.note_off(); if(v.instrument==unsigned(Instrument::PolySaw) || v.instrument==unsigned(Instrument::PlaitsMacro) || v.instrument==unsigned(Instrument::FM) || v.instrument==unsigned(Instrument::Acid) || v.instrument>=unsigned(Instrument::WaveSequence))v.released=true;if(auto* dsp=plaits_dsp(t,v))dsp->release(); v.off_at=0;
  if(v.midi_note && !midi(uint8_t(0x80|v.channel),v.note,0)){pending_midi_off_|=uint16_t(1u<<t);return false;}
  v.midi_note=false;pending_midi_off_&=uint16_t(~(1u<<t));return true;
 }
-bool Engine::release_poly(PolyVoice& p,bool immediate){va_candidates_dirty_=true;auto& v=p.voice;if(p.owner>=16)return true;++v.voice_epoch;capture_voice_off(v);if(v.midi_note){if(!midi(uint8_t(0x80|v.channel),v.note,0)){p.pending=true;return false;}v.midi_note=false;p.pending=false;set_poly_owner(p,255);return true;}if(immediate){if(auto* dsp=plaits_dsp(p.owner,v))dsp->stop();v.sampler.stop();v.daisy.note_off();v.env=0;set_poly_owner(p,255);return true;}if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release();v.daisy.note_off();if(auto* dsp=plaits_dsp(p.owner,v))dsp->release();v.released=true;v.off_at=0;return true;}
+bool Engine::release_poly(PolyVoice& p,bool immediate){va_candidates_dirty_=true;auto& v=p.voice;if(p.owner>=16)return true;++v.voice_epoch;capture_voice_off(v);if(v.midi_note){if(!midi(uint8_t(0x80|v.channel),v.note,0)){p.pending=true;return false;}v.midi_note=false;p.pending=false;set_poly_owner(p,255);return true;}if(immediate){if(auto* dsp=chimera_dsp(v))dsp->stop();if(auto* dsp=plaits_dsp(p.owner,v))dsp->stop();v.sampler.stop();v.daisy.note_off();v.env=0;set_poly_owner(p,255);return true;}if(v.instrument==unsigned(Instrument::Sampler) && (v.looping || v.sample_mode==SampleMode::Gate))v.sampler.release();v.daisy.note_off();if(auto* dsp=plaits_dsp(p.owner,v))dsp->release();v.released=true;v.off_at=0;return true;}
 bool Engine::note_off(unsigned t){kit_midi_release(255,t);bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !release_poly(p))ok=false;return note_off_main(t) && ok;}
 bool Engine::release_sequence(unsigned t){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && p.sequenced && !p.voice.released && !release_poly(p))ok=false;return ok;}
 void Engine::clear_poly(unsigned t){for(auto& p:poly_voices_)if(p.owner==t)release_poly(p,true);}
-bool Engine::resume_chimera(unsigned t,uint8_t note,uint16_t channel){
- auto& current=voices_[t];
- if(repeat_mode_ || !chimera_.held_legato() || chimera_.owner()!=t || current.instrument!=unsigned(Instrument::Chimera) ||
-    (current.received_channel!=channel || (note<128 && current.input_note!=note)))return false;
- const RepeatPad* newest=nullptr;
- auto consider=[&](const RepeatPad& held){
-  if(!held.held || held.track!=t || !held.chimera_order ||
-     (held.channel==channel && (note>=128 || held.note==note)))return;
-  if(!newest || held.chimera_order>newest->chimera_order)newest=&held;
- };
- for(const auto& held:repeat_pads_)consider(held);
- for(const auto& held:repeat_midi_)consider(held);
- if(!newest || track(t).instrument!=Instrument::Chimera)return false;
- const auto state=track(t);
- auto* restored=trigger(t,newest->velocity,newest->note,nullptr,&state,0,false,true,
-                         -1,-1,nullptr,-1,nullptr,nullptr,nullptr,newest->chromatic);
- if(!restored)return false;
- restored->received_channel=newest->channel;
- return true;
+bool Engine::release_poly_key(PolyVoice& poly,unsigned note,uint16_t channel,bool immediate){
+ auto& voice=poly.voice;
+ if(auto* dsp=chimera_dsp(voice)){
+  dsp->forget(channel,note);
+  if(voice.released || voice.received_channel!=channel || (note<128 && voice.input_note!=note))return true;
+  if(!immediate && !repeat_mode_ && chimera_voice_mode(voice.chimera_base)!=ChimeraPoly &&
+     dsp->previous_key(voice.received_channel,voice.input_note,voice.note,voice.frequency,voice.a)){
+   capture_voice_off(voice);
+   const bool legato=chimera_voice_mode(voice.chimera_base)==ChimeraLegato;
+   if(!legato)voice.voice_score=chimera_speech_.phrase(poly.owner,voice.note,track(poly.owner).chimera_phrase);
+   dsp->trigger(voice.note,legato);
+   capture_voice_on(voice,poly.owner,unsigned(voice.a*127));
+   event(EngineEventType::Note,poly.owner,voice.note);
+   return true;
+  }
+ }else if(voice.received_channel!=channel || (note<128 && voice.input_note!=note))return true;
+ return release_poly(poly,immediate);
 }
-bool Engine::release_note(unsigned t,uint8_t note,uint16_t channel){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.input_note==note && p.voice.received_channel==channel)if(!release_poly(p))ok=false;auto& v=voices_[t];bool poly_capable=live_poly_capable(Instrument(v.instrument)) || v.instrument==unsigned(Instrument::ExternalMidi);if(!poly_capable && v.input_note==note && v.received_channel==channel && !resume_chimera(t,note,channel))if(!note_off_main(t))ok=false;return ok;}
+bool Engine::release_note(unsigned t,uint8_t note,uint16_t channel){
+ bool ok=true;
+ for(auto& poly:poly_voices_)if(poly.owner==t && !poly.sequenced && !release_poly_key(poly,note,channel))ok=false;
+ auto& voice=voices_[t];
+ if(!live_poly_capable(Instrument(voice.instrument)) && voice.instrument!=unsigned(Instrument::ExternalMidi) &&
+    voice.input_note==note && voice.received_channel==channel && !note_off_main(t))ok=false;
+ return ok;
+}
 void Engine::finish_repeat_pad(RepeatPad& pad){finish_recorded_note(pad.track,pad.recorded_note<128?pad.recorded_note:pad.note,pad.channel);pad.recorded_note=255;pad.gate_due=0;}
 void Engine::refresh_repeat_gate(){repeat_next_gate_=0;for(unsigned i=0;i<16*kStepNotes+16;++i){const auto& pad=i<16*kStepNotes?repeat_pads_[i]:repeat_midi_[i-16*kStepNotes];if(pad.gate_due && (!repeat_next_gate_ || pad.gate_due<repeat_next_gate_))repeat_next_gate_=pad.gate_due;}}
 // Released latch notes are owned by the repeat engine until replaced or stopped.
@@ -143,14 +146,18 @@ void Engine::repeat_tick(){
  refresh_repeat_gate();
 }
 
-void Engine::release_midi_channel(unsigned t,uint16_t channel,bool immediate){for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.received_channel==channel)release_poly(p,immediate);auto& v=voices_[t];if(v.received_channel==channel){if(immediate || !resume_chimera(t,255,channel))note_off_main(t);if(immediate){v.sampler.stop();v.env=0;}}}
+void Engine::release_midi_channel(unsigned t,uint16_t channel,bool immediate){
+ for(auto& poly:poly_voices_)if(poly.owner==t && !poly.sequenced)release_poly_key(poly,255,channel,immediate);
+ auto& voice=voices_[t];
+ if(voice.received_channel==channel){note_off_main(t);if(immediate){voice.sampler.stop();voice.env=0;}}
+}
 LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected)const{
  auto reason=layer_status(layer);if(reason!=LayerReason::Ready)return reason;unsigned incoming=layer_note_cost(layer,key,velocity,&selected);if(!selected)return LayerReason::Ready;if(!leaf_runtime_)return LayerReason::Voices;
  unsigned free=0,total=0,local=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
  for(const auto& p:poly_voices_){if(p.owner==255){++free;continue;}if(p.voice.composite){total+=p.voice.layer_cost;if(p.owner==t)local+=p.voice.layer_cost;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){++shared[unsigned(resource)];shared_cost[unsigned(resource)]+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
  if(local+incoming>hardware::scaled(VoiceBudget::layer_track) || total+incoming>hardware::scaled(VoiceBudget::layer_total))return LayerReason::Cost; // Perf port (item 1): layer cost gate scales with the board factor
  if(free<unsigned(__builtin_popcount(unsigned(selected))))return LayerReason::Voices;
- for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);++need_shared[r];need_shared_cost[r]+=engine_voice_cost(child.instrument,child.model);}}
+ for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);++need_shared[r];need_shared_cost[r]+=engine_voice_cost(child.instrument,child.instrument==Instrument::Chimera?chimera_model(child.chimera):child.model);}}
  // Perf port (item 1, decision A 2026-11-15): layer admission uses the
  // scaled budgets. This deliberately gives up the option-(a) portability
  // guarantee -- a layer accepted on Pi 5 may be refused on Pi 4 -- and
@@ -159,10 +166,10 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  // with saturating fixtures the scaled gates convert silent refusals
  // into budget trims while the deadline record stays at baseline
  // (PI5_MAX_PERF_INVESTIGATION.md, 2026-11-15 verdicts).
- for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:granular_!=nullptr;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:Instrument::Granular))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget))return LayerReason::Voices;}
+ for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:resource==unsigned(VoiceResource::Granular)?granular_!=nullptr:chimera_slots_!=0;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:resource==unsigned(VoiceResource::Granular)?Instrument::Granular:Instrument::Chimera))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,resource==unsigned(VoiceResource::Chimera)?chimera_slots_:kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget))return LayerReason::Voices;}
  return LayerReason::Ready;
 }
-Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic,bool sing_pickup) {
+Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic,bool anticipatory) {
  va_candidates_dirty_=true;
  RenderEventScope audit(render_audit_,event_work_,RenderAudit::TriggerWork);
  if(audio_lane_mask_&(1u<<t))return nullptr;
@@ -182,12 +189,9 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
   layer_launching_=false;return first;
  }
  if(step && !live_poly && !kit && !layer_part && step->slide() && slide_voice(t,velocity,note,*step,state,accumulator,degrees))return &voices_[t];
- if(actual==Instrument::Granular)poly=true;
+ if(actual==Instrument::Granular || actual==Instrument::Chimera)poly=true;
  if(actual==Instrument::Empty || actual==Instrument::Unknown)return nullptr;
- if(actual==Instrument::Chimera){
-  retire_chimera();
-  if(!chimera_.can_play(t))return nullptr;
- }
+ if(actual==Instrument::Chimera && !chimera_slots_)return nullptr;
  if(actual==Instrument::SoundFont && !soundfont_resident(samples_[state.sample_slot].soundfont)){layer_failure_[t]=uint8_t(LayerReason::Assets);return nullptr;}
  if(actual==Instrument::Granular && (!granular_ || !samples_[state.sample_slot].frames)){layer_failure_[t]=uint8_t(LayerReason::Assets);return nullptr;}
  if(actual==Instrument::Texture && !textures_)return nullptr;
@@ -196,18 +200,53 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::ExternalMidi && panic_channels_)return nullptr;
  unsigned resolved_model=step && step->sound<kPresetSlots?project_->sounds[step->sound].model:state.plaits_model;
  int model_local=engine_model_parameter(state.instrument);if(!layer_part && actual==state.instrument && model_local>=0){const auto& r=runtime_[t];resolved_model=unsigned(resolve_target_value(*project_,state,t,engine_target(actual,unsigned(model_local)),float(resolved_model),step?step->locks:r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value);}
+ PolyVoice* reused=nullptr;
+ const ChimeraPhrase* score=nullptr;
+ bool keep_score=false;
+ if(actual==Instrument::Chimera){
+  resolved_model=chimera_model(state.chimera);
+  const unsigned program=unsigned(state.chimera.values[ChimeraProgram-kChimeraMacroCount]);
+  const unsigned mode=chimera_voice_mode(state.chimera);
+  const auto& runtime=runtime_[t];
+  const int raw=note>=0?note:state.root_note;
+  int pitch=chromatic || (step && step->chromatic)?bounded(raw+int(state.transpose),0,127):transform_note(raw,state);
+  pitch=degrees?scale_move(pitch,accumulator,state):bounded(pitch+accumulator,0,127);
+  if(step && program==ChimeraSing)score=chimera_speech_.phrase(t,128+runtime.pattern*kSteps+
+                  (anticipatory?runtime.position:runtime.last_step),state.chimera_phrase);
+  if(!score && (program==ChimeraSing || program==ChimeraSpeak))score=chimera_speech_.phrase(t,unsigned(pitch),state.chimera_phrase);
+  if(!layer_part)for(auto& slot:poly_voices_){
+   auto& old=slot.voice;
+   if(slot.owner!=t || slot.sequenced!=bool(step) || old.composite || (!step && old.released))continue;
+   auto* dsp=chimera_dsp(old);if(!dsp || !dsp->active() || old.model!=resolved_model)continue;
+   if(program==ChimeraSing && dsp->continuing(score,unsigned(pitch))){
+    if(anticipatory)return &old;
+    reused=&slot;keep_score=true;break;
+   }
+   if(step && old.score_before_step && old.score_step==runtime.step_serial && old.note==pitch && old.voice_score==score){
+    reused=&slot;keep_score=true;break;
+   }
+   if(mode!=ChimeraPoly){
+    reused=&slot;
+    if(!step)dsp->remember(old.received_channel,old.input_note,old.note,old.frequency,old.a);
+    keep_score=mode==ChimeraLegato && old.chimera_base.values[ChimeraProgram-kChimeraMacroCount]==program;
+    break;
+   }
+  }
+ }
  SharedVoicePlan shared_victims;
  uint8_t shared_slot=255;
- if(engine_voice_resource(unsigned(actual))!=VoiceResource::None){
+ if(reused)shared_slot=reused->voice.shared_slot;
+ else if(engine_voice_resource(unsigned(actual))!=VoiceResource::None){
   if(actual==Instrument::PlaitsMacro && (!plaits_ || !poly_plaits_))return nullptr;
   shared_slot=plan_shared(t,actual,resolved_model,poly,protected_voice,shared_victims);
   if(poly && shared_slot==255)return nullptr;
  }
  // A planned victim is an internal voice and supplies a free pool slot.
  if(poly)release_shared(shared_victims);
- if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}++poly_steals_.triggered;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);if(occupied){if(released){++poly_steals_.released;__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);}else{++poly_steals_.held;__atomic_add_fetch(&probe_steals_held_,1,__ATOMIC_RELAXED);}}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
+ if(reused){chosen=&reused->voice;reused->age=sample_count_;capture_voice_off(*chosen);}
+ else if(poly){PolyVoice* slot=nullptr;for(auto& p:poly_voices_)if(p.owner==255){slot=&p;break;}if(!slot){for(auto& p:poly_voices_)if(!p.pending && !p.voice.composite && !layer_launching_ && &p.voice!=protected_voice && (!slot || (p.voice.released && !slot->voice.released) || (p.voice.released==slot->voice.released && p.age<slot->age)))slot=&p;}if(!slot){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}bool occupied=slot->owner<16,released=slot->voice.released;if(occupied && !release_poly(*slot,true)){++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;}++poly_steals_.triggered;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);if(occupied){if(released){++poly_steals_.released;__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);}else{++poly_steals_.held;__atomic_add_fetch(&probe_steals_held_,1,__ATOMIC_RELAXED);}}slot->voice.sampler.stop();slot->voice.daisy.note_off();set_poly_owner(*slot,t);slot->age=sample_count_;slot->sequenced=step!=nullptr || kit_step!=nullptr;slot->pending=false;chosen=&slot->voice;chosen->pitch_bend=voices_[t].pitch_bend;}else if(!note_off_main(t))return nullptr;
  if(!poly)release_shared(shared_victims);
- if(!poly && actual!=Instrument::Chimera && chimera_.owner()==t)chimera_.stop();
+
  auto& v=*chosen;++v.voice_epoch;++v.voice_instance;v.kit_watch_lane=uint8_t(watch_lane);v.layer_peer=nullptr;v.composite=layer_part!=nullptr;v.layer_cost=layer_part?uint8_t(layer_part_cost(*layer_part)):0;v.layer_gain=layer_mix?layer_mix[0]:1;v.layer_pan=layer_mix?layer_mix[1]:0;v.layer_detune=layer_mix?layer_mix[2]/100:0;v.pitch_bend+=v.layer_detune;v.shared_slot=shared_slot;if(layer_part){v.leaf->fx=layer_part->fx;for(auto& insert:v.leaf->inserts)insert.reset();}
  if(velocity>127) velocity=127;
  v.instrument=uint8_t(actual);v.kit_pad=kit?uint8_t(kit_pad):255;if(kit){v.kit_insert.reset();v.kit_fx_locked=false;for(unsigned i=0;i<4;++i){auto& lock=v.kit_fx_locks[i];lock.enabled=kit_step && kit_step->fx_lock[i]!=255;lock.id=uint16_t(320+kit_pad*4+i);lock.value=lock.enabled?(i?float(kit_step->fx_lock[i])/127:float(kit_step->fx_lock[i])):0;v.kit_fx_locked|=lock.enabled;}auto& rt=runtime_[t];for(unsigned i=0;i<4;++i)v.kit_insert_target[i]=resolve_parameter(*project_,state,t,uint16_t(320+kit_pad*4+i),rt.active_locks,unsigned(rt.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,rt.automation_live,&gesture_overlay_,rt.pattern,nullptr,v.kit_fx_locks,&mod).value;for(unsigned i=0;i<3;++i)v.kit_insert_current[i]=v.kit_insert_target[i+1];}if(kit){const unsigned fields[]={0,2,3,4};const uint8_t values[]={uint8_t(kit_step?kit_step->level_lock:255),uint8_t(kit_step?kit_step->filter_lock:255),uint8_t(kit_step?kit_step->delay_lock:255),uint8_t(kit_step?kit_step->reverb_lock:255)};v.kit_mix_locked=false;for(unsigned i=0;i<4;++i){auto& lock=v.kit_mix_locks[i];lock.id=kit_mix_parameter_id(unsigned(kit_pad),fields[i]);lock.enabled=values[i]<128;lock.value=lock.enabled?float(values[i])/127:0;v.kit_mix_locked|=lock.enabled;}auto& rt=runtime_[t];for(unsigned i=0;i<5;++i)v.kit_mix_target[i]=resolve_parameter(*project_,state,t,kit_mix_parameter_id(unsigned(kit_pad),i),rt.active_locks,unsigned(rt.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,rt.automation_live,&gesture_overlay_,rt.pattern,nullptr,v.kit_mix_locks,&mod).value;v.kit_mix.reset(v.kit_mix_target[2],v.kit_mix_target[0],v.kit_mix_target[1],v.kit_mix_target[3],v.kit_mix_target[4]);} unsigned model=state.plaits_model; float params[5]; for(unsigned i=0;i<5;++i) params[i]=state.engine_parameters[i];
@@ -264,12 +303,12 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::Resonator){resonators_[t].reseed(event_seed_for());if(!resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
  v.step_pitch.reset();v.tie_pending=false;v.step_accent=step && step->accent();v.step_sound=step?step->sound:kNoPreset;v.step_mono=step && !poly && !kit && !layer_part && !state.arp_mode && step_monophonic(*step);
  v.a=float(velocity)/127.0f;v.released=false;v.env=velocity?1:0;
- if(actual==Instrument::Chimera && velocity){
-  auto& pickup=chimera_pickups_[t];
-  const bool keep_score=step && !sing_pickup && pickup.started && pickup.serial==runtime_[t].step_serial &&
-                        pickup.pattern==runtime_[t].pattern && chimera_.owner()==t && chimera_.note()==v.note;
-  if(!sing_pickup)pickup.started=false;
-  chimera_.trigger(t,v.note,keep_score);
+ if(actual==Instrument::Chimera){
+  auto& dsp=chimeras_[v.shared_slot];
+  if(!reused)dsp.stop();
+  v.voice_score=score;v.score_before_step=anticipatory;
+  v.score_step=runtime_[t].step_serial+unsigned(anticipatory);
+  dsp.trigger(v.note,keep_score);
  }
  if(auto* dsp=plaits_dsp(t,v)){if(&v!=&voices_[t])dsp->seed(event_seed_for());dsp->set_model(model);dsp->set_note_float(float(v.note)+tuning+v.pitch_bend);for(unsigned i=0;i<5;++i)dsp->set_parameter(i,v.parameters[i]);dsp->trigger(uint8_t(velocity),live_poly || step!=nullptr);}
  if(actual==Instrument::DaisySynth){float adsr[4];for(unsigned i=0;i<4;++i)adsr[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::DaisySynth,i),engine_parameter_value(state,i),runtime_[t].active_locks,unsigned(runtime_[t].automation_cell),control_all_,control_all_id_,control_all_delta_,runtime_[t].automation_live,&gesture_overlay_,runtime_[t].pattern).value;v.daisy.set_adsr(adsr[0],adsr[1],adsr[2],adsr[3]);v.daisy.trigger(uint8_t(velocity));}
@@ -301,7 +340,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
   }else{r.cc_dirty=true;refresh_cc(t);}
  }
  if(v.instrument==unsigned(Instrument::ExternalMidi) && velocity) { bool audible=!suppressed_external;v.midi_note=audible && midi(uint8_t(0x90|v.channel),v.note,uint8_t(velocity));if(poly && audible && !v.midi_note){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;} }
- if(sing_pickup)return &v;
+ if(anticipatory){v.off_at=0;return &v;}
  capture_voice_on(v,t,velocity);
  if(step){uint64_t length=((runtime_[t].retrigger_period*step->gate)/(96*runtime_[t].retrigger_count))>>32;v.off_at=sample_count_+(length?length:1);}
  else if(kit_step && kit && (v.sample_mode==SampleMode::Gate || v.looping)){uint64_t length=(step_period(t)>>32)/kit_step->ratchet;v.off_at=sample_count_+(length?length:1);}
@@ -333,7 +372,8 @@ bool Engine::hold_for_slide(unsigned t,Voice& v){
 void Engine::trigger_step_chord(unsigned t,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees){
  if(!release_sequence(t))return;
  Instrument actual=step.sound<kPresetSlots?project_->sounds[step.sound].instrument:track(t).instrument;
- if(actual==Instrument::Chimera){
+ if(actual==Instrument::Chimera && chimera_voice_mode(step.sound<kPresetSlots?
+    project_->sounds[step.sound].chimera:track(t).chimera)!=ChimeraPoly){
   int last=note;
   for(uint8_t chord_note:step.chord)if(chord_note<128)last=bounded(int(track(t).root_note)+int(chord_note)+int(song_transpose_)-60,0,127);
   trigger(t,velocity,last,&step,nullptr,accumulator,degrees);

@@ -273,10 +273,10 @@ inline bool write_pseq_section(ChunkWriter<ChunkBuffer>& w,ConstTrackView t, con
 }
 // --- Engine payload (ENGN) -------------------------------------------------
 // Engine state adapters carry no ownership and perform no copies.
-inline EngineStateSource engine_state_source(ConstTrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera};}
-inline EngineStateSource engine_state_source(const SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera};}
-inline EngineStateView engine_state_view(TrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera};}
-inline EngineStateView engine_state_view(SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera};}
+inline EngineStateSource engine_state_source(ConstTrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera,&t.chimera_phrase};}
+inline EngineStateSource engine_state_source(const SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera,&s.chimera_phrase};}
+inline EngineStateView engine_state_view(TrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera,&t.chimera_phrase};}
+inline EngineStateView engine_state_view(SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera,&s.chimera_phrase};}
 inline bool write_engine_state(ChunkBuffer& out,Instrument instrument,const EngineStateSource& source,const PreservedTrackEntry* entry){
  ChunkWriter<ChunkBuffer> w(out);
  if(entry && !entry->engn.empty() && instrument==Instrument::Unknown)return w.block(entry->engn.data,entry->engn.size);
@@ -632,13 +632,14 @@ inline void preserve_engn(PreservedStore* store,PreservedTrackEntry* entry,const
 // Shared ENGN sub-chunk walk. The caller has already resolved the GUID
 // to `instrument` and reset nothing; field sinks are the track/sound
 // engine fields. Returns false when a known sub-chunk is malformed or
-// fails validation: the caller then applies the preserve+mute fallback.
-inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,PreservedStore* store,PreservedTrackEntry* entry,Instrument instrument){
+// fails validation. Obsolete CHIMERA banks reject the file outright.
+inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,PreservedStore* store,PreservedTrackEntry* entry,Instrument instrument,bool& obsolete){
  ChunkReader<ChunkSource> r(src);
  ChunkBuffer extras;bool extras_overflow=false,name_seen=false;unsigned seen=0;
  while(!src.at_end()){
   uint32_t kind;uint16_t version,flags;ChunkSource sub;
   if(!read_framed(r,kind,version,sub,&flags))return false;
+  if(instrument==Instrument::Chimera && kind==kChunkChimera && version==1){obsolete=true;return false;}
   bool handled=false;
   if(kind==kChunkName && version==1 && f.preset_name){if(name_seen || flags || sub.size>=96)return false;name_seen=true;for(unsigned i=0;i<sub.size;++i){unsigned c=sub.data[i];if(c<32 || c>126)return false;f.preset_name[i]=char(c);}f.preset_name[sub.size]=0;handled=true;}
   const auto* descriptor=engine_descriptor(unsigned(instrument));
@@ -661,10 +662,12 @@ inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,Prese
   if(extras_overflow){if(store)store->dropped_unknown=true;}
   else if(extras.size){if(entry->extra_sub.set(extras.data,extras.size))entry->extra_for=int32_t(instrument);}
  }
- const auto* descriptor=engine_descriptor(unsigned(instrument));return descriptor && (seen&descriptor->state.required)==descriptor->state.required;
+ const auto* descriptor=engine_descriptor(unsigned(instrument));
+ if(instrument==Instrument::Chimera && !(seen&2))obsolete=true;
+ return descriptor && (seen&descriptor->state.required)==descriptor->state.required;
 }
 inline bool track_engine_fields_valid(ConstTrackView t){
- if(!valid_layer(t.layer) || !valid_additive(t.additive) || !valid_phase_dist(t.phase_dist) || !valid_formant(t.formant) || !valid_granular(t.granular) || !valid_chimera(t.chimera) || !valid_soundfont(t.soundfont) || !valid_fm6(t.fm6) || !valid_virtual_analog(t.virtual_analog) || !valid_wavetable(t.wavetable) || !valid_texture(t.texture) || !valid_resonator(t.resonator) || t.plaits_model>=24 || t.sample_slot>=kSampleAssets || (t.frozen_asset!=255 && t.frozen_asset>=kSampleAssets))return false;
+ if(!valid_layer(t.layer) || !valid_additive(t.additive) || !valid_phase_dist(t.phase_dist) || !valid_formant(t.formant) || !valid_granular(t.granular) || !valid_chimera(t.chimera) || !valid_chimera_ipa(t.chimera_phrase) || !valid_soundfont(t.soundfont) || !valid_fm6(t.fm6) || !valid_virtual_analog(t.virtual_analog) || !valid_wavetable(t.wavetable) || !valid_texture(t.texture) || !valid_resonator(t.resonator) || t.plaits_model>=24 || t.sample_slot>=kSampleAssets || (t.frozen_asset!=255 && t.frozen_asset>=kSampleAssets))return false;
  for(float v:t.engine_parameters)if(!(v>=0 && v<=1))return false;
  if(!valid_sample_edit(t.sample_edit)||!valid_creative(t.creative))return false;
  if(t.instrument==Instrument::DrumKit && !valid_drum_kit(t.kit))return false;
@@ -673,8 +676,7 @@ inline bool track_engine_fields_valid(ConstTrackView t){
 inline bool sound_engine_fields_valid(const SoundState& s){return valid_sound(s);}
 // Parse one ENGN payload into a track. Structural ENGN problems and
 // invalid engine payloads fall back to preserve+mute for this track
-// only (SPEC 2.9); the function itself only fails on OOM-free paths —
-// it always returns true so one engine can never reject the project.
+// (SPEC 2.9). The CHIMERA revision boundary is an explicit version error.
 inline bool parse_track_engn(ChunkSource& src,TrackView t,PreservedStore* store,PreservedTrackEntry* entry){
  const uint8_t* raw=src.data;uint32_t raw_size=src.size;
  ChunkReader<ChunkSource> r(src);
@@ -694,7 +696,9 @@ inline bool parse_track_engn(ChunkSource& src,TrackView t,PreservedStore* store,
  t.instrument=instrument;
  const auto f=engine_state_view(t);
  ChunkSource rest;rest.data=src.data+src.pos;rest.size=src.size-src.pos;
- if(!parse_engn_subchunks(rest,f,store,entry,instrument) || !track_engine_fields_valid(t)){
+ bool obsolete=false;
+ if(!parse_engn_subchunks(rest,f,store,entry,instrument,obsolete) || !track_engine_fields_valid(t)){
+  if(obsolete)return false;
   reset_track_engine_fields(t);t.instrument=Instrument::Unknown;
   if(entry)entry->extra_sub.clear(),entry->extra_for=-1;
   preserve_engn(store,entry,raw,raw_size);
@@ -720,7 +724,9 @@ inline bool parse_sound_engn(ChunkSource& src,SoundState& s,PreservedStore* stor
  s.instrument=instrument;
  const auto f=engine_state_view(s);
  ChunkSource rest;rest.data=src.data+src.pos;rest.size=src.size-src.pos;
- if(!parse_engn_subchunks(rest,f,store,entry,instrument) || !sound_engine_fields_valid(s)){
+ bool obsolete=false;
+ if(!parse_engn_subchunks(rest,f,store,entry,instrument,obsolete) || !sound_engine_fields_valid(s)){
+  if(obsolete)return false;
   reset_sound_engine_fields(s);s.instrument=Instrument::Unknown;
   if(entry)entry->extra_sub.clear(),entry->extra_for=-1;
   preserve_engn(store,entry,raw,raw_size);

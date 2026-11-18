@@ -46,7 +46,7 @@ inline void bind_engine_values(const EngineParameterTable& table,const float* va
  }
 }
 using EngineVoiceBinding=void (*)(const EngineParameterTable&,const float*,unsigned,const EngineVoiceTargets&);
-enum class VoiceResource:uint8_t { None, Plaits, Granular, Count };
+enum class VoiceResource:uint8_t { None, Plaits, Granular, Chimera, Count };
 struct EnginePolyphony {uint8_t voices=1;bool live=false;uint8_t shared_slots=0,shared_budget=0;const uint8_t* model_cost=nullptr;VoiceResource resource=VoiceResource::None;uint8_t model_count=0,base_cost=1;bool independent_voices=true;bool triggered_leaf=false;};
 // Keep an independently supported per-track voice count while recalibrating
 // its weighted cost. Shared/model budgets are deliberately separate.
@@ -94,11 +94,11 @@ inline EngineParameterDeclaration soundfont_declaration(unsigned local){const au
 inline EngineParameterDeclaration fm6_declaration(unsigned local){const auto& p=kFm6Parameters[local];return {p,0,EngineDisplay::Native,nullptr,0,EngineValueTarget::Fm6,uint8_t(local),{local<5?EngineEditTier::Performance:EngineEditTier::Detail,declared_parameter_type(p),local>=5 && local<17?"Operators":"Patch"}};}
 inline EngineParameterDeclaration chimera_declaration(unsigned local){
  const auto& p=kChimeraDetails[local-kChimeraMacroCount];
- const bool body=local==ChimeraBody,mode=local==ChimeraProgram,species=local==ChimeraSpecies;
- const uint8_t choices=body?3:mode?sizeof kChimeraPrograms/sizeof *kChimeraPrograms:species?4:0;
- return {p,0,EngineDisplay::Native,body?kChimeraBodies:mode?kChimeraPrograms:species?kChimeraSpecies:nullptr,choices,
+ const bool body=local==ChimeraBody,mode=local==ChimeraProgram,species=local==ChimeraSpecies,voice=local==ChimeraVoiceMode;
+ const uint8_t choices=body?3:mode?sizeof kChimeraPrograms/sizeof *kChimeraPrograms:species?4:voice?3:0;
+ return {p,0,EngineDisplay::Native,body?kChimeraBodies:mode?kChimeraPrograms:species?kChimeraSpecies:voice?kChimeraVoiceModes:nullptr,choices,
     EngineValueTarget::Chimera,uint8_t(local-kChimeraMacroCount),
-    {EngineEditTier::Detail,declared_parameter_type(p,choices),local<ChimeraTipX || mode || species?"Voice":"Articulation"}};
+    {EngineEditTier::Detail,declared_parameter_type(p,choices),local<ChimeraTipX || mode || species || voice?"Voice":"Articulation"}};
 }
 inline const EngineDescriptor* engine_descriptor(unsigned id){
  using D=EngineDisplay;
@@ -112,7 +112,7 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   chimera_declaration(ChimeraRoot),chimera_declaration(ChimeraLipAperture),chimera_declaration(ChimeraLipProtrusion),
   chimera_declaration(ChimeraLipWidth),chimera_declaration(ChimeraLabiodental),chimera_declaration(ChimeraVelum),
   chimera_declaration(ChimeraLarynx),chimera_declaration(ChimeraEpilarynx),chimera_declaration(ChimeraVentricular),
-  chimera_declaration(ChimeraLateral),chimera_declaration(ChimeraDorsum),chimera_declaration(ChimeraProgram),chimera_declaration(ChimeraSpecies)};
+  chimera_declaration(ChimeraLateral),chimera_declaration(ChimeraDorsum),chimera_declaration(ChimeraProgram),chimera_declaration(ChimeraSpecies),chimera_declaration(ChimeraVoiceMode)};
  static const EngineParameterDeclaration parameters_layer[]={layer_declaration(0),layer_declaration(1),layer_declaration(2),layer_declaration(3),layer_declaration(4),layer_declaration(5),layer_declaration(6),layer_declaration(7),layer_declaration(8),layer_declaration(9),layer_declaration(10),layer_declaration(11)};
  static const EngineParameterDeclaration parameters_additive[]={additive_declaration(0),additive_declaration(1),additive_declaration(2),additive_declaration(3),additive_declaration(4),additive_declaration(5),additive_declaration(6),additive_declaration(7),additive_declaration(8),additive_declaration(9),additive_declaration(10),additive_declaration(11),additive_declaration(12),additive_declaration(13),additive_declaration(14),additive_declaration(15),additive_declaration(16),additive_declaration(17),additive_declaration(18),additive_declaration(19),additive_declaration(20),additive_declaration(21),additive_declaration(22),additive_declaration(23),additive_declaration(24)};
  static const EngineParameterDeclaration parameters_phase_dist[]={phase_dist_declaration(0),phase_dist_declaration(1),phase_dist_declaration(2),phase_dist_declaration(3),phase_dist_declaration(4),phase_dist_declaration(5),phase_dist_declaration(6),phase_dist_declaration(7),phase_dist_declaration(8)};
@@ -175,7 +175,7 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   {{Instrument::Granular,"GRANULAR",true,0,"SAMPLER",3,EnvelopeEditable},{"mk3.granular",false,false,false,true,EngineAssetMode::Sample},{HeroVisual::Scope,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_granular,kGranularParameterCount},{32,true,4,32,nullptr,VoiceResource::Granular,0,8},granular_state_contract()},
   {{Instrument::Chimera,"CHIMERA",true,5,"PHYSICAL",3,EnvelopeNone},{"mk3.chimera",false,false,false,true},
    {HeroVisual::VocalTract,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(1),track_control(2),track_control(0)}},
-   {parameters_chimera,kChimeraParameterCount},{1,false,0,0,nullptr,VoiceResource::None,0,1,false},chimera_state_contract()},
+   {parameters_chimera,kChimeraParameterCount},{4,true,2,4,kChimeraModelCosts,VoiceResource::Chimera,7,2,true},chimera_state_contract()},
  };
  return id<sizeof registry/sizeof registry[0]?&registry[id]:nullptr;
 }

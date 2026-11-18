@@ -447,6 +447,8 @@ MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります
 
 ![A/B MORPH](manual/perform.png)
 ![MACROS](manual/macros.png)
+K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定です。LIVE FX を離れると、パッドでラッチしたエフェクトが解除されます。
+
 ![LIVE FX](manual/live-fx.png)
 ![GESTURE](manual/gesture.png)
 
@@ -845,23 +847,25 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 
 ### CHIMERA の声道を演奏する
 
-**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で全トラックが1声を共有します。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。最後のノートが優先され、CHORD の同時入力では最後の1音が鳴ります。ゲートが続く間は設定したグライドで音程をつなぎます。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
+**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で発音し、CHIMERA の各トラックと LAYER の子音色でボイスを共有します。上限は Pi 4 で2声、Pi 5 で3声です。同時に使える声数はモデルごとの DSP コストにもよります。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
 
 - **GENERATOR** の K1〜K5 は従来どおり TONGUE X、TONGUE Y、JAW、LIP ROUND、BREATH です。
 - **ARTICULATION**（Top3）は2ページです。同じボタンで切り替え、舌先の位置と反り、舌根、唇、唇と歯の接触、軟口蓋、喉頭、喉頭蓋側、仮声帯、舌の側面と背面を調整します。
 - **VOICE**（Top4）では BODY（成人男性・成人女性・子ども）、ビブラートの深さと速さ、グライド、圧力、息漏れ、MODE、SPECIES を設定します。圧力と息漏れは BREATH への追加調整です。ボディと詳細設定は音色に保存します。ボディ切替時はいったん消音し、声道を作り直します。
 
-VOICE の K7 **MODE** で次の演奏を切り替えます。
+**VOICE → SHIFT+K8 VOICE MODE** で **POLY**（初期値）、**MONO**（最後に押したノートを優先）、**LEGATO**（最後のノートを優先し、ゲート継続中はグライド）を選びます。
+
+VOICE の K7 **MODE** で次の演奏を切り替えます。MODE、SPECIES、VOICE MODE は音色の設定として保存され、VOICE から編集できます。
 
 - **PLAY** は音程を持つ声道シンセです。
 - **BEATBOX** は半音4つごとにキック、スネア、クローズドハイハット、オープンハイハットです。C4〜D♯4 がその順で鳴ります。クロマチックの KEYBOARD パッドで弾くか、STEP に同じノートを入力します。STEP のスウィングとクロック設定が使えます。
 - **SPEAK** はノート番号に割り当てた IPA フレーズを一定の速さで発話します。
-- **SING** は同じ割り当てを使い、STEP の発音位置に最初の母音ターゲットを合わせます。前に再生時間があるときは子音が先行し、そのステップから再生を始めた場合は母音から入ります。音程はノート、発音時刻はテンポに従います。子音が前のノートに重なる場合は新しいノートが優先されます。
+- **SING** は同じ割り当てを使い、STEP の発音位置に最初の母音ターゲットを合わせます。前に再生時間があるときは子音が先行し、そのステップから再生を始めた場合は母音から入ります。音程はノート、発音時刻はテンポに従います。同じ音程・同じフレーズのステップが続くと、歌唱中のフレーズはそのまま進みます。
 - **BESTIARY** は VOICE の K8 **SPECIES** で鳴禽、アザラシ、アリゲーター、ゾウを選びます。GENERATOR のノブは種ごとの音を調整し、右画面に各モデルの気道断面と空気圧を表示します。
 
 #### Speak／Sing のファイルを取り込む
 
-[USB ファイル CLI](reference/usb-files.md)で、UTF-8 の `.ipa` ファイルを転送します。CHIMERA のトラックを選択し、**FILE → ASSETS → SPEECH** でファイルを選び、Top4 **LOAD** を押します。そのトラックの **VOICE → MODE** を **SPEAK** または **SING** に切り替えます。調音スコアは再生前に生成され、割り当てはソングに保存されます。停止中に MODULATION → MIDI → SHIFT+K8 で再生位置を変更するか、MIDI Song Position Pointer で途中から再生できます。
+[USB ファイル CLI](reference/usb-files.md)で、UTF-8 の `.ipa` ファイルを転送します。CHIMERA のトラックを選択し、**FILE → ASSETS → SPEECH** でファイルを選び、Top4 **LOAD** を押します。そのトラックの **VOICE → MODE** を **SPEAK** または **SING** に切り替えます。調音スコアは再生前に生成され、トラックへの割り当てはソングに保存されます。トラックを SOUND プールや .mgxp プリセットに保存すると、フレーズを別のトラックやソング、ステップの SOUND 参照、LAYER の子音色に持ち運べます。トラックに割り当てた IPA がある場合は SOUND のフレーズより優先します。0.9.6 の CHIMERA 音色を含むデータは旧形式のため、作り直してください。停止中に MODULATION → MIDI → SHIFT+K8 で再生位置を変更するか、MIDI Song Position Pointer で途中から再生できます。
 
 各行は MIDI ノート番号（0〜127）、タブ1文字、IPA フレーズです。1ファイルは最大8件、各フレーズ16記号、全体1024バイトです。Sing では `1/2` と書くとパターン1のステップ2に割り当てられ、そのステップではノート番号より優先します。空行と `#` から始まる行は読み飛ばし、スペースと `.` は短い間になります。対応記号は `a ɑ i u ɯ e o ə ɛ æ ɔ ɪ ʊ ɐ ʌ p b m t d n ɾ l k ɡ g ŋ s z ʃ ʒ f v h ç x w j` です。非対応の記号があればファイルを拒否します。次の例では番号とフレーズの間にタブを入れます。
 
