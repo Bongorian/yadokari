@@ -305,6 +305,46 @@ int main(){
  {StereoSafetyLimiter lim(48000);float l=2,r=1;bool invalid=false;float gain=lim.process(l,r,invalid);assert(!invalid && std::fabs(l-0.98f)<0.00001f && std::fabs(r-0.49f)<0.00001f && gain<0.5f);l=std::numeric_limits<float>::quiet_NaN();r=0.1f;lim.process(l,r,invalid);assert(invalid && l==0 && std::isfinite(r));
   auto p=std::make_unique<ProjectState>();p->routing.main=p->routing.cue=p->routing.monitor=1;p->routing.monitor_bus=3;p->routing.capture_bus=2;auto e=std::make_unique<Engine>();assert(e->stage_project(*p));float in[256],main[256],cue[256],captured[256];for(unsigned i=0;i<128;++i){in[2*i]=1;in[2*i+1]=0.5f;}e->render_ports(main,cue,in,128);AudioVisualFrame limited;assert(e->pop_visual(limited) && limited.limiter_main>0.01f && limited.limiter_cue>0.01f);for(unsigned i=0;i<128;++i){assert(std::fabs(main[2*i]-0.98f)<0.00001f && std::fabs(cue[2*i]-0.98f)<0.00001f);assert(std::fabs(main[2*i+1]-0.49f)<0.00001f && std::fabs(cue[2*i+1]-0.49f)<0.00001f);}assert(e->request_capture());e->render_ports(main,cue,nullptr,0);assert(e->copy_capture(captured,128)==128);for(unsigned i=0;i<256;++i)assert(std::fabs(captured[i]-cue[i])<0.00001f);
  }
+ // Unsupported system traffic is consumed without reaching the engine.
+ {
+  auto project=std::make_unique<ProjectState>();
+  project->midi_input_route[0]=0;
+  track_at(*project,0,0).instrument=Instrument::ExternalMidi;
+  auto engine=std::make_unique<Engine>();
+  MidiInputRouter router;
+  assert(engine->stage_project(*project));
+  float audio[2]{};
+  engine->render(audio,0);
+
+  const MidiPacket ignored[]={
+   {0,0,1,{0xfe}},                  // Active Sensing
+   {0,0,1,{0xff}},                  // System Reset
+   {0,0,3,{0xf0,0x7d,0x01}},       // SysEx start
+   {0,0,3,{0x02,0x03,0x04}},       // SysEx continuation
+   {0,0,2,{0x05,0xf7}},            // SysEx end
+   {0,0,2,{0xf1,0x12}},            // MTC quarter frame
+   {0,0,2,{0xf3,0x05}},            // Song Select
+   {0,0,1,{0xf6}},                  // Tune Request
+  };
+  const auto free=engine->command_space();
+  for(const auto& packet:ignored){
+   assert(router.accept(*engine,*project,packet));
+   assert(engine->command_space()==free);
+  }
+  assert(!router.accept(*engine,*project,{0,0,2,{0x90,60}}));
+  assert(router.accept(*engine,*project,{0,0,3,{0x90,60,100}}));
+  engine->render(audio,1);
+  MidiEvent event;
+  assert(engine->pop_midi(event) && event.bytes[0]==0x90 && event.bytes[1]==60 && event.bytes[2]==100);
+
+  const MidiPacket transport[]={
+   {0,0,3,{0xf2,4,0}}, {0,0,1,{0xf8}}, {0,0,1,{0xfa}}, {0,0,1,{0xfb}}, {0,0,1,{0xfc}},
+  };
+  for(const auto& packet:transport){
+   const auto before=engine->command_space();
+   assert(router.accept(*engine,*project,packet) && engine->command_space()==before-1);
+  }
+ }
  // MIDI input routing follows input channel; held notes retain their original
  // destination after mapping changes. Note Off retries after command pressure.
  {auto p=std::make_unique<ProjectState>();track_at(*p,0,3).instrument=Instrument::ExternalMidi;track_at(*p,0,3).midi_channel=3;track_at(*p,0,5).instrument=Instrument::ExternalMidi;track_at(*p,0,5).midi_channel=5;auto e=std::make_unique<Engine>();assert(e->stage_project(*p));Performance u(*e,*p);auto route=std::make_unique<MidiInputRouter>();float a[2]{};e->render(a,0);u.set_mode(UiMode::Modulation);assert(u.soft_key(3));u.set_shift(true);assert(u.knob(0,1000)&&u.knob(1,-12000));u.set_shift(false);assert(p->midi_input_route[1]==3);e->render(a,0);MidiPacket on{0,0,3,{0x91,60,100}};assert(route->accept(*e,*p,on));e->render(a,1);MidiEvent m;bool saw=false;while(e->pop_midi(m))saw|=m.bytes[0]==0x93 && m.bytes[1]==60 && m.bytes[2];assert(saw);u.set_shift(true);assert(u.knob(1,2000));u.set_shift(false);assert(p->midi_input_route[1]==5);e->render(a,0);

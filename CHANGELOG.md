@@ -4,6 +4,14 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 0.9.5
+
+- Consume unsupported MIDI input messages such as Active Sensing, System
+  Reset, and SysEx without interrupting the input queue. Thanks to @tandooridog.
+- Align slave playback to the first measured MIDI clock interval so it starts
+  in sync even when the saved project tempo differs. Thanks to @tandooridog
+  for the fix and the independent timing test.
+
 ## 0.9.4 — 2026-11-18
 
 - Added CHIMERA, a monophonic physical vocal-tract synthesizer. The right
