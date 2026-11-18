@@ -157,7 +157,31 @@ static void test_dense_events(){
   (unsigned long long)instant.counts.invalidated,(unsigned long long)instant.counts.replayed_samples,
   (unsigned long long)instant.counts.adopted_samples,(unsigned long long)instant.counts.mismatch);
  assert(instant.counts.mismatch==0);
- std::puts("dense events: invalidation/replay paths keep bit-identity");
+ std::puts("dense events: assisted render keeps bit-identity");
+}
+
+static void test_release_inside_adopted_subblock(){
+ auto project=std::make_unique<ProjectState>();
+ make_empty_project(*project);project->tracks[0].instrument=Instrument::Additive;
+ auto run=[&](RenderBundleSlot* helper,float* pcm){
+  auto engine=std::make_unique<Engine>(48000);
+  engine->set_bundle_helper(helper);
+  assert(engine->stage_project(*project));
+  engine->render(pcm,0);
+  assert(engine->submit({CommandType::Trigger,0,0,100}));
+  engine->render(pcm,24);engine->render(pcm+48,24);
+  if(helper)while(helper->process_one()){}
+  engine->render(pcm+96,5);
+  assert(engine->submit({CommandType::NoteOff,0,0,0}));
+  engine->render(pcm+106,24);
+  return engine->bundle_counts();
+ };
+ float serial[154]{},assisted[154]{};
+ run(nullptr,serial);
+ RenderBundleSlot slot;slot.set_render(&render_bundle_job);slot.worker_ready();
+ const auto counts=run(&slot,assisted);
+ assert(counts.invalidated==1 && counts.replayed_samples==5);
+ assert(std::memcmp(serial,assisted,sizeof serial)==0);
 }
 
 static void test_heavy_timing(){
@@ -176,11 +200,47 @@ static void test_heavy_timing(){
  std::puts("heavy timing: threaded render is bit-identical (times above)");
 }
 
+static std::atomic<bool> worker_entered{false}, finish_job{false};
+
+static bool complete_on_signal(RenderBundleJob&){
+ worker_entered.store(true,std::memory_order_release);
+ while(!finish_job.load(std::memory_order_acquire))std::this_thread::yield();
+ return false;
+}
+
+static void test_retirement_racing_completion(){
+ RenderBundleSlot slot;
+ slot.set_render(&complete_on_signal);
+ std::atomic<bool> ready{false},stop{false};
+ std::thread worker([&]{
+  slot.worker_ready();
+  ready.store(true,std::memory_order_release);
+  while(!stop.load(std::memory_order_acquire))if(!slot.process_one())std::this_thread::yield();
+ });
+ while(!ready.load(std::memory_order_acquire))std::this_thread::yield();
+ for(unsigned i=0;i<100000;++i){
+  auto* job=slot.claim();assert(job && slot.index(*job)==0);
+  worker_entered.store(false,std::memory_order_relaxed);
+  finish_job.store(false,std::memory_order_relaxed);
+  slot.publish(*job);
+  while(!worker_entered.load(std::memory_order_acquire))std::this_thread::yield();
+  finish_job.store(true,std::memory_order_release);
+  slot.retire(*job);
+  unsigned state;
+  do {state=__atomic_load_n(&job->state,__ATOMIC_ACQUIRE);} while(state==RenderBundleSlot::Dead);
+  assert(state==RenderBundleSlot::Empty);
+ }
+ stop.store(true,std::memory_order_release);
+ worker.join();
+}
+
 int main(){
+ test_retirement_racing_completion();
  std::printf("sizeof RenderBundleJob %zu, slot %zu\n",sizeof(RenderBundleJob),sizeof(RenderBundleSlot));
  test_identity();
  test_no_worker_still_canonical();
  test_dense_events();
+ test_release_inside_adopted_subblock();
  test_heavy_timing();
  std::puts("Render Bundle: all W2 host checks passed");
 }

@@ -13,11 +13,17 @@ parser.add_argument('--factory', required=True, type=Path)
 parser.add_argument('--recovery', required=True, type=Path)
 parser.add_argument('--boot-files', required=True, type=Path)
 parser.add_argument('--version', type=int, required=True)
+parser.add_argument('--board', choices=('pi4', 'pi5'), default='pi4',
+                    help='Board matching both kernel images; default: pi4')
 parser.add_argument('--data-mib', type=int, default=1024, help='Protected DATA capacity; 64..32768 MiB')
 parser.add_argument('--offline-package', type=Path)
 parser.add_argument('--early-pi4-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi4 rev1.0/1.1; does not change EEPROM')
-parser.add_argument('--remote-control', action='store_true', help='Enable physically connected UART update commands on this new image')
+parser.add_argument('--early-pi5-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi 5 PCB rev 1.0; does not change EEPROM')
+parser.add_argument('--remote-control', action='store_true', help='Enable USB-C update control on this new image')
 args = parser.parse_args()
+if (args.early_pi4_eeprom_writable and args.board != 'pi4' or
+        args.early_pi5_eeprom_writable and args.board != 'pi5'):
+    parser.error('EEPROM acknowledgement must match the selected board')
 if not 64 <= args.data_mib <= 32768:
     parser.error('DATA capacity must be 64..32768 MiB for FAT32')
 if args.output.exists() or str(args.output.resolve()).startswith('/dev/'):
@@ -29,7 +35,11 @@ factory_version, factory_key, factory_kind = identity(args.factory.read_bytes())
 _, recovery_key, recovery_kind = identity(args.recovery.read_bytes())
 if factory_version != args.version or factory_kind != 1 or recovery_kind != 2 or factory_key != recovery_key or not any(factory_key):
     parser.error('Factory version, app/recovery identities, and nonzero trusted public keys must match')
-boot_files = ['start4.elf', 'fixup4.dat', 'bcm2711-rpi-4-b.dtb', 'armstub8-rpi4.bin', 'LICENCE.broadcom', 'COPYING.linux']
+board_files = {
+    'pi4': ['start4.elf', 'fixup4.dat', 'bcm2711-rpi-4-b.dtb', 'armstub8-rpi4.bin'],
+    'pi5': ['bcm2712-rpi-5-b.dtb', 'overlays/bcm2712d0.dtbo'],
+}
+boot_files = board_files[args.board] + ['LICENCE.broadcom', 'COPYING.linux']
 for name in boot_files + ['config.txt']:
     if not (args.boot_files / name).is_file():
         parser.error('Missing boot file: ' + name)
@@ -62,7 +72,7 @@ with tempfile.TemporaryDirectory() as temp:
     autoboot = staging / 'autoboot.txt'
     autoboot.write_text('[all]\ntryboot_a_b=1\nboot_partition=1\n')
     put(0, 'autoboot.txt', autoboot)
-    if args.early_pi4_eeprom_writable:
+    if args.early_pi4_eeprom_writable or args.early_pi5_eeprom_writable:
         acknowledgement = staging / 'EEPROM.OK'
         acknowledgement.write_text('Operator acknowledged EEPROM write protection is disabled\n')
         put(0, 'EEPROM.OK', acknowledgement)
@@ -86,6 +96,6 @@ with tempfile.TemporaryDirectory() as temp:
         put(3, 'RECOVERY.ON', marker)
     if args.remote_control:
         marker = staging / 'REMOTE.ON'
-        marker.write_text('Enable physical UART update control; access to UART can stop and reboot this device.\n')
+        marker.write_text('Enable USB-C update control. Physical access can stop and reboot this device.\n')
         put(3, 'REMOTE.ON', marker)
 print('Created', args.output, '(recovery + A + B + protected data). Physical boot remains unverified.')

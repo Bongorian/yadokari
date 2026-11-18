@@ -10,7 +10,7 @@ enum EnvelopeKind : uint8_t { EnvelopeNone=0, EnvelopeFixed=1, EnvelopeEditable=
 struct InstrumentDescriptor {Instrument id;const char* name;bool requires_48k;unsigned macro_controls=0;const char* family="SYNTH";uint8_t cpu_class=1,envelope=EnvelopeNone;};
 enum class EngineAssetMode:uint8_t {None,Sample,Kit,OptionalSample,WaveRing,SoundFont};
 struct EngineGuidInfo {const char* guid;bool uses_sampler,uses_creative,uses_kit,implemented;EngineAssetMode assets=EngineAssetMode::None;};
-enum class HeroVisual : uint8_t { None, Scope, Harmonics, WavetableScan, Lanes, Clock, Reel, Fold, Spectrum, FlowFM, FilterAcid, SawFilter, PlaitsModel, Waveform, MidiInfo, Resonator, Texture, Oscillators };
+enum class HeroVisual : uint8_t { None, Scope, Harmonics, WavetableScan, Lanes, Clock, Reel, Fold, Spectrum, FlowFM, FilterAcid, SawFilter, PlaitsModel, Waveform, MidiInfo, Resonator, Texture, Oscillators, VocalTract };
 enum class LabTail : uint8_t { None, SampleSlot, Tune, Fold };
 enum class ShapeKind : uint8_t { None, Envelope, Lpg, FolderCurve, FixedCurve };
 enum class EngineParameterScope:uint8_t { None, Track, Engine };
@@ -54,6 +54,7 @@ constexpr EnginePolyphony calibrated_polyphony(EnginePolyphony p,unsigned cost){
 constexpr EnginePolyphony triggered_leaf_polyphony(EnginePolyphony p){p.triggered_leaf=true;return p;}
 inline VisualDeclaration engine_visual(HeroVisual hero){
  switch(hero){case HeroVisual::None:case HeroVisual::MidiInfo:return {VisualElement::None,VisualSource::None,VisualCadence::Static,VisualFallback::Empty,ResponseModel::None,"CONTROL / NO PCM"};
+ case HeroVisual::VocalTract:return {VisualElement::None,VisualSource::None,VisualCadence::Audio,VisualFallback::Empty,ResponseModel::None,"VOCAL TRACT"};
  case HeroVisual::Waveform:return kSampleVisual;
  case HeroVisual::FlowFM:return {VisualElement::Scope,VisualSource::TrackPcm,VisualCadence::Audio,VisualFallback::Parameters,ResponseModel::None,"TRACK POST FADER",VisualStatus::None,VisualRecipe::Fm2};
  case HeroVisual::Oscillators:return {VisualElement::Scope,VisualSource::TrackPcm,VisualCadence::Audio,VisualFallback::Parameters,ResponseModel::None,"TRACK POST FADER",VisualStatus::None,VisualRecipe::Oscillators};
@@ -93,6 +94,10 @@ inline EngineParameterDeclaration soundfont_declaration(unsigned local){const au
 inline EngineParameterDeclaration fm6_declaration(unsigned local){const auto& p=kFm6Parameters[local];return {p,0,EngineDisplay::Native,nullptr,0,EngineValueTarget::Fm6,uint8_t(local),{local<5?EngineEditTier::Performance:EngineEditTier::Detail,declared_parameter_type(p),local>=5 && local<17?"Operators":"Patch"}};}
 inline const EngineDescriptor* engine_descriptor(unsigned id){
  using D=EngineDisplay;
+ static const EngineParameterDeclaration parameters_chimera[]={
+  engine_macro_declaration(0,"TONGUE X",D::Percent),engine_macro_declaration(1,"TONGUE Y",D::Percent),
+  engine_macro_declaration(2,"JAW",D::Percent),engine_macro_declaration(3,"LIP ROUND",D::Percent),
+  engine_macro_declaration(4,"BREATH",D::Percent)};
  static const EngineParameterDeclaration parameters_layer[]={layer_declaration(0),layer_declaration(1),layer_declaration(2),layer_declaration(3),layer_declaration(4),layer_declaration(5),layer_declaration(6),layer_declaration(7),layer_declaration(8),layer_declaration(9),layer_declaration(10),layer_declaration(11)};
  static const EngineParameterDeclaration parameters_additive[]={additive_declaration(0),additive_declaration(1),additive_declaration(2),additive_declaration(3),additive_declaration(4),additive_declaration(5),additive_declaration(6),additive_declaration(7),additive_declaration(8),additive_declaration(9),additive_declaration(10),additive_declaration(11),additive_declaration(12),additive_declaration(13),additive_declaration(14),additive_declaration(15),additive_declaration(16),additive_declaration(17),additive_declaration(18),additive_declaration(19),additive_declaration(20),additive_declaration(21),additive_declaration(22),additive_declaration(23),additive_declaration(24)};
  static const EngineParameterDeclaration parameters_phase_dist[]={phase_dist_declaration(0),phase_dist_declaration(1),phase_dist_declaration(2),phase_dist_declaration(3),phase_dist_declaration(4),phase_dist_declaration(5),phase_dist_declaration(6),phase_dist_declaration(7),phase_dist_declaration(8)};
@@ -153,6 +158,9 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   {{Instrument::Layer,"LAYER",false,0,"SYNTH",3,EnvelopeNone},{"mk3.layer",false,false,false,true},{HeroVisual::Scope,ShapeKind::None,{}},{parameters_layer,12},{4,true,0,0,nullptr},layer_state_contract()},
   {{Instrument::Formant,"FORMANT",false,0,"SYNTH",2,EnvelopeEditable},{"mk3.formant",false,false,false,true},{HeroVisual::Scope,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_formant,9},{8,true,0,0,nullptr,VoiceResource::None,0,1},formant_state_contract()},
   {{Instrument::Granular,"GRANULAR",true,0,"SAMPLER",3,EnvelopeEditable},{"mk3.granular",false,false,false,true,EngineAssetMode::Sample},{HeroVisual::Scope,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_granular,kGranularParameterCount},{32,true,4,32,nullptr,VoiceResource::Granular,0,8},granular_state_contract()},
+  {{Instrument::Chimera,"CHIMERA",true,5,"PHYSICAL",3,EnvelopeNone},{"mk3.chimera",false,false,false,true},
+   {HeroVisual::VocalTract,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(1),track_control(2),track_control(0)}},
+   {parameters_chimera,5},{1,false,0,0,nullptr,VoiceResource::None,0,1,false},engine_state_contract(RequireParameters)},
  };
  return id<sizeof registry/sizeof registry[0]?&registry[id]:nullptr;
 }

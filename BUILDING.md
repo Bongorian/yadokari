@@ -14,6 +14,7 @@ container definition).
 
 ```sh
 sudo apt install <packages from the lock file / container definition>
+rustup toolchain install 1.100.0 --profile minimal --target aarch64-unknown-none
 make test               # host test suite (no hardware needed)
 make simulator          # PC virtual MK3 (needs SDL2)
 scripts/build-firmware.sh   # firmware: fetches Circle at a pinned

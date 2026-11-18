@@ -72,5 +72,8 @@ RUN set -e; \
     tar -xJf /tmp/arm.tar.xz -C /opt/arm-gnu-toolchain --strip-components=1; \
     rm /tmp/arm.tar.xz
 
-ENV PATH=/opt/arm-gnu-toolchain/bin:$PATH
+ENV CARGO_HOME=/opt/cargo RUSTUP_HOME=/opt/rustup
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://sh.rustup.rs \
+ | sh -s -- -y --no-modify-path --profile minimal --default-toolchain 1.100.0 --target aarch64-unknown-none
+ENV PATH=/opt/cargo/bin:/opt/arm-gnu-toolchain/bin:$PATH
 WORKDIR /src

@@ -9,7 +9,16 @@
 using namespace groove;
 static uint64_t roi(const ui::Widgets& w,unsigned side){uint64_t h=1469598103934665603ull;for(int y=80;y<244;++y)for(int x=20;x<460;++x)h=(h^w.pixels[side][y*480+x])*1099511628211ull;return h;}
 int main(){
- for(unsigned i=0;i<instrument_count();++i){const auto* d=engine_descriptor(i);assert(d && d->visual.caption && unsigned(d->visual.element)<=unsigned(VisualElement::Response));if(d->page.hero!=HeroVisual::None && d->page.hero!=HeroVisual::MidiInfo)assert(d->visual.element!=VisualElement::None);}
+ for(unsigned i=0;i<instrument_count();++i){
+  const auto* d=engine_descriptor(i);assert(d && d->visual.caption && unsigned(d->visual.element)<=unsigned(VisualElement::Response));
+  auto hero=d->page.hero;
+  if(hero==HeroVisual::VocalTract){
+   // Renderer geometry is covered by chimera_engine_test.
+   assert(i==unsigned(Instrument::Chimera) && d->visual.element==VisualElement::None && d->visual.cadence==VisualCadence::Audio);
+  }else if(hero!=HeroVisual::None && hero!=HeroVisual::MidiInfo){
+   assert(d->visual.element!=VisualElement::None);
+  }
+ }
  for(unsigned i=0;i<kFxCount;++i){const auto* d=fx_descriptor(i);assert(d && d->visual.caption && d->visual.element!=VisualElement::None);}assert(!fx_descriptor(kFxCount));
  ui::VisualMotion motion;VisualData d;d.available=d.live=true;d.count=2;d.values[1]=1;d.phase=d.position=.1f;
  motion.update(1,1,0,d,true);d.phase=d.position=.9f;motion.update(1,2,10,d,true);auto middle=motion.update(1,2,35,d,true);assert(fabsf(middle.phase-.5f)<.001f);motion.update(1,2,60,d,true);assert(!motion.active(60));motion.update(1,3,70,d,true);assert(!motion.active(70));

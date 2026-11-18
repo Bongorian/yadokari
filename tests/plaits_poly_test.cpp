@@ -54,5 +54,21 @@ int main(){
  // UI exposes the model limit, rather than the old mono warning.
  assert(instrument_voice_limit(Instrument::PlaitsMacro,2)==2 && instrument_voice_limit(Instrument::PlaitsMacro,8)==2);
  Performance ui(*e,*p);ui.set_mode(UiMode::Chord);assert(ui.pad(12,0x10,4095));render(*e,24);assert(ui.pad(12,0x20,0));render(*e,7200);assert(e->poly_owner_masks_valid());
+ // Two protected Layer voices prevent a three-unit note from fitting even
+ // if the ordinary one-unit voice is cut. A refusal must preserve that voice.
+ make_empty_project(*p);
+ p->tracks[0].instrument=Instrument::Layer;
+ p->tracks[0].layer.count=1;
+ auto& part=p->tracks[0].layer.parts[0];
+ part.sound.instrument=Instrument::PlaitsMacro;part.sound.model=18;
+ p->tracks[1].instrument=p->tracks[2].instrument=Instrument::PlaitsMacro;
+ p->tracks[1].plaits_model=18;p->tracks[2].plaits_model=1;
+ assert(e->stage_project(*p));render(*e);
+ on(*e,60,0);render(*e,24);on(*e,64,0);render(*e,24);on(*e,67,1);render(*e,24);
+ assert(e->plaits_note_count(0)==2 && e->plaits_note_held(1,67));
+ const auto before=e->probe_steals();
+ on(*e,71,2);render(*e,24);
+ assert(!e->plaits_note_held(2,71) && e->plaits_note_count(0)==2 && e->plaits_note_held(1,67));
+ assert(e->probe_steals().budget_releases==before.budget_releases && e->poly_owner_masks_valid());
  std::puts("Plaits polyphony: spectral chord, independent release, steal, MIDI channel, Sound Lock, project reset, UI and allocation-free render passed");
 }

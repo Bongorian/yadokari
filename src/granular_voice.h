@@ -5,8 +5,8 @@
 #include "granular_dsp.h"
 #include "wav_sampler.h"
 namespace groove {
-// Four instances are allocated at Engine construction, not one per possible
-// generic voice. The resource allocator owns each independently for its note.
+// Instances are allocated at Engine construction. The shared voice allocator
+// assigns one instance per admitted note.
 class GranularVoice:public SpectralEnvelope {
  GranularDsp dsp_;WavVoice source_;TextureRateConverter<3,2> up_;
  TextureFrame input_[32]{},output_[32]{};TextureStereo native_[32]{},audio_[48]{};

@@ -51,6 +51,14 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
  // are silent; without this guard value 20 would fall into the generic
  // synthesizer branch below and produce sound.
  if(v.instrument==unsigned(Instrument::Layer) || v.instrument==unsigned(Instrument::Empty) || v.instrument>=unsigned(Instrument::Unknown))return;
+ if(v.instrument==unsigned(Instrument::Chimera)){
+  if(v.env>0 && chimera_.owner()==t){
+   for(unsigned p=0;p<5;++p)v.parameters[p]+=(v.targets[p]-v.parameters[p])*.005f;
+   l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters);
+   if(chimera_.owner()!=t)v.env=0;
+  }
+  return;
+ }
  if(bundle_helper_ && bundle_take(t,v,voice_key,l,rr))return;
  if(v.instrument==unsigned(Instrument::SoundFont)){if(v.env<.00001f){v.soundfont.stop();return;}if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::SoundFont)v.soundfont_base=track(t).soundfont;float values[5];resolve_voice_bank(t,Instrument::SoundFont,v.soundfont_base.values,values);v.soundfont.parameters(values);}v.soundfont.next(v.frequency,!v.released,l,rr);v.env=v.soundfont.active()?1:0;return;}
  if(v.instrument==unsigned(Instrument::Additive)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Additive)v.additive_base=track(t).additive;float values[25];resolve_voice_bank(t,Instrument::Additive,v.additive_base.values,values);v.additive.parameters(values);}l=rr=v.additive.next(v.frequency,!v.released);v.env=v.additive.active()?1:0;return;}
@@ -293,10 +301,11 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
  }
  const unsigned offset=unsigned(s-job.start_sample);
  const unsigned sub=offset/RenderBundleJob::kSubFrames;
+ const bool same_voice=job.instance==v.voice_instance && job.instrument==v.instrument && job.generation==generation_;
  bool just_adopted=false;
  if(offset && (offset%RenderBundleJob::kSubFrames)==0){
   bundle_sub_from_job_[voice_key]=false; // a new sub-block re-enters the start path (progress + cross-check)
-  if(bundle_prev_from_job_[voice_key]){
+  if(bundle_prev_from_job_[voice_key] && same_voice){
   const unsigned done=sub-1;
   switch(Instrument(job.instrument)){
    case Instrument::Additive: v.additive=job.checkpoint[done].additive;break;
@@ -309,16 +318,16 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
   bundle_prev_from_job_[voice_key]=false;just_adopted=true;
   }
  }
- if(job.instance!=v.voice_instance || job.epoch!=v.voice_epoch || job.instrument!=v.instrument ||
+ if(!same_voice || job.epoch!=v.voice_epoch ||
     job.released!=v.released || !bundle_bits(job.frequency,v.frequency) ||
-    job.automation_tick!=runtime_[t].automation_tick || job.generation!=generation_){
+    job.automation_tick!=runtime_[t].automation_tick){
   // A control event reached this voice inside the window. If part of the
   // current sub-block was already consumed from the job and the note
   // instance is unchanged, replay that prefix on the canonical state
   // (discarding the duplicate outputs) so it reaches this sample before
   // the canonical branch renders it. A new note instance was
   // re-initialised by its trigger and needs no replay.
-  if(bundle_sub_from_job_[voice_key] && job.instance==v.voice_instance){
+  if(bundle_sub_from_job_[voice_key] && same_voice){
    const unsigned begin=offset-(offset%RenderBundleJob::kSubFrames);
    float env=begin?job.env[begin-1]:job.env0;
    for(unsigned o=begin;o<offset;++o){
@@ -336,6 +345,8 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
   slot->note_invalidated();bundle_forget(voice_key);return false;
  }
  if(!bundle_sub_from_job_[voice_key]){
+  // Once canonical rendering starts for a sub-block, it owns the whole sub-block.
+  if(offset%RenderBundleJob::kSubFrames)return false;
   if(slot->progress(job)<=sub){slot->note_late();return false;}
   if(offset==0 || (just_adopted && (bundle_adopted_subblocks_%256)==0)){
    bool ok=false;

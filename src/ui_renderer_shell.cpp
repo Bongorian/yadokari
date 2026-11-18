@@ -232,6 +232,9 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   if(meter_generation_!=perf.visual().generation || now<last_ms_){for(auto& m:meters_)m=ui::MeterBallistics{};meter_generation_=perf.visual().generation;}
   for(unsigned t=0;t<16;++t)meters_[t].update(perf.visual_fresh()?perf.visual().peak[t]:0,now,now>=last_ms_?now-last_ms_:0);
   const auto t=track_at(p,p.active_pattern,perf.selected_track());
+  const bool chimera_performance=t.instrument==Instrument::Chimera &&
+       (perf.mode()==UiMode::Pad || perf.mode()==UiMode::Chord ||
+        (perf.mode()==UiMode::Keyboard && !perf.step_chord_editor()));
   if(perf.mode()==UiMode::Sampler || perf.mode()==UiMode::Browser || (t.instrument==Instrument::Sampler && (perf.mode()==UiMode::Synth || perf.mode()==UiMode::Pad || perf.mode()==UiMode::Step || perf.mode()==UiMode::Keyboard || perf.mode()==UiMode::Chord))){
    WavView source=perf.mode()==UiMode::Browser?perf.browser().preview:sample;
    if(wave_cache_.update(source,perf.browser(),perf.visual().generation) || wave_cache_.pending())body_invalidated_=true;
@@ -268,10 +271,16 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   const bool visual_page=(perf.mode()==UiMode::Synth && !perf.source_select()) || perf.mode()==UiMode::Sampler || perf.mode()==UiMode::Browser || perf.mode()==UiMode::Library || perf.mode()==UiMode::Mixer || perf.mode()==UiMode::Effects || perf.mode()==UiMode::Perform || (perf.mode()==UiMode::Routing && perf.routing_fx_page());
   uint64_t live_sig=1469598103934665603ull;auto hash_float=[&](float value){uint32_t bits;__builtin_memcpy(&bits,&value,sizeof bits);live_sig=fnv(live_sig,bits);};const auto* measured=perf.analysis();live_sig=fnv(live_sig,measured?1:0);
   if(visual_page)for(unsigned i=0;i<8;++i)hash_float(perf.knob_display_value(i));
+  if(chimera_performance || (perf.mode()==UiMode::Synth && t.instrument==Instrument::Chimera)){
+   const auto& frame=perf.visual();
+   live_sig=fnv(live_sig,unsigned(perf.visual_fresh() && frame.taps.track==perf.selected_track()));
+   live_sig=fnv(live_sig,unsigned(frame.chimera_available)+2*unsigned(frame.chimera_busy));
+   if(frame.chimera.gate>0)live_sig=fnv(live_sig,frame.sample);
+  }
    if(visual_page && measured)for(unsigned tap=0;tap<3;++tap){for(unsigned i=0;i<kVisualScope;++i){hash_float(measured->scope_low[tap][i]);hash_float(measured->scope_high[tap][i]);}for(unsigned i=0;i<kVisualBands;++i)hash_float(measured->spectrum[tap][i]);}
   unsigned selected=perf.selected_track();hash_float(perf.visual().voice_level[selected]);hash_float(perf.visual().wavetable_phase[selected]);hash_float(perf.visual().wavetable_position[selected]);hash_float(perf.visual().sample_position[selected]);hash_float(perf.visual().morph_position);for(unsigned slot=0;slot<2;++slot)for(unsigned i=0;i<16;++i)hash_float(perf.visual().vocoder_bands[selected][slot][i]);
   hash_float(perf.visual().compressor_reduction);hash_float(perf.visual().track_compressor_reduction[selected]);for(unsigned i=0;i<6;++i)hash_float(perf.visual().node_activity[selected][i]);if(perf.visual().master_peak>.00001f)hash_float(perf.visual().performance_fx_phase);for(unsigned slot=0;slot<2;++slot)for(unsigned i=0;i<16;++i)hash_float(perf.visual().group_vocoder_bands[perf.group_cursor()][slot][i]);
-  if(visual_page && (live_sig!=live_signature_ || visual_motion_[0].active(now) || visual_motion_[1].active(now))){body_invalidated_=true;}live_signature_=live_sig;
+  if((visual_page || chimera_performance) && (live_sig!=live_signature_ || visual_motion_[0].active(now) || visual_motion_[1].active(now))){body_invalidated_=true;}live_signature_=live_sig;
   bool dialog_up=perf.browser_editing() || perf.pending_project()!=Performance::ProjectAction::None || perf.update_confirm_pending() || perf.stretch_modal()!=0 || perf.freeze_modal()!=0;
   bool meters=false; for(unsigned m=0;m<16;++m) if(meters_[m].live>0.001f || meters_[m].held>0) meters=true;
   const uint8_t overlay_mask=perf.knob_overlay_mask();const bool overlay=overlay_mask!=0,overlay_changed=overlay_mask!=overlay_mask_was_ || perf.knob_turning_mask()!=turning_mask_was_;
@@ -307,6 +316,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   header(0,perf.twin_dialog()?"TWIN":perf.composition_dialog()?"DUPLICATE":perf.page_title(),perf,p);header(1,perf.twin_dialog()?"Prepare instrument":perf.composition_dialog()==2?"Scene destination":perf.composition_dialog()?"Pattern variation":right,perf,p);
   layout_band(76,131,64,ui::Layout::body_h);clip_y(ui::Layout::body_y,ui::Layout::legend_y);
   if(repaint_body_)page_advice.clear();
+  auto performance_visual=[&](){if(chimera_performance)chimera_picture(perf);else source_visual(t,perf);};
   if(repaint_body_)switch(perf.mode()){
    case UiMode::Clip:clips(p,perf);break;    case UiMode::Song:song(p,perf);break;
    case UiMode::Scene:scenes(p,perf);break;
@@ -323,10 +333,10 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    case UiMode::Project:project(p,perf);break;
    case UiMode::Settings:settings(perf);break;
    case UiMode::Step:if(perf.tracker_view()){layout_reset();tracker(p,perf);break;}pattern(p,perf);if(t.instrument==Instrument::DrumKit)kit_panel(p,perf);else source_visual(t,perf);break;
-   case UiMode::Chord:chords(p,perf);source_visual(t,perf);break;
-   case UiMode::Keyboard:pads(p,perf);if(perf.step_chord_editor())step_chord_detail(p,perf);else source_visual(t,perf);break;
+   case UiMode::Chord:chords(p,perf);performance_visual();break;
+   case UiMode::Keyboard:pads(p,perf);if(perf.step_chord_editor())step_chord_detail(p,perf);else performance_visual();break;
    case UiMode::Synth:if(perf.source_select()){source_list(p,perf);source_detail(p,perf);}else if(perf.layer_page()){layer_picture(t,perf);}else if(perf.kit_edit_page()){pads(p,perf);kit_panel(p,perf);}else{synth_signal(p,t,perf);synth(t,perf);}break;
-   default:pads(p,perf);if(t.instrument==Instrument::DrumKit)kit_panel(p,perf);else source_visual(t,perf);break;
+   default:pads(p,perf);if(t.instrument==Instrument::DrumKit)kit_panel(p,perf);else performance_visual();break;
   }
   layout_reset();clip_y();
   if(overlay_changed)transition_.cancel();

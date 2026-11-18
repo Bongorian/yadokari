@@ -4,6 +4,19 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 0.9.4 — 2026-11-18
+
+- Added CHIMERA, a monophonic physical vocal-tract synthesizer. The right
+  MK3 display shows live articulation and pressure in GENERATOR, PAD,
+  KEYBOARD and CHORD.
+- Fixed render-ahead jobs that could become unavailable after a worker
+  race. If the worker is late or its work is invalidated, serial
+  rendering produces the same PCM.
+- Fixed shared voice admission so a rejected Plaits note leaves sounding
+  notes alone. Granular now uses the shared voice limit for the detected
+  board.
+- Added Pi 5 support to the tool for building an A/B update SD image.
+
 ## 0.9.0 — 2026-11-11
 
 First public release.

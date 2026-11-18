@@ -82,8 +82,10 @@ public:
  // frees Dead jobs in process_one().
  void retire(RenderBundleJob& job){
   unsigned state=__atomic_load_n(&job.state,__ATOMIC_ACQUIRE);
-  if(state==Building || state==Complete)__atomic_store_n(&job.state,unsigned(Empty),__ATOMIC_RELEASE);
-  else if(state==Queued || state==Running)__atomic_store_n(&job.state,unsigned(Dead),__ATOMIC_RELEASE);
+  while(state==Building || state==Complete || state==Queued || state==Running){
+   unsigned next=(state==Building || state==Complete)?Empty:Dead;
+   if(__atomic_compare_exchange_n(&job.state,&state,next,false,__ATOMIC_ACQ_REL,__ATOMIC_ACQUIRE))return;
+  }
  }
  bool process_one(){
   if(!render_)return false;
@@ -91,11 +93,12 @@ public:
    unsigned state=__atomic_load_n(&job.state,__ATOMIC_ACQUIRE);
    if(state==Dead){__atomic_store_n(&job.state,unsigned(Empty),__ATOMIC_RELEASE);wake();return true;}
    if(state!=Queued && state!=Running)continue;
-   if(state==Queued)__atomic_store_n(&job.state,unsigned(Running),__ATOMIC_RELEASE);
+   if(state==Queued && !__atomic_compare_exchange_n(&job.state,&state,unsigned(Running),false,__ATOMIC_ACQ_REL,__ATOMIC_ACQUIRE))continue;
    bool more=render_(job);
-   unsigned now=__atomic_load_n(&job.state,__ATOMIC_ACQUIRE);
+   unsigned now=Running;
+   if(more)now=__atomic_load_n(&job.state,__ATOMIC_ACQUIRE);
+   else __atomic_compare_exchange_n(&job.state,&now,unsigned(Complete),false,__ATOMIC_ACQ_REL,__ATOMIC_ACQUIRE);
    if(now==Dead)__atomic_store_n(&job.state,unsigned(Empty),__ATOMIC_RELEASE);
-   else if(!more)__atomic_store_n(&job.state,unsigned(Complete),__ATOMIC_RELEASE);
    wake();return true;
   }
   return false;

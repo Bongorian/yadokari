@@ -67,7 +67,7 @@ int main() {
  assert(!perf.source_select());
  assert(track().instrument == Instrument::PolySaw);
  // The complete registry is public and contiguous again after removal.
- assert(instrument_count()==27);
+ assert(instrument_count()==28);
  assert(perf.toggle_source_select());assert(perf.select_source(unsigned(Instrument::ExternalMidi)));assert(perf.encoder(1));assert(perf.source_cursor()==unsigned(Instrument::Acid));assert(perf.encoder(-1));assert(perf.source_cursor()==unsigned(Instrument::ExternalMidi));
  assert(perf.select_source(unsigned(Instrument::PolySaw)));assert(perf.knob(0,-1000));assert(perf.source_cursor()==unsigned(Instrument::DaisyAnalogDrums));
  for(unsigned id=0;id<instrument_count();++id){assert(perf.select_source(id));if(id+1<instrument_count()){assert(perf.encoder(1));assert(perf.source_cursor()==id+1);}}

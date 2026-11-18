@@ -813,7 +813,7 @@ VA DUAL **guarantees 16 simultaneous voices in total; 32 voices are best effort*
 
 Select **FORMANT** under ENGINE, and switch FORMANT / VOSIM with K1 MODE on **GENERATOR**. Move the vowel continuously with K2 VOWEL, and change the voice's resonance with K3 FORMANT SHIFT, K4 SHAPE and K5 MOD DEPTH. **ENVELOPE** is K3 ATTACK / K4 DECAY / K5 SUSTAIN / K6 RELEASE, and **TONE** is the usual track-common processing.
 
-**GRANULAR** is an engine that plays a sample from the keyboard, separate from TEXTURE's input effect. Select GRANULAR under ENGINE and OPEN a WAV in the BROWSER, and the material is assigned while keeping that engine. Set the Browser's ROOT to the material's reference key. GENERATOR is K1 POSITION / K2 SIZE / K3 DENSITY / K4 TEXTURE / K5 SPREAD. The ENVELOPE uses the same ADSR layout as FORMANT. JITTER / FREEZE / PITCH OFFSET are detail parameters and are not added to the body's performance knobs. FREEZE becomes effective 256 ms after the initial buffer fill. Its dedicated resources are four voices across the whole body; at the limit, the oldest voice of a normal sound is replaced. If a material is missing or the CRC does not match, loading is stopped and the current sound is kept.
+**GRANULAR** is an engine that plays a sample from the keyboard, separate from TEXTURE's input effect. Select GRANULAR under ENGINE and OPEN a WAV in the BROWSER, and the material is assigned while keeping that engine. Set the Browser's ROOT to the material's reference key. GENERATOR is K1 POSITION / K2 SIZE / K3 DENSITY / K4 TEXTURE / K5 SPREAD. The ENVELOPE uses the same ADSR layout as FORMANT. JITTER / FREEZE / PITCH OFFSET are detail parameters and are not added to the body's performance knobs. FREEZE becomes effective 256 ms after the initial buffer fill. Granular tracks share four voices on Pi 4. Pi 5 raises the limit within its shared DSP budget. At the limit, voice allocation prefers to replace released voices, then the oldest eligible held voice. If a material is missing or the CRC does not match, loading is stopped and the current sound is kept.
 
 VA DUAL's existing performance knobs are unchanged. The detail categories include HARD SYNC / CROSS MOD / PITCH ENV・DECAY / SUB WAVE / FILTER TYPE / SVF MODE / FILTER MORPH. There is no detail editor body, so these cannot be edited from the body's performance knobs.
 
@@ -839,6 +839,19 @@ The Factory Library holds 187 items in MGXC13 format (163 Presets + 24 Kits). Fi
 ---
 
 ## Performance features in detail
+
+### Play the CHIMERA vocal tract
+
+Select CHIMERA under SYNTH → ENGINE and press **LOAD ENGINE** (Top5) to load
+the default sound, including when the preset list is empty. In GENERATOR,
+notes set vocal pitch.
+K1/K2 move the tongue, K3 opens the jaw, K4 rounds the lips and K5 adjusts
+breath. The right screen shows the changing airway geometry and pressure in
+GENERATOR and while playing in PAD, KEYBOARD or CHORD mode. In PAD mode,
+press the pad assigned to the CHIMERA track.
+
+CHIMERA runs at 48 kHz and shares one monophonic voice across tracks. The
+screen indicates when another track is using it.
 
 ### Per-engine Morph and carrying materials out
 

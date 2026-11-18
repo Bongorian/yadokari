@@ -58,11 +58,10 @@ story, kept current per release.
 ## Pi 5
 
 - **Supported from 0.9.1, next to the recommended Pi 4.**
-  Projects are fully portable between the two: polyphony
-  budgets scale up on the Pi 5 (a measured factor, not a
-  guess), while layer admission stays at the Pi 4 budget, so
-  a project that loads on a Pi 5 also loads on the reference
-  Pi 4.
+  Projects use the same file format on both boards. The Pi 5
+  has higher polyphony and Layer budgets. A Layer note that
+  fits on a Pi 5 can be refused during playback on a Pi 4.
+  See [hardware profiles](hardware-profiles.md).
 - **USB-C CDC is on by default on Pi 5**: the control/update
   channel enumerates with no opt-in file. (On Pi 4 the
   channel is enabled with the remote marker file or from

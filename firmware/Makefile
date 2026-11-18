@@ -9,8 +9,13 @@ CFLAGS += -I$(CURDIR)/../src -I$(CURDIR)/../build/mutable-port -I$(CURDIR)/../th
 DETAILED_RENDER_ATTRIBUTION ?= 0
 CFLAGS += -DGROOVE_DETAILED_RENDER_ATTRIBUTION=$(DETAILED_RENDER_ATTRIBUTION)
 include update-libs.mk
-LIBS = $(UPDATE_LIBS) $(CIRCLEHOME)/addon/fatfs/libfatfs.a $(CIRCLEHOME)/addon/SDCard/libsdcard.a $(CIRCLEHOME)/lib/sound/libsound.a $(CIRCLEHOME)/lib/usb/libusb.a $(CIRCLEHOME)/lib/input/libinput.a $(CIRCLEHOME)/lib/fs/libfs.a $(CIRCLEHOME)/lib/libcircle.a
+CHIMERA_DIR := ../third_party/chimera
+CHIMERA_ARCHIVE := ../build/chimera/aarch64-unknown-none/release/libyadokari_chimera.a
+CARGO ?= cargo
+LIBS = $(CHIMERA_ARCHIVE) $(UPDATE_LIBS) $(CIRCLEHOME)/addon/fatfs/libfatfs.a $(CIRCLEHOME)/addon/SDCard/libsdcard.a $(CIRCLEHOME)/lib/sound/libsound.a $(CIRCLEHOME)/lib/usb/libusb.a $(CIRCLEHOME)/lib/input/libinput.a $(CIRCLEHOME)/lib/fs/libfs.a $(CIRCLEHOME)/lib/libcircle.a
 include $(CIRCLEHOME)/Rules.mk
+$(CHIMERA_ARCHIVE): $(CHIMERA_DIR)/Cargo.toml $(CHIMERA_DIR)/Cargo.lock $(CHIMERA_DIR)/rust-toolchain.toml $(shell find $(CHIMERA_DIR)/src -name '*.rs')
+	cd $(CHIMERA_DIR) && env -u MAKEFLAGS CARGO_TARGET_DIR="$(abspath ../build/chimera)" $(CARGO) build --release --locked --target aarch64-unknown-none
 # Retain compiler-measured frames for the boot/reset stack budget.
 kernel.o file_transfer.o project_storage.o: CFLAGS += -fstack-usage
 # Engine and kernel units use the shared Circle target profile.

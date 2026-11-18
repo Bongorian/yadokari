@@ -1,5 +1,8 @@
 UI_BASE_ARCHIVE := build/ui-base.a
 UI_TOOL_ARCHIVE := build/ui-tool.a
+CHIMERA_DIR := third_party/chimera
+CHIMERA_HOST_ARCHIVE := build/chimera/release/libyadokari_chimera.a
+CARGO ?= cargo
 include src/engine_sources.mk
 ENGINE_TOOL_OBJECTS := $(addprefix build/engine-tool/,$(addsuffix .o,$(ENGINE_NAMES)))
 MSFA_SOURCES := $(wildcard third_party/msfa/*.cc)
@@ -1787,15 +1790,24 @@ test-run-optimization-contract: build/test-optimization-contract
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-optimization-contract
 test-all: test-run-optimization-contract
 
-build/ui-base.a: build/engine-core/software_canvas.o build/engine-core/software_widgets.o build/engine-core/state_defaults.o
-	$(AR) rcs $@ $^
+$(CHIMERA_HOST_ARCHIVE): $(CHIMERA_DIR)/Cargo.toml $(CHIMERA_DIR)/Cargo.lock $(CHIMERA_DIR)/rust-toolchain.toml $(shell find $(CHIMERA_DIR)/src -name '*.rs')
+	cd $(CHIMERA_DIR) && env -u MAKEFLAGS CARGO_TARGET_DIR="$(abspath build/chimera)" $(CARGO) build --release --locked
+
+# Keep a single archive on the existing host link paths. ar MRI merges the
+# Rust archive's object members so unrelated tools only link what they use.
+build/ui-base.a: build/engine-core/software_canvas.o build/engine-core/software_widgets.o build/engine-core/state_defaults.o $(CHIMERA_HOST_ARCHIVE)
+	@rm -f $@.tmp
+	@{ printf 'create %s\n' '$@.tmp'; printf 'addmod %s\n' $(filter %.o,$^); printf 'addlib %s\nsave\nend\n' '$(CHIMERA_HOST_ARCHIVE)'; } | $(AR) -M
+	@mv $@.tmp $@
 
 # Optimized offline tools must not inherit ASan/UBSan runtime dependencies.
 build/ui-tool/%.o: src/%.cpp Makefile
 	@mkdir -p $(@D)
 	$(CXX) $(HOST_FLAGS) -O2 -MMD -MP -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs -c $< -o $@
-build/ui-tool.a: build/ui-tool/software_canvas.o build/ui-tool/software_widgets.o build/ui-tool/state_defaults.o
-	$(AR) rcs $@ $^
+build/ui-tool.a: build/ui-tool/software_canvas.o build/ui-tool/software_widgets.o build/ui-tool/state_defaults.o $(CHIMERA_HOST_ARCHIVE)
+	@rm -f $@.tmp
+	@{ printf 'create %s\n' '$@.tmp'; printf 'addmod %s\n' $(filter %.o,$^); printf 'addlib %s\nsave\nend\n' '$(CHIMERA_HOST_ARCHIVE)'; } | $(AR) -M
+	@mv $@.tmp $@
 -include $(wildcard build/ui-tool/*.d)
 
 -include build/test-display-rectangle.d build/test-display-job-slot.d
@@ -2109,3 +2121,26 @@ test-run-py-deployment-runner:
 	python3 tests/diagnostic_owner_test.py
 	python3 tests/cdc_gate_test.py
 test-all: test-run-py-deployment-runner
+
+build/test-render-bundle: tests/render_bundle_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -pthread $^ -o $@
+build/test-voice-seed: tests/voice_seed_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@
+build/test-midi-clock-phaselock: tests/midi_clock_phaselock_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@
+
+.PHONY: test-run-render-bundle test-run-voice-seed test-run-midi-clock-phaselock
+test-run-render-bundle: build/test-render-bundle
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-render-bundle
+test-run-voice-seed: build/test-voice-seed
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-voice-seed
+test-run-midi-clock-phaselock: build/test-midi-clock-phaselock
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-midi-clock-phaselock
+test-all: test-run-render-bundle test-run-voice-seed test-run-midi-clock-phaselock
+
+build/test-chimera-engine: tests/chimera_engine_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@
+.PHONY: test-run-chimera-engine
+test-run-chimera-engine: build/test-chimera-engine
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-chimera-engine
+test-all: test-run-chimera-engine

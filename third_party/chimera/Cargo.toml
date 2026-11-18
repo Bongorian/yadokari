@@ -1,0 +1,17 @@
+[package]
+name = "yadokari-chimera"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+libm = "=0.2.16"
+
+[profile.release]
+panic = "abort"
+lto = "fat"
+codegen-units = 1

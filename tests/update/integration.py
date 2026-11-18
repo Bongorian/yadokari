@@ -78,6 +78,30 @@ with tempfile.TemporaryDirectory(prefix='groove-update-') as temp:
         run(binary, 'get', provisioned, f'{partition}:/cmdline.txt', extracted_cmdline)
         assert extracted_cmdline.read_text() == profile
     print('provisioning: selected audio profile preserved in all boot partitions PASS')
+    pi5_boot = directory / 'boot-pi5'
+    (pi5_boot / 'overlays').mkdir(parents=True)
+    for name in ('bcm2712-rpi-5-b.dtb', 'overlays/bcm2712d0.dtbo', 'LICENCE.broadcom', 'COPYING.linux'):
+        (pi5_boot / name).write_text(name)
+    (pi5_boot / 'config.txt').write_text('[pi5]\nkernel=kernel_2712.img\n')
+    (pi5_boot / 'cmdline.txt').write_text(profile)
+    pi5_image = directory / 'pi5-ab.img'
+    run('python3', root / 'tools/update/provision.py', pi5_image, '--board', 'pi5',
+        '--factory', app, '--recovery', recovery, '--boot-files', pi5_boot, '--version', 2,
+        '--data-mib', 64, '--remote-control')
+    for partition in range(3):
+        for name in ('bcm2712-rpi-5-b.dtb', 'overlays/bcm2712d0.dtbo'):
+            extracted = directory / 'pi5-boot-asset'
+            run(binary, 'get', pi5_image, f'{partition}:/{name}', extracted)
+            assert extracted.read_text() == name
+        for name in ('config.txt', 'tryboot.txt'):
+            extracted = directory / 'pi5-config'
+            run(binary, 'get', pi5_image, f'{partition}:/{name}', extracted)
+            assert extracted.read_text().endswith(
+                '[all]\nkernel=KERNEL.IMG\nkernel_watchdog_timeout=15\nkernel_watchdog_partition=1\n')
+        run(binary, 'get', pi5_image, f'{partition}:/cmdline.txt', extracted_cmdline)
+        assert extracted_cmdline.read_text() == profile
+    run(binary, 'get', pi5_image, '3:/REMOTE.ON', directory / 'pi5-remote')
+    print('Pi 5 provisioning: board boot files, A/B config, audio profile and USB control marker PASS')
     for version, payload in ((3, compiled), (2, compiled[:-4] + (2).to_bytes(4, 'little'))):
         try:
             tool.package(payload, private, version, require_identity=True)

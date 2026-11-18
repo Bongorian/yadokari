@@ -65,6 +65,9 @@ What the instrument does, area by area. File formats are specified in
   are not saved.
 - WAVETABLE: 128-waveform position scanning with a band-limited mip
   table.
+- CHIMERA: physical human voice with a live sagittal airway view. Five
+  controls shape the tongue, jaw, lips and breath. The 48 kHz audio engine
+  shares one monophonic Chimera voice across tracks.
 - Polyphony: basic voices plus shared additional voices. Plaits sounds
   take 1/2/4 voices by declared cost against a shared weighted budget
   of 4.

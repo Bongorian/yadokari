@@ -816,7 +816,7 @@ VA DUALは**総同時16音保証／32音はベストエフォート**です。�
 
 ENGINEで **FORMANT** を選び、**GENERATOR**のK1 MODEでFORMANT／VOSIMを切替。K2 VOWELで母音を連続移動し、K3 FORMANT SHIFT、K4 SHAPE、K5 MOD DEPTHで声の響きを変えます。**ENVELOPE**はK3 ATTACK／K4 DECAY／K5 SUSTAIN／K6 RELEASE、**TONE**は従来のトラック共通処理です。
 
-**GRANULAR** はTEXTUREの入力エフェクトとは別の、サンプルを鍵盤で弾く音源です。ENGINEでGRANULARを選び、BROWSERでWAVをOPENすると、その音源を保ったまま素材を割り当てます。BrowserのROOTを素材の基準鍵に合わせてください。GENERATORはK1 POSITION／K2 SIZE／K3 DENSITY／K4 TEXTURE／K5 SPREAD。ENVELOPEはFORMANTと同じADSR配置です。JITTER／FREEZE／PITCH OFFSETは詳細パラメータにあり、本体の演奏ノブには増設しません。FREEZEは初期buffer充填の256ms後に有効になります。専用資源は本体合計4音で、上限時は通常音の古いvoiceを置き換えます。素材欠落やCRC不一致では装着を止め、現在音色を保持します。
+**GRANULAR** はTEXTUREの入力エフェクトとは別の、サンプルを鍵盤で弾く音源です。ENGINEでGRANULARを選び、BROWSERでWAVをOPENすると、その音源を保ったまま素材を割り当てます。BrowserのROOTを素材の基準鍵に合わせてください。GENERATORはK1 POSITION／K2 SIZE／K3 DENSITY／K4 TEXTURE／K5 SPREAD。ENVELOPEはFORMANTと同じADSR配置です。JITTER／FREEZE／PITCH OFFSETは詳細パラメータにあり、本体の演奏ノブには増設しません。FREEZEは初期buffer充填の256ms後に有効になります。Pi 4 では全トラックで4声を共有します。Pi 5 では共有 DSP 予算の範囲で上限が増えます。上限に達すると、リリース済みの音を優先して置き換え、該当する音がなければ置き換え可能な発音中の音から最も古い音を選びます。素材欠落やCRC不一致では装着を止め、現在音色を保持します。
 
 VA DUALの既存演奏ノブはそのままです。詳細区分にはHARD SYNC／CROSS MOD／PITCH ENV・DECAY／SUB WAVE／FILTER TYPE／SVF MODE／FILTER MORPHがあります。詳細エディタ本体はないため、これらは本体の演奏ノブからは編集できません。
 
@@ -842,6 +842,12 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 ---
 
 ## 演奏機能の詳細
+
+### CHIMERA の声道を演奏する
+
+SYNTH の ENGINE で CHIMERA を選び、右画面の左端にある Top5 **LOAD ENGINE** で確定します。プリセット一覧が空でも、LOAD ENGINE で初期音色を読み込めます。GENERATOR では、ノートで声の高さを決め、K1/K2 で舌の位置、K3 で顎の開き、K4 で唇の丸め、K5 で息を調整します。GENERATOR に加え、PAD・KEYBOARD・CHORD でも右画面に発音中の声道断面と空気圧が表示されます。PAD モードでは CHIMERA を割り当てたトラックのパッドを押します。
+
+48 kHz で使用できます。CHIMERA は全トラックで１声を共有し、ほかのトラックが発音中は画面に使用中と表示します。
 
 ### 音源別Morphと素材の持ち出し
 

@@ -79,12 +79,55 @@ auto UiRenderer::sample_picture(ConstTrackView t,const Performance& perf) -> voi
    sample_wave(1,24,119,430,64,perf,t.sample_edit,playing,perf.visual().sample_position[perf.selected_track()]);
    rounded(1,76,189,93,16,ui::Geometry::cell,theme.raised);char speed[24];format_value(speed,t.sample_edit.speed,2);label(1,24,192,"SPEED",theme.secondary,Font::Small,50);label(1,80,192,speed,theme.text,Font::Small,70);label(1,151,192,"x",theme.secondary,Font::Small,16);return;
  }
+auto UiRenderer::chimera_picture(const Performance& perf) -> void{
+  panel(1,10,79,460,128);
+  label(1,24,86,"VOCAL TRACT",theme.secondary,Font::Small,130);
+  const auto& frame=perf.visual();
+  if(!perf.visual_fresh() || frame.taps.track!=perf.selected_track())return;
+  if(!frame.chimera_available){label(1,24,139,"48 KHZ ENGINE UNAVAILABLE",theme.warn,Font::Small,400);return;}
+  if(frame.chimera_busy)label(1,288,86,"VOICE IN USE ON ANOTHER TRACK",theme.warn,Font::Small,164);
+  const auto& tract=frame.chimera;
+  auto draw=[&](ChimeraGeometry::Point a,ChimeraGeometry::Point b,uint32_t color,int width){
+   auto x=[](float cm){return bounded(106+int(cm*18),18,280);};
+   auto y=[](float cm){return bounded(198-int(cm*7.6f),85,201);};
+   line(1,x(a.x),y(a.y),x(b.x),y(b.y),color,width);
+  };
+  auto outline=[&](const ChimeraGeometry::Point* points,unsigned count,uint32_t color,int width){
+   for(unsigned i=1;i<count;++i)draw(points[i-1],points[i],color,width);
+  };
+  const ChimeraGeometry::Point profile[]={
+   {-2.3f,.1f},{-2.2f,3.2f},{-3.1f,7.9f},{-2.6f,10.7f},{-1.2f,12.4f},
+   {1.1f,13.5f},{3.5f,13.6f},{5.5f,12.9f},{6.8f,11.5f},{7.1f,10.6f},
+   {8.3f,9.3f},{8.0f,9.0f},{7.4f,8.9f},tract.outer[ChimeraGeometry::points-1]
+  };
+  const ChimeraGeometry::Point jaw[]={tract.inner[ChimeraGeometry::points-1],{7.4f,6.2f},{7.1f,5.4f},{6.5f,5.0f},{4.2f,4.5f},{2.9f,3.8f},{2.0f,1.9f},{1.9f,.1f}};
+  const auto tissue=ui::mix(theme.surface,theme.secondary,155);
+  outline(profile,sizeof profile/sizeof profile[0],tissue,2);
+  outline(jaw,sizeof jaw/sizeof jaw[0],tissue,2);
+  for(unsigned i=0;i<ChimeraGeometry::sections;++i){
+   const float pressure=tract.pressure[i];
+   const unsigned strength=unsigned(ui::clamp01(fabsf(pressure))*255);
+   draw(tract.section_inner[i],tract.section_outer[i],ui::mix(theme.border,pressure<0?theme.teal:theme.warn,strength),2);
+  }
+  outline(tract.nasal,ChimeraGeometry::points,theme.secondary,1);
+  outline(tract.outer,ChimeraGeometry::points,theme.text,2);
+  outline(tract.inner,ChimeraGeometry::points,theme.text,2);
+  outline(tract.tongue,ChimeraGeometry::points,theme.teal,2);
+  draw({tract.glottis.x-.3f,tract.glottis.y},{tract.glottis.x+.3f,tract.glottis.y},tract.gate>.01f?theme.warn:theme.secondary,3);
+  label(1,303,116,"AIR PRESSURE",theme.secondary,Font::Small,143);
+  line(1,302,156,445,156,theme.border);
+  for(unsigned i=0;i<ChimeraGeometry::sections;++i){
+   const int height=int(19*tract.pressure[i]);
+   if(height)line(1,305+int(i)*9,156,305+int(i)*9,156-height,height>0?theme.warn:theme.teal,3);
+  }
+ }
 auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
 
   if(perf.instrument_view()==3 && (unsigned(t.instrument)>=unsigned(Instrument::WaveSequence) && unsigned(t.instrument)<=unsigned(Instrument::SpectralFreeze))){panel(1,10,79,460,128);static const char* lanes[]={"Sample","Pitch","Timing","Gate","Shape","Step mod"};label(1,24,85,"Engine lab / independent lanes",theme.secondary,Font::Body,270);label(1,306,85,t.creative.follower_source?"FOLLOW TRK":"FOLLOW MASTER",theme.secondary,Font::Body,104);if(t.creative.follower_source)value(1,414,85,20,t.creative.follower_source,theme.teal,Font::Body,0);value(1,436,85,34,t.creative.follower_amount,theme.teal,Font::Body,0);for(unsigned l=0;l<6;++l){int y=111+int(l)*14;label(1,24,y,lanes[l],l==perf.creative_lane()?theme.teal:theme.secondary,Font::Small,80);for(unsigned n=0;n<8;++n){int x=111+int(n)*41;rounded(1,x,y,35,11,3,n<t.creative.length[l]?theme.raised:theme.background);if(l==perf.creative_lane() && n==perf.creative_cell())outline(1,x,y,35,11,3,theme.amber);progress(1,x+3,y+7,29,2,float(t.creative.value[l][n])/127,theme.teal);}}return;}
 
   const auto* engine=engine_descriptor(unsigned(t.instrument));if(!engine)return;auto declaration=engine->visual;
   if(perf.instrument_view()==1 && !perf.wave_profile()){tone_picture(1,t,perf.visual().rate,&perf);return;}
+  if(engine->page.hero==HeroVisual::VocalTract){chimera_picture(perf);return;}
   if(perf.instrument_view()==2 && (engine->instrument.envelope&EnvelopeEditable))declaration={VisualElement::Curve,VisualSource::Envelope,VisualCadence::Audio,VisualFallback::Parameters,ResponseModel::None,"AMPLITUDE ENVELOPE"};
   if(declaration.source==VisualSource::SamplePeaks){sample_picture(t,perf);return;}
   auto data=ui::engine_visual_data(declaration,t,perf);draw_visual(1,declaration,data,perf,perf.analysis()?perf.analysis()->sample:perf.visual().sample);

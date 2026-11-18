@@ -71,6 +71,7 @@ class UiRenderer:public ui::Widgets {
  void synth_signal(const ProjectState& p,ConstTrackView t,const Performance& perf);
  void layer_picture(ConstTrackView t,const Performance& perf);
  void sample_picture(ConstTrackView t,const Performance& perf);
+ void chimera_picture(const Performance& perf);
  void source_visual(ConstTrackView t,const Performance& perf){if(t.instrument==Instrument::Sampler)sample_picture(t,perf);else ui::InstrumentVisualizer::draw(*this,t,perf);}
  void synth(ConstTrackView t,const Performance& perf);
  void draw_visual(unsigned side,const VisualDeclaration& declaration,const VisualData& data,const Performance& perf,uint64_t token,int x=24,int y=82,int w=430,int h=118);

@@ -11,7 +11,7 @@ unit prices stay common on all boards.
 ## What scales (Pi 5, factor 2984 permille, measured on device)
 
 - Shared voice budgets, shared slots and per-instrument voice limits in
-  `Engine::reserve_shared` (shared storage capacity is 16; the Pi 4
+  `Engine::plan_shared` (shared storage capacity is 16; the Pi 4
   effective slot count stays at the declared 4).
 - Native (Texture / Resonator) admission: the AVERAGE limit scales; the
   BURST limit does not. The burst reservation protects the 192-frame

@@ -5,6 +5,7 @@
 #include "spectral_voices.h"
 #include "formant_voice.h"
 #include "granular_voice.h"
+#include "chimera_voice.h"
 #include "va_sample_slot.h"
 #include "render_bundle_slot.h"
 #include <stdint.h>
@@ -286,14 +287,17 @@ private:
  unsigned module_route_=0,module_route_epoch_=0;bool multitimbral_=false;uint8_t module_bank_[16][16][2]{},module_reason_[16]{};uint16_t module_slot_[16]{};
  bool layer_launching_=false;uint8_t layer_failure_[16]{};
  LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&)const;
- PolyVoice* oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect);
- uint8_t reserve_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect);
+ unsigned oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect,uint32_t excluded)const;
+ struct SharedVoicePlan {uint8_t indices[kPolyVoiceCapacity],count=0;};
+ uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims)const;
+ void release_shared(const SharedVoicePlan& victims);
  GestureOverlay gesture_overlay_{};
  void gesture_capture(const CommandState& c);void gesture_tick();
  Voice* trigger(unsigned track,unsigned velocity,int note=-1,const StepState* step=nullptr,const TrackView* source=nullptr,int accumulator=0,bool degrees=false,bool live_poly=false,int slice_override=-1,int kit_pad=-1,const KitStepState* kit_step=nullptr,int kit_layer=-1,Voice* protected_voice=nullptr,const LayerPart* layer_part=nullptr,const float* layer_mix=nullptr,bool chromatic=false);
  uint32_t next_event_seed(unsigned track,unsigned pitch);
  void trigger_frozen(unsigned t);
  void publish_voice_visual(AudioVisualFrame&,unsigned,Voice&);
+ void retire_chimera();
  struct PolyVoice {Voice voice{};uint64_t age=0;uint8_t owner=255;bool sequenced=false,pending=false;};PolyVoice poly_voices_[kPolyVoiceCapacity]{};uint32_t poly_track_mask_[16]{};void set_poly_owner(PolyVoice& voice,unsigned owner){va_candidates_dirty_=true;unsigned index=unsigned(&voice-poly_voices_);uint32_t bit=uint32_t(1u)<<index;if(voice.owner<16)poly_track_mask_[voice.owner]&=~bit;voice.owner=uint8_t(owner);if(owner<16)poly_track_mask_[owner]|=bit;}uint8_t kit_round_robin_[16][16]{};
  struct KitMidiGate {uint64_t due=0;uint8_t note=255,channel=0,hardware=255;};KitMidiGate kit_midi_[16][16]{};uint64_t kit_midi_due_=0;bool incoming_midi_=false;
  void kit_midi_on(unsigned track,unsigned pad,unsigned velocity,const KitStepState* step,ConstTrackView state);void kit_midi_tick();void kit_midi_release(unsigned hardware=255,unsigned track=255);
@@ -434,9 +438,9 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  PolyStealCounts poly_steals_{};
  // Measurement mirrors (DSPTEST steal accounting, 2026-11-13 investigation):
  // updated with atomic adds at the same sites as poly_steals_ / the
- // reserve_shared budget trims, so the probe on another core can read a
+ // shared-budget trims, so the probe on another core can read a
  // consistent steal picture. Path A = pool-exhaustion steals in trigger();
- // path B = budget_releases (reserve_shared trims, inaudible in poly_steals_).
+ // path B = budget_releases (shared-budget trims, absent from poly_steals_).
  mutable unsigned probe_steals_triggered_=0,probe_steals_released_=0,probe_steals_held_=0,probe_steals_refused_=0,probe_budget_releases_=0;
  uint64_t sound_payload_epoch_=1;bool sound_payload_plan_dirty_=true;
  void prepare_sound_payloads();
@@ -444,6 +448,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  bool va_candidates_dirty_=true; // DSP-only; live eligibility is still checked per sample
  RenderBundleSlot* bundle_helper_=nullptr;
  int bundle_job_[16+kPolyVoiceCapacity];bool bundle_sub_from_job_[16+kPolyVoiceCapacity]{};bool bundle_prev_from_job_[16+kPolyVoiceCapacity]{};bool bundle_tracking_ready_=false;uint64_t bundle_adopted_subblocks_=0;
+ ChimeraVoice chimera_;
  void prepare_va_candidates();void dispatch_va_samples();
  void build_render_bundles();bool bundle_take(unsigned track,Voice& voice,unsigned voice_key,float& l,float& r);void bundle_forget(unsigned voice_key);
 };
