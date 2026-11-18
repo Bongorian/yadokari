@@ -61,7 +61,9 @@ auto UiRenderer::synth_signal(const ProjectState& p,ConstTrackView t,const Perfo
   for(unsigned i=0;i<8;++i){if(!perf.knob_label(i)[0])continue;auto shown=formatted_knob(p,perf,i);uint16_t id=perf.knob_parameter(i);const auto* d=id?target_descriptor(id):nullptr;ui::ValueShape shape=d && d->minimum<0?ui::ValueShape::Bipolar:d && d->interpolation==Interpolation::Discrete?ui::ValueShape::Segments:ui::ValueShape::Bar;
    if(engine_target(id)){const auto* declaration=engine_parameter(target_engine(id),target_local(id));if(declaration && declaration->choice_count)shape=ui::ValueShape::Chip;}
    value_row(0,24+int(i/4)*224,104+int(i%4)*25,206,23,{perf.knob_label(i),shown.text,perf.knob_display_normalized(i),shape,d && d->interpolation==Interpolation::Discrete?unsigned(d->maximum-d->minimum+1):0u,true,perf.knob_touched(i) || (perf.knob_overlay_mask()&(1u<<i))});}
-  advice("TOP: PAGE / ACTION   KNOBS: CURRENT PARAMETERS");
+  if(t.instrument==Instrument::Chimera && (perf.instrument_view()==2 || perf.instrument_view()==4))
+   advice(perf.instrument_view()==2?"ARTICULATION 1/2 / TOP 3: NEXT":"ARTICULATION 2/2 / TOP 3: PREVIOUS");
+  else advice("TOP: PAGE / ACTION   KNOBS: CURRENT PARAMETERS");
  }
 auto UiRenderer::layer_picture(ConstTrackView t,const Performance& perf) -> void{
   label(0,24,82,"ONE NOTE / PARALLEL CHILD VOICES",theme.secondary,Font::Small,430);
@@ -87,6 +89,30 @@ auto UiRenderer::chimera_picture(const Performance& perf) -> void{
   if(!frame.chimera_available){label(1,24,139,"48 KHZ ENGINE UNAVAILABLE",theme.warn,Font::Small,400);return;}
   if(frame.chimera_busy)label(1,288,86,"VOICE IN USE ON ANOTHER TRACK",theme.warn,Font::Small,164);
   const auto& tract=frame.chimera;
+  if(tract.model>=3 && tract.model<7){
+   label(1,155,86,kChimeraSpecies[tract.model-3],theme.text,Font::Small,130);
+   for(unsigned i=0;i<5 && tract.animal[i].name[0];++i){
+    const auto& tube=tract.animal[i];
+    int y=111+int(i)*20;
+    label(1,24,y-5,tube.name,theme.secondary,Font::Small,94);
+    const int width=bounded(int(30+sqrtf(tube.length)*23),35,320);
+    int previous=0;
+    for(unsigned j=0;j<ChimeraGeometry::sections;++j){
+     int x=120+int(j)*width/int(ChimeraGeometry::sections-1);
+     int radius=bounded(int(1+sqrtf(tube.radius[j])*3.2f),1,8);
+     unsigned strength=unsigned(ui::clamp01(fabsf(tube.pressure[j]))*255);
+     auto ink=ui::mix(theme.border,tube.pressure[j]<0?theme.teal:theme.warn,strength);
+     line(1,x,y-radius,x,y+radius,ink,2);
+     if(j){
+      int back=120+int(j-1)*width/int(ChimeraGeometry::sections-1);
+      line(1,back,y-previous,x,y-radius,theme.text,1);
+      line(1,back,y+previous,x,y+radius,theme.text,1);
+     }
+     previous=radius;
+    }
+   }
+   return;
+  }
   auto draw=[&](ChimeraGeometry::Point a,ChimeraGeometry::Point b,uint32_t color,int width){
    auto x=[](float cm){return bounded(106+int(cm*18),18,280);};
    auto y=[](float cm){return bounded(198-int(cm*7.6f),85,201);};
@@ -110,6 +136,7 @@ auto UiRenderer::chimera_picture(const Performance& perf) -> void{
    draw(tract.section_inner[i],tract.section_outer[i],ui::mix(theme.border,pressure<0?theme.teal:theme.warn,strength),2);
   }
   outline(tract.nasal,ChimeraGeometry::points,theme.secondary,1);
+  outline(tract.velum,ChimeraGeometry::points,theme.blue,2);
   outline(tract.outer,ChimeraGeometry::points,theme.text,2);
   outline(tract.inner,ChimeraGeometry::points,theme.text,2);
   outline(tract.tongue,ChimeraGeometry::points,theme.teal,2);

@@ -298,7 +298,16 @@ class SessionFiles {
  bool begin_live(uint32_t frames=0,uint8_t source=255,bool quantized=false,uint8_t restart_track=255,uint8_t restart_pattern=255,uint8_t bars=0,const RecordTarget* requested=nullptr,RecordingOrigin origin=RecordingOrigin::None){if(live_active_ || !ui_.audio_available() || !prepare_record_buffer() || !fs_.directory(capture_directory_))return false;char name[20]="Live-000.wav",temporary[20]="Live-000.part";bool free=false;for(unsigned i=1;i<1000;++i){name[5]=temporary[5]=char('0'+i/100);name[6]=temporary[6]=char('0'+(i/10)%10);name[7]=temporary[7]=char('0'+i%10);if(!join_path(live_path_,sizeof live_path_,capture_directory_,name) || !join_path(live_temp_,sizeof live_temp_,capture_directory_,temporary))return false;if(!fs_.exists(live_path_) && !fs_.exists(live_temp_)){free=true;break;}}uint8_t header[44];if(!free || !wav_header(header,0,engine_.sample_rate()))return false;uint64_t reserve_frames=frames?frames:bars?uint64_t(audio_bar_frames(engine_.sample_rate(),project_.tempo))*bars:uint64_t(engine_.sample_rate())*kLoopFreeSeconds;if(!fs_.begin_recording(live_temp_,header,44,44+reserve_frames*4)){fs_.remove(live_temp_);return false;}if(!engine_.start_live_record(quantized,frames,source,restart_track,restart_pattern,bars)){fs_.remove(live_temp_);return false;}live_quantized_=quantized;live_active_=true;live_stop_pending_=live_stop_sent_=live_write_failed_=false;live_frames_=live_buffered_frames_=0;live_peak_l_=live_peak_r_=0;record_input_dropped_=engine_.input_audio_dropped();live_target_=requested?*requested:record_target();ui_.live_recording(true,source==255?project_.routing.capture_bus:source,&live_target_,quantized && ui_.playing(),origin);return true;}
  bool recording_controls_busy()const{return twin_job_ || recording_busy() || stretch_active_ || freeze_active_ || capture_pending_ || browser_load_active_;}
  void sync_recording_controls(){ui_.recording_file_busy(recording_controls_busy());ui_.recording_cancel_pending(resample_active_ && resample_cancelled_);ui_.recording_stop_pending(live_active_ && live_stop_pending_);}
- struct RecordingUiSync {SessionFiles& owner;~RecordingUiSync(){owner.sync_recording_controls();}};
+ struct FileUiSync {
+  SessionFiles& owner;
+  ~FileUiSync(){
+   owner.sync_recording_controls();
+   auto& browser=owner.ui_.browser();
+   bool busy=owner.browser_load_active_ || owner.kit_load_busy() || owner.project_save_busy();
+   if(browser.processing!=busy){browser.processing=busy;owner.ui_.mark_dirty();}
+   owner.ui_.resume_file_navigation();
+  }
+ };
  bool begin_resample(){
   auto context=ui_.recording_controls();context.file_busy=recording_controls_busy();
   const auto request=ui_.resample_request();
@@ -694,25 +703,26 @@ public:
   library_index_initialized_=false;refresh();copy_text(b.status,sizeof b.status,action==FileAction::DeleteFile?"Deleted":"Renamed");ui_.mark_dirty();return true;
  }
  // Catalog uses a 64-row viewport over the bounded 2048-entry metadata index.
- unsigned library_cursor_=0;bool library_commit_pending_=false,library_index_initialized_=false;
+ bool library_commit_pending_=false,library_index_initialized_=false;
  unsigned visible_library_count()const{const auto& b=ui_.browser();unsigned n=0;for(unsigned i=0;i<preset_library_.size();++i)n+=preset_library_.visible(i,b.library_instrument,b.library_kits,b.library_originals);return n;}
  int visible_library_row(unsigned nth)const{const auto& b=ui_.browser();for(unsigned i=0;i<preset_library_.size();++i)if(preset_library_.visible(i,b.library_instrument,b.library_kits,b.library_originals)){if(!nth--)return int(i);}return -1;}
- void refresh_library_rows(){auto& b=ui_.browser();b.library_total=visible_library_count();if(library_cursor_>=b.library_total)library_cursor_=b.library_total?b.library_total-1:0;b.library_offset=library_cursor_/64*64;b.count=0;
+ void refresh_library_rows(unsigned cursor){auto& b=ui_.browser();b.library_total=visible_library_count();if(cursor>=b.library_total)cursor=b.library_total?b.library_total-1:0;b.library_offset=cursor/64*64;b.count=0;
   for(unsigned i=b.library_offset;i<b.library_total && b.count<64;++i){int index=visible_library_row(i);if(index<0)break;const auto& row=preset_library_[unsigned(index)];unsigned at=b.count++;b.entries[at]=FileEntry{};copy_text(b.entries[at].name,96,row.name);b.entries[at].content_kind=uint8_t(row.kind);copy_text(b.library_paths[at],160,row.path);b.library_factory[at]=row.factory;b.library_revision[at]=row.identity.revision;b.library_engine[at]=row.instrument;}
-  b.cursor=library_cursor_-b.library_offset;copy_text(b.status,96,!preset_library_.complete()?"Shelf index limit / use FILES":b.count?"TURN: SELECT / PREVIEW: LISTEN / LOAD":"No presets for this engine / KIND selects kits");ui_.mark_dirty();
+  b.cursor=cursor-b.library_offset;copy_text(b.status,96,!preset_library_.complete()?"Shelf index limit / use FILES":b.count?"TURN: SELECT / PREVIEW: LISTEN / LOAD":"No presets for this engine / KIND selects kits");ui_.mark_dirty();
  }
  void finish_library_commit(bool ok){if(!library_commit_pending_)return;library_commit_pending_=false;if(ok){auto& b=ui_.browser();b.library_list=false;b.previewing=false;ui_.set_mode(UiMode(b.library_return));}}
  bool browse_library(FileAction action){auto& b=ui_.browser();bool performance=action==FileAction::LibraryPrev || action==FileAction::LibraryNext || ((action==FileAction::KitPrev || action==FileAction::KitNext) && ui_.mode()!=UiMode::Library);
+  unsigned cursor=b.library_offset+b.cursor;
   if(performance){b.library_instrument=track_at(project_,project_.active_pattern,ui_.selected_track()).instrument;b.library_kits=action==FileAction::KitPrev || action==FileAction::KitNext || b.library_instrument==Instrument::DrumKit;b.library_originals=false;}
-  if(action==FileAction::LibraryOpen || action==FileAction::LibraryOpenKits || action==FileAction::LibraryInspect || performance){if(((action==FileAction::LibraryOpen || action==FileAction::LibraryOpenKits) || !library_index_initialized_) && !refresh_preset_library())return false;library_cursor_=0;const auto id=project_.tracks[ui_.selected_track()].preset_identity;unsigned n=0;for(unsigned i=0;i<preset_library_.size();++i)if(preset_library_.visible(i,b.library_instrument,b.library_kits,b.library_originals)){if(id.assigned() && id.guid==preset_library_[i].identity.guid)library_cursor_=n;++n;}}
+  if(action==FileAction::LibraryOpen || action==FileAction::LibraryOpenKits || action==FileAction::LibraryInspect || performance){if(((action==FileAction::LibraryOpen || action==FileAction::LibraryOpenKits) || !library_index_initialized_) && !refresh_preset_library())return false;cursor=0;const auto id=project_.tracks[ui_.selected_track()].preset_identity;unsigned n=0;for(unsigned i=0;i<preset_library_.size();++i)if(preset_library_.visible(i,b.library_instrument,b.library_kits,b.library_originals)){if(id.assigned() && id.guid==preset_library_[i].identity.guid)cursor=n;++n;}}
   if(action==FileAction::LibraryOpenKits){b.library_kits=true;b.library_list=true;b.library_return=uint8_t(UiMode::Pad);ui_.set_mode(UiMode::Library);}
-  if(action==FileAction::LibraryRestore){if(!library_index_initialized_ && !refresh_preset_library())return false;library_cursor_=b.library_offset+b.cursor;}
-  if(action==FileAction::LibraryEngine){b.library_instrument=Instrument(unsigned(b.library_delta));b.library_delta=0;library_cursor_=0;}
-  if(action==FileAction::LibraryKind){b.library_kits=!b.library_kits;library_cursor_=0;}
-  if(action==FileAction::LibraryOriginals){b.library_originals=!b.library_originals;library_cursor_=0;}
+  if(action==FileAction::LibraryRestore && !library_index_initialized_ && !refresh_preset_library())return false;
+  if(action==FileAction::LibraryEngine){b.library_instrument=Instrument(unsigned(b.library_delta));b.library_delta=0;cursor=0;}
+  if(action==FileAction::LibraryKind){b.library_kits=!b.library_kits;cursor=0;}
+  if(action==FileAction::LibraryOriginals){b.library_originals=!b.library_originals;cursor=0;}
   unsigned total=visible_library_count();int delta=action==FileAction::LibraryMove?b.library_delta:(action==FileAction::LibraryNext || action==FileAction::KitNext)?1:(action==FileAction::LibraryPrev || action==FileAction::KitPrev)?-1:0;b.library_delta=0;
-  if(total && delta)library_cursor_=unsigned((int(library_cursor_)+delta%int(total)+int(total))%int(total));
-  refresh_library_rows();
+  if(total && delta)cursor=unsigned((int(cursor)+delta%int(total)+int(total))%int(total));
+  refresh_library_rows(cursor);
   // Browsing only moves the metadata cursor. Audition is exclusively the
   // explicit PREVIEW action; performance previous/next deliberately installs.
   if(!b.count || !performance)return true;
@@ -730,7 +740,7 @@ public:
   copy_text(b.status,sizeof b.status,"NEW PROJECT / EMPTY OR TEMPLATE / SOURCE KEPT");ui_.set_mode(UiMode::Browser);ui_.mark_dirty();return true;
  }
  bool open_new_project(){auto& b=ui_.browser();if(b.cursor>=b.count)return false;if(b.folder_offset+b.cursor==0){b.new_project_list=false;ui_.request_empty_project();return true;}char path[192];if(!join_path(path,sizeof path,"FACTORY/DEMOS",b.entries[b.cursor].name))return false;if(data_content_kind(fs_,path)!=1 || !load(path,false,false))return false;ui_.project_path("PROJECTS/Untitled.mgxs");ui_.new_project_name();ui_.set_mode(UiMode::Project);return ui_.composition_notice("TEMPLATE READY / UNTITLED / SAVE AS");}
- void refresh(){auto& b=ui_.browser();if(b.new_project_list){refresh_new_project();return;}if(b.library_list){refresh_library_rows();return;}
+ void refresh(){auto& b=ui_.browser();if(b.new_project_list){refresh_new_project();return;}if(b.library_list){refresh_library_rows(b.library_offset+b.cursor);return;}
   bool reset=__builtin_strcmp(folder_directory_,b.directory) || folder_favorites_!=b.favorites_only;
   unsigned cursor=reset?0:b.folder_offset+b.cursor;
   copy_text(folder_directory_,sizeof folder_directory_,b.directory);folder_favorites_=b.favorites_only;
@@ -740,6 +750,10 @@ public:
    if(!b.favorites_only || entry.directory)return true;
    char path[160];if(join_path(path,sizeof path,b.directory,entry.name))for(const auto& asset:project_.assets)if(asset.metadata.favorite && !__builtin_strcmp(asset.path,path))return true;return false;
   });
+  if(ok && b.reveal_file[0]){
+   for(unsigned i=0;i<folder.count;++i)if(!__builtin_strcmp(folder.entry(i).name,b.reveal_file)){cursor=i;break;}
+  }
+  b.reveal_file[0]=0;
   b.folder_total=ok?folder.count:0;if(cursor>=b.folder_total)cursor=b.folder_total?b.folder_total-1:0;
   b.folder_offset=cursor/64*64;b.cursor=cursor-b.folder_offset;b.count=ok?folder.page(cursor,b.entries,64):0;
   for(unsigned i=0;i<b.count;++i){b.entries[i].content_kind=0;char path[192];if(!b.entries[i].directory && browser_project_kind(b.entries[i].name) && join_path(path,sizeof path,b.directory,b.entries[i].name)){b.entries[i].content_kind=uint8_t(data_content_kind(fs_,path));uint8_t h[6];unsigned n=0;if(fs_.read(path,0,h,6,n) && n==6 && !__builtin_memcmp(h,"MGXC",4)){b.entries[i].format_version=wav_u16(h+4);b.entries[i].unsupported=b.entries[i].format_version!=kFormatVersion;}}}
@@ -755,11 +769,12 @@ public:
  // undo/redo) must still reach the browser on reopen: re-merge the known
  // asset metadata and restamp the format fields from the cached preview.
  if(replay){for(const auto& asset:project_.assets)if(asset.path[0] && !__builtin_strcmp(asset.path,path)){b.metadata=asset.metadata;break;}b.metadata.rate=b.preview.rate;b.metadata.frames=b.preview.frames;b.metadata.bits=b.preview.bits;b.metadata.channels=uint8_t(b.preview.channels);}
- if(action==FileAction::Preview || action==FileAction::Open){Command c{CommandType::PreviewSample,0,0,0};c.sample=view;c.frames=engine_.next_preview_ticket();ok=engine_.submit(c);if(ok){preview_ticket_=c.frames;b.previewing=true;b.preview_instrument=Instrument::Sampler;b.preview_kit_mask=0;b.audition_assigned=false;copy_text(b.audition_path,sizeof b.audition_path,path);copy_text(b.status,sizeof b.status,"Preview / Cue only");}else copy_text(b.status,sizeof b.status,"Preview unavailable / engine busy");}
+ if(action==FileAction::Open)copy_text(b.status,sizeof b.status,"WAV OPEN / TOP 3: PREVIEW");
+ if(action==FileAction::Preview){Command c{CommandType::PreviewSample,0,0,0};c.sample=view;c.frames=engine_.next_preview_ticket();ok=engine_.submit(c);if(ok){preview_ticket_=c.frames;b.previewing=true;b.preview_instrument=Instrument::Sampler;b.preview_kit_mask=0;b.audition_assigned=false;copy_text(b.audition_path,sizeof b.audition_path,path);copy_text(b.status,sizeof b.status,"Preview / Cue only");}else copy_text(b.status,sizeof b.status,"Preview unavailable / engine busy");}
  if(action==FileAction::Load){unsigned slot=kSampleAssets;bool compatible=select_load_slot(path,view,slot);ok=compatible && bind(slot,path,view);copy_text(b.status,sizeof b.status,ok?"Loaded to selected track":compatible?"Load failed / engine or storage":"Source changed or asset bank full");}
  if(action==FileAction::Favorite){ok=ui_.set_sample_favorite(path,!ui_.sample_favorite(path));if(ok){favorite_revision_=ui_.favorite_revision();if(b.favorites_only)refresh();}else copy_text(b.status,sizeof b.status,"Load first or wait for engine");return ok;}return ok;
  }
- bool service(){synchronize_bindings();service_twin();if(!library_index_initialized_ && refresh_preset_library())update_preset_status();service_device();service_preset_audition();RecordingUiSync recording_sync{*this};sync_recording_controls();service_record_cancel();engine_.service_freeze_capture();bool was_live=live_active_;service_live();library_.service();service_analysis();service_stretch();service_freeze();service_sampler_analysis();if(!ui_.file_action_pending() && favorite_revision_!=ui_.favorite_revision()){favorite_revision_=ui_.favorite_revision();if(ui_.browser().favorites_only)refresh();}auto& preview_ui=ui_.browser();uint32_t preview_state=engine_.preview_state();if(preview_ui.previewing && preview_ticket_ && (preview_state>>1)==preview_ticket_ && !(preview_state&1)){preview_ui.previewing=false;preview_ui.audition_path[0]=0;ui_.mark_dirty();}if(auto cancel=ui_.take_midi_import_cancel())midi_import_.cancel(cancel);
+ bool service(){synchronize_bindings();service_twin();if(!library_index_initialized_ && refresh_preset_library())update_preset_status();service_device();service_preset_audition();FileUiSync file_ui_sync{*this};sync_recording_controls();service_record_cancel();engine_.service_freeze_capture();bool was_live=live_active_;service_live();library_.service();service_analysis();service_stretch();service_freeze();service_sampler_analysis();if(!ui_.file_action_pending() && favorite_revision_!=ui_.favorite_revision()){favorite_revision_=ui_.favorite_revision();if(ui_.browser().favorites_only)refresh();}auto& preview_ui=ui_.browser();uint32_t preview_state=engine_.preview_state();if(preview_ui.previewing && preview_ticket_ && (preview_state>>1)==preview_ticket_ && !(preview_state&1)){preview_ui.previewing=false;preview_ui.audition_path[0]=0;ui_.mark_dirty();}if(auto cancel=ui_.take_midi_import_cancel())midi_import_.cancel(cancel);
  midi_import_.service([&](const MidiImport& imported){return ui_.publish_midi_import(imported);});
  MidiImportOutcome imported;if(midi_import_.take_result(imported)){bool owned=ui_.midi_import_finished(imported.ticket);if(owned || !ui_.modal_active()){copy_text(ui_.browser().status,sizeof ui_.browser().status,imported.message);ui_.notify(imported.stage==MidiImportStage::Applied?UiNotice::MidiImported:imported.stage==MidiImportStage::Failed?UiNotice::Failed:UiNotice::None);ui_.mark_dirty();}}
  auto previous_midi=midi_capture_?midi_capture_->state():MidiCapture::State::Idle;if(midi_capture_)midi_capture_->service();auto current_midi=midi_capture_?midi_capture_->state():MidiCapture::State::Idle;ui_.midi_capture_state(midi_capture_ && midi_capture_->busy()?(midi_capture_->internal()?2:1):0);if(previous_midi!=current_midi && current_midi==MidiCapture::State::Failed){ui_.midi_capture_path("");ui_.notify(UiNotice::Failed);}if(previous_midi==MidiCapture::State::Closing && current_midi==MidiCapture::State::Idle)ui_.notify(UiNotice::MidiSaved);service_project_save();service_kit_load();if(capture_pending_ && engine_.capture_ready()){capture_pending_=false;unsigned max=engine_.sample_rate()*4;auto* audio=alloc_array<float>(max*2);unsigned frames=audio?engine_.copy_capture(audio,max):0;char path[96],name[16]="Take-000.wav";bool ok=frames && fs_.directory(capture_directory_),free=false;for(unsigned i=1;ok && i<1000;++i){name[5]=char('0'+i/100);name[6]=char('0'+(i/10)%10);name[7]=char('0'+i%10);if(!join_path(path,sizeof path,capture_directory_,name)){ok=false;break;}if(!fs_.exists(path)){free=true;break;}}ok=ok && free;if(ok){FileWriter writer(fs_,path);ok=write_wav(writer,audio,frames,engine_.sample_rate()) && writer.finish();}delete[] audio;bool saved=ok,assigned=false;if(saved && target_unchanged(capture_target_)){unsigned slot=free_asset_slot(project_);WavView view;assigned=slot<64 && library_.load(path,view) && bind(slot,path,view,capture_target_.track,capture_target_.pattern,capture_target_.kit_pad);}copy_text(ui_.browser().status,sizeof ui_.browser().status,assigned?"Captured / assigned to requested track":saved?"Capture saved to WAV / not assigned":"Capture failed / check storage");ui_.notify(saved?UiNotice::Saved:UiNotice::Failed);}
@@ -771,7 +786,7 @@ public:
  if(action==FileAction::LibraryInspect || action==FileAction::LibraryRestore || action==FileAction::LibraryEngine || action==FileAction::LibraryOpen || action==FileAction::LibraryMove || action==FileAction::LibraryKind || action==FileAction::LibraryOriginals || action==FileAction::LibraryPrev || action==FileAction::LibraryNext || action==FileAction::LibraryOpenKits || action==FileAction::KitPrev || action==FileAction::KitNext)return browse_library(action);
  if(action==FileAction::SaveCurrentPreset)return save_current_preset();
  if(b.library_list && action==FileAction::Up){b.library_list=false;copy_text(b.directory,sizeof b.directory,"");b.cursor=0;refresh();return true;}
- if(b.library_list && (action==FileAction::Open || action==FileAction::Preview || action==FileAction::Load)){if(!selected_path(path))return false;if(action!=FileAction::Load)return audition_preset(path);library_commit_pending_=true;bool loaded=project_read_?start_kit_load(path):load_preset(path);if(!project_read_ || !loaded)finish_library_commit(loaded);return loaded;}
+ if(b.library_list && (action==FileAction::Open || action==FileAction::Preview || action==FileAction::Load)){if(!selected_path(path))return false;if(action==FileAction::Preview)return audition_preset(path);if(action!=FileAction::Load)return false;library_commit_pending_=true;bool loaded=project_read_?start_kit_load(path):load_preset(path);if(!project_read_ || !loaded)finish_library_commit(loaded);return loaded;}
  if(action==FileAction::AudioRecord || action==FileAction::AudioOverdub)return begin_audio_record(action==FileAction::AudioOverdub);
  if(action==FileAction::SaveProject)return save_named_project();
  if(action==FileAction::RenameFile || action==FileAction::DeleteFile || action==FileAction::NewFolder)return mutate_browser_file(action);
@@ -830,13 +845,38 @@ public:
 
  if(!selected_path(path))return false;
 
+ if((action==FileAction::Open || action==FileAction::Load) && is_ipa_file(path)){
+  if(action==FileAction::Open){
+   copy_text(b.status,sizeof b.status,"IPA PHRASES / TOP 4: LOAD INTO CHIMERA");
+   ui_.mark_dirty();return true;
+  }
+  const unsigned target=ui_.selected_track();
+  if(track_at(project_,project_.active_pattern,target).instrument!=Instrument::Chimera){
+   copy_text(b.status,sizeof b.status,"SELECT A CHIMERA TRACK TO LOAD IPA");
+   ui_.mark_dirty();return false;
+  }
+  char text[kChimeraIpaBytes];unsigned bytes=0;const uint64_t length=fs_.size(path);
+  bool loaded=length && length<=sizeof text && fs_.read(path,0,text,unsigned(length),bytes) && bytes==length &&
+              engine_.stage_chimera_speech(target,text,bytes);
+  if(loaded){
+   auto& ipa=project_.chimera_ipa[target];ipa.size=uint16_t(bytes);
+   __builtin_memcpy(ipa.data,text,bytes);
+  }
+  copy_text(b.status,sizeof b.status,loaded?"IPA READY / SYNTH VOICE: SPEAK OR SING":"IPA INVALID OR BUSY / PREVIOUS PHRASES KEPT");
+  ui_.mark_dirty();return loaded;
+ }
  if(action==FileAction::Open && is_midi_file(path)){copy_text(b.selected_name,sizeof b.selected_name,filename(path));b.preview=WavView{};b.preview_path[0]=0;copy_text(b.status,sizeof b.status,"Shift+IMPORT, then PUSH / selected MIDI channel");ui_.mark_dirty();return true;}
  if(action==FileAction::Open && b.entries[b.cursor].directory){copy_text(b.directory,sizeof b.directory,path);b.cursor=0;refresh();return true;}
- if((action==FileAction::Open || action==FileAction::Load) && is_soundfont_file(path)){if(library_.supports_incremental_load()){browser_soundfont_target_=record_target();if(!library_.begin_incremental_load(path,0)){copy_text(b.status,sizeof b.status,library_.failure_reason());ui_.notify(UiNotice::Failed);return false;}browser_load_active_=browser_load_soundfont_=true;copy_text(browser_load_path_,sizeof browser_load_path_,path);copy_text(b.status,sizeof b.status,"Loading SF2 / previous sound kept");ui_.mark_dirty();return true;}ok=load_soundfont(path);copy_text(b.status,sizeof b.status,ok?"SF2 assigned / SYNTH: BANK and PROGRAM":library_.failure_reason());ui_.notify(ok?UiNotice::Saved:UiNotice::Failed);return ok;}
+ if(action==FileAction::Open && is_soundfont_file(path)){copy_text(b.status,sizeof b.status,"SOUNDFONT / TOP 4: LOAD");ui_.mark_dirty();return true;}
+ if(action==FileAction::Load && is_soundfont_file(path)){if(library_.supports_incremental_load()){browser_soundfont_target_=record_target();if(!library_.begin_incremental_load(path,0)){copy_text(b.status,sizeof b.status,library_.failure_reason());ui_.notify(UiNotice::Failed);return false;}browser_load_active_=browser_load_soundfont_=true;copy_text(browser_load_path_,sizeof browser_load_path_,path);copy_text(b.status,sizeof b.status,"Loading SF2 / previous sound kept");ui_.mark_dirty();return true;}ok=load_soundfont(path);copy_text(b.status,sizeof b.status,ok?"SF2 assigned / SYNTH: BANK and PROGRAM":library_.failure_reason());ui_.notify(ok?UiNotice::Saved:UiNotice::Failed);return ok;}
  if(action==FileAction::Open && is_dx7_file(path)){if(!ui_.require_project_save_safe())return false;char folder[160];ok=import_dx7_bank(fs_,path,folder,sizeof folder);if(ok){copy_text(b.directory,sizeof b.directory,folder);b.cursor=0;refresh();}copy_text(b.status,sizeof b.status,ok?"Imported 32 presets / pool unchanged":"Invalid DX7 bank or import failed");ui_.notify(ok?UiNotice::Saved:UiNotice::Failed);return ok;}
  if(action==FileAction::Duplicate && is_recording_part(path)){ok=recover_live_part(path,b.directory);if(ok)refresh();copy_text(b.status,sizeof b.status,ok?"Recovered WAV / select to preview":"Recovery failed / original kept");ui_.notify(ok?UiNotice::Saved:UiNotice::Failed);return ok;}
  if(action==FileAction::Duplicate){char to[160],name[112];bool available=false;for(unsigned attempt=1;attempt<100;++attempt){name[0]=char('0'+attempt/10);name[1]=char('0'+attempt%10);name[2]='-';if(!copy_text(name+3,sizeof name-3,filename(path)) || !join_path(to,sizeof to,b.directory,name))break;if(!fs_.exists(to)){available=true;break;}}ok=available && copy_file(fs_,path,to);copy_text(b.status,sizeof b.status,ok?"Duplicate created":"Duplicate failed");if(ok){refresh();}return ok;}
- unsigned project_kind=data_content_kind(fs_,path);if(action==FileAction::Preview && (project_kind==2 || project_kind==3)){bool result=audition_preset(path);if(!result){copy_text(b.status,sizeof b.status,content_error_[0]?content_error_:"Preset preview failed / sound kept");ui_.notify(UiNotice::Failed);}return result;}if(browser_project_kind(path) && !project_kind){copy_text(b.status,sizeof b.status,"Unsupported MGX format");return false;}if((action==FileAction::Open || action==FileAction::Load) && project_kind)return project_kind==3?(project_read_?start_kit_load(path,false,false,true):load_preset(path)):project_kind==2 && project_read_?start_kit_load(path):load(path,project_kind==2);
+ unsigned project_kind=data_content_kind(fs_,path);if(action==FileAction::Preview && (project_kind==2 || project_kind==3)){bool result=audition_preset(path);if(!result){copy_text(b.status,sizeof b.status,content_error_[0]?content_error_:"Preset preview failed / sound kept");ui_.notify(UiNotice::Failed);}return result;}if(browser_project_kind(path) && !project_kind){copy_text(b.status,sizeof b.status,"Unsupported MGX format");return false;}if(action==FileAction::Open && (project_kind==2 || project_kind==3)){
+  copy_text(b.status,sizeof b.status,project_kind==2?"TOP 4: LOAD / BROWSER: KIND > KITS":"TOP 4: LOAD / BROWSER: KIND > PRESETS");
+  ui_.mark_dirty();return true;
+ }
+ if((action==FileAction::Open && project_kind==1) || (action==FileAction::Load && (project_kind==2 || project_kind==3)))return project_kind==3?(project_read_?start_kit_load(path,false,false,true):load_preset(path)):project_kind==2 && project_read_?start_kit_load(path):load(path,project_kind==2);
  // Reopening the same unchanged WAV must not synchronously rescan its full
  // contents or cancel a waveform job already in progress. Cache ownership stays
  // with the sample library; a changed/unverifiable revision takes the slow path.

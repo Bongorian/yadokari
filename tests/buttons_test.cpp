@@ -26,12 +26,12 @@ int main() {
  perf.control(8, 0x02); perf.control(8, 0x00);
  assert(perf.mode() == UiMode::Song);
  leds(perf, led); assert(led[2] && !led[51]);
- // BROWSER owns LED 4; FILE/Project owns LED 8.
+ // BROWSER lights the library button. FILE lights the card browser button.
  perf.control(8, 0x04); perf.control(8, 0x00);
- assert(perf.mode() == UiMode::Browser);
+ assert(perf.mode() == UiMode::Library);
  leds(perf, led); assert(led[4] && !led[8]);
  perf.control(8, 0x10); perf.control(8, 0x00);
- assert(perf.mode() == UiMode::Project);
+ assert(perf.mode() == UiMode::Browser);
  leds(perf, led); assert(led[8] && !led[4]);
  // VARIATION is the declared Generate entry: surface byte 5, bit 1.
  perf.control(5,0x02);perf.control(5,0);assert(perf.mode()==UiMode::Generate);

@@ -93,7 +93,27 @@ bool Engine::release_poly(PolyVoice& p,bool immediate){va_candidates_dirty_=true
 bool Engine::note_off(unsigned t){kit_midi_release(255,t);bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !release_poly(p))ok=false;return note_off_main(t) && ok;}
 bool Engine::release_sequence(unsigned t){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && p.sequenced && !p.voice.released && !release_poly(p))ok=false;return ok;}
 void Engine::clear_poly(unsigned t){for(auto& p:poly_voices_)if(p.owner==t)release_poly(p,true);}
-bool Engine::release_note(unsigned t,uint8_t note,uint16_t channel){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.input_note==note && p.voice.received_channel==channel)if(!release_poly(p))ok=false;auto& v=voices_[t];bool poly_capable=live_poly_capable(Instrument(v.instrument)) || v.instrument==unsigned(Instrument::ExternalMidi);if(!poly_capable && v.input_note==note && v.received_channel==channel)if(!note_off_main(t))ok=false;return ok;}
+bool Engine::resume_chimera(unsigned t,uint8_t note,uint16_t channel){
+ auto& current=voices_[t];
+ if(repeat_mode_ || !chimera_.held_legato() || chimera_.owner()!=t || current.instrument!=unsigned(Instrument::Chimera) ||
+    (current.received_channel!=channel || (note<128 && current.input_note!=note)))return false;
+ const RepeatPad* newest=nullptr;
+ auto consider=[&](const RepeatPad& held){
+  if(!held.held || held.track!=t || !held.chimera_order ||
+     (held.channel==channel && (note>=128 || held.note==note)))return;
+  if(!newest || held.chimera_order>newest->chimera_order)newest=&held;
+ };
+ for(const auto& held:repeat_pads_)consider(held);
+ for(const auto& held:repeat_midi_)consider(held);
+ if(!newest || track(t).instrument!=Instrument::Chimera)return false;
+ const auto state=track(t);
+ auto* restored=trigger(t,newest->velocity,newest->note,nullptr,&state,0,false,true,
+                         -1,-1,nullptr,-1,nullptr,nullptr,nullptr,newest->chromatic);
+ if(!restored)return false;
+ restored->received_channel=newest->channel;
+ return true;
+}
+bool Engine::release_note(unsigned t,uint8_t note,uint16_t channel){bool ok=true;for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.input_note==note && p.voice.received_channel==channel)if(!release_poly(p))ok=false;auto& v=voices_[t];bool poly_capable=live_poly_capable(Instrument(v.instrument)) || v.instrument==unsigned(Instrument::ExternalMidi);if(!poly_capable && v.input_note==note && v.received_channel==channel && !resume_chimera(t,note,channel))if(!note_off_main(t))ok=false;return ok;}
 void Engine::finish_repeat_pad(RepeatPad& pad){finish_recorded_note(pad.track,pad.recorded_note<128?pad.recorded_note:pad.note,pad.channel);pad.recorded_note=255;pad.gate_due=0;}
 void Engine::refresh_repeat_gate(){repeat_next_gate_=0;for(unsigned i=0;i<16*kStepNotes+16;++i){const auto& pad=i<16*kStepNotes?repeat_pads_[i]:repeat_midi_[i-16*kStepNotes];if(pad.gate_due && (!repeat_next_gate_ || pad.gate_due<repeat_next_gate_))repeat_next_gate_=pad.gate_due;}}
 // Released latch notes are owned by the repeat engine until replaced or stopped.
@@ -123,7 +143,7 @@ void Engine::repeat_tick(){
  refresh_repeat_gate();
 }
 
-void Engine::release_midi_channel(unsigned t,uint16_t channel,bool immediate){for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.received_channel==channel)release_poly(p,immediate);auto& v=voices_[t];if(v.received_channel==channel){note_off_main(t);if(immediate){v.sampler.stop();v.env=0;}}}
+void Engine::release_midi_channel(unsigned t,uint16_t channel,bool immediate){for(auto& p:poly_voices_)if(p.owner==t && !p.sequenced && p.voice.received_channel==channel)release_poly(p,immediate);auto& v=voices_[t];if(v.received_channel==channel){if(immediate || !resume_chimera(t,255,channel))note_off_main(t);if(immediate){v.sampler.stop();v.env=0;}}}
 LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected)const{
  auto reason=layer_status(layer);if(reason!=LayerReason::Ready)return reason;unsigned incoming=layer_note_cost(layer,key,velocity,&selected);if(!selected)return LayerReason::Ready;if(!leaf_runtime_)return LayerReason::Voices;
  unsigned free=0,total=0,local=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
@@ -142,7 +162,7 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:granular_!=nullptr;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:Instrument::Granular))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget))return LayerReason::Voices;}
  return LayerReason::Ready;
 }
-Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic) {
+Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic,bool sing_pickup) {
  va_candidates_dirty_=true;
  RenderEventScope audit(render_audit_,event_work_,RenderAudit::TriggerWork);
  if(audio_lane_mask_&(1u<<t))return nullptr;
@@ -198,7 +218,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  v.texture_state=state.texture;v.texture_state.values[12]=base.texture.values[12];
  v.soundfont.stop();v.soundfont_base=step && step->sound<kPresetSlots?project_->sounds[step->sound].soundfont:state.soundfont;
  v.additive_base=state.additive;
- v.phase_dist_base=state.phase_dist;v.formant_base=state.formant;v.granular_base=state.granular;
+ v.phase_dist_base=state.phase_dist;v.formant_base=state.formant;v.granular_base=state.granular;v.chimera_base=state.chimera;
  v.fm6_base=step && step->sound<kPresetSlots?project_->sounds[step->sound].fm6:state.fm6;
  v.va_base=step && step->sound<kPresetSlots?project_->sounds[step->sound].virtual_analog:state.virtual_analog;
  v.wavetable_base=step && step->sound<kPresetSlots?project_->sounds[step->sound].wavetable:state.wavetable;
@@ -244,7 +264,13 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::Resonator){resonators_[t].reseed(event_seed_for());if(!resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
  v.step_pitch.reset();v.tie_pending=false;v.step_accent=step && step->accent();v.step_sound=step?step->sound:kNoPreset;v.step_mono=step && !poly && !kit && !layer_part && !state.arp_mode && step_monophonic(*step);
  v.a=float(velocity)/127.0f;v.released=false;v.env=velocity?1:0;
- if(actual==Instrument::Chimera && velocity)chimera_.trigger(t);
+ if(actual==Instrument::Chimera && velocity){
+  auto& pickup=chimera_pickups_[t];
+  const bool keep_score=step && !sing_pickup && pickup.started && pickup.serial==runtime_[t].step_serial &&
+                        pickup.pattern==runtime_[t].pattern && chimera_.owner()==t && chimera_.note()==v.note;
+  if(!sing_pickup)pickup.started=false;
+  chimera_.trigger(t,v.note,keep_score);
+ }
  if(auto* dsp=plaits_dsp(t,v)){if(&v!=&voices_[t])dsp->seed(event_seed_for());dsp->set_model(model);dsp->set_note_float(float(v.note)+tuning+v.pitch_bend);for(unsigned i=0;i<5;++i)dsp->set_parameter(i,v.parameters[i]);dsp->trigger(uint8_t(velocity),live_poly || step!=nullptr);}
  if(actual==Instrument::DaisySynth){float adsr[4];for(unsigned i=0;i<4;++i)adsr[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::DaisySynth,i),engine_parameter_value(state,i),runtime_[t].active_locks,unsigned(runtime_[t].automation_cell),control_all_,control_all_id_,control_all_delta_,runtime_[t].automation_live,&gesture_overlay_,runtime_[t].pattern).value;v.daisy.set_adsr(adsr[0],adsr[1],adsr[2],adsr[3]);v.daisy.trigger(uint8_t(velocity));}
  if(v.instrument==unsigned(Instrument::FM))v.fm.Reset();
@@ -275,6 +301,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
   }else{r.cc_dirty=true;refresh_cc(t);}
  }
  if(v.instrument==unsigned(Instrument::ExternalMidi) && velocity) { bool audible=!suppressed_external;v.midi_note=audible && midi(uint8_t(0x90|v.channel),v.note,uint8_t(velocity));if(poly && audible && !v.midi_note){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;} }
+ if(sing_pickup)return &v;
  capture_voice_on(v,t,velocity);
  if(step){uint64_t length=((runtime_[t].retrigger_period*step->gate)/(96*runtime_[t].retrigger_count))>>32;v.off_at=sample_count_+(length?length:1);}
  else if(kit_step && kit && (v.sample_mode==SampleMode::Gate || v.looping)){uint64_t length=(step_period(t)>>32)/kit_step->ratchet;v.off_at=sample_count_+(length?length:1);}
@@ -303,7 +330,18 @@ bool Engine::hold_for_slide(unsigned t,Voice& v){
  if(int64_t(velocity)+int64_t(cycle)*a.velocity+groove_velocity(state.groove,r.position)*state.groove.amount/100<=0)return false;
  v.tie_pending=true;v.off_at=r.due+1;return true;
 }
-void Engine::trigger_step_chord(unsigned t,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees){if(!release_sequence(t))return;if(!trigger(t,velocity,note,&step,nullptr,accumulator,degrees))return;Instrument actual=step.sound<kPresetSlots?project_->sounds[step.sound].instrument:track(t).instrument;if(!live_poly_capable(actual) && actual!=Instrument::ExternalMidi)return;const auto& state=track(t);auto effective=[&](int input){int value=(step.chromatic?bounded(input+state.transpose,0,127):transform_note(input,state));return degrees?scale_move(value,accumulator,state):bounded(value+accumulator,0,127);};int heard[kStepNotes]={effective(note)};unsigned count=1;for(uint8_t chord_note:step.chord)if(chord_note<128 && count<instrument_voice_limit(actual,step.sound<kPresetSlots?project_->sounds[step.sound].model:state.plaits_model)){int next=bounded(int(state.root_note)+int(chord_note)-60,0,127),pitch=effective(next);bool duplicate=false;for(unsigned i=0;i<count;++i)duplicate|=heard[i]==pitch;if(!duplicate){heard[count++]=pitch;trigger(t,velocity,next,&step,nullptr,accumulator,degrees,true);}}}
+void Engine::trigger_step_chord(unsigned t,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees){
+ if(!release_sequence(t))return;
+ Instrument actual=step.sound<kPresetSlots?project_->sounds[step.sound].instrument:track(t).instrument;
+ if(actual==Instrument::Chimera){
+  int last=note;
+  for(uint8_t chord_note:step.chord)if(chord_note<128)last=bounded(int(track(t).root_note)+int(chord_note)+int(song_transpose_)-60,0,127);
+  trigger(t,velocity,last,&step,nullptr,accumulator,degrees);
+  return;
+ }
+ if(!trigger(t,velocity,note,&step,nullptr,accumulator,degrees))return;
+ if(!live_poly_capable(actual) && actual!=Instrument::ExternalMidi)return;
+ const auto& state=track(t);auto effective=[&](int input){int value=(step.chromatic?bounded(input+state.transpose,0,127):transform_note(input,state));return degrees?scale_move(value,accumulator,state):bounded(value+accumulator,0,127);};int heard[kStepNotes]={effective(note)};unsigned count=1;for(uint8_t chord_note:step.chord)if(chord_note<128 && count<instrument_voice_limit(actual,step.sound<kPresetSlots?project_->sounds[step.sound].model:state.plaits_model)){int next=bounded(int(state.root_note)+int(chord_note)-60,0,127),pitch=effective(next);bool duplicate=false;for(unsigned i=0;i<count;++i)duplicate|=heard[i]==pitch;if(!duplicate){heard[count++]=pitch;trigger(t,velocity,next,&step,nullptr,accumulator,degrees,true);}}}
 // Transform and deduplicate before ordering, so scale quantization cannot generate duplicate pitches.
 void Engine::trigger_step_arp(unsigned t,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees,unsigned index){
  const auto& state=track(t);struct Choice{uint8_t input,pitch;};Choice choices[kStepNotes*4];unsigned count=0;

@@ -7,7 +7,9 @@ constexpr uint8_t icon_for(BrowserAction action){switch(action){case BrowserActi
 
 using BrowserControl=ui::ControlDescriptor<BrowserAction>;
 struct BrowserContext {
- bool shift=false,midi=false,previewing=false,other_preview=false,part=false,midi_file=false,new_project=false;
+ bool shift=false,midi=false,previewing=false,other_preview=false,part=false,midi_file=false,new_project=false,directory=false;
+ unsigned content_kind=0;
+ bool ipa=false;
 };
 inline BrowserControl browser_button_control(unsigned index,const BrowserContext& c){
  if(c.new_project){if(index==0)return {"OPEN",BrowserAction::Open,true};if(index==1)return {"CANCEL",BrowserAction::Project,true};return {};}
@@ -15,11 +17,12 @@ inline BrowserControl browser_button_control(unsigned index,const BrowserContext
  case 0:return c.shift?BrowserControl{"FAVORITES",BrowserAction::ToggleFavorites,true}:BrowserControl{"OPEN",BrowserAction::Open,true};
  case 1:return {"UP",BrowserAction::Up,true};
  case 2:{
-  if(c.midi && !c.previewing)return {};
+  if(c.directory || c.content_kind==1 || c.ipa || (c.midi && !c.previewing))return {};
   BrowserControl d{c.previewing && !c.other_preview?"STOP PREVIEW":"PREVIEW",c.previewing && !c.other_preview?BrowserAction::StopPreview:BrowserAction::Preview,true};
   d.selected=c.previewing && !c.other_preview;return d;}
  case 3:{
   if(c.midi && !c.shift)return {"HOLD SHIFT",BrowserAction::None,false};
+  if(c.directory || c.content_kind==1)return {};
   return {c.shift && c.midi?"IMPORT MIDI":"LOAD",c.shift && c.midi_file?BrowserAction::MidiImport:BrowserAction::Load,true};}
  case 4:{
   if(c.midi && !c.shift)return {};

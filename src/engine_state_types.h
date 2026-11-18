@@ -9,6 +9,7 @@
 #include "spectral_states.h"
 #include "formant_state.h"
 #include "granular_state.h"
+#include "chimera_state.h"
 #include "sample_state.h"
 #include "creative_state.h"
 namespace groove {

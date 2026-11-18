@@ -12,6 +12,7 @@ using TrackField_additive=AdditiveState;
 using TrackField_phase_dist=PhaseDistState;
 using TrackField_formant=FormantState;
 using TrackField_granular=GranularState;
+using TrackField_chimera=ChimeraState;
 using TrackField_soundfont=SoundFontState;
 using TrackField_virtual_analog=VirtualAnalogState;
 using TrackField_wavetable=WavetableState;
@@ -84,6 +85,7 @@ using TrackField_sound_override=uint16_t;
  X(TrackField_phase_dist,phase_dist,{}) \
  X(TrackField_formant,formant,{}) \
  X(TrackField_granular,granular,{}) \
+ X(TrackField_chimera,chimera,{}) \
  X(TrackField_soundfont,soundfont,{}) \
  X(TrackField_fm6,fm6,{}) \
  X(TrackField_virtual_analog,virtual_analog,{}) \
@@ -191,10 +193,10 @@ template<bool C> struct BasicTrackView {
 #undef INIT_VIEW_FIELD
  // Borrow the pool's engine state while retaining this track's strip and phrase.
  // No kit/phrase copy or allocation is needed at a step trigger.
- BasicTrackView(const BasicTrackView& v,Q<SoundState>& s):BasicTrackView(v,static_cast<Q<SoundLeaf>&>(s),s.layer){}
+ BasicTrackView(const BasicTrackView& v,Q<SoundState>& s):BasicTrackView(v,static_cast<Q<SoundLeaf>&>(s),s.layer,&s.chimera){}
  BasicTrackView(const BasicTrackView& v,Q<SoundLeaf>& s):BasicTrackView(v,s,v.layer){}
- BasicTrackView(const BasicTrackView& v,Q<SoundLeaf>& s,Q<LayerState>& layers):
- definition_cookie(s.definition_cookie),preset_name(s.preset_name),layer(layers),additive(s.additive),phase_dist(s.phase_dist),formant(s.formant),granular(s.granular),soundfont(s.soundfont),fm6(s.fm6),virtual_analog(s.virtual_analog),wavetable(s.wavetable),texture(s.texture),resonator(s.resonator),sample_edit(s.sample_edit),creative(s.creative),instrument(s.instrument),plaits_model(s.model),engine_parameters(s.parameters),daisy_adsr(s.daisy_adsr),sample_loop(s.sample_loop),sample_reverse(s.sample_reverse),sample_slice(s.sample_slice),sample_slices(s.sample_slices),sample_slot(s.sample_slot),
+ BasicTrackView(const BasicTrackView& v,Q<SoundLeaf>& s,Q<LayerState>& layers,Q<ChimeraState>* voice=nullptr):
+ definition_cookie(s.definition_cookie),preset_name(s.preset_name),layer(layers),additive(s.additive),phase_dist(s.phase_dist),formant(s.formant),granular(s.granular),chimera(voice?*voice:v.chimera),soundfont(s.soundfont),fm6(s.fm6),virtual_analog(s.virtual_analog),wavetable(s.wavetable),texture(s.texture),resonator(s.resonator),sample_edit(s.sample_edit),creative(s.creative),instrument(s.instrument),plaits_model(s.model),engine_parameters(s.parameters),daisy_adsr(s.daisy_adsr),sample_loop(s.sample_loop),sample_reverse(s.sample_reverse),sample_slice(s.sample_slice),sample_slices(s.sample_slices),sample_slot(s.sample_slot),
 #define INIT_SHARED_FIELD(T,N,...) N(v.N),
  TRACK_COMMON_FIELDS(INIT_SHARED_FIELD)
 #define INIT_MIDI_FIELD(T,N,...) N(s.instrument==Instrument::ExternalMidi?s.N:v.N),

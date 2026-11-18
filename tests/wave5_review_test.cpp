@@ -43,7 +43,7 @@ int main(){
  assert(ui.knob_parameter(3)==kit_mix_parameter_id(0,1));assert(ui.knob(3,2000));float pan=p->tracks[0].kit.pads[0].pan;assert(pan>0);
  ui.set_shift(true);assert(ui.dispatch({T::KnobTouch,3,1}));assert(ui.control(6,4));ui.control(6,0);ui.dispatch({T::KnobTouch,3,0});ui.set_shift(false);
  assert(p->tracks[0].kit.pads[0].pan==0);assert(ui.undo());assert(p->tracks[0].kit.pads[0].pan==pan);
- ui.set_mode(UiMode::Synth);assert(ui.soft_key(4) && ui.source_select() && !std::strcmp(ui.soft_label(4),"LOAD ENGINE"));assert(ui.soft_key(7) && !ui.source_select());
+ ui.set_mode(UiMode::Synth);assert(ui.soft_key(4) && ui.source_select() && !std::strcmp(ui.soft_label(4),"DEFAULT SOUND"));assert(ui.soft_key(7) && !ui.source_select());
  // No-op assignments for another modal cannot erase the Browser's axis metadata.
  ui.set_mode(UiMode::Browser);auto& b=ui.browser();b.count=1;b.cursor=0;copy_text(b.entries[0].name,96,"fixture.wav");
  assert(ui.begin_browser_edit(BrowserOperation::Rename));assert(ui.axes().modal==ModalKind::Rename);

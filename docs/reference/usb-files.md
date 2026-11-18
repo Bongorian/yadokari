@@ -1,6 +1,6 @@
 # USB-Cファイル転送（MGF1 v1）
 
-有線の開発・検証用入口。日常の転送はWi‑Fi Webでも同じ検証・保護・上書き規則を使う。USB storageとしてmountせず、GBX1へファイル命令を追加しない。認証codeは不要。物理ケーブルを持つホストがOPENし、録音／ファイル処理／更新が動いていなければ演奏を停止して専用画面へ入る。CLOSE、画面のCLOSE／BROWSER、切断または30秒無通信で終了。通常操作と音声装置の再接続はその後に戻る。Wi‑FiとUSBの同時セッションは不可。
+有線の開発・検証用入口。日常の転送はWi‑Fi Webでも同じ検証・保護・上書き規則を使う。USB storageとしてmountせず、GBX1へファイル命令を追加しない。認証codeは不要。物理ケーブルを持つホストがOPENし、録音／ファイル処理／更新が動いていなければ演奏を停止して専用画面へ入る。CLOSE、画面のCLOSE／FILES、切断または30秒無通信で終了。通常操作と音声装置の再接続はその後に戻る。Wi‑FiとUSBの同時セッションは不可。
 
 ## CLI
 
@@ -9,11 +9,13 @@ Python 3.11以上とPyUSB／libusbを使う（`python3 -m pip install pyusb`）�
 ```sh
 python3 tools/files/usb_files.py list projects
 python3 tools/files/usb_files.py put Song.mgxs
+python3 tools/files/usb_files.py put Voice.ipa
+python3 tools/files/usb_files.py list speech
 python3 tools/files/usb_files.py get PROJECTS/Song.mgxs received.mgxs
 python3 tools/files/usb_files.py delete PROJECTS/Song.mgxs
 ```
 
-各呼出しはOPEN→操作→CLOSE。PUT／GETはbyte数・SHA256・時間をJSON表示し、エラーはstderrと非zero終了。GETはhostの`.part`へ書いて完了後に指定出力名へ置換し、中断した自分の`.part`だけ除去する。機器側のPUTも完全受信・保存済みhash・型検証を終えてから同名を置換する。現在Project／全宣言参照／標準素材の同一filesystem entryはPUT・DELETEとも拒否。許可棚はPROJECTS／PRESETS／KITS／ASSETSのSAMPLES・SOUNDFONTS・MIDI／RECORDINGS。PUTはContentKindやRIFF等の中身に従い自動配置し、任意pathは受け取らない。旧MGXCは拒否。拡張子とMGXC ContentKindの食い違いでは中身を正とする。
+各呼出しはOPEN→操作→CLOSE。PUT／GETはbyte数・SHA256・時間をJSON表示し、エラーはstderrと非zero終了。GETはhostの`.part`へ書いて完了後に指定出力名へ置換し、中断した自分の`.part`だけ除去する。機器側のPUTも完全受信・保存済みhash・型検証を終えてから同名を置換する。現在Project／全宣言参照／標準素材の同一filesystem entryはPUT・DELETEとも拒否。許可棚はPROJECTS／PRESETS／KITS／ASSETSのSAMPLES・SOUNDFONTS・MIDI・SPEECH／RECORDINGS。PUTはContentKindやRIFF等の中身に従い自動配置し、任意pathは受け取らない。旧MGXCは拒否。拡張子とMGXC ContentKindの食い違いでは中身を正とする。
 
 ## wire
 
@@ -30,6 +32,8 @@ VID:PID=1209:0001、CDC data interface 1、OUT=0x02／IN=0x83。24-byte little e
 | 7 PUT COMMIT | 空 | NUL destination |
 | 8 DELETE | NUL path | 空 |
 | 9 CANCEL | 空 | 空 |
+
+棚 ID は 0 から順に PROJECTS、PRESETS、KITS、SAMPLES、SOUNDFONTS、MIDI、RECORDINGS、SPEECH です。
 
 requestは1本ずつ応答を待つ。4096-byte上限はCircle CDCの8192-byte receive ringに合わせ、bulk受信overrunを避ける。DATAは機器側32KiBへ結合してSDへ保存し、100MBでも全量をRAMへ載せない。DATAの応答は受信確認で、永続化完了を意味しない。COMMIT成功のみ保存完了。LISTは最大1024 entries／96 directories、境界を超えるとLIMIT。statusはUserFileErrorの値、128=INVALID_FRAME、129=UNSUPPORTED_VERSION。専用frameの途中はGBX1やGUP1へ渡さない。更新中のOPENはBUSY、ファイル中のupdate ENTERも拒否する。GBX1 STATUS／LOGは従来どおり制御用。更新の署名・journal・recoveryは変更しない。
 

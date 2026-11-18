@@ -67,7 +67,7 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
 
 本機は、<strong>16トラックでビートとメロディーを作り、ClipとSceneを演奏し、Songとして保存する楽器</strong>です。Pi上でLinuxやNIソフトウェアを動かす方式ではありません。MK3の2画面・8ノブ・16パッドを使います。
 
-本書の画面はレンダラーで生成したイメージで、実機の写真ではありません。Browserなどの一覧に表示されるファイル名は説明用の例です。
+本書の画面はレンダラーで生成したイメージで、実機の写真ではありません。FILESなどの一覧に表示されるファイル名は説明用の例です。
 
 ### 用語と容量
 
@@ -111,12 +111,12 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
 | CHANNEL | ROUTINGとFXを切り替える | 他ページからはROUTING。GROUP FX内ならTop1「MAIN / CUE」で録音ページへ |
 | MIXER | MIXER | パッドを押すとTrackのMuteを切り替える |
 | ARRANGER / PATTERN / SCENE | SONG / CLIP / SCENE | ARRANGERはCLIPではない |
-| BROWSER / SAMPLING | BROWSER / SAMPLER | SAMPLINGは押しただけでは録音を開始しない |
+| BROWSER / SAMPLING | PRESETS / SAMPLER | SAMPLINGは押しただけでは録音を開始しない |
 | AUTO / MACRO | MODULATION / PERFORMのMACROS | AUTOを押すだけでノブの自動記録が始まるわけではない |
-| FILE | PROJECT | SHIFT+FILEで通常保存 |
+| FILE | FILES | SHIFT+FILEで通常保存 |
 | SETTINGS | 設定 | SHIFT+SETTINGSは停止中に更新確認。制作中のページ移動用には使わない |
 | VOLUME / SWING / TEMPO | 押しながら4-Dを回すと、その値を変更 | ボタンを離すと4-Dは通常の役割へ戻る |
-| 4-D回転／上下 | 画面に応じてStep、Clip、Scene、Fileなどを選ぶ | 押下で実行・編集。左右はページ移動。Browserでは親／Open |
+| 4-D回転／上下 | 画面に応じてStep、Clip、Scene、Fileなどを選ぶ | 押下で実行・編集。左右はページ移動。FILESでは親／Open |
 | 独立したページ左右ボタン | ページ・サブページ・フォーカスの履歴を戻る／進む | 両方を約400ms保持でPADへHOME、再度でRETURN。4-D左右による画面内移動とは別 |
 | SELECT + Pad | 発音や起動をせず対象選択 | <strong>SCENEでは保存</strong>。KitのSTEPではKit pad選択。画面によって意味が異なる |
 | MUTE / SOLO + Pad | Mute / Solo切替 | Kitを選んでいる場合はKit padが対象 |
@@ -145,7 +145,7 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
 ![NEW確認](manual/new-confirm.png)
 
 1. 残したい編集は<strong>SHIFT+FILE</strong>で保存し、完了表示を待ちます。
-2. <strong>FILE → Top3「NEW」</strong>。工場Song棚 `FACTORY/DEMOS` にテンプレート曲がある場合は、<strong>EMPTY／テンプレート一覧</strong>が開きます。K1または4-Dで選び、<strong>Top1 OPEN</strong>。Top2 CANCELで戻れます。EMPTYを選ぶかテンプレートが0件なら、従来の<strong>CONFIRM／CANCEL</strong>へ進みます。既存編集の自動保存はありません。同梱のイメージにテンプレート曲は入っていないため、通常はCONFIRM／CANCELへ進みます。
+2. <strong>FILE → Top7 PROJECT → Top3「NEW」</strong>。工場Song棚 `FACTORY/DEMOS` にテンプレート曲がある場合は、<strong>EMPTY／テンプレート一覧</strong>が開きます。K1または4-Dで選び、<strong>Top1 OPEN</strong>。Top2 CANCELで戻れます。EMPTYを選ぶかテンプレートが0件なら、従来の<strong>CONFIRM／CANCEL</strong>へ進みます。既存編集の自動保存はありません。同梱のイメージにテンプレート曲は入っていないため、通常はCONFIRM／CANCELへ進みます。
 EMPTYの16トラックはすべて **EMPTY**（無音・音源未割当）。テンプレートから始めても曲名は **Untitled** になり、初回保存は **SAVE AS** です。工場の元曲は上書きしません。
 
 ![NEWの選択リスト：表示名は説明用の例](manual/new-templates.png)
@@ -155,9 +155,9 @@ EMPTYの16トラックはすべて **EMPTY**（無音・音源未割当）。テ
 5. <strong>B</strong>で別Trackへ。手順3と同じ入口で<strong>Daisy Analog Snare</strong>をLOADし、<strong>STEP → Pad5・13</strong>をONにします。
 6. <strong>C</strong>へ<strong>Daisy Analog Hat</strong>をLOADし、<strong>STEP → Pad3・7・11・15</strong>。ハットのK3 `VELOCITY`を少し下げます。変更するStepはSHIFT+Padで選び、パッドから手を離してノブを回すと通常のStep項目を編集できます。
 
-ドラムは単体PresetでもKitでも使えます。DAISY ANALOG／SYNTH DRUMSの単体PresetはVOICEも編集可能です。VA DUAL／FM 2 OPにもKick・Snare・Hat・Rim・Tomの工場Presetを用意しました。名前のVA／FM／Daisyが生成元です。Browserの<strong>FACTORY → PRESETS → DRUMS</strong>から直接OPENすることもできます。
+ドラムは単体PresetでもKitでも使えます。DAISY ANALOG／SYNTH DRUMSの単体PresetはVOICEも編集可能です。VA DUAL／FM 2 OPにもKick・Snare・Hat・Rim・Tomの工場Presetを用意しました。名前のVA／FM／Daisyが生成元です。FILESの<strong>FACTORY → PRESETS → DRUMS</strong>から直接LOADすることもできます。
 
-1 Trackにまとめたい場合は<strong>BROWSER → FACTORY → KITS → VA + FM Percussion.mgxk → Top1 OPEN</strong>。Pad1–6はKick／Snare／Tick Hat／Air Hat／Rim／Tom、7–16は空です。<strong>SELECT+Pad</strong>で音を選び、SELECTを離してStepを入力します。このKitは実際のVA／FM出力をWAVに焼いたSampler Kitで、各Padのシンセノブを編集するものではありません。シンセから編集したいときは単体Presetを使います。旧KICK／SNARE／HI HAT／NOISEの独立エンジンは撤去しました。
+1 Trackにまとめたい場合は<strong>FILE → FACTORY → KITS → VA + FM Percussion.mgxk → Top4 LOAD</strong>。Pad1–6はKick／Snare／Tick Hat／Air Hat／Rim／Tom、7–16は空です。<strong>SELECT+Pad</strong>で音を選び、SELECTを離してStepを入力します。このKitは実際のVA／FM出力をWAVに焼いたSampler Kitで、各Padのシンセノブを編集するものではありません。シンセから編集したいときは単体Presetを使います。旧KICK／SNARE／HI HAT／NOISEの独立エンジンは撤去しました。
 
 ![ENGINE](manual/source.png)
 ![STEP：K1 TEMPO、K2 NOTE、K3 VELOCITY、K4 GATE、K5 CHANCE、K6 RATCHET、K7 MICRO、K8 LENGTH](manual/step.png)
@@ -179,7 +179,7 @@ EMPTYの16トラックはすべて **EMPTY**（無音・音源未割当）。テ
 
 **STEP → Top6 CHORD EDIT**で選択Stepの和音を編集します。パッドで音を追加／削除し、Top6でSTEPへ戻ります。主音を外すと残った音が主音になり、最後の音を外すとStepがOFFになります。KEYBOARDのSHIFT＋パッドも同じ編集を行い、画面はKEYBOARDのままです。右Top7/8 UNDO／REDOは維持します。
 
-**音色選択**：PAD／KEYBOARD／CHORDのTop5 PRESETS（KitならKITS）、またはPLUG-IN→Top5 ENGINE→4-D押下で同じ一覧へ進みます。ENGINEには選択中エンジンの音色が下段に表示され、空ならNO SOUNDS FOR THIS ENGINEと表示します。既定音色はENGINEのTop5 LOAD ENGINE。独立一覧はK1／4-D回転／Top3 PREV・Top4 NEXTで無音のまま選択します。選択だけでは試聴用の原本・素材を読み込みません。聴くときだけTop5 PREVIEWを押し、その後パッドで試奏します。別の行へ移ると試聴を停止し、次の音を自動では鳴らしません。Top6 LOADまたは4-D押込みで装着します。Top1 KIND、Top2 ORIGIN（MY VERSIONS／ORIGINALS）、K3 ENGINEで絞り込み、Top5 STOP PREVIEWで元の音へ戻します。Top8 BACK／ページ戻るは元画面へ戻り、再訪時は絞り込み・位置を復元します。BROWSERキーと一覧Top7 FILESはファイル棚専用。SELECT＋4-D左右は画面を離れず現在種別の前後音色を装着します。SHIFT＋Top5 STORE FILE／Top6 STORE AS／Top7 DUPLICATEはファイル保存、STORE POOLは曲内256枠への保管です。
+**音色選択**：PAD／KEYBOARD／CHORDのTop5 PRESETS（KitならKITS）、またはPLUG-IN→Top5 ENGINE→4-D押下で同じ一覧へ進みます。ENGINEには選択中エンジンの音色が下段に表示され、空ならNO SOUNDS FOR THIS ENGINEと表示します。既定音色はENGINEのTop5 DEFAULT SOUND。独立一覧はK1／4-D回転／Top3 PREV・Top4 NEXTで無音のまま選択します。選択だけでは試聴用の原本・素材を読み込みません。聴くときだけTop5 PREVIEWを押し、その後パッドで試奏します。別の行へ移ると試聴を停止し、次の音を自動では鳴らしません。Top6 LOADまたは4-D押込みで装着します。Top1 KIND、Top2 ORIGIN（MY VERSIONS／ORIGINALS）、K3 ENGINEで絞り込み、Top5 STOP PREVIEWで元の音へ戻します。Top8 BACK／ページ戻るは元画面へ戻り、再訪時は絞り込み・位置を復元します。BROWSERキーは索引のPRESETS／KITS、FILEキーはカードのFILESを開きます。一覧のTop7 FILESは選択行の実ファイルへ移動し、その行を選択します。SELECT＋4-D左右は画面を離れず現在種別の前後音色を装着します。SHIFT＋Top5 STORE FILE／Top6 STORE AS／Top7 DUPLICATEはファイル保存、STORE POOLは曲内256枠への保管です。
 
 ![ENGINE：選択した方式の音色が下段に並ぶ。リスト名は説明用の例。](manual/engine-sounds.png)
 
@@ -234,9 +234,9 @@ KitではEUCLIDEANとDICEが現在選択中のPadを編集します。ROTATEはT
 
 ### WAVを試聴して割り当てる
 
-![BROWSER。ファイル一覧は説明用、ボタンとノブは現行レンダラー。](manual/browser.png)
+![ファイル一覧の例。現行の画面名は FILES です。](manual/browser.png)
 
-1. <strong>BROWSER</strong>。4-D回転またはK1 `SELECT`で選択。Top1 `OPEN`でフォルダーへ、Top2 `UP`で親へ戻ります。WAVのOPENは試聴として働きます。
+1. <strong>FILE</strong>でFILESを開きます。4-D回転またはK1 `SELECT`で選択。Top1 `OPEN`でフォルダーへ、Top2 `UP`で親へ戻ります。WAVをOPENすると波形と詳細を開きます。試聴はTop3 PREVIEWです。
 2. WAVを選び<strong>Top3「PREVIEW」</strong>。Cueへ鳴ります。K6 `CUE`とK7 `AUDITION LEVEL`を確認。Mainだけ聴いていると聞こえません。Top3 `STOP PREVIEW`で終了します。
 3. K2 `LOAD TRACK`で割当先を確認し、<strong>Top4「LOAD」</strong>。TrackがSamplerになります。Kitを選んでいれば選択Kit padへの割当です。
 4. <strong>SAMPLING</strong>へ移り、パッドで再生。Kなどの`SAMPLE ROOT`／`SAMPLE BPM`は素材のメタデータで、BPM自動解析や受信機からの値読戻しではありません。同じ素材を使う保存済みPresetや他Trackがある場合でも、ROOT／BPMの変更は選択中の作業音色だけへ分岐します。素材PCMを複製する操作ではなく、Undoで戻せます。
@@ -261,13 +261,13 @@ KitではEUCLIDEANとDICEが現在選択中のPadを編集します。ROTATEはT
 ![WAVE](manual/wave.png)
 ![ZONES](manual/zones.png)
 
-ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えます。素材BPMとTempoに従う再生速度変更で、WAVE/STRETCHのオフライン処理とは別です。波形は素材のPreview/Load後に解析されます。Browserの一覧を開くだけでは素材の解析・試聴は始まりません。
+ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えます。素材BPMとTempoに従う再生速度変更で、WAVE/STRETCHのオフライン処理とは別です。波形は素材のPreview/Load後に解析されます。FILESの一覧を開くだけでは素材の解析・試聴は始まりません。
 
 鳴らしている最中に素材を差し替えても、保持中のノートは元の素材と音高基準のまま鳴り続け、新しく発音するノートから新しい素材を使います。
 
 ### DRUM KITの入力
 
-1. ENGINEで<strong>DRUM KIT</strong>を選ぶか、BROWSERの<strong>Top8「FACTORY KIT」</strong>で既定の`FACTORY/KITS/Techno-01.mgxk`を読み込みます。カードにその素材が必要です。
+1. ENGINEで<strong>DRUM KIT</strong>を選ぶか、FILESの<strong>Top8「FACTORY KIT」</strong>で既定の`FACTORY/KITS/Techno-01.mgxk`を読み込みます。カードにその素材が必要です。
 2. <strong>PAD MODE</strong>では16個のパッドがKit内の音になります。A–Hは依然としてTrack選択です。
 3. <strong>STEP + SELECT + Pad</strong>で編集するKit padを選びます。SELECTを離してStepを入力します。SamplerでもSELECT+Padで対象を選べます。
 4. <strong>SAMPLING → LAYERS</strong>でVelocity layer等、<strong>CHANNELでFX → PAD INSERT</strong>でKit padのFX。画面上のPAD番号を常に確認します。
@@ -311,7 +311,7 @@ ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えま�
 4. 小節単位なら<strong>PLAY</strong>で再生し、ROUTINGの<strong>SHIFT+Top4</strong>で`1 BAR`～`4 BARS`を選び、<strong>SHIFT+Top6「RESAMPLE」</strong>。
 5. `ARMED`→録音→完了を待ちます。途中で取り消すには<strong>CANCEL RESAMPLE</strong>。録音先の既存素材を保ち、その処理が所有する途中ファイルを取り除きます。
 
-音声録音とArrangement takeは同時に開始できません。録音中は録音源や小節数を変更できません。Browserの一覧更新は録音等のファイル要求とは分けて扱います。録音の開始・終了は状態表示で確認します。
+音声録音とArrangement takeは同時に開始できません。録音中は録音源や小節数を変更できません。FILESの一覧更新は録音等のファイル要求とは分けて扱います。録音の開始・終了は状態表示で確認します。
 
 ### CAPTUREでさかのぼる
 
@@ -508,7 +508,7 @@ Stripの値は保存されるパラメータbaseやUndo履歴を書き換えな�
 | 7 | 空きslotではSTORE POOL。PROJECT K4 POOL SLOTで登録先を選ぶ |
 | 8 | 登録枠がある場合だけRECALL POOL。ENGINE選択中はBACK。SHIFT+Top4はMIDI OUTのWAVE PROFILE |
 
-Layerでは左Top1 LAYER／Top2 TONE、LAYER面の左Top3 USE CHILD／Top4 REMOVE（ページ選択の無い左枠を使う例外）。削除はTop1確認／Top2取消。ENGINEのTop5 LOAD ENGINEで既定音色を装着し、4-D押下は音色一覧へ降ります。ノブ回転だけでは装着しません。
+Layerでは左Top1 LAYER／Top2 TONE、LAYER面の左Top3 USE CHILD／Top4 REMOVE（ページ選択の無い左枠を使う例外）。削除はTop1確認／Top2取消。ENGINEのTop5 DEFAULT SOUNDで既定音色を装着し、4-D押下は音色一覧へ降ります。ノブ回転だけでは装着しません。
 
 装着できないLayerの理由を演奏画面右ヘッダーに表示します。`LAYER REFUSED`と、その下の予算・素材などの理由を確認してください。部分的に鳴らすために受付条件を緩める動作はありません。
 
@@ -538,14 +538,14 @@ Layerでは左Top1 LAYER／Top2 TONE、LAYER面の左Top3 USE CHILD／Top4 REMOV
 2. 新規曲の初回SAVEは命名画面を開きます。既存曲を別名に分けるときは**Top4 SAVE AS**。
 3. **K1 CURSOR**で文字位置、**K2 CHARACTER**または4-D回転で文字。Top5 INSERT、Top6 ERASE、Top7 LEFT、Top8 RIGHTで編集します。
 4. **Top1 APPLY**または4-D押下で保存、Top2 CANCELで中止。ソング用の`.mgxs`を自動補完します（入力したMGX家族の拡張子も置き換えます）。SAVE ASで既存名を指定しても上書きしないので、別名を入力します。
-5. 完了後のSAVEはその曲自身を更新します。**Top2 OPEN / Top6 FILES**で現在曲のフォルダーを開き、Browserで別の曲をOPENすると、以後のSAVE先もその曲になります。大文字・大小混在のMGX/MGK/MGPも扱います。
+5. 完了後のSAVEはその曲自身を更新します。**Top2 OPEN / Top6 FILES**で現在曲のフォルダーを開き、FILESで別の曲をOPENすると、以後のSAVE先もその曲になります。大文字・大小混在のMGX/MGK/MGPも扱います。
 6. 保存・読込み成功後、起動曲を`GROOVE/CURRENT.TXT`に記憶します。起動時の参照が無効・欠落なら`FACTORY/DEBUG/Benchmark.mgxs`を試します。再起動後に曲名・音符・音色・Song・素材を確認します。Undoや演奏中の一時状態は再開対象ではありません。
 
 PROJECTのTopは **SAVE / OPEN / NEW / SAVE AS / COLLECT / FILES / STORE POOL / RECALL POOL**。素材番号は**K1 ASSET**。MGX家族の内部形式はMGXCです。`.mgx`／`.mgxs`／`.mgxk`／`.mgxp`はすべて読込み対象で、名前と中身が違っても内部種別で開きます。通常SAVEは既存の名前を維持し、SAVE ASで標準拡張子に揃います。通常保存は履歴バックアップを作らず、検証した`.tmp`から切り替えます。OPENは元ファイルが使えないときだけ同名`.tmp`も調べ、復旧時は`Recovered .tmp`を表示します。破損した元ファイルとtmpが残ってSAVEを拒否された場合は、OPENで復旧して別名SAVEしてください。過去の`.bak`／番号付き世代は読みません。書込み中の電源断に対する保証はありません。保存失敗・同期警告を成功と扱わず、完了を待ちます。
 
 ### 素材ごと持ち出す：COLLECT
 
-1. **FILE → Top5 COLLECT**。BrowserのTop7 PROJECTからも同じ画面へ戻れます。
+1. **FILE → Top7 PROJECT → Top5 COLLECT**。FILESのTop7 PROJECTからも同じ画面へ戻れます。
 2. 完了表示の`<曲名>-Export/`を確認します。中に`project.mgxs`と`assets/`が入ります。
 3. 録音・保存を終了して電源を切り、SDのDATAから**フォルダー全体**をPCへコピーします。Projectだけでは参照WAVは付いてきません。
 4. コピー先のProjectを同じ版のDesktop backendなどで開き、素材欠落がないか確認します。
@@ -558,29 +558,29 @@ COLLECTは元曲の通常SAVE先を変えません。音声ミックスダウン
 |---|---|
 | Kit／Presetの通常保存 | SELECT＋4-D押下、または音色一覧でSHIFT＋Top5 STORE FILE。FactoryはUser版へ保存 |
 | 名前付き保存／別物として複製 | 音色一覧でSHIFT＋Top6 STORE AS／SHIFT＋Top7 DUPLICATE → 名前入力 → Top1 APPLY |
-| 読込 | BROWSERで内部表示がKIT／PATCHのファイルを選択しLOAD。対象Trackを先に確認 |
+| 読込 | FILESで内部表示がKIT／PATCHのファイルを選択しLOAD。対象Trackを先に確認 |
 
-保存先は単体音色が`PRESETS/<名前>.mgxp`、Kitが`KITS/<名前>.mgxk`です。名前の入力はK1でカーソル、K2または4-D回転で文字を変更し、Top5 INSERT／Top6 ERASE、Top1 APPLYで保存します。同名ファイルがある場合はTop1 OVERWRITE／Top2 CANCELで選びます。ファイル棚BROWSERのSHIFT+Top6はRENAMEです。プリセットをOPENしてもTrackの音量・pan・MIDI ch・root noteとフレーズは維持します。FXは通常維持し、INCLUDE FXをONで保存したPreset／KitはInsert／sendをまとめて装着します。名前入力のK4 DUPLICATEをONにすると新GUIDの別音色になります。Kitはパッド定義だけを交換し、既存のパッドStepを残します。
+保存先は単体音色が`PRESETS/<名前>.mgxp`、Kitが`KITS/<名前>.mgxk`です。名前の入力はK1でカーソル、K2または4-D回転で文字を変更し、Top5 INSERT／Top6 ERASE、Top1 APPLYで保存します。同名ファイルがある場合はTop1 OVERWRITE／Top2 CANCELで選びます。ファイル棚FILESのSHIFT+Top6はRENAMEです。プリセットをLOADしてもTrackの音量・pan・MIDI ch・root noteとフレーズは維持します。FXは通常維持し、INCLUDE FXをONで保存したPreset／KitはInsert／sendをまとめて装着します。名前入力のK4 DUPLICATEをONにすると新GUIDの別音色になります。Kitはパッド定義だけを交換し、既存のパッドStepを残します。
 
-STORE POOL／RECALL POOLは256枠を使います。Kitのパッド定義、MIDI OUTのProgram／CC、DaisyのADSRも保持します。RECALL後の編集は装着先だけに反映し、元のpoolを変えるにはSTOREし直します。名前付き保存／装着はGUID/revの同梱定義をpoolへ登録し、同じものの再装着では枠を増やしません。サンプルが未読込みのSampler／KitはRECALLできません。ファイル棚BROWSERでPreset／単一Drum Kitファイルを選び、Top3 PREVIEWで選択トラックへ一時装着して試聴できます。Top3 STOP PREVIEWで元へ戻ります。WAVのCue試聴とは異なり、そのトラックの音量・FX・出力先・ミュートを使います。停止中は1音を試聴し、再生中は選択トラックのフレーズにも反映します。ファイル選択・トラック・画面の変更、編集、Transport操作、プロジェクト読込みでも解除します。試聴中に保存しても元の音色が保存され、Undo履歴やpool枠は増えません。読込み中もSTOP PREVIEWで取消できます。
+STORE POOL／RECALL POOLは256枠を使います。Kitのパッド定義、MIDI OUTのProgram／CC、DaisyのADSRも保持します。RECALL後の編集は装着先だけに反映し、元のpoolを変えるにはSTOREし直します。名前付き保存／装着はGUID/revの同梱定義をpoolへ登録し、同じものの再装着では枠を増やしません。サンプルが未読込みのSampler／KitはRECALLできません。ファイル棚FILESでPreset／単一Drum Kitファイルを選び、Top3 PREVIEWで選択トラックへ一時装着して試聴できます。Top3 STOP PREVIEWで元へ戻ります。WAVのCue試聴とは異なり、そのトラックの音量・FX・出力先・ミュートを使います。停止中は1音を試聴し、再生中は選択トラックのフレーズにも反映します。ファイル選択・トラック・画面の変更、編集、Transport操作、プロジェクト読込みでも解除します。試聴中に保存しても元の音色が保存され、Undo履歴やpool枠は増えません。読込み中もSTOP PREVIEWで取消できます。
 
 トラック名は音色名と独立しています。SYNTHでSHIFT＋Top6 TRACK NAMEから編集し、空欄で音色名／楽器名へ戻せます。音色交換・SMF名取込み後も曲へ保存され、Undoできます。曲の `NEW REV` はライブラリに新版がある印、`EMBEDDED` は保存済み同梱版を使う印です。自動で新版へ変わりません。
 
-FILESのフォルダー表示は64件ごとのwindowです。4-D回転／K1 SELECT／4-D上下でそのまま先へ進め、選択番号／総数で末尾を確認できます。列挙やメモリ確保に失敗した場合はエラーとなり、先頭64件だけを全件として表示しません。
+FILESは一度に64件を表示します。4-D回転／K1 SELECT／4-D上下で移動し、選択番号と総数で現在位置を確認できます。FILESとPRESETS／KITSでは、ファイル処理中でも読み込み済みの行を移動できます。最初の一覧を読み込み中、または先に受け付けた操作が現在の選択を使う間は、PROCESSINGを表示し、移動量を合算して処理後に反映します。フォルダー走査やメモリ確保に失敗するとエラーを表示します。
 
 ### 名前変更、削除、フォルダー作成
 
 旧形式MGXCは一覧に `UNSUPPORTED` と表示され、OPENできません。不要なら停止後、SHIFT側のDELETEを選び確認して1ファイルずつ削除します。自動削除や旧版移行は行いません。
 
-![BROWSER + SHIFT](manual/browser-shift.png)
+![FILES + SHIFT](manual/browser-shift.png)
 ![名前入力ダイアログ](manual/folder-name.png)
 
 1. Transport、録音、Preview、ファイルjobを止めます。
-2. BROWSERで対象を選択し、<strong>SHIFT+Top6「RENAME」／SHIFT+Top7「DELETE」／SHIFT+Top8「NEW FOLDER」</strong>。
+2. FILESで対象を選択し、<strong>SHIFT+Top6「RENAME」／SHIFT+Top7「DELETE」／SHIFT+Top8「NEW FOLDER」</strong>。
 3. 名前入力は4-D回転で文字、K1でカーソル。4-D左は取消、押込みは適用。Top3/4 `CHAR -/+`、Top5 `INSERT`、Top6 `ERASE`、Top7/8 `LEFT/RIGHT`。Top1 `APPLY`または`DELETE`で確定、Top2 `CANCEL`で戻ります。
 4. 使用中、保存済みProjectから参照されるもの、保護領域、不明な参照があるものは拒否します。フォルダー削除は空の対象のみ。拒否を「削除機能が壊れた」と判断せずstatusを読みます。
 
-中断録音の`.part`はBROWSERで選んで<strong>SHIFT+Top5「RECOVER」</strong>。復旧可能な録音だけをWAVへ回収します。すべての破損ファイルや電源断から必ず復旧できる機能ではありません。
+中断録音の`.part`はFILESで選んで<strong>SHIFT+Top5「RECOVER」</strong>。復旧可能な録音だけをWAVへ回収します。すべての破損ファイルや電源断から必ず復旧できる機能ではありません。
 
 ### 音声として渡す
 
@@ -628,7 +628,7 @@ AUTO / MIDIのK8 `SLAVE CLOCK`を使うと外部Clockのテンポに追従しま
 |---|---|
 | 外部MIDI向けの演奏を書き出す | FILE → SHIFT+Top4で開始／停止。`RECORDINGS/MIDI00.MID`等に連番保存。Engineが出力queueへ受理したイベントで、物理送達の証明ではない |
 | 内部音源のノートを書き出す | FILE → SHIFT+Top5で開始／停止。Track1–16をMIDI ch1–16へ記録。外へノートを送る操作ではない |
-| .MIDを取り込む | BROWSERで.MID/.MIDIを選び、K2 TRACK、K3 MIDI CHを設定。<strong>SHIFT+Top4「IMPORT MIDI」→ 4-D押込みで確定</strong>。確定時のPattern／TrackのStepをまとめて置換。進行中も左で取消。失敗・取消は元データを保持し、成功はEVENTSでUndo可 |
+| .MIDを取り込む | FILESで.MID/.MIDIを選び、K2 TRACK、K3 MIDI CHを設定。<strong>SHIFT+Top4「IMPORT MIDI」→ 4-D押込みで確定</strong>。確定時のPattern／TrackのStepをまとめて置換。進行中も左で取消。失敗・取消は元データを保持し、成功はEVENTSでUndo可 |
 
 書出しはSMF0、1msのSMPTE時間。曲のtempo map、Clock、Transport、SysEx、すべての音色Modulationを完全保存するものではありません。取り込みはSMF0/1、最大256KiB・選択chの4096イベント、256Step、8音／Step、空きAutomation 2レーンの範囲です。<strong>Tempo mapは無視</strong>します。変換・省略メッセージを確認し、DAWで聞き比べてから採用します。音色自体を渡すにはWAVが必要です。
 
@@ -649,7 +649,7 @@ AUTO / MIDIのK8 `SLAVE CLOCK`を使うと外部Clockのテンポに追従しま
 
 ### 新規曲でドラムを鳴らす
 
-**FILE → Top3 NEW → 4-D押込み CONFIRM**で新規曲を作ります。**A → PLUG-IN → Top5 ENGINE**からK1 FAMILY／K2 ENGINEでKICKを選び、Top5 LOAD ENGINEで決定。**STEP → Top1「1 - 16」**でK1 TEMPO＝120、K8 LENGTH＝16にし、**Pad1・5・9・13**を押して**PLAY**。
+**FILE → Top7 PROJECT → Top3 NEW → 4-D押込み CONFIRM**で新規曲を作ります。**A → PLUG-IN → Top5 ENGINE**からK1 FAMILY／K2 ENGINEでKICKを選び、Top5 DEFAULT SOUNDで決定。**STEP → Top1「1 - 16」**でK1 TEMPO＝120、K8 LENGTH＝16にし、**Pad1・5・9・13**を押して**PLAY**。
 
 画面の4ステップ、パッドLED、4つ打ちの出音が一致します。パッドを離しても押下表示は残りません。
 
@@ -673,7 +673,7 @@ FXの表示と聴こえる効果が対応し、Bの直接音が指定した出�
 
 ### 名前を付けて保存し、開き直す
 
-録音とPreviewが終わった状態で、**FILE → Top4 SAVE AS**で未使用の曲名（例`My Song 01`）を入力し、**Top1 APPLY**。完了後、**STEP → K1 TEMPO**を123へ変更して**SHIFT+FILE**で上書き保存します。いったんTempoだけを110へ変え、保存せずに**FILE → Top2 OPEN**。Browserで今保存した曲を選び**Top1 OPEN**、確認画面が出たらCONFIRM。
+録音とPreviewが終わった状態で、**FILE → Top7 PROJECT → Top4 SAVE AS**で未使用の曲名（例`My Song 01`）を入力し、**Top1 APPLY**。完了後、**STEP → K1 TEMPO**を123へ変更して**SHIFT+FILE**で上書き保存します。いったんTempoだけを110へ変え、保存せずに**FILE → Top2 OPEN**。FILESで今保存した曲を選び**Top1 OPEN**、確認画面が出たらCONFIRM。
 
 曲名が付き、Tempoは保存した123へ戻ります。PLAYでA/Bのノート・音色・FXが再現し、Cの素材とトリムも残ります。
 
@@ -706,7 +706,7 @@ DIN接続の外部機器がある場合の実例です。機器がなければ�
 
 ### 音源を試す：WAVETABLEとVA
 
-- **WAVETABLEの連続変化** — SYNTH → Top5 ENGINEでWAVETABLEを選ぶ、またはBROWSERのFACTORY/Presetsから`WT Glass Motion.mgxp`を装着。鍵盤／パッドで鳴らし、GENERATORのK1 POSITION、K2 SCAN DEPTH、K3 SCAN RATEを回す。K4 ATTACK、K5 RELEASEで立上がりと余韻を変えます。波形位置の変化が音に連続して現れ、ノートを離すとrelease後に消音します。Curveはテーブル資産の波形模型を塗り、下の帯に宣言scan範囲と実scan位置を表示します。無音時は宣言POSITIONの静止模型となります。
+- **WAVETABLEの連続変化** — SYNTH → Top5 ENGINEでWAVETABLEを選ぶ、またはFILESのFACTORY/Presetsから`WT Glass Motion.mgxp`を装着。鍵盤／パッドで鳴らし、GENERATORのK1 POSITION、K2 SCAN DEPTH、K3 SCAN RATEを回す。K4 ATTACK、K5 RELEASEで立上がりと余韻を変えます。波形位置の変化が音に連続して現れ、ノートを離すとrelease後に消音します。Curveはテーブル資産の波形模型を塗り、下の帯に宣言scan範囲と実scan位置を表示します。無音時は宣言POSITIONの静止模型となります。
 - **VAの波形とADSR** — ENGINEでVA DUAL、または`VA Wide Saw.mgxp`を装着。GENERATORのK1 OSC 1、K2 OSC 2、K3 DETUNE、K4 OSC MIX、K5 CUTOFFを動かす。Top3 ENVELOPEのK3 ATTACK／K4 DECAY／K5 SUSTAIN／K6 RELEASEを変更。波形・混合・うなり・フィルタと、押下中／離した後の包絡が操作に対応します。詳細値のPWM／SUB／NOISE／RESONANCE等はPreset／宣言スキーマに保持されます。
 
 ### 演奏を焼いてプリセットにする（BAKE PRESET）
@@ -729,7 +729,7 @@ BAKEの入口は単体の内部音源Track用です。Kitは通常の録音操�
 | Overdub | 5章の条件に合う1小節takeへInputを1回重ねる |
 | 別名保存／素材持出し | 8章のSAVE ASで別名保存→元曲をOPEN、またはCOLLECTのフォルダー全体をPCで開く |
 | SMF交換 | 9章で1小節を.MID記録→DAWで確認→空きTrackへIMPORT MIDI |
-| Browser管理 | 未使用の素材1件をRENAME、空フォルダーをNEW FOLDER→DELETE |
+| FILES管理 | 未使用の素材1件をRENAME、空フォルダーをNEW FOLDER→DELETE |
 
 
 ---
@@ -776,35 +776,35 @@ ENGINEのPlaitsは「PLAITS 24」です。「PLAITS OSC」はありません。S
 
 従来FMとは別にENGINEから**FM 6**を選べます。COREのK1 PATCH（0–95）、K2 BRIGHTNESS、K3 ATTACK、K4 RELEASE、K5 MOD DEPTHを使います。ATTACK／RELEASEは次の発音から反映。FACTORY/PresetsのFM6 Electric Piano／Wineglass／Metal Padも入口です。
 
-外部32音色bankは停止してBROWSERから`.syx`を選び**OPEN**。`Presets/DX7-番号`に32個の名前付き`.mgxp`を作り、そのフォルダを開きます。音色を選んで装着・試聴してください。各Presetは元パッチを内包し、元syx不要、256枠poolは空きのままです。import音色のPATCH=-1を変更すると内蔵bankへ切り替わります。
+外部32音色bankは停止してFILESから`.syx`を選び**OPEN**。`Presets/DX7-番号`に32個の名前付き`.mgxp`を作り、そのフォルダを開きます。音色を選んで装着・試聴してください。各Presetは元パッチを内包し、元syx不要、256枠poolは空きのままです。import音色のPATCH=-1を変更すると内蔵bankへ切り替わります。
 
 - **操作例** — Electric Piano／Wineglass／Metal Padを順に装着して演奏します。BRIGHTNESSとMOD DEPTHを回し、ATTACK／RELEASE変更後に再発音します。手持ちの32音色syxをOPENし、32ファイルから1つ装着、保存・再装着します。音色・余韻・操作が反映され、元bankは保持されます。
 
 ### SoundFontバンク
 
-BROWSERで`.sf2`を選び**OPEN**または**LOAD**。選択Trackへバンク内の最初の音色を装着します。**SYNTH → CORE**のK1 **BANK**、K2 **PROGRAM**（どちらも0始まり）、K3 **TUNE**、K4 **GAIN**で編集。存在しないBANK／PROGRAMの組合せは無音です。メーカーの音色一覧が1始まりならPROGRAMは1を引きます。入口には`FACTORY/DEBUG/SF2-Sine.mgxp`を使えます。
+FILESで`.sf2`を選び**LOAD**。選択Trackへバンク内の最初の音色を装着します。**SYNTH → CORE**のK1 **BANK**、K2 **PROGRAM**（どちらも0始まり）、K3 **TUNE**、K4 **GAIN**で編集。存在しないBANK／PROGRAMの組合せは無音です。メーカーの音色一覧が1始まりならPROGRAMは1を引きます。入口には`FACTORY/DEBUG/SF2-Sine.mgxp`を使えます。
 
 通常のSAVE PRESETはSF2のパスとCRCを参照する小さい`.mgxp`を作ります。持出しはCOLLECTを使い、Presetとassets内のSF2をフォルダごと運びます。元SF2を変更・削除してCRCが一致しない場合は装着を保留し、現在の音色を保持します。SF2はRAMへ読み込みます。大容量bankや全SF2機能の再現は保証していません。
 
-- **操作例** — debug sineで発音し、離鍵で消音することを確かめます。手持ちSF2をOPENし、BANK／PROGRAMから音色を選んで、SAVE PRESET → COLLECTし、同梱Presetを再装着します。音色・velocity・音域・releaseがそのまま再現されます。存在しないprogramは無音で、素材が欠けた場合は現在の音色が保持されます。
+- **操作例** — debug sineで発音し、離鍵で消音することを確かめます。手持ちSF2をLOADし、BANK／PROGRAMから音色を選んで、SAVE PRESET → COLLECTし、同梱Presetを再装着します。音色・velocity・音域・releaseがそのまま再現されます。存在しないprogramは無音で、素材が欠けた場合は現在の音色が保持されます。
 
 ### 大きいSoundFontを開くとき
 
-BrowserでSF2またはSoundFont PresetをOPENすると、ロード中も現在の音色を保持します。画面・入力・音声とは別のworkerがデコードし、完了後に装着します。ロード中に割当て先Trackや音源の割当てを変えた場合は、その新しい内容へ上書きせず取り消します。容量・CRC・素材の検証に失敗した場合も元の音色を維持します。すべてのSF2が読み込める保証ではありません。
+FILESでSF2またはSoundFont PresetをLOADすると、ロード中も現在の音色を保持します。画面・入力・音声とは別のworkerがデコードし、完了後に装着します。ロード中に割当て先Trackや音源の割当てを変えた場合は、その新しい内容へ上書きせず取り消します。容量・CRC・素材の検証に失敗した場合も元の音色を維持します。すべてのSF2が読み込める保証ではありません。
 
 ### 追加音源 ADDITIVE／PHASE DIST
 
 1. SYNTH → ENGINEでADDITIVEを選びLOAD。GENERATORのノブ1–5でBRIGHTNESS、ODD / EVEN、FOCUS、WIDTH、MOTIONを変更する。
 2. Top3 ENVELOPEへ移りノブ3–6でATTACK／DECAY／SUSTAIN／RELEASEを変更。鍵盤パッドの押下・保持・releaseを聴く。
 3. PHASE DISTへ切り替え、GENERATORのWAVE／DISTORTION／ENV DEPTH／MOTION／RATEとENVELOPEを操作する。
-4. BrowserからFACTORY/PresetsのADD Organ／ADD Moving Glass／PD Pulse Bass／PD Curved Padも装着できます。
+4. FILESからFACTORY/PresetsのADD Organ／ADD Moving Glass／PD Pulse Bass／PD Curved Padも装着できます。
 
 ### LAYER
 
 1. 単独音源のSYNTH → PROJECTのK4 POOL SLOTで空き枠を選び、一覧のSTORE POOLを4-D押下で子用Presetを登録する。別の子も必要な分だけ登録。
-2. ENGINEでLAYERを選びTop5 LOAD ENGINE。装着後のLAYER面でノブ3の候補poolを選択→Top3 USE CHILD。ノブ2で次のChildへ進み、最大4層まで追加する。
+2. ENGINEでLAYERを選びTop5 DEFAULT SOUND。装着後のLAYER面でノブ3の候補poolを選択→Top3 USE CHILD。ノブ2で次のChildへ進み、最大4層まで追加する。
 3. K8 EDIT PAGE=MIXでは、同じノートで全域の層が鳴ります。ノブ4 LEVEL／5 PAN／6 DETUNEの変更は次のノートへ反映されます。Top4 REMOVE → Top1 CONFIRMで子を取り除きます。
-4. Browserで名前付きPresetとして保存し、COLLECTで持ち出して再装着できます。poolを変更しても保存済みLayerの音は変わりません。
+4. FILESで名前付きPresetとして保存し、COLLECTで持ち出して再装着できます。poolを変更しても保存済みLayerの音は変わりません。
 5. K8 RANGEでKEY LOW/HIGHとVEL LOW/HIGHを設定すると、音域・強弱で鳴る子が切り替わります。K8 FX 1/FX 2でInsert、SENDSでSendとLEAF FXを編集する。外側のTrack FXも併用できる。
 6. 長いreleaseで連打した場合、VOICE COSTがCAPACITYを超えると（CAPACITY EXCEEDED表示）、新しいノートの一部が鳴りません。既存のノートが片層だけ途切れることはありません。
 
@@ -816,7 +816,7 @@ VA DUALは**総同時16音保証／32音はベストエフォート**です。�
 
 ENGINEで **FORMANT** を選び、**GENERATOR**のK1 MODEでFORMANT／VOSIMを切替。K2 VOWELで母音を連続移動し、K3 FORMANT SHIFT、K4 SHAPE、K5 MOD DEPTHで声の響きを変えます。**ENVELOPE**はK3 ATTACK／K4 DECAY／K5 SUSTAIN／K6 RELEASE、**TONE**は従来のトラック共通処理です。
 
-**GRANULAR** はTEXTUREの入力エフェクトとは別の、サンプルを鍵盤で弾く音源です。ENGINEでGRANULARを選び、BROWSERでWAVをOPENすると、その音源を保ったまま素材を割り当てます。BrowserのROOTを素材の基準鍵に合わせてください。GENERATORはK1 POSITION／K2 SIZE／K3 DENSITY／K4 TEXTURE／K5 SPREAD。ENVELOPEはFORMANTと同じADSR配置です。JITTER／FREEZE／PITCH OFFSETは詳細パラメータにあり、本体の演奏ノブには増設しません。FREEZEは初期buffer充填の256ms後に有効になります。Pi 4 では全トラックで4声を共有します。Pi 5 では共有 DSP 予算の範囲で上限が増えます。上限に達すると、リリース済みの音を優先して置き換え、該当する音がなければ置き換え可能な発音中の音から最も古い音を選びます。素材欠落やCRC不一致では装着を止め、現在音色を保持します。
+**GRANULAR** はTEXTUREの入力エフェクトとは別の、サンプルを鍵盤で弾く音源です。ENGINEでGRANULARを選び、FILESでWAVをLOADすると、その音源を保ったまま素材を割り当てます。FILESのROOTを素材の基準鍵に合わせてください。GENERATORはK1 POSITION／K2 SIZE／K3 DENSITY／K4 TEXTURE／K5 SPREAD。ENVELOPEはFORMANTと同じADSR配置です。JITTER／FREEZE／PITCH OFFSETは詳細パラメータにあり、本体の演奏ノブには増設しません。FREEZEは初期buffer充填の256ms後に有効になります。Pi 4 では全トラックで4声を共有します。Pi 5 では共有 DSP 予算の範囲で上限が増えます。上限に達すると、リリース済みの音を優先して置き換え、該当する音がなければ置き換え可能な発音中の音から最も古い音を選びます。素材欠落やCRC不一致では装着を止め、現在音色を保持します。
 
 VA DUALの既存演奏ノブはそのままです。詳細区分にはHARD SYNC／CROSS MOD／PITCH ENV・DECAY／SUB WAVE／FILTER TYPE／SVF MODE／FILTER MORPHがあります。詳細エディタ本体はないため、これらは本体の演奏ノブからは編集できません。
 
@@ -845,9 +845,32 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 
 ### CHIMERA の声道を演奏する
 
-SYNTH の ENGINE で CHIMERA を選び、右画面の左端にある Top5 **LOAD ENGINE** で確定します。プリセット一覧が空でも、LOAD ENGINE で初期音色を読み込めます。GENERATOR では、ノートで声の高さを決め、K1/K2 で舌の位置、K3 で顎の開き、K4 で唇の丸め、K5 で息を調整します。GENERATOR に加え、PAD・KEYBOARD・CHORD でも右画面に発音中の声道断面と空気圧が表示されます。PAD モードでは CHIMERA を割り当てたトラックのパッドを押します。
+**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で全トラックが1声を共有します。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。最後のノートが優先され、CHORD の同時入力では最後の1音が鳴ります。ゲートが続く間は設定したグライドで音程をつなぎます。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
 
-48 kHz で使用できます。CHIMERA は全トラックで１声を共有し、ほかのトラックが発音中は画面に使用中と表示します。
+- **GENERATOR** の K1〜K5 は従来どおり TONGUE X、TONGUE Y、JAW、LIP ROUND、BREATH です。
+- **ARTICULATION**（Top3）は2ページです。同じボタンで切り替え、舌先の位置と反り、舌根、唇、唇と歯の接触、軟口蓋、喉頭、喉頭蓋側、仮声帯、舌の側面と背面を調整します。
+- **VOICE**（Top4）では BODY（成人男性・成人女性・子ども）、ビブラートの深さと速さ、グライド、圧力、息漏れ、MODE、SPECIES を設定します。圧力と息漏れは BREATH への追加調整です。ボディと詳細設定は音色に保存します。ボディ切替時はいったん消音し、声道を作り直します。
+
+VOICE の K7 **MODE** で次の演奏を切り替えます。
+
+- **PLAY** は音程を持つ声道シンセです。
+- **BEATBOX** は半音4つごとにキック、スネア、クローズドハイハット、オープンハイハットです。C4〜D♯4 がその順で鳴ります。クロマチックの KEYBOARD パッドで弾くか、STEP に同じノートを入力します。STEP のスウィングとクロック設定が使えます。
+- **SPEAK** はノート番号に割り当てた IPA フレーズを一定の速さで発話します。
+- **SING** は同じ割り当てを使い、STEP の発音位置に最初の母音ターゲットを合わせます。前に再生時間があるときは子音が先行し、そのステップから再生を始めた場合は母音から入ります。音程はノート、発音時刻はテンポに従います。子音が前のノートに重なる場合は新しいノートが優先されます。
+- **BESTIARY** は VOICE の K8 **SPECIES** で鳴禽、アザラシ、アリゲーター、ゾウを選びます。GENERATOR のノブは種ごとの音を調整し、右画面に各モデルの気道断面と空気圧を表示します。
+
+#### Speak／Sing のファイルを取り込む
+
+[USB ファイル CLI](reference/usb-files.md)で、UTF-8 の `.ipa` ファイルを転送します。CHIMERA のトラックを選択し、**FILE → ASSETS → SPEECH** でファイルを選び、Top4 **LOAD** を押します。そのトラックの **VOICE → MODE** を **SPEAK** または **SING** に切り替えます。調音スコアは再生前に生成され、割り当てはソングに保存されます。停止中に MODULATION → MIDI → SHIFT+K8 で再生位置を変更するか、MIDI Song Position Pointer で途中から再生できます。
+
+各行は MIDI ノート番号（0〜127）、タブ1文字、IPA フレーズです。1ファイルは最大8件、各フレーズ16記号、全体1024バイトです。Sing では `1/2` と書くとパターン1のステップ2に割り当てられ、そのステップではノート番号より優先します。空行と `#` から始まる行は読み飛ばし、スペースと `.` は短い間になります。対応記号は `a ɑ i u ɯ e o ə ɛ æ ɔ ɪ ʊ ɐ ʌ p b m t d n ɾ l k ɡ g ŋ s z ʃ ʒ f v h ç x w j` です。非対応の記号があればファイルを拒否します。次の例では番号とフレーズの間にタブを入れます。
+
+```text
+60	ka
+62	ʃi
+64	ma.ki
+1/2	mi
+```
 
 ### 音源別Morphと素材の持ち出し
 
@@ -937,11 +960,11 @@ Top1–8は絵＋文字を読み、操作は従来と同じです。ENGINE＝音
 
 ### 可視化の読み方
 
-TopボタンとK1–K8の操作対象は従来どおりです。SYNTH左の値は「名前＋固定位置の値＋形」で読みます。連続値は下端bar、PANなど正負値は中央印、段階値はsegments、選択肢はchipです。SETTINGSも同じ規則、Browserは大きい主情報・小さい副情報・右側の状態、MIXERは縦meter＋音量とPANです。
+TopボタンとK1–K8の操作対象は従来どおりです。SYNTH左の値は「名前＋固定位置の値＋形」で読みます。連続値は下端bar、PANなど正負値は中央印、段階値はsegments、選択肢はchipです。SETTINGSも同じ規則、FILESは大きい主情報・小さい副情報・右側の状態、MIXERは縦meter＋音量とPANです。
 
 | 表示 | 何を描いているか／操作例 |
 |---|---|
-| Scope | PCMまたは解析済みWAV peakの塗り波形。SYNTH通常音源、SAMPLER、Browser試聴、録音入力で共通。Browserの細い下段は実Cue音声、縦線は実試聴位置。素材peakは440列で停止・再解析中も残る。同じ素材の最終完了波形だけを保持する |
+| Scope | PCMまたは解析済みWAV peakの塗り波形。SYNTH通常音源、SAMPLER、FILES試聴、録音入力で共通。FILESの細い下段は実Cue音声、縦線は実試聴位置。素材peakは440列で停止・再解析中も残る。同じ素材の最終完了波形だけを保持する |
 | Spectrum | TEXTURE／RESONATOR等のpost-fader音声の実FFT。48kHz時は512点＝約10.7ms、mono `(L+R)/2`。TEXTUREのFreezeと品質もcaptionに表示。粒子位置やstereo全体のpeakを表す図ではない |
 | Bars | ADDITIVEのrecipe最大部分音を1とした相対成分×実envelope。停止時はNORMALIZED HARMONIC RECIPE。FXのVOCODERは16実followerで、入力が消えると減衰。Pad個別routeの未公開値はFOLLOWERS NOT PUBLISHEDと表示 |
 | Ring | PERFORM → AUDIO/LOOPERの実再生位置、記録区間と入力level。内側はUndoへ保持した前take。追録はWAVへ混ぜて保存され、独立layer数の表示ではない。位置系Live FXにも実位相を表示 |
@@ -956,7 +979,7 @@ PLAITS等の無音generatorは宣言済みパラメータの名前・値・静�
 
 ### 操作文法
 
-左Top1–4は同じ対象の面・範囲、右Top5–8は処理と出口です。BROWSER／PROJECTの文書操作は既存位置を維持する例外です。Layerの左Top3 USE CHILD／Top4 REMOVEも、面固有ページの無い枠で面内操作を行う例外です。音色一覧PRESETS／KITSは左Topが絞り込み・選択、右TopがPREVIEW／LOAD／FILES／BACK。ENGINEは右Top5 LOAD ENGINE／Top8 BACK、4-D押下で音色一覧へ降ります。確認はTop1 CONFIRM／Top2 CANCEL、4-D押下／左も同じ役割です。名前入力は全保存先で共通です。両ページボタンを約400ms同時に押すとHOME／RETURNします。
+左Top1–4は同じ対象の面・範囲、右Top5–8は処理と出口です。FILES／PROJECTの文書操作は既存位置を維持する例外です。Layerの左Top3 USE CHILD／Top4 REMOVEも、面固有ページの無い枠で面内操作を行う例外です。音色一覧PRESETS／KITSは左Topが絞り込み・選択、右TopがPREVIEW／LOAD／FILES／BACK。ENGINEは右Top5 DEFAULT SOUND／Top8 BACK、4-D押下で音色一覧へ降ります。確認はTop1 CONFIRM／Top2 CANCEL、4-D押下／左も同じ役割です。名前入力は全保存先で共通です。両ページボタンを約400ms同時に押すとHOME／RETURNします。
 
 Track選択は、対象Trackのボタン（A–H）を押します。SHIFTを押しながら選ぶと上層を保持したまま対象を切り替えます。MUTE／SOLO／SELECTを押しながらTrackを選ぶと、その操作の対象として指定します。Trackを長押しすると一時表示（Peek）になり、離すと元の画面へ戻ります。CHANNELのGroup系ではA–Hがbus選択です。
 
@@ -968,7 +991,7 @@ SETTINGSは左Topの3分類＋Top4 MORE、または4-D左右で7分類。上下�
 
 チャンネル構成はLEVEL／PAN／CUTOFF／DRIVE／DELAY SEND／CRUSH／LFO DEPTH／LFO HZの順で、MIXER・SYNTH TONE・Morph/Gestureに共通です。SYNTH GENERATORは音源の宣言値をK1から配置し、TEMPO等の文脈値を混ぜません。DrumKit COREは子Pad選択型でK1 PAD、楽器型のPAD MODEではK1 TEMPO、Pad選択はSELECT＋Padか4-Dです。ノブに触れたままERASEを押すと初期値へ戻ります。PANは低速で回すと中央へ吸着します。
 
-BROWSERのK7はAUDITION LEVEL、K8はFAV FILTER。試聴の開始停止とFAVORITE登録はTopです。COLLECTはFILE／PROJECTのTop5だけ。PROJECTは4-DでPROJECT FILES／STORE POOL／RECALL POOLを選択し押込み、登録先poolはK4 POOL SLOTで指定します。SAMPLERの左は波形作業面、右は再生の姿と値です。通常Top5 AUTO CHOP／WAVE面STRETCH、Top6 MAP PADS、Top7 BROWSER、Top8 LOOP TAKE。SHIFTはTop5録音／Top6試聴／Top7 source録音、Top8は通常CHOP STEPS、WAVE面FILE LOOP、ZONES面CLEAR ZONES。置換・削除は確認を通ります。
+FILESのK7はAUDITION LEVEL、K8はFAV FILTER。試聴の開始停止とFAVORITE登録はTopです。COLLECTはPROJECTのTop5です。PROJECTは4-DでPROJECT FILES／STORE POOL／RECALL POOLを選択し押込み、登録先poolはK4 POOL SLOTで指定します。SAMPLERの左は波形作業面、右は再生の姿と値です。通常Top5 AUTO CHOP／WAVE面STRETCH、Top6 MAP PADS、Top7 FILES、Top8 LOOP TAKE。SHIFTはTop5録音／Top6試聴／Top7 source録音、Top8は通常CHOP STEPS、WAVE面FILE LOOP、ZONES面CLEAR ZONES。置換・削除は確認を通ります。
 
 画像は[全画面索引](manual/screens.html)、ノブ割当ての一覧は[生成表](manual/controls.tsv)を参照してください。
 
@@ -1041,7 +1064,7 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 
 ### DATAとファイルの整理
 
-保存先とDATAの構成は[DATAとコンテンツの配置](data-content.md)を参照してください。新規保存は曲`.mgxs`・Kit`.mgxk`・Preset`.mgxp`で、Browserでは内部種別をSONG／KIT／PATCHで表示します。
+保存先とDATAの構成は[DATAとコンテンツの配置](data-content.md)を参照してください。新規保存は曲`.mgxs`・Kit`.mgxk`・Preset`.mgxp`で、FILESでは内部種別をSONG／KIT／PATCHで表示します。
 
 長い音源名・サンプル名は枠内で横スクロールします。先頭と末尾を各1.2秒保持し、28px/秒で往復。音源選択のK2も省略せず表示します。更新画面にもSETTINGSの現在のテーマとpixel orderを適用し、CANCEL後は通常画面全体を描き直します。
 
@@ -1061,7 +1084,7 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 2. ブラウザの **Connection code** へ本体のcodeを入力し **Connect**。**Songs／Presets／Kits／Samples／SoundFonts／MIDI／Recordings** から棚を選びます。空き容量と一覧を確認します。
 3. **Add / replace files** またはdrag＆dropで追加します。保存先は内容から自動決定します。MGXの名前の拡張子が誤っていても内部種別で判定します。大きなSF2は進捗を表示し、**Cancel** で中止できます。最大1GiB、受付は`.mgxs/.mgxk/.mgxp/.wav/.mid/.syx/.sf2`のみ。`.syx`はDX7の32音色バンクを32個のPresetファイルに展開し、poolへ自動登録しません。
 4. 一覧の **Download** で持ち出し、**Delete** → 確認で削除します。現在開いている曲と宣言済み素材は削除できません。同名アップロードは長さ・SHA256・内容種別の検証後に置換します。現在曲とその参照素材は上書きも拒否します。
-5. 実機の **Top6 BROWSER** で転送を終了してBrowserへ移ります。曲は **PROJECTS** に入り、選択して **OPEN** します。**Top8 CLOSE** でも終了でき、10分経過でも自動終了します。終了後はHTTPへ接続できません。演奏は **PLAY** で再開します。
+5. 実機の **Top6 FILES** で転送を終了してFILESへ移ります。曲は **PROJECTS** に入り、選択して **OPEN** します。**Top8 CLOSE** でも終了でき、10分経過でも自動終了します。終了後はHTTPへ接続できません。演奏は **PLAY** で再開します。
 
 COLLECTしたbundleはコンテナが`PROJECTS/project.mgxs`または`PRESETS/preset.mgxp`、素材が同じbundleの`ASSETS/SAMPLES`／`ASSETS/SOUNDFONTS`です。コンテナと必要素材を追加すると相対参照を維持できます。コンテナ単体を追加して素材が足りない場合、勝手に別の音で鳴らしません。同名の既存ファイルは置換されるため、別環境へ渡す場合も保存名を確認してください。
 
@@ -1071,7 +1094,7 @@ COLLECTの素材コピーは短いindex／CRC名になります。長い名前�
 
 ### USB-C転送とデバイステーマ
 
-日常のWi‑Fi Webに加え、開発ホストは[USBファイルCLI](reference/usb-files.md)からSong／素材を直接転送できます。PUTは良品だけ同名を置換し、開いている曲と宣言参照素材は保護します。録音／ファイル処理中はBUSY。USBセッションが閉じた後、BROWSER → PROJECTSで転送した.mgxsをOPENします。
+日常のWi‑Fi Webに加え、開発ホストは[USBファイルCLI](reference/usb-files.md)からSong／素材を直接転送できます。PUTは良品だけ同名を置換し、開いている曲と宣言参照素材は保護します。録音／ファイル処理中はBUSY。USBセッションが閉じた後、FILE → PROJECTSで転送した.mgxsをOPENします。
 
 テーマはSETTINGS → DISPLAY → 4-DでTHEMEを選択 → K1。右LCDの3×3一覧に確定9名を表示します。CYBER 2が既定。選択は直ちに表示へ反映し、DEVICE.CFGへ保存され、曲のloadや保存では上書きしません。
 
@@ -1081,7 +1104,7 @@ COLLECTの素材コピーは短いindex／CRC名になります。長い名前�
 
 MK3のUSB列挙後、左画面は黒のまま、右画面にYADOKARIのスプラッシュ（ヤドカリのマークとワードマーク、VIBE GROOVEBOXのタグライン）を表示し、画面下部にはファームウェア自身が版数を重ねて表示します。初期化を終えると操作画面へ移ります。電源投入からUSB列挙までのNI標準画面はソフトウェアから変更できません。初回・更新直後などは標準データを照合するため、通常起動より時間が掛かります。通常は存在とサイズだけを確認します。編集中の内容はPROJECTSへ別名保存してください。
 
-追加の79音色は BROWSER → FACTORY → PRESETS → LIBRARY、24キットは BROWSER → FACTORY → KITS → LIBRARY から選択してOPENします。元のPRESETS/KITSは保持し、編集用として使えます。ファクトリー原本の復元と共有素材の扱いは[ライブラリ](factory-library.md)を参照してください。
+追加の79音色は FILE → FACTORY → PRESETS → LIBRARY、24キットは FILE → FACTORY → KITS → LIBRARY から選択してLOADします。元のPRESETS/KITSは保持し、編集用として使えます。ファクトリー原本の復元と共有素材の扱いは[ライブラリ](factory-library.md)を参照してください。
 
 
 ---

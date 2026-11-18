@@ -24,7 +24,7 @@ inline bool data_content_name(char* out,unsigned capacity,const char* name,unsig
 inline void data_strip_mgx_suffix(char* name){unsigned n=0;while(name[n])++n;name[n-data_mgx_suffix_length(name)]=0;}
 // Templates are edited in RAM, saved as user projects and restored on open.
 inline bool factory_path(const char* path){char clean[192];return canonical_path(clean,sizeof clean,"",path) && (data_under(clean,"FACTORY") || (data_equal(clean,"BENCH.MGXS") || data_equal(clean,"BENCH.MGX")));}
-inline bool data_playable_file(const char* name){if(data_mgx_file(name))return true;const char* extensions[]={".wav",".mid",".midi",".syx",".sf2",".part"};for(const char* ext:extensions)if(data_suffix(name,ext))return true;return false;}
+inline bool data_playable_file(const char* name){if(data_mgx_file(name))return true;const char* extensions[]={".wav",".mid",".midi",".syx",".sf2",".part",".ipa"};for(const char* ext:extensions)if(data_suffix(name,ext))return true;return false;}
 inline bool data_browser_entry(const char* directory,const char* name,bool folder){
  char path[192];if(name[0]=='.' || !join_path(path,sizeof path,directory,name))return false;
  if(data_under(path,"GROOVE") || data_under(path,"firmware") || (data_equal(path,"BENCH.MGXS") || data_equal(path,"BENCH.MGX")))return false;
@@ -56,8 +56,8 @@ inline unsigned data_content_header(const uint8_t* h,unsigned n){
  return n>=23 && !__builtin_memcmp(h,"MGXC",4) && h[4]==uint8_t(kFormatVersion) && h[5]==uint8_t(kFormatVersion>>8) && !__builtin_memcmp(h+10,"TYPE",4) && h[14]==1 && !h[15] && !h[16] && !h[17] && h[18]==1 && !h[19] && !h[20] && !h[21] && h[22]>=1 && h[22]<=3?h[22]:0;
 }
 inline unsigned data_content_kind(IFileAccess& fs,const char* path){uint8_t header[23];unsigned got=0;return fs.read(path,0,header,sizeof header,got)?data_content_header(header,got):0;}
-inline constexpr const char* kUserShelves[]={"PROJECTS","PRESETS","KITS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","RECORDINGS"};
-inline constexpr const char* kCanonicalDataDirectories[]={"GROOVE","PROJECTS","PRESETS","PRESETS/DX7","RECORDINGS","KITS","ASSETS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","FACTORY","FACTORY/DEMOS","FACTORY/DEBUG","FACTORY/KITS","FACTORY/DRUMS","FACTORY/PRESETS","FACTORY/PRESETS/SAMPLES"};
+inline constexpr const char* kUserShelves[]={"PROJECTS","PRESETS","KITS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","RECORDINGS","ASSETS/SPEECH"};
+inline constexpr const char* kCanonicalDataDirectories[]={"GROOVE","PROJECTS","PRESETS","PRESETS/DX7","RECORDINGS","KITS","ASSETS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","ASSETS/SPEECH","FACTORY","FACTORY/DEMOS","FACTORY/DEBUG","FACTORY/KITS","FACTORY/DRUMS","FACTORY/PRESETS","FACTORY/PRESETS/SAMPLES"};
 inline const char* data_shelf_for_content(unsigned kind){return kind==1?kUserShelves[0]:kind==2?kUserShelves[2]:kind==3?kUserShelves[1]:nullptr;}
 constexpr const char* kUserProject="PROJECTS/Untitled.mgxs";
 constexpr const char* kFactoryStartupProject="FACTORY/DEBUG/Benchmark.mgxs";

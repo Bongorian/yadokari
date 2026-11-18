@@ -8,7 +8,7 @@ struct FactoryLibraryAudit {unsigned presets=0,kits=0,old_formats=0;bool complet
 // filters and 64-row viewport, without auditioning or writing shelf content.
 inline FactoryLibraryAudit audit_factory_library(SessionFiles& files,IFileAccess& fs,Performance& ui){
  FactoryLibraryAudit report;auto* saved=alloc_new<BrowserState>(ui.browser());if(!saved)return report;
- unsigned cursor=files.library_cursor_;auto& b=ui.browser();b.library_originals=true;b.library_kits=false;
+ auto& b=ui.browser();b.library_originals=true;b.library_kits=false;
  bool ok=files.browse_library(FileAction::LibraryOpen);
  for(unsigned kind=0;kind<2 && ok;++kind){b.library_kits=kind!=0;
   for(unsigned engine=0;engine<(kind?1:instrument_count()) && ok;++engine){
@@ -28,6 +28,6 @@ inline FactoryLibraryAudit audit_factory_library(SessionFiles& files,IFileAccess
   uint8_t header[6]{};unsigned got=0;if(!fs.read(path,0,header,6,got) || got!=6 || __builtin_memcmp(header,"MGXC",4) || wav_u16(header+4)!=kFormatVersion)++report.old_formats;
   report.old_name|=data_equal(filename(path),"DX7 Lately Bass.mgxp");
  };walk_content_shelf(fs,"FACTORY",inspect,scan);ok=ok && scan.complete;
- b=*saved;delete saved;files.library_cursor_=cursor;ui.mark_dirty();report.complete=ok;return report;
+ b=*saved;delete saved;ui.mark_dirty();report.complete=ok;return report;
 }
 }

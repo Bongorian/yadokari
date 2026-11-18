@@ -298,7 +298,7 @@ requiring another disk-format change.
 
 `RESO` engine subchunk revision 1 contains eight f32 values in parameter-ID order 600–607 (model, polyphony index, structure, brightness, damping, position, FM, transpose). `TXTR` revision 2 contains fourteen f32 values in declaration order (mode, position, size, pitch, density, texture, dry/wet, stereo spread, feedback, reverb amount, freeze, quality, trigger, gate). INPUT belongs to `TCOM`; input history and reverb buffers are not persisted. Unsupported engine subchunks retain the existing opaque/preserved payload path.
 
-The `mk3.chimera` engine uses the existing `PARM` revision 2 bank. Its five normalized controls, in order, are Tongue X, Tongue Y, Jaw, Lip Round, and Breath. The simulated airway state is transient.
+The `mk3.chimera` engine uses the existing `PARM` revision 2 bank. Its five normalized controls, in order, are Tongue X, Tongue Y, Jaw, Lip Round, and Breath. The optional `CHIM` revision-1 bank stores the 22 detail values as little-endian float32 in engine parameter order, starting at BODY. Absent banks use the declared defaults. The simulated airway state is transient. An optional Song-only `IPAS` revision-1 frame stores an entry count (u8), then the track (u8), text byte length (u16), and UTF-8 IPA file data for each assignment. The score is compiled from the saved text before the Song is applied.
 
 ## Unknown engines and unknown chunks (fallback)
 

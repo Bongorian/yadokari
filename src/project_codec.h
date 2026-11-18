@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdint.h>
 namespace groove {
+inline constexpr uint32_t kChunkIpas=0x53415049u; // IPAS v1, Song-only IPA text
 inline constexpr uint32_t kChunkTwin=0x4e495754u; // TWIN v1, optional Song association
 inline constexpr uint32_t kChunkTrks=0x534b5254u,kChunkPhrs=0x53524850u,kChunkPseq=0x51455350u;
 
@@ -272,10 +273,10 @@ inline bool write_pseq_section(ChunkWriter<ChunkBuffer>& w,ConstTrackView t, con
 }
 // --- Engine payload (ENGN) -------------------------------------------------
 // Engine state adapters carry no ownership and perform no copies.
-inline EngineStateSource engine_state_source(ConstTrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular};}
-inline EngineStateSource engine_state_source(const SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular};}
-inline EngineStateView engine_state_view(TrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular};}
-inline EngineStateView engine_state_view(SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular};}
+inline EngineStateSource engine_state_source(ConstTrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera};}
+inline EngineStateSource engine_state_source(const SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera};}
+inline EngineStateView engine_state_view(TrackView t){return {&t.texture,&t.resonator,&t.plaits_model,t.engine_parameters,&t.sample_slot,&t.sample_edit,&t.creative,&t.kit.definition(),&t.sample_loop,&t.sample_reverse,&t.sample_slice,&t.sample_slices,t.preset_name,t.daisy_adsr,t.instrument==Instrument::ExternalMidi?&t.midi_program:nullptr,t.midi_cc,t.midi_cc_used,&t.wavetable,&t.virtual_analog,&t.fm6,&t.additive,&t.phase_dist,&t.soundfont,&t.layer,&t.formant,&t.granular,&t.chimera};}
+inline EngineStateView engine_state_view(SoundState& s){return {&s.texture,&s.resonator,&s.model,s.parameters,&s.sample_slot,&s.sample_edit,&s.creative,&s.kit,&s.sample_loop,&s.sample_reverse,&s.sample_slice,&s.sample_slices,s.preset_name,s.daisy_adsr,&s.midi_program,s.midi_cc,s.midi_cc_used,&s.wavetable,&s.virtual_analog,&s.fm6,&s.additive,&s.phase_dist,&s.soundfont,&s.layer,&s.formant,&s.granular,&s.chimera};}
 inline bool write_engine_state(ChunkBuffer& out,Instrument instrument,const EngineStateSource& source,const PreservedTrackEntry* entry){
  ChunkWriter<ChunkBuffer> w(out);
  if(entry && !entry->engn.empty() && instrument==Instrument::Unknown)return w.block(entry->engn.data,entry->engn.size);
@@ -344,6 +345,28 @@ inline bool valid_pinned_references(const ProjectState& p){
  for(const auto& t:p.tracks)if(t.preset_identity.assigned()){if(t.preset_slot>=kPresetSlots)return false;const auto& sound=p.sounds[t.preset_slot];if(sound.instrument!=Instrument::Unknown && !same_preset_revision(t.preset_identity,sound.identity))return false;}
  return true;
 }
+inline bool write_ipa_section(ChunkWriter<ChunkBuffer>& w,const ProjectState& project){
+ unsigned count=0;
+ for(const auto& ipa:project.chimera_ipa)count+=ipa.size!=0;
+ if(!w.u8(uint8_t(count)))return false;
+ for(unsigned t=0;t<kTracks;++t){
+  const auto& ipa=project.chimera_ipa[t];
+  if(ipa.size && (!w.u8(uint8_t(t)) || !w.u16(ipa.size) || !w.block(reinterpret_cast<const uint8_t*>(ipa.data),ipa.size)))return false;
+ }
+ return true;
+}
+inline bool read_ipa_section(ChunkSource& src,ProjectState& project){
+ ChunkReader<ChunkSource> r(src);
+ uint8_t count=0;unsigned seen=0;
+ if(project.content_kind!=ContentKind::Song || !r.u8(count) || !count || count>kTracks)return false;
+ while(count--){
+  uint8_t t;
+  if(!r.u8(t) || t>=kTracks || (seen&(1u<<t)))return false;
+  seen|=1u<<t;auto& ipa=project.chimera_ipa[t];
+  if(!r.u16(ipa.size) || !ipa.size || ipa.size>kChimeraIpaBytes || !r.block(reinterpret_cast<uint8_t*>(ipa.data),ipa.size))return false;
+ }
+ return src.at_end();
+}
 inline bool encode_project_buffer(ChunkBuffer& out,const ProjectState& project,const PreservedStore* store=nullptr){
  if(out.size || !valid_pinned_references(project) || !valid_project(project) || (project.content_kind!=ContentKind::Song && !project.tracks[0].preset_identity.assigned()) || (project.content_kind==ContentKind::Kit && project.tracks[0].instrument!=Instrument::DrumKit))return false;
  ChunkWriter<ChunkBuffer> w(out);
@@ -356,6 +379,10 @@ inline bool encode_project_buffer(ChunkBuffer& out,const ProjectState& project,c
  if(project.content_kind!=ContentKind::Song && !write_identity_frame(out,project.tracks[0].preset_identity))return false;
  if((project.content_kind==ContentKind::Song && !section(kChunkProj,3,write_proj_section)) || !section(kChunkAsst,1,write_asst_section))return false;
  if(project.content_kind==ContentKind::Song && (!section(kChunkAudio,1,write_audio_section) || !section(kChunkScen,1,write_scen_section) || !section(kChunkSong,2,write_song_section) || !section(kChunkMacr,5,write_macr_section) || !section(kChunkMfx,1,write_mfx_section)))return false;
+ for(const auto& ipa:project.chimera_ipa)if(ipa.size){
+  if(!section(kChunkIpas,1,write_ipa_section))return false;
+  break;
+ }
  if(project.content_kind!=ContentKind::Song && (!write_fx_frame(out,project.preset_fx.present?project.preset_fx:project.tracks[0].preset_fx) || !write_output_trim_frame(out,project.tracks[0].output_trim)))return false;
  if(project.content_kind==ContentKind::Song){unsigned count=0;for(const auto& twin:project.twins)count+=twin.prepared();if(count){uint32_t frame;if(!out.begin_frame(kChunkTwin,1,frame) || !w.u8(uint8_t(count)))return false;for(unsigned t=0;t<kTracks;++t){const auto& twin=project.twins[t];if(!twin.prepared())continue;if(!w.u8(uint8_t(t)) || !w.u16(twin.source) || !w.u16(twin.sampled) || !w.u8(twin.active) || !w.block(twin.digest,32))return false;}if(!out.end_frame(frame))return false;}}
  uint32_t tracks_frame;if(!out.begin_frame(kChunkTrks,1,tracks_frame))return false;
@@ -464,7 +491,11 @@ inline bool read_morph_snapshot(ChunkReader<ChunkSource>& r,ParameterSnapshot& s
  uint8_t length;uint16_t count;char guid[65];if(!r.u8(length) || !length || length>64)return false;
  for(unsigned i=0;i<length;++i){uint8_t c;if(!r.u8(c))return false;guid[i]=char(c);}guid[length]=0;
  Instrument engine;bool known=engine_from_guid(guid,length,engine);if(!r.u16(count) || count>kEngineMorphParameters)return false;
- if(known){const auto* d=engine_descriptor(unsigned(engine));if(!d || d->parameters.count!=count)return false;s.engine=engine;}else{s.engine=Instrument::Unknown;__builtin_memcpy(s.unknown_guid,guid,length+1);s.unknown_count=count;}
+ if(known){const auto* d=engine_descriptor(unsigned(engine));if(!d)return false;
+  if(engine==Instrument::Chimera && count==kChimeraMacroCount){
+   for(unsigned i=count;i<d->parameters.count;++i)s.engine_values[i]=d->parameters.declarations[i].value.initial;
+  }else if(d->parameters.count!=count)return false;
+  s.engine=engine;}else{s.engine=Instrument::Unknown;__builtin_memcpy(s.unknown_guid,guid,length+1);s.unknown_count=count;}
  for(unsigned i=0;i<count;++i){float v;if(!r.f32(v))return false;s.engine_values[i]=v;}
  return valid_engine_morph(s);
 }
@@ -633,7 +664,7 @@ inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,Prese
  const auto* descriptor=engine_descriptor(unsigned(instrument));return descriptor && (seen&descriptor->state.required)==descriptor->state.required;
 }
 inline bool track_engine_fields_valid(ConstTrackView t){
- if(!valid_layer(t.layer) || !valid_additive(t.additive) || !valid_phase_dist(t.phase_dist) || !valid_formant(t.formant) || !valid_granular(t.granular) || !valid_soundfont(t.soundfont) || !valid_fm6(t.fm6) || !valid_virtual_analog(t.virtual_analog) || !valid_wavetable(t.wavetable) || !valid_texture(t.texture) || !valid_resonator(t.resonator) || t.plaits_model>=24 || t.sample_slot>=kSampleAssets || (t.frozen_asset!=255 && t.frozen_asset>=kSampleAssets))return false;
+ if(!valid_layer(t.layer) || !valid_additive(t.additive) || !valid_phase_dist(t.phase_dist) || !valid_formant(t.formant) || !valid_granular(t.granular) || !valid_chimera(t.chimera) || !valid_soundfont(t.soundfont) || !valid_fm6(t.fm6) || !valid_virtual_analog(t.virtual_analog) || !valid_wavetable(t.wavetable) || !valid_texture(t.texture) || !valid_resonator(t.resonator) || t.plaits_model>=24 || t.sample_slot>=kSampleAssets || (t.frozen_asset!=255 && t.frozen_asset>=kSampleAssets))return false;
  for(float v:t.engine_parameters)if(!(v>=0 && v<=1))return false;
  if(!valid_sample_edit(t.sample_edit)||!valid_creative(t.creative))return false;
  if(t.instrument==Instrument::DrumKit && !valid_drum_kit(t.kit))return false;
@@ -789,13 +820,13 @@ template<class Source> bool decode_project_impl(Source& source,ProjectState* pro
   consumed+=12+length;
   ChunkBuffer payload;ChunkSource section;
   if(!r.payload(length,section,payload)){ok=false;break;}
-  bool known_typed=(chunk_version==project_section_revision(kind)) && (kind==kChunkTwin || kind==kChunkPunk || kind==kChunkIden || kind==kChunkPtrm || kind==kChunkPfxs || kind==kChunkTrks || kind==kChunkType || kind==kChunkPref || kind==kChunkAudio || kind==kChunkProj || kind==kChunkAsst || kind==kChunkScen || kind==kChunkSong || kind==kChunkMacr || kind==kChunkMfx || kind==kChunkPtrn || kind==kChunkSnds);
+  bool known_typed=(chunk_version==project_section_revision(kind)) && (kind==kChunkTwin || kind==kChunkIpas || kind==kChunkPunk || kind==kChunkIden || kind==kChunkPtrm || kind==kChunkPfxs || kind==kChunkTrks || kind==kChunkType || kind==kChunkPref || kind==kChunkAudio || kind==kChunkProj || kind==kChunkAsst || kind==kChunkScen || kind==kChunkSong || kind==kChunkMacr || kind==kChunkMfx || kind==kChunkPtrn || kind==kChunkSnds);
   if(!known_typed){
    if(active_store)active_store->add_chunk(kind,chunk_version,flags,section.data,section.size);
    continue;
   }
   if(flags){ok=false;break;}
-  static constexpr uint32_t singletons[]={kChunkTwin,kChunkType,kChunkIden,kChunkPfxs,kChunkPtrm,kChunkPunk,kChunkTrks,kChunkAudio,kChunkProj,kChunkAsst,kChunkScen,kChunkSong,kChunkMacr,kChunkMfx,kChunkSnds};
+  static constexpr uint32_t singletons[]={kChunkTwin,kChunkIpas,kChunkType,kChunkIden,kChunkPfxs,kChunkPtrm,kChunkPunk,kChunkTrks,kChunkAudio,kChunkProj,kChunkAsst,kChunkScen,kChunkSong,kChunkMacr,kChunkMfx,kChunkSnds};
   for(unsigned i=0;i<sizeof singletons/sizeof singletons[0];++i)if(kind==singletons[i]){if(singleton_seen&(1u<<i))ok=false;singleton_seen|=1u<<i;}
   if(!ok)break;
   if(!saw_type && kind!=kChunkType){ok=false;break;}
@@ -811,6 +842,7 @@ template<class Source> bool decode_project_impl(Source& source,ProjectState* pro
    case kChunkPunk: {if(saw_punk || flags || fresh->content_kind==ContentKind::Song || !read_preserved_root(section,active_store,active_store?&active_store->tracks[0]:nullptr)){ok=false;break;}saw_punk=true;break;}
    case kChunkPfxs: {if(saw_pfxs || flags || fresh->content_kind==ContentKind::Song || !read_fx_frame(section,fresh->preset_fx)){ok=false;break;}saw_pfxs=true;break;}
    case kChunkPtrm: {ok=fresh->content_kind!=ContentKind::Song && read_output_trim_frame(section,file_trim);break;}
+   case kChunkIpas: ok=read_ipa_section(section,*fresh);break;
    case kChunkTwin: {ChunkReader<ChunkSource> tr(section);uint8_t count=0;uint16_t seen=0;if(fresh->content_kind!=ContentKind::Song || !tr.u8(count) || !count || count>kTracks){ok=false;break;}for(unsigned i=0;i<count && ok;++i){uint8_t t=0,active=0;uint16_t source=0,sampled=0;ok=tr.u8(t) && t<kTracks && !(seen&(1u<<t)) && tr.u16(source) && tr.u16(sampled) && source<kPresetSlots && sampled<kPresetSlots && source!=sampled && tr.u8(active) && active<=1;if(ok){seen|=uint16_t(1u<<t);auto& twin=fresh->twins[t];twin.source=source;twin.sampled=sampled;twin.active=active;ok=tr.block(twin.digest,32);}}ok=ok && section.at_end();break;}
    case kChunkTrks: if(saw_tracks){ok=false;break;}ok=parse_trks(section,*fresh,active_store);saw_tracks=ok;break;
    case kChunkAudio: ok=read_audio_section(section,*fresh);break;

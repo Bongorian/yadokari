@@ -21,7 +21,7 @@ struct EnginePageDescriptor {HeroVisual hero;ShapeKind shape;EngineParameterRefe
 enum class EngineDisplay : uint8_t { Percent,Milliseconds80,Pitch24,Rate2,Megahertz16,Divider1022,FourChoices,Varispeed,GrainMilliseconds,Fold7,Phase8,Ratio31,Decay1800,Tilt12,Partials123,Native };
 // The declaration index is local to this engine. legacy_id is a stage-0 bridge,
 // never a new allocation in the global ID space and never an engine identity.
-enum class EngineValueTarget:uint8_t { None, Macro, Model, Sample, Envelope, Resonator, Texture, Wavetable, VirtualAnalog, Fm6, Additive, PhaseDist, Formant, Granular, Layer, SoundFont };
+enum class EngineValueTarget:uint8_t { None, Macro, Model, Sample, Envelope, Resonator, Texture, Wavetable, VirtualAnalog, Fm6, Additive, PhaseDist, Formant, Granular, Layer, SoundFont, Chimera };
 enum class EngineEditTier:uint8_t { Performance, Detail };
 enum class EngineParameterType:uint8_t { Float, Integer, Boolean, Choice };
 struct EngineParameterUi {EngineEditTier tier=EngineEditTier::Detail;EngineParameterType type=EngineParameterType::Float;const char* group="Engine";};
@@ -39,7 +39,7 @@ inline void bind_engine_values(const EngineParameterTable& table,const float* va
   case EngineValueTarget::Macro:if(target.macros)target.macros[p.offset]=v;break;
   case EngineValueTarget::Model:if(target.model)*target.model=uint8_t(v);break;
   case EngineValueTarget::Envelope:if(target.envelope)target.envelope[p.offset]=v;break;
-  case EngineValueTarget::Layer:case EngineValueTarget::Additive:case EngineValueTarget::Granular:case EngineValueTarget::Formant:case EngineValueTarget::PhaseDist:case EngineValueTarget::SoundFont:case EngineValueTarget::Fm6:case EngineValueTarget::VirtualAnalog:case EngineValueTarget::Wavetable:case EngineValueTarget::Resonator:case EngineValueTarget::Texture:if(target.native)target.native[p.offset]=v;break;
+  case EngineValueTarget::Chimera:case EngineValueTarget::Layer:case EngineValueTarget::Additive:case EngineValueTarget::Granular:case EngineValueTarget::Formant:case EngineValueTarget::PhaseDist:case EngineValueTarget::SoundFont:case EngineValueTarget::Fm6:case EngineValueTarget::VirtualAnalog:case EngineValueTarget::Wavetable:case EngineValueTarget::Resonator:case EngineValueTarget::Texture:if(target.native)target.native[p.offset]=v;break;
   case EngineValueTarget::Sample:if(target.sample){target.sample->*sample_parameter_member(p.offset)=v;}break;
   case EngineValueTarget::None:break;
   }
@@ -92,12 +92,27 @@ inline EngineParameterDeclaration formant_declaration(unsigned local){const auto
 inline EngineParameterDeclaration granular_declaration(unsigned local){const auto& p=kGranularParameters[local];return {p,0,EngineDisplay::Native,nullptr,0,EngineValueTarget::Granular,uint8_t(local),{local<9?EngineEditTier::Performance:EngineEditTier::Detail,declared_parameter_type(p),local>=5 && local<=8?"Envelope":"Generator"}};}
 inline EngineParameterDeclaration soundfont_declaration(unsigned local){const auto& p=kSoundFontParameters[local];return {p,0,EngineDisplay::Native,nullptr,0,EngineValueTarget::SoundFont,uint8_t(local),{local<4?EngineEditTier::Performance:EngineEditTier::Detail,declared_parameter_type(p),"SoundFont"}};}
 inline EngineParameterDeclaration fm6_declaration(unsigned local){const auto& p=kFm6Parameters[local];return {p,0,EngineDisplay::Native,nullptr,0,EngineValueTarget::Fm6,uint8_t(local),{local<5?EngineEditTier::Performance:EngineEditTier::Detail,declared_parameter_type(p),local>=5 && local<17?"Operators":"Patch"}};}
+inline EngineParameterDeclaration chimera_declaration(unsigned local){
+ const auto& p=kChimeraDetails[local-kChimeraMacroCount];
+ const bool body=local==ChimeraBody,mode=local==ChimeraProgram,species=local==ChimeraSpecies;
+ const uint8_t choices=body?3:mode?sizeof kChimeraPrograms/sizeof *kChimeraPrograms:species?4:0;
+ return {p,0,EngineDisplay::Native,body?kChimeraBodies:mode?kChimeraPrograms:species?kChimeraSpecies:nullptr,choices,
+    EngineValueTarget::Chimera,uint8_t(local-kChimeraMacroCount),
+    {EngineEditTier::Detail,declared_parameter_type(p,choices),local<ChimeraTipX || mode || species?"Voice":"Articulation"}};
+}
 inline const EngineDescriptor* engine_descriptor(unsigned id){
  using D=EngineDisplay;
  static const EngineParameterDeclaration parameters_chimera[]={
   engine_macro_declaration(0,"TONGUE X",D::Percent),engine_macro_declaration(1,"TONGUE Y",D::Percent),
   engine_macro_declaration(2,"JAW",D::Percent),engine_macro_declaration(3,"LIP ROUND",D::Percent),
-  engine_macro_declaration(4,"BREATH",D::Percent)};
+  engine_macro_declaration(4,"BREATH",D::Percent),
+  chimera_declaration(ChimeraBody),chimera_declaration(ChimeraVibratoDepth),chimera_declaration(ChimeraVibratoRate),
+  chimera_declaration(ChimeraGlide),chimera_declaration(ChimeraPressure),chimera_declaration(ChimeraBreathiness),
+  chimera_declaration(ChimeraTipX),chimera_declaration(ChimeraTipY),chimera_declaration(ChimeraTipCurl),
+  chimera_declaration(ChimeraRoot),chimera_declaration(ChimeraLipAperture),chimera_declaration(ChimeraLipProtrusion),
+  chimera_declaration(ChimeraLipWidth),chimera_declaration(ChimeraLabiodental),chimera_declaration(ChimeraVelum),
+  chimera_declaration(ChimeraLarynx),chimera_declaration(ChimeraEpilarynx),chimera_declaration(ChimeraVentricular),
+  chimera_declaration(ChimeraLateral),chimera_declaration(ChimeraDorsum),chimera_declaration(ChimeraProgram),chimera_declaration(ChimeraSpecies)};
  static const EngineParameterDeclaration parameters_layer[]={layer_declaration(0),layer_declaration(1),layer_declaration(2),layer_declaration(3),layer_declaration(4),layer_declaration(5),layer_declaration(6),layer_declaration(7),layer_declaration(8),layer_declaration(9),layer_declaration(10),layer_declaration(11)};
  static const EngineParameterDeclaration parameters_additive[]={additive_declaration(0),additive_declaration(1),additive_declaration(2),additive_declaration(3),additive_declaration(4),additive_declaration(5),additive_declaration(6),additive_declaration(7),additive_declaration(8),additive_declaration(9),additive_declaration(10),additive_declaration(11),additive_declaration(12),additive_declaration(13),additive_declaration(14),additive_declaration(15),additive_declaration(16),additive_declaration(17),additive_declaration(18),additive_declaration(19),additive_declaration(20),additive_declaration(21),additive_declaration(22),additive_declaration(23),additive_declaration(24)};
  static const EngineParameterDeclaration parameters_phase_dist[]={phase_dist_declaration(0),phase_dist_declaration(1),phase_dist_declaration(2),phase_dist_declaration(3),phase_dist_declaration(4),phase_dist_declaration(5),phase_dist_declaration(6),phase_dist_declaration(7),phase_dist_declaration(8)};
@@ -152,7 +167,7 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   {{Instrument::Wavetable,"WAVETABLE",false,0,"SYNTH",2,EnvelopeNone},{"mk3.wavetable",false,false,false,true},{HeroVisual::WavetableScan,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_wavetable,8},calibrated_polyphony({4,true,0,0,nullptr},2),wavetable_state_contract()},
   {{Instrument::VirtualAnalog,"VA DUAL",false,0,"SYNTH",3,EnvelopeEditable},{"mk3.va-dual",false,false,false,true},{HeroVisual::Oscillators,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_va,kVirtualAnalogParameterCount},calibrated_polyphony({16,true,0,0,nullptr,VoiceResource::None,0,2},4),virtual_analog_state_contract()},
   {{Instrument::Fm6,"FM 6",false,0,"SYNTH",3,EnvelopeNone},{"mk3.fm6",false,false,false,true},{HeroVisual::Scope,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_fm6,21},{12,true,0,0,nullptr,VoiceResource::None,0,3},fm6_state_contract()},
-  {{Instrument::SoundFont,"SOUNDFONT",false,0,"SAMPLE",2,EnvelopeNone},{"mk3.soundfont",false,false,false,true,EngineAssetMode::SoundFont},{HeroVisual::Scope,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),track_control(0),track_control(0),track_control(0),track_control(0)}},{parameters_soundfont,5},{8,true,0,0,nullptr,VoiceResource::None,0,2},soundfont_state_contract()},
+  {{Instrument::SoundFont,"SOUNDFONT",false,0,"SAMPLER",2,EnvelopeNone},{"mk3.soundfont",false,false,false,true,EngineAssetMode::SoundFont},{HeroVisual::Scope,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),track_control(0),track_control(0),track_control(0),track_control(0)}},{parameters_soundfont,5},{8,true,0,0,nullptr,VoiceResource::None,0,2},soundfont_state_contract()},
   {{Instrument::Additive,"ADDITIVE",false,0,"SYNTH",2,EnvelopeEditable},{"mk3.additive",false,false,false,true},{HeroVisual::Harmonics,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_additive,25},calibrated_polyphony({8,true,0,0,nullptr,VoiceResource::None,0,2},3),additive_state_contract()},
   {{Instrument::PhaseDist,"PHASE DIST",false,0,"SYNTH",2,EnvelopeEditable},{"mk3.phase-dist",false,false,false,true},{HeroVisual::Scope,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_phase_dist,9},{8,true,0,0,nullptr,VoiceResource::None,0,2},phase_dist_state_contract()},
   {{Instrument::Layer,"LAYER",false,0,"SYNTH",3,EnvelopeNone},{"mk3.layer",false,false,false,true},{HeroVisual::Scope,ShapeKind::None,{}},{parameters_layer,12},{4,true,0,0,nullptr},layer_state_contract()},
@@ -160,7 +175,7 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   {{Instrument::Granular,"GRANULAR",true,0,"SAMPLER",3,EnvelopeEditable},{"mk3.granular",false,false,false,true,EngineAssetMode::Sample},{HeroVisual::Scope,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_granular,kGranularParameterCount},{32,true,4,32,nullptr,VoiceResource::Granular,0,8},granular_state_contract()},
   {{Instrument::Chimera,"CHIMERA",true,5,"PHYSICAL",3,EnvelopeNone},{"mk3.chimera",false,false,false,true},
    {HeroVisual::VocalTract,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(1),track_control(2),track_control(0)}},
-   {parameters_chimera,5},{1,false,0,0,nullptr,VoiceResource::None,0,1,false},engine_state_contract(RequireParameters)},
+   {parameters_chimera,kChimeraParameterCount},{1,false,0,0,nullptr,VoiceResource::None,0,1,false},chimera_state_contract()},
  };
  return id<sizeof registry/sizeof registry[0]?&registry[id]:nullptr;
 }

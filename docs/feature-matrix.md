@@ -65,9 +65,12 @@ What the instrument does, area by area. File formats are specified in
   are not saved.
 - WAVETABLE: 128-waveform position scanning with a band-limited mip
   table.
-- CHIMERA: physical human voice with a live sagittal airway view. Five
-  controls shape the tongue, jaw, lips and breath. The 48 kHz audio engine
-  shares one monophonic Chimera voice across tracks.
+- CHIMERA: human voice, Beatbox, IPA Speak and Sing, and four Bestiary
+  species with live airway cross-sections. Male, female and child bodies
+  share five performance macros and detailed articulation and voice controls.
+  One voice is shared across tracks at 48 kHz.
+- PHYSICAL groups RESONATOR, TEXTURE and CHIMERA. SAMPLER groups
+  SAMPLER, SOUNDFONT and GRANULAR in the engine lists.
 - Polyphony: basic voices plus shared additional voices. Plaits sounds
   take 1/2/4 voices by declared cost against a shared weighted budget
   of 4.
@@ -118,17 +121,14 @@ What the instrument does, area by area. File formats are specified in
   across saves with explicit Duplicate, and Track names independent of
   the attached sound. The pool holds 256 slots of named Presets with
   temporary audition.
-- Library and Browser: the sound list is an independent Library page,
-  BROWSER is dedicated to file shelves, and sounds are also shown
-  inside ENGINE. Kit and Preset access uses one unified User/Factory
-  list with preview/load and previous/next stepping. BROWSER loads
-  asynchronously and offers SF2 / Preset OPEN, WAV Cue audition and
-  assignment, Preset PREVIEW audition on the selected Track,
-  Rename/Delete/New Folder, and protection of referenced and standard
-  materials.
+- PRESETS / KITS use a User/Factory index for selection, PREVIEW and
+  LOAD. Enter with BROWSER or from ENGINE, and use Top7 FILES to reveal
+  the selected item on the card. FILE opens FILES for folders, WAV
+  waveform and Cue preview, sample/kit/preset assignment, IPA import,
+  and Rename/Delete/New Folder. Pending operations show PROCESSING.
 - Factory library: 187 items (163 Presets + 24 Kits), level-normalised.
   See [factory-library.md](factory-library.md).
-- Projects: SAVE AS and current-song SAVE, Browser OPEN, name/type case
+- Projects: SAVE AS and current-song SAVE, FILES OPEN, name/type case
   handling, per-song COLLECT that gathers referenced materials, and
   boot-song memory.
 - File transfer: Ethernet, or Wi-Fi in AP or STATION mode (selected

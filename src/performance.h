@@ -50,7 +50,7 @@
 namespace groove {
 enum class UiNotice:uint8_t { None, PartialApplied, Saved, SavedLocationFailed, SampleRecorded, MidiSaved, MidiImported, SaveFailed, HostUpdateTools, HostFileTools, FilesBusy, Loaded, KitLoaded, NewProject, Failed, Copied, LocksFull, GestureFull, GestureClear, LoopConfirm, LoopReady, LoopInvalid, OverdubDone, OverdubFailed, ChordFull, ChordMono, RecordLost, ChordRepeat, ChordLiveMono, GrooveClipped, ScaleRequired, LoopImported, LoopUnsupported, LoopPrecision, ProjectUnsynced, ProjectPending, SaveQueued, Saving, SnapshotSaved, Recovered, SnRefConfirm, SnRefQueued, StripUnavailable, StepCopied, StepPasted, StepRhythmPasted, ChopPhrase, KitPadSwapped, ExtendConfirm, Extended, SceneStored, SceneWait , MemoryFull, AssetReload, RestartQueued, HintAvailable, ChordVoiceLimit, ControllerReconnect, ModuleEntered, ModuleExited, ModuleTransport, LayerRefused, TwinChanged, TwinFailed, CompositionChanged, CompositionFailed};
 enum class UiMode : uint8_t { Pad, Step, Clip, Scene, Mixer, Synth, Effects, Perform, Generate, Keyboard, Sampler, Project, Settings, Modulation, Browser, Routing, Diagnostics, Chord, Song, Library };
-inline const char* mode_name(UiMode mode) { static const char* names[]={"PAD","STEP","CLIP","SCENE","MIXER","SYNTH","FX","PERFORM","GENERATE","KEYBOARD","SAMPLER","PROJECT","SETTINGS","MODULATION","BROWSER","ROUTING","DIAGNOSTICS","CHORDS","SONG","PRESETS"}; return names[unsigned(mode)]; }
+inline const char* mode_name(UiMode mode) { static const char* names[]={"PAD","STEP","CLIP","SCENE","MIXER","SYNTH","FX","PERFORM","GENERATE","KEYBOARD","SAMPLER","PROJECT","SETTINGS","MODULATION","FILES","ROUTING","DIAGNOSTICS","CHORDS","SONG","PRESETS"}; return names[unsigned(mode)]; }
 // Single UI producer. Accepted commands and project edits move together.
 class Performance {
  LayerReason notice_layer_reason_=LayerReason::Ready;
@@ -344,6 +344,8 @@ public:
  // Auto-refresh is consumed after explicit actions; it never locks recording controls.
  bool file_action_pending()const{return resample_cancel_request_ || record_stop_request_ || file_action_!=FileAction::None;}
  FileAction take_file_action();
+ void resume_file_navigation();
+ bool file_navigation_processing()const{return pending_file_action()!=FileAction::None || browser_.processing || browser_.analysis_pending;}
 
  const AudioVisualFrame& visual()const{return visual_;}
  const DeviceSettings& device_settings()const{return device_;}
@@ -524,13 +526,13 @@ public:
  bool set_frozen_asset(unsigned track,unsigned pattern,unsigned slot,const WavView* bindings=nullptr,const SampleAssetState* assets=nullptr);
  // SCR-EDT-01 SOURCE SELECT (SPEC 2.8, S-04): the engine list is the
  // primary instrument-selection path; cycle_instrument() stays as the
- // auxiliary path. The cursor walks the descriptor registry and the
+ // auxiliary path. The cursor walks the display order and the
  // FAMILY knob steps between the first engines of each family in
  // display order (family groups in the renderer use the same order).
  static bool source_family_is(const char* a,const char* b){unsigned n=0;while(a[n] && a[n]==b[n])++n;return a[n]==b[n];}
  static int source_family_index_of(unsigned engine);
  static unsigned source_family_first(int family){
-  for(unsigned e=0;e<instrument_count();++e)if(source_family_index_of(e)==family)return e;
+  for(auto engine:kEngineDisplayOrder)if(source_family_index_of(unsigned(engine))==family)return unsigned(engine);
   return 0;
  }
  bool toggle_source_select();
@@ -687,6 +689,8 @@ public:
  bool extra_knob(unsigned index,int change,bool& handled);
 
 private:
+ bool move_file_rows(int delta,bool library);
+ int64_t browser_move_deferred_=0;
  SynthControlContext synth_controls()const ;
  bool synth_key(unsigned index) ;
 

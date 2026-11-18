@@ -25,7 +25,8 @@ components. Full license texts live with each component under
 
 - **Chimera** — Jameson Hodge — MIT
   [Human voice synthesis](https://github.com/jamesondh/chimera-vocal-synth/tree/3bd3047ca7490a6f21facbc29e4ace923bad1a2c/crates/chimera)
-  adapted for bare-metal playback and the YADOKARI screen.
+  and the [Bestiary models and syrinx table](https://github.com/jamesondh/chimera-vocal-synth/tree/eeb0c1940d2d52f5f5effdecf3507fe79157f389/crates/chimera/src)
+  are adapted for bare-metal playback and the YADOKARI screen.
   The [upstream license](third_party/chimera/LICENSE) accompanies the DSP sources.
   The build also links [libm 0.2.16](https://crates.io/crates/libm/0.2.16)
   under its [license](third_party/chimera/LICENSE-libm).

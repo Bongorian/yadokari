@@ -30,8 +30,21 @@ int main(){
  Command change{CommandType::SetScene,0,0,2};change.scene.pattern_for_track[0]=15;change.scene.mute_mask=0xffff;assert(engine->submit(change));p->scenes[2]=change.scene;run(1);notes.clear();assert(ui.play());run(1);uint64_t replay_start=started;assert(!ui.audible_muted(0));run(16100);assert(!ui.playing());
  std::vector<Note> replay;for(auto n:notes)if(n.sample>=replay_start && n.sample<replay_start+16000){n.sample-=replay_start;replay.push_back(n);}
  assert(original.size()==replay.size());for(unsigned i=0;i<original.size();++i){assert(original[i].channel==replay[i].channel && original[i].pitch==replay[i].pitch);assert(std::llabs(int64_t(original[i].sample)-int64_t(replay[i].sample))<=4);}
+ // Seeking into a captured take retains the phase and track choice of the
+ // uninterrupted replay from the same sixteenth note.
+ notes.clear();assert(ui.seek_song(4));run(1);
+ const uint64_t seek_start=engine->samples_rendered();
+ assert(ui.play());run(12100);assert(!ui.playing());
+ unsigned expected=0;
+ for(auto event:replay)if(event.sample>=4000){
+  assert(expected<notes.size());
+  const auto& actual=notes[expected++];
+  assert(event.channel==actual.channel && event.pitch==actual.pitch);
+  assert(std::llabs(int64_t(event.sample-4000)-int64_t(actual.sample-seek_start))<=4);
+ }
+ assert(expected && expected==notes.size());
  // Exact tick editing, captured pattern selection and stop/mute controls keep Undo.
- ui.set_mode(UiMode::Song);assert(!std::strcmp(ui.knob_label(5),"TICKS"));auto before=p->song.sections[0].ticks;assert(ui.knob(5,1000) && p->song.sections[0].ticks==before+1);assert(ui.undo());run(1);assert(p->song.sections[0].ticks==before);assert(!ui.encoder_push());assert(!ui.seek_song(4));assert(ui.knob(4,1000));assert(ui.knob(6,1000));assert(ui.undo());run(1);
+ ui.set_mode(UiMode::Song);assert(!std::strcmp(ui.knob_label(5),"TICKS"));auto before=p->song.sections[0].ticks;assert(ui.knob(5,1000) && p->song.sections[0].ticks==before+1);assert(ui.undo());run(1);assert(p->song.sections[0].ticks==before);assert(!ui.encoder_push());assert(ui.knob(4,1000));assert(ui.knob(6,1000));assert(ui.undo());run(1);
  ui.set_shift(true);assert(ui.pad(12,0x10,3000));ui.pad(12,0x20,0);ui.set_shift(false);assert(ui.undo());run(1);
  auto renderer=std::make_unique<UiRenderer>();ui.animate(1000);renderer->draw(*p,ui);ui.animate(1200);renderer->draw(*p,ui);renderer->pixels[1][100*480+20]=0xffdebeef;assert(ui.knob(5,1000));ui.animate(1400);renderer->draw(*p,ui);assert(renderer->pixels[1][100*480+20]!=0xffdebeef);
  // Capture starts from the actual mixed clips, including stopped tracks.
@@ -42,5 +55,5 @@ int main(){
  SongState previous=p->song;assert(ui.scene_take_toggle());run(1);for(unsigned batch=0;batch<24;++batch){for(unsigned i=0;i<48;++i)assert(engine->submit({CommandType::LaunchClip,0,0,7}));engine->render(audio,1);}assert(engine->project_event_loss());assert(engine->submit({CommandType::SceneTakeControl,0,1,0}));
  for(unsigned i=0;i<300 && engine->scene_take_state()!=SceneTake::Ready;++i){engine->render(audio,64);}
  assert(engine->scene_take_state()==SceneTake::Ready);ui.poll();assert(!ui.scene_take_requested() && p->song.length==previous.length && p->song.sections[0].ticks==previous.sections[0].ticks);
- std::puts("Arrangement: sub-bar clip/stop/mute/scene capture, retriggers, preserved track phase, exact-tick replay, independent Scene definitions, SONG2, Undo and UI passed");
+ std::puts("Arrangement: sub-bar clip/stop/mute/scene capture, retriggers, preserved track phase, exact-tick replay and seek, independent Scene definitions, SONG2, Undo and UI passed");
 }

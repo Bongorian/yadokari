@@ -391,7 +391,7 @@ source	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 source	SYNTH	0	knob	3		0	selection	value	2	1.000000	0	0	0
 source	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 source	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-source	SYNTH	0	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+source	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 source	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 source	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 source	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -407,7 +407,7 @@ source	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 source	SYNTH	1	knob	3		0	selection	value	2	1.000000	0	0	0
 source	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 source	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-source	SYNTH	1	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+source	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 source	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 source	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 source	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -423,7 +423,7 @@ engine-sounds	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 engine-sounds	SYNTH	0	knob	3	SOUND	1	selection	value	2	1.000000	0	38	0
 engine-sounds	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 engine-sounds	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-sounds	SYNTH	0	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+engine-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 engine-sounds	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-sounds	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 engine-sounds	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -439,7 +439,7 @@ engine-sounds	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 engine-sounds	SYNTH	1	knob	3	SOUND	1	selection	value	2	1.000000	0	38	0
 engine-sounds	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 engine-sounds	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-sounds	SYNTH	1	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+engine-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 engine-sounds	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-sounds	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 engine-sounds	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -519,7 +519,7 @@ engine-no-sounds	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 engine-no-sounds	SYNTH	0	knob	3		0	selection	value	2	1.000000	0	0	0
 engine-no-sounds	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 engine-no-sounds	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-no-sounds	SYNTH	0	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+engine-no-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 engine-no-sounds	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-no-sounds	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 engine-no-sounds	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -535,7 +535,7 @@ engine-no-sounds	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 engine-no-sounds	SYNTH	1	knob	3		0	selection	value	2	1.000000	0	0	0
 engine-no-sounds	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 engine-no-sounds	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-no-sounds	SYNTH	1	button	5	LOAD ENGINE	1	selection	execute	4		0	93	0
+engine-no-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
 engine-no-sounds	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-no-sounds	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 engine-no-sounds	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -543,38 +543,38 @@ engine-no-sounds	SYNTH	1	button	7		0	selection	empty	6		0	0	0
 engine-no-sounds	SYNTH	1	knob	7	PAN	1	selection	value	6	0.000000	2	23	0
 engine-no-sounds	SYNTH	1	button	8	BACK	1	selection	exit	7		0	48	0
 engine-no-sounds	SYNTH	1	knob	8		0	selection	value	7	0.000000	0	0	0
-new-templates	BROWSER	0	button	1	OPEN	1	selection	execute	0		0	49	0
-new-templates	BROWSER	0	knob	1	NEW PROJECT	1	selection	value	0	1.000000	0	81	0
-new-templates	BROWSER	0	button	2	CANCEL	1	selection	exit	1		0	63	0
-new-templates	BROWSER	0	knob	2		0	selection	value	1	5.000000	0	0	0
-new-templates	BROWSER	0	button	3		0	selection	empty	2		0	0	0
-new-templates	BROWSER	0	knob	3		0	selection	value	2	60.000000	0	0	0
-new-templates	BROWSER	0	button	4		0	selection	empty	3		0	0	0
-new-templates	BROWSER	0	knob	4		0	selection	value	3	0.000000	0	0	0
-new-templates	BROWSER	0	button	5		0	selection	empty	4		0	0	0
-new-templates	BROWSER	0	knob	5		0	selection	value	4	1.000000	0	0	0
-new-templates	BROWSER	0	button	6		0	selection	empty	5		0	0	0
-new-templates	BROWSER	0	knob	6		0	selection	value	5	0.700000	0	0	0
-new-templates	BROWSER	0	button	7		0	selection	empty	6		0	0	0
-new-templates	BROWSER	0	knob	7		0	selection	value	6	0.650000	0	0	0
-new-templates	BROWSER	0	button	8		0	selection	empty	7		0	0	0
-new-templates	BROWSER	0	knob	8		0	selection	value	7	0.000000	0	0	0
-new-templates	BROWSER	1	button	1	OPEN	1	selection	execute	0		0	49	0
-new-templates	BROWSER	1	knob	1	NEW PROJECT	1	selection	value	0	1.000000	0	81	0
-new-templates	BROWSER	1	button	2	CANCEL	1	selection	exit	1		0	63	0
-new-templates	BROWSER	1	knob	2		0	selection	value	1	5.000000	0	0	0
-new-templates	BROWSER	1	button	3		0	selection	empty	2		0	0	0
-new-templates	BROWSER	1	knob	3		0	selection	value	2	60.000000	0	0	0
-new-templates	BROWSER	1	button	4		0	selection	empty	3		0	0	0
-new-templates	BROWSER	1	knob	4		0	selection	value	3	0.000000	0	0	0
-new-templates	BROWSER	1	button	5		0	selection	empty	4		0	0	0
-new-templates	BROWSER	1	knob	5		0	selection	value	4	1.000000	0	0	0
-new-templates	BROWSER	1	button	6		0	selection	empty	5		0	0	0
-new-templates	BROWSER	1	knob	6		0	selection	value	5	0.700000	0	0	0
-new-templates	BROWSER	1	button	7		0	selection	empty	6		0	0	0
-new-templates	BROWSER	1	knob	7		0	selection	value	6	0.650000	0	0	0
-new-templates	BROWSER	1	button	8		0	selection	empty	7		0	0	0
-new-templates	BROWSER	1	knob	8		0	selection	value	7	0.000000	0	0	0
+new-templates	FILES	0	button	1	OPEN	1	selection	execute	0		0	49	0
+new-templates	FILES	0	knob	1	NEW PROJECT	1	selection	value	0	1.000000	0	81	0
+new-templates	FILES	0	button	2	CANCEL	1	selection	exit	1		0	63	0
+new-templates	FILES	0	knob	2		0	selection	value	1	5.000000	0	0	0
+new-templates	FILES	0	button	3		0	selection	empty	2		0	0	0
+new-templates	FILES	0	knob	3		0	selection	value	2	60.000000	0	0	0
+new-templates	FILES	0	button	4		0	selection	empty	3		0	0	0
+new-templates	FILES	0	knob	4		0	selection	value	3	0.000000	0	0	0
+new-templates	FILES	0	button	5		0	selection	empty	4		0	0	0
+new-templates	FILES	0	knob	5		0	selection	value	4	1.000000	0	0	0
+new-templates	FILES	0	button	6		0	selection	empty	5		0	0	0
+new-templates	FILES	0	knob	6		0	selection	value	5	0.700000	0	0	0
+new-templates	FILES	0	button	7		0	selection	empty	6		0	0	0
+new-templates	FILES	0	knob	7		0	selection	value	6	0.650000	0	0	0
+new-templates	FILES	0	button	8		0	selection	empty	7		0	0	0
+new-templates	FILES	0	knob	8		0	selection	value	7	0.000000	0	0	0
+new-templates	FILES	1	button	1	OPEN	1	selection	execute	0		0	49	0
+new-templates	FILES	1	knob	1	NEW PROJECT	1	selection	value	0	1.000000	0	81	0
+new-templates	FILES	1	button	2	CANCEL	1	selection	exit	1		0	63	0
+new-templates	FILES	1	knob	2		0	selection	value	1	5.000000	0	0	0
+new-templates	FILES	1	button	3		0	selection	empty	2		0	0	0
+new-templates	FILES	1	knob	3		0	selection	value	2	60.000000	0	0	0
+new-templates	FILES	1	button	4		0	selection	empty	3		0	0	0
+new-templates	FILES	1	knob	4		0	selection	value	3	0.000000	0	0	0
+new-templates	FILES	1	button	5		0	selection	empty	4		0	0	0
+new-templates	FILES	1	knob	5		0	selection	value	4	1.000000	0	0	0
+new-templates	FILES	1	button	6		0	selection	empty	5		0	0	0
+new-templates	FILES	1	knob	6		0	selection	value	5	0.700000	0	0	0
+new-templates	FILES	1	button	7		0	selection	empty	6		0	0	0
+new-templates	FILES	1	knob	7		0	selection	value	6	0.650000	0	0	0
+new-templates	FILES	1	button	8		0	selection	empty	7		0	0	0
+new-templates	FILES	1	knob	8		0	selection	value	7	0.000000	0	0	0
 keyboard	KEYBOARD	0	button	1	SCALE -	1	instrument	selection	0		0	45	0
 keyboard	KEYBOARD	0	knob	1	TEMPO	1	instrument	value	0	120.000000	0	38	0
 keyboard	KEYBOARD	0	button	2	SCALE +	1	instrument	selection	1		0	47	0
@@ -2987,7 +2987,7 @@ sampler	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler	SAMPLER	0	knob	5	REVERSE	1	material	value	4	0.000000	0	51	0
 sampler	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler	SAMPLER	0	knob	6	LEVEL	1	material	value	5	0.350000	1	36	0
-sampler	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+sampler	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 sampler	SAMPLER	0	knob	7	FILTER	1	material	value	6	1.000000	3	39	0
 sampler	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler	SAMPLER	0	knob	8	DRIVE	1	material	value	7	0.000000	4	34	0
@@ -3019,7 +3019,7 @@ trim	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 trim	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 trim	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 trim	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-trim	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+trim	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 trim	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 trim	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 trim	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3051,7 +3051,7 @@ slices	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 slices	SAMPLER	0	knob	5	CHOKE	1	material	value	4	0.000000	0	38	0
 slices	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 slices	SAMPLER	0	knob	6	PAD	1	material	value	5	1.000000	0	23	0
-slices	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+slices	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 slices	SAMPLER	0	knob	7	PAD SLICE	1	material	value	6	1.000000	0	58	0
 slices	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 slices	SAMPLER	0	knob	8	REVERSE	1	material	value	7	0.000000	0	51	0
@@ -3083,7 +3083,7 @@ sampler-record	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-record	SAMPLER	0	knob	5	CHOKE	1	material	value	4	0.000000	0	38	0
 sampler-record	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-record	SAMPLER	0	knob	6	PAD	1	material	value	5	1.000000	0	23	0
-sampler-record	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+sampler-record	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 sampler-record	SAMPLER	0	knob	7	PAD SLICE	1	material	value	6	1.000000	0	58	0
 sampler-record	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-record	SAMPLER	0	knob	8	REVERSE	1	material	value	7	0.000000	0	51	0
@@ -3211,7 +3211,7 @@ sampler-start-marker	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-start-marker	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 sampler-start-marker	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-start-marker	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-sampler-start-marker	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+sampler-start-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 sampler-start-marker	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 sampler-start-marker	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-start-marker	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3243,7 +3243,7 @@ sampler-end-marker	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-end-marker	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 sampler-end-marker	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-end-marker	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-sampler-end-marker	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+sampler-end-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 sampler-end-marker	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 sampler-end-marker	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-end-marker	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3275,7 +3275,7 @@ wave	SAMPLER	0	button	5	STRETCH	1	material	execute	4		0	51	0
 wave	SAMPLER	0	knob	5	START FINE	1	material	value	4	0.000000	0	66	0
 wave	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 wave	SAMPLER	0	knob	6	END FINE	1	material	value	5	1.000000	0	53	0
-wave	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+wave	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 wave	SAMPLER	0	knob	7	ATTACK	1	material	value	6	0.000000	0	43	0
 wave	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 wave	SAMPLER	0	knob	8	RELEASE	1	material	value	7	8.000000	0	51	0
@@ -3307,7 +3307,7 @@ zones	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 zones	SAMPLER	0	knob	5	ZONE	1	material	value	4	1.000000	0	30	0
 zones	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 zones	SAMPLER	0	knob	6	KEY LOW	1	material	value	5	0.000000	0	51	0
-zones	SAMPLER	0	button	7	BROWSER	1	material	exit	6		0	73	0
+zones	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
 zones	SAMPLER	0	knob	7	KEY HIGH	1	material	value	6	0.000000	0	53	0
 zones	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 zones	SAMPLER	0	knob	8	ROOT	1	material	value	7	60.000000	0	30	0
@@ -3903,166 +3903,166 @@ settings-system	SETTINGS	1	button	7	DIAGNOSTICS	1	settings	exit	6		0	75	0
 settings-system	SETTINGS	1	knob	7		0	settings	value	6	0.000000	0	0	0
 settings-system	SETTINGS	1	button	8	UPDATE	1	settings	execute	7		0	44	0
 settings-system	SETTINGS	1	knob	8		0	settings	value	7	0.000000	0	0	0
-browser	BROWSER	0	button	1	OPEN	1	selection	execute	0		0	49	0
-browser	BROWSER	0	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
-browser	BROWSER	0	button	2	UP	1	selection	execute	1		0	15	0
-browser	BROWSER	0	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
-browser	BROWSER	0	button	3	PREVIEW	1	selection	execute	2		0	69	0
-browser	BROWSER	0	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
-browser	BROWSER	0	button	4	LOAD	1	selection	execute	3		0	30	0
-browser	BROWSER	0	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
-browser	BROWSER	0	button	5	FAVORITE	1	selection	execute	4		0	54	0
-browser	BROWSER	0	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
-browser	BROWSER	0	button	6	SAVE PRESET	1	selection	execute	5		0	76	0
-browser	BROWSER	0	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
-browser	BROWSER	0	button	7	PROJECT	1	selection	exit	6		0	70	0
-browser	BROWSER	0	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
-browser	BROWSER	0	button	8	FACTORY KIT	1	selection	execute	7		0	72	0
-browser	BROWSER	0	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
-browser	BROWSER	1	button	1	FAVORITES	1	selection	execute	0		0	61	0
-browser	BROWSER	1	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
-browser	BROWSER	1	button	2	UP	1	selection	execute	1		0	15	0
-browser	BROWSER	1	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
-browser	BROWSER	1	button	3	PREVIEW	1	selection	execute	2		0	69	0
-browser	BROWSER	1	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
-browser	BROWSER	1	button	4	LOAD	1	selection	execute	3		0	30	0
-browser	BROWSER	1	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
-browser	BROWSER	1	button	5	DUPLICATE	1	selection	execute	4		0	80	0
-browser	BROWSER	1	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
-browser	BROWSER	1	button	6	RENAME	1	selection	execute	5		0	46	0
-browser	BROWSER	1	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
-browser	BROWSER	1	button	7	DELETE	1	selection	execute	6		0	62	0
-browser	BROWSER	1	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
-browser	BROWSER	1	button	8	NEW FOLDER	1	selection	execute	7		0	91	0
-browser	BROWSER	1	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
-browser-shift	BROWSER	0	button	1	OPEN	1	selection	execute	0		0	49	0
-browser-shift	BROWSER	0	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
-browser-shift	BROWSER	0	button	2	UP	1	selection	execute	1		0	15	0
-browser-shift	BROWSER	0	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
-browser-shift	BROWSER	0	button	3	PREVIEW	1	selection	execute	2		0	69	0
-browser-shift	BROWSER	0	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
-browser-shift	BROWSER	0	button	4	LOAD	1	selection	execute	3		0	30	0
-browser-shift	BROWSER	0	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
-browser-shift	BROWSER	0	button	5	FAVORITE	1	selection	execute	4		0	54	0
-browser-shift	BROWSER	0	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
-browser-shift	BROWSER	0	button	6	SAVE PRESET	1	selection	execute	5		0	76	0
-browser-shift	BROWSER	0	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
-browser-shift	BROWSER	0	button	7	PROJECT	1	selection	exit	6		0	70	0
-browser-shift	BROWSER	0	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
-browser-shift	BROWSER	0	button	8	FACTORY KIT	1	selection	execute	7		0	72	0
-browser-shift	BROWSER	0	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
-browser-shift	BROWSER	1	button	1	FAVORITES	1	selection	execute	0		0	61	0
-browser-shift	BROWSER	1	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
-browser-shift	BROWSER	1	button	2	UP	1	selection	execute	1		0	15	0
-browser-shift	BROWSER	1	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
-browser-shift	BROWSER	1	button	3	PREVIEW	1	selection	execute	2		0	69	0
-browser-shift	BROWSER	1	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
-browser-shift	BROWSER	1	button	4	LOAD	1	selection	execute	3		0	30	0
-browser-shift	BROWSER	1	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
-browser-shift	BROWSER	1	button	5	DUPLICATE	1	selection	execute	4		0	80	0
-browser-shift	BROWSER	1	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
-browser-shift	BROWSER	1	button	6	RENAME	1	selection	execute	5		0	46	0
-browser-shift	BROWSER	1	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
-browser-shift	BROWSER	1	button	7	DELETE	1	selection	execute	6		0	62	0
-browser-shift	BROWSER	1	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
-browser-shift	BROWSER	1	button	8	NEW FOLDER	1	selection	execute	7		0	91	0
-browser-shift	BROWSER	1	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
-folder-name	BROWSER	0	button	1	APPLY	1	transient	execute	0		0	55	0
-folder-name	BROWSER	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-folder-name	BROWSER	0	button	2	CANCEL	1	transient	execute	1		0	63	0
-folder-name	BROWSER	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-folder-name	BROWSER	0	button	3	CHAR -	1	transient	execute	2		0	39	0
-folder-name	BROWSER	0	knob	3		0	transient	value	2	0.000000	0	0	0
-folder-name	BROWSER	0	button	4	CHAR +	1	transient	execute	3		0	41	0
-folder-name	BROWSER	0	knob	4		0	transient	value	3	0.000000	0	0	0
-folder-name	BROWSER	0	button	5	INSERT	1	transient	execute	4		0	41	0
-folder-name	BROWSER	0	knob	5		0	transient	value	4	0.000000	0	0	0
-folder-name	BROWSER	0	button	6	ERASE	1	transient	execute	5		0	55	0
-folder-name	BROWSER	0	knob	6		0	transient	value	5	0.000000	0	0	0
-folder-name	BROWSER	0	button	7	LEFT	1	transient	execute	6		0	29	0
-folder-name	BROWSER	0	knob	7		0	transient	value	6	0.000000	0	0	0
-folder-name	BROWSER	0	button	8	RIGHT	1	transient	execute	7		0	34	0
-folder-name	BROWSER	0	knob	8		0	transient	value	7	0.000000	0	0	0
-folder-name	BROWSER	1	button	1	APPLY	1	transient	execute	0		0	55	0
-folder-name	BROWSER	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-folder-name	BROWSER	1	button	2	CANCEL	1	transient	execute	1		0	63	0
-folder-name	BROWSER	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-folder-name	BROWSER	1	button	3	CHAR -	1	transient	execute	2		0	39	0
-folder-name	BROWSER	1	knob	3		0	transient	value	2	0.000000	0	0	0
-folder-name	BROWSER	1	button	4	CHAR +	1	transient	execute	3		0	41	0
-folder-name	BROWSER	1	knob	4		0	transient	value	3	0.000000	0	0	0
-folder-name	BROWSER	1	button	5	INSERT	1	transient	execute	4		0	41	0
-folder-name	BROWSER	1	knob	5		0	transient	value	4	0.000000	0	0	0
-folder-name	BROWSER	1	button	6	ERASE	1	transient	execute	5		0	55	0
-folder-name	BROWSER	1	knob	6		0	transient	value	5	0.000000	0	0	0
-folder-name	BROWSER	1	button	7	LEFT	1	transient	execute	6		0	29	0
-folder-name	BROWSER	1	knob	7		0	transient	value	6	0.000000	0	0	0
-folder-name	BROWSER	1	button	8	RIGHT	1	transient	execute	7		0	34	0
-folder-name	BROWSER	1	knob	8		0	transient	value	7	0.000000	0	0	0
-rename	BROWSER	0	button	1	APPLY	1	transient	execute	0		0	55	0
-rename	BROWSER	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-rename	BROWSER	0	button	2	CANCEL	1	transient	execute	1		0	63	0
-rename	BROWSER	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-rename	BROWSER	0	button	3	CHAR -	1	transient	execute	2		0	39	0
-rename	BROWSER	0	knob	3		0	transient	value	2	0.000000	0	0	0
-rename	BROWSER	0	button	4	CHAR +	1	transient	execute	3		0	41	0
-rename	BROWSER	0	knob	4		0	transient	value	3	0.000000	0	0	0
-rename	BROWSER	0	button	5	INSERT	1	transient	execute	4		0	41	0
-rename	BROWSER	0	knob	5		0	transient	value	4	0.000000	0	0	0
-rename	BROWSER	0	button	6	ERASE	1	transient	execute	5		0	55	0
-rename	BROWSER	0	knob	6		0	transient	value	5	0.000000	0	0	0
-rename	BROWSER	0	button	7	LEFT	1	transient	execute	6		0	29	0
-rename	BROWSER	0	knob	7		0	transient	value	6	0.000000	0	0	0
-rename	BROWSER	0	button	8	RIGHT	1	transient	execute	7		0	34	0
-rename	BROWSER	0	knob	8		0	transient	value	7	0.000000	0	0	0
-rename	BROWSER	1	button	1	APPLY	1	transient	execute	0		0	55	0
-rename	BROWSER	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-rename	BROWSER	1	button	2	CANCEL	1	transient	execute	1		0	63	0
-rename	BROWSER	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-rename	BROWSER	1	button	3	CHAR -	1	transient	execute	2		0	39	0
-rename	BROWSER	1	knob	3		0	transient	value	2	0.000000	0	0	0
-rename	BROWSER	1	button	4	CHAR +	1	transient	execute	3		0	41	0
-rename	BROWSER	1	knob	4		0	transient	value	3	0.000000	0	0	0
-rename	BROWSER	1	button	5	INSERT	1	transient	execute	4		0	41	0
-rename	BROWSER	1	knob	5		0	transient	value	4	0.000000	0	0	0
-rename	BROWSER	1	button	6	ERASE	1	transient	execute	5		0	55	0
-rename	BROWSER	1	knob	6		0	transient	value	5	0.000000	0	0	0
-rename	BROWSER	1	button	7	LEFT	1	transient	execute	6		0	29	0
-rename	BROWSER	1	knob	7		0	transient	value	6	0.000000	0	0	0
-rename	BROWSER	1	button	8	RIGHT	1	transient	execute	7		0	34	0
-rename	BROWSER	1	knob	8		0	transient	value	7	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	1	DELETE	1	transient	execute	0		0	62	0
-delete-confirm	BROWSER	0	knob	1		0	transient	value	0	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	2	CANCEL	1	transient	execute	1		0	63	0
-delete-confirm	BROWSER	0	knob	2		0	transient	value	1	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	3		0	transient	empty	2		0	0	0
-delete-confirm	BROWSER	0	knob	3		0	transient	value	2	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	4		0	transient	empty	3		0	0	0
-delete-confirm	BROWSER	0	knob	4		0	transient	value	3	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	5		0	transient	empty	4		0	0	0
-delete-confirm	BROWSER	0	knob	5		0	transient	value	4	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	6		0	transient	empty	5		0	0	0
-delete-confirm	BROWSER	0	knob	6		0	transient	value	5	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	7		0	transient	empty	6		0	0	0
-delete-confirm	BROWSER	0	knob	7		0	transient	value	6	0.000000	0	0	0
-delete-confirm	BROWSER	0	button	8		0	transient	empty	7		0	0	0
-delete-confirm	BROWSER	0	knob	8		0	transient	value	7	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	1	DELETE	1	transient	execute	0		0	62	0
-delete-confirm	BROWSER	1	knob	1		0	transient	value	0	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	2	CANCEL	1	transient	execute	1		0	63	0
-delete-confirm	BROWSER	1	knob	2		0	transient	value	1	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	3		0	transient	empty	2		0	0	0
-delete-confirm	BROWSER	1	knob	3		0	transient	value	2	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	4		0	transient	empty	3		0	0	0
-delete-confirm	BROWSER	1	knob	4		0	transient	value	3	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	5		0	transient	empty	4		0	0	0
-delete-confirm	BROWSER	1	knob	5		0	transient	value	4	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	6		0	transient	empty	5		0	0	0
-delete-confirm	BROWSER	1	knob	6		0	transient	value	5	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	7		0	transient	empty	6		0	0	0
-delete-confirm	BROWSER	1	knob	7		0	transient	value	6	0.000000	0	0	0
-delete-confirm	BROWSER	1	button	8		0	transient	empty	7		0	0	0
-delete-confirm	BROWSER	1	knob	8		0	transient	value	7	0.000000	0	0	0
+browser	FILES	0	button	1	OPEN	1	selection	execute	0		0	49	0
+browser	FILES	0	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
+browser	FILES	0	button	2	UP	1	selection	execute	1		0	15	0
+browser	FILES	0	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
+browser	FILES	0	button	3	PREVIEW	1	selection	execute	2		0	69	0
+browser	FILES	0	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
+browser	FILES	0	button	4	LOAD	1	selection	execute	3		0	30	0
+browser	FILES	0	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
+browser	FILES	0	button	5	FAVORITE	1	selection	execute	4		0	54	0
+browser	FILES	0	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
+browser	FILES	0	button	6	SAVE PRESET	1	selection	execute	5		0	76	0
+browser	FILES	0	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
+browser	FILES	0	button	7	PROJECT	1	selection	exit	6		0	70	0
+browser	FILES	0	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
+browser	FILES	0	button	8	FACTORY KIT	1	selection	execute	7		0	72	0
+browser	FILES	0	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
+browser	FILES	1	button	1	FAVORITES	1	selection	execute	0		0	61	0
+browser	FILES	1	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
+browser	FILES	1	button	2	UP	1	selection	execute	1		0	15	0
+browser	FILES	1	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
+browser	FILES	1	button	3	PREVIEW	1	selection	execute	2		0	69	0
+browser	FILES	1	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
+browser	FILES	1	button	4	LOAD	1	selection	execute	3		0	30	0
+browser	FILES	1	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
+browser	FILES	1	button	5	DUPLICATE	1	selection	execute	4		0	80	0
+browser	FILES	1	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
+browser	FILES	1	button	6	RENAME	1	selection	execute	5		0	46	0
+browser	FILES	1	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
+browser	FILES	1	button	7	DELETE	1	selection	execute	6		0	62	0
+browser	FILES	1	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
+browser	FILES	1	button	8	NEW FOLDER	1	selection	execute	7		0	91	0
+browser	FILES	1	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
+browser-shift	FILES	0	button	1	OPEN	1	selection	execute	0		0	49	0
+browser-shift	FILES	0	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
+browser-shift	FILES	0	button	2	UP	1	selection	execute	1		0	15	0
+browser-shift	FILES	0	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
+browser-shift	FILES	0	button	3	PREVIEW	1	selection	execute	2		0	69	0
+browser-shift	FILES	0	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
+browser-shift	FILES	0	button	4	LOAD	1	selection	execute	3		0	30	0
+browser-shift	FILES	0	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
+browser-shift	FILES	0	button	5	FAVORITE	1	selection	execute	4		0	54	0
+browser-shift	FILES	0	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
+browser-shift	FILES	0	button	6	SAVE PRESET	1	selection	execute	5		0	76	0
+browser-shift	FILES	0	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
+browser-shift	FILES	0	button	7	PROJECT	1	selection	exit	6		0	70	0
+browser-shift	FILES	0	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
+browser-shift	FILES	0	button	8	FACTORY KIT	1	selection	execute	7		0	72	0
+browser-shift	FILES	0	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
+browser-shift	FILES	1	button	1	FAVORITES	1	selection	execute	0		0	61	0
+browser-shift	FILES	1	knob	1	SELECT	1	selection	value	0	1.000000	0	43	0
+browser-shift	FILES	1	button	2	UP	1	selection	execute	1		0	15	0
+browser-shift	FILES	1	knob	2	LOAD TRACK	1	selection	value	1	6.000000	0	71	0
+browser-shift	FILES	1	button	3	PREVIEW	1	selection	execute	2		0	69	0
+browser-shift	FILES	1	knob	3	LOADED ROOT	1	selection	value	2	60.000000	0	78	0
+browser-shift	FILES	1	button	4	LOAD	1	selection	execute	3		0	30	0
+browser-shift	FILES	1	knob	4	LOADED BPM	1	selection	value	3	0.000000	0	71	0
+browser-shift	FILES	1	button	5	DUPLICATE	1	selection	execute	4		0	80	0
+browser-shift	FILES	1	knob	5	MAIN	1	selection	value	4	1.000000	0	29	0
+browser-shift	FILES	1	button	6	RENAME	1	selection	execute	5		0	46	0
+browser-shift	FILES	1	knob	6	CUE	1	selection	value	5	0.700000	0	23	0
+browser-shift	FILES	1	button	7	DELETE	1	selection	execute	6		0	62	0
+browser-shift	FILES	1	knob	7	AUDITION LEVEL	1	selection	value	6	0.650000	0	93	0
+browser-shift	FILES	1	button	8	NEW FOLDER	1	selection	execute	7		0	91	0
+browser-shift	FILES	1	knob	8	FAV FILTER	1	selection	value	7	0.000000	0	63	0
+folder-name	FILES	0	button	1	APPLY	1	transient	execute	0		0	55	0
+folder-name	FILES	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+folder-name	FILES	0	button	2	CANCEL	1	transient	execute	1		0	63	0
+folder-name	FILES	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+folder-name	FILES	0	button	3	CHAR -	1	transient	execute	2		0	39	0
+folder-name	FILES	0	knob	3		0	transient	value	2	0.000000	0	0	0
+folder-name	FILES	0	button	4	CHAR +	1	transient	execute	3		0	41	0
+folder-name	FILES	0	knob	4		0	transient	value	3	0.000000	0	0	0
+folder-name	FILES	0	button	5	INSERT	1	transient	execute	4		0	41	0
+folder-name	FILES	0	knob	5		0	transient	value	4	0.000000	0	0	0
+folder-name	FILES	0	button	6	ERASE	1	transient	execute	5		0	55	0
+folder-name	FILES	0	knob	6		0	transient	value	5	0.000000	0	0	0
+folder-name	FILES	0	button	7	LEFT	1	transient	execute	6		0	29	0
+folder-name	FILES	0	knob	7		0	transient	value	6	0.000000	0	0	0
+folder-name	FILES	0	button	8	RIGHT	1	transient	execute	7		0	34	0
+folder-name	FILES	0	knob	8		0	transient	value	7	0.000000	0	0	0
+folder-name	FILES	1	button	1	APPLY	1	transient	execute	0		0	55	0
+folder-name	FILES	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+folder-name	FILES	1	button	2	CANCEL	1	transient	execute	1		0	63	0
+folder-name	FILES	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+folder-name	FILES	1	button	3	CHAR -	1	transient	execute	2		0	39	0
+folder-name	FILES	1	knob	3		0	transient	value	2	0.000000	0	0	0
+folder-name	FILES	1	button	4	CHAR +	1	transient	execute	3		0	41	0
+folder-name	FILES	1	knob	4		0	transient	value	3	0.000000	0	0	0
+folder-name	FILES	1	button	5	INSERT	1	transient	execute	4		0	41	0
+folder-name	FILES	1	knob	5		0	transient	value	4	0.000000	0	0	0
+folder-name	FILES	1	button	6	ERASE	1	transient	execute	5		0	55	0
+folder-name	FILES	1	knob	6		0	transient	value	5	0.000000	0	0	0
+folder-name	FILES	1	button	7	LEFT	1	transient	execute	6		0	29	0
+folder-name	FILES	1	knob	7		0	transient	value	6	0.000000	0	0	0
+folder-name	FILES	1	button	8	RIGHT	1	transient	execute	7		0	34	0
+folder-name	FILES	1	knob	8		0	transient	value	7	0.000000	0	0	0
+rename	FILES	0	button	1	APPLY	1	transient	execute	0		0	55	0
+rename	FILES	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+rename	FILES	0	button	2	CANCEL	1	transient	execute	1		0	63	0
+rename	FILES	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+rename	FILES	0	button	3	CHAR -	1	transient	execute	2		0	39	0
+rename	FILES	0	knob	3		0	transient	value	2	0.000000	0	0	0
+rename	FILES	0	button	4	CHAR +	1	transient	execute	3		0	41	0
+rename	FILES	0	knob	4		0	transient	value	3	0.000000	0	0	0
+rename	FILES	0	button	5	INSERT	1	transient	execute	4		0	41	0
+rename	FILES	0	knob	5		0	transient	value	4	0.000000	0	0	0
+rename	FILES	0	button	6	ERASE	1	transient	execute	5		0	55	0
+rename	FILES	0	knob	6		0	transient	value	5	0.000000	0	0	0
+rename	FILES	0	button	7	LEFT	1	transient	execute	6		0	29	0
+rename	FILES	0	knob	7		0	transient	value	6	0.000000	0	0	0
+rename	FILES	0	button	8	RIGHT	1	transient	execute	7		0	34	0
+rename	FILES	0	knob	8		0	transient	value	7	0.000000	0	0	0
+rename	FILES	1	button	1	APPLY	1	transient	execute	0		0	55	0
+rename	FILES	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+rename	FILES	1	button	2	CANCEL	1	transient	execute	1		0	63	0
+rename	FILES	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+rename	FILES	1	button	3	CHAR -	1	transient	execute	2		0	39	0
+rename	FILES	1	knob	3		0	transient	value	2	0.000000	0	0	0
+rename	FILES	1	button	4	CHAR +	1	transient	execute	3		0	41	0
+rename	FILES	1	knob	4		0	transient	value	3	0.000000	0	0	0
+rename	FILES	1	button	5	INSERT	1	transient	execute	4		0	41	0
+rename	FILES	1	knob	5		0	transient	value	4	0.000000	0	0	0
+rename	FILES	1	button	6	ERASE	1	transient	execute	5		0	55	0
+rename	FILES	1	knob	6		0	transient	value	5	0.000000	0	0	0
+rename	FILES	1	button	7	LEFT	1	transient	execute	6		0	29	0
+rename	FILES	1	knob	7		0	transient	value	6	0.000000	0	0	0
+rename	FILES	1	button	8	RIGHT	1	transient	execute	7		0	34	0
+rename	FILES	1	knob	8		0	transient	value	7	0.000000	0	0	0
+delete-confirm	FILES	0	button	1	DELETE	1	transient	execute	0		0	62	0
+delete-confirm	FILES	0	knob	1		0	transient	value	0	0.000000	0	0	0
+delete-confirm	FILES	0	button	2	CANCEL	1	transient	execute	1		0	63	0
+delete-confirm	FILES	0	knob	2		0	transient	value	1	0.000000	0	0	0
+delete-confirm	FILES	0	button	3		0	transient	empty	2		0	0	0
+delete-confirm	FILES	0	knob	3		0	transient	value	2	0.000000	0	0	0
+delete-confirm	FILES	0	button	4		0	transient	empty	3		0	0	0
+delete-confirm	FILES	0	knob	4		0	transient	value	3	0.000000	0	0	0
+delete-confirm	FILES	0	button	5		0	transient	empty	4		0	0	0
+delete-confirm	FILES	0	knob	5		0	transient	value	4	0.000000	0	0	0
+delete-confirm	FILES	0	button	6		0	transient	empty	5		0	0	0
+delete-confirm	FILES	0	knob	6		0	transient	value	5	0.000000	0	0	0
+delete-confirm	FILES	0	button	7		0	transient	empty	6		0	0	0
+delete-confirm	FILES	0	knob	7		0	transient	value	6	0.000000	0	0	0
+delete-confirm	FILES	0	button	8		0	transient	empty	7		0	0	0
+delete-confirm	FILES	0	knob	8		0	transient	value	7	0.000000	0	0	0
+delete-confirm	FILES	1	button	1	DELETE	1	transient	execute	0		0	62	0
+delete-confirm	FILES	1	knob	1		0	transient	value	0	0.000000	0	0	0
+delete-confirm	FILES	1	button	2	CANCEL	1	transient	execute	1		0	63	0
+delete-confirm	FILES	1	knob	2		0	transient	value	1	0.000000	0	0	0
+delete-confirm	FILES	1	button	3		0	transient	empty	2		0	0	0
+delete-confirm	FILES	1	knob	3		0	transient	value	2	0.000000	0	0	0
+delete-confirm	FILES	1	button	4		0	transient	empty	3		0	0	0
+delete-confirm	FILES	1	knob	4		0	transient	value	3	0.000000	0	0	0
+delete-confirm	FILES	1	button	5		0	transient	empty	4		0	0	0
+delete-confirm	FILES	1	knob	5		0	transient	value	4	0.000000	0	0	0
+delete-confirm	FILES	1	button	6		0	transient	empty	5		0	0	0
+delete-confirm	FILES	1	knob	6		0	transient	value	5	0.000000	0	0	0
+delete-confirm	FILES	1	button	7		0	transient	empty	6		0	0	0
+delete-confirm	FILES	1	knob	7		0	transient	value	6	0.000000	0	0	0
+delete-confirm	FILES	1	button	8		0	transient	empty	7		0	0	0
+delete-confirm	FILES	1	knob	8		0	transient	value	7	0.000000	0	0	0
 diagnostics	DIAGNOSTICS	0	button	1		0	diagnostics	empty	0		0	0	0
 diagnostics	DIAGNOSTICS	0	knob	1		0	diagnostics	value	0	120.000000	0	0	0
 diagnostics	DIAGNOSTICS	0	button	2		0	diagnostics	empty	1		0	0	0
@@ -4159,38 +4159,38 @@ scene-pending	SCENE	1	button	7	PAT NEXT	1	arrangement	exit	5		0	73	0
 scene-pending	SCENE	1	knob	7	WEIGHT	1	arrangement	value	6	1.000000	0	44	0
 scene-pending	SCENE	1	button	8		0	arrangement	empty	8		0	0	0
 scene-pending	SCENE	1	knob	8	CONDITION	1	arrangement	value	7	0.000000	0	62	0
-midi-import-confirm	BROWSER	0	button	1	CONFIRM	1	transient	execute	0		0	68	0
-midi-import-confirm	BROWSER	0	knob	1	SELECT	1	transient	value	0	1.000000	0	43	0
-midi-import-confirm	BROWSER	0	button	2	CANCEL	1	transient	execute	1		0	63	0
-midi-import-confirm	BROWSER	0	knob	2	TRACK	1	transient	value	1	6.000000	0	38	0
-midi-import-confirm	BROWSER	0	button	3		0	transient	empty	2		0	0	0
-midi-import-confirm	BROWSER	0	knob	3	MIDI CH	1	transient	value	2	1.000000	0	43	0
-midi-import-confirm	BROWSER	0	button	4		0	transient	empty	3		0	0	0
-midi-import-confirm	BROWSER	0	knob	4		0	transient	value	3	0.000000	0	0	0
-midi-import-confirm	BROWSER	0	button	5		0	transient	empty	4		0	0	0
-midi-import-confirm	BROWSER	0	knob	5	MAIN	1	transient	value	4	1.000000	0	29	0
-midi-import-confirm	BROWSER	0	button	6		0	transient	empty	5		0	0	0
-midi-import-confirm	BROWSER	0	knob	6	CUE	1	transient	value	5	0.700000	0	23	0
-midi-import-confirm	BROWSER	0	button	7		0	transient	empty	6		0	0	0
-midi-import-confirm	BROWSER	0	knob	7	AUDITION LEVEL	1	transient	value	6	0.650000	0	93	0
-midi-import-confirm	BROWSER	0	button	8		0	transient	empty	7		0	0	0
-midi-import-confirm	BROWSER	0	knob	8	FAV FILTER	1	transient	value	7	0.000000	0	63	0
-midi-import-confirm	BROWSER	1	button	1	CONFIRM	1	transient	execute	0		0	68	0
-midi-import-confirm	BROWSER	1	knob	1	SELECT	1	transient	value	0	1.000000	0	43	0
-midi-import-confirm	BROWSER	1	button	2	CANCEL	1	transient	execute	1		0	63	0
-midi-import-confirm	BROWSER	1	knob	2	TRACK	1	transient	value	1	6.000000	0	38	0
-midi-import-confirm	BROWSER	1	button	3		0	transient	empty	2		0	0	0
-midi-import-confirm	BROWSER	1	knob	3	MIDI CH	1	transient	value	2	1.000000	0	43	0
-midi-import-confirm	BROWSER	1	button	4		0	transient	empty	3		0	0	0
-midi-import-confirm	BROWSER	1	knob	4		0	transient	value	3	0.000000	0	0	0
-midi-import-confirm	BROWSER	1	button	5		0	transient	empty	4		0	0	0
-midi-import-confirm	BROWSER	1	knob	5	MAIN	1	transient	value	4	1.000000	0	29	0
-midi-import-confirm	BROWSER	1	button	6		0	transient	empty	5		0	0	0
-midi-import-confirm	BROWSER	1	knob	6	CUE	1	transient	value	5	0.700000	0	23	0
-midi-import-confirm	BROWSER	1	button	7		0	transient	empty	6		0	0	0
-midi-import-confirm	BROWSER	1	knob	7	AUDITION LEVEL	1	transient	value	6	0.650000	0	93	0
-midi-import-confirm	BROWSER	1	button	8		0	transient	empty	7		0	0	0
-midi-import-confirm	BROWSER	1	knob	8	FAV FILTER	1	transient	value	7	0.000000	0	63	0
+midi-import-confirm	FILES	0	button	1	CONFIRM	1	transient	execute	0		0	68	0
+midi-import-confirm	FILES	0	knob	1	SELECT	1	transient	value	0	1.000000	0	43	0
+midi-import-confirm	FILES	0	button	2	CANCEL	1	transient	execute	1		0	63	0
+midi-import-confirm	FILES	0	knob	2	TRACK	1	transient	value	1	6.000000	0	38	0
+midi-import-confirm	FILES	0	button	3		0	transient	empty	2		0	0	0
+midi-import-confirm	FILES	0	knob	3	MIDI CH	1	transient	value	2	1.000000	0	43	0
+midi-import-confirm	FILES	0	button	4		0	transient	empty	3		0	0	0
+midi-import-confirm	FILES	0	knob	4		0	transient	value	3	0.000000	0	0	0
+midi-import-confirm	FILES	0	button	5		0	transient	empty	4		0	0	0
+midi-import-confirm	FILES	0	knob	5	MAIN	1	transient	value	4	1.000000	0	29	0
+midi-import-confirm	FILES	0	button	6		0	transient	empty	5		0	0	0
+midi-import-confirm	FILES	0	knob	6	CUE	1	transient	value	5	0.700000	0	23	0
+midi-import-confirm	FILES	0	button	7		0	transient	empty	6		0	0	0
+midi-import-confirm	FILES	0	knob	7	AUDITION LEVEL	1	transient	value	6	0.650000	0	93	0
+midi-import-confirm	FILES	0	button	8		0	transient	empty	7		0	0	0
+midi-import-confirm	FILES	0	knob	8	FAV FILTER	1	transient	value	7	0.000000	0	63	0
+midi-import-confirm	FILES	1	button	1	CONFIRM	1	transient	execute	0		0	68	0
+midi-import-confirm	FILES	1	knob	1	SELECT	1	transient	value	0	1.000000	0	43	0
+midi-import-confirm	FILES	1	button	2	CANCEL	1	transient	execute	1		0	63	0
+midi-import-confirm	FILES	1	knob	2	TRACK	1	transient	value	1	6.000000	0	38	0
+midi-import-confirm	FILES	1	button	3		0	transient	empty	2		0	0	0
+midi-import-confirm	FILES	1	knob	3	MIDI CH	1	transient	value	2	1.000000	0	43	0
+midi-import-confirm	FILES	1	button	4		0	transient	empty	3		0	0	0
+midi-import-confirm	FILES	1	knob	4		0	transient	value	3	0.000000	0	0	0
+midi-import-confirm	FILES	1	button	5		0	transient	empty	4		0	0	0
+midi-import-confirm	FILES	1	knob	5	MAIN	1	transient	value	4	1.000000	0	29	0
+midi-import-confirm	FILES	1	button	6		0	transient	empty	5		0	0	0
+midi-import-confirm	FILES	1	knob	6	CUE	1	transient	value	5	0.700000	0	23	0
+midi-import-confirm	FILES	1	button	7		0	transient	empty	6		0	0	0
+midi-import-confirm	FILES	1	knob	7	AUDITION LEVEL	1	transient	value	6	0.650000	0	93	0
+midi-import-confirm	FILES	1	button	8		0	transient	empty	7		0	0	0
+midi-import-confirm	FILES	1	knob	8	FAV FILTER	1	transient	value	7	0.000000	0	63	0
 engine-00-page-0	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
 engine-00-page-0	SYNTH	0	knob	1	CUTOFF	1	sound	value	0	1.000000	3	44	0
 engine-00-page-0	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
@@ -6847,38 +6847,38 @@ effects-rotary	FX	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
 effects-rotary	FX	1	knob	7		0	sound	value	6	0.250000	100	0	0
 effects-rotary	FX	1	button	8	REDO	0	sound	execute	7		0	48	0
 effects-rotary	FX	1	knob	8	FX2 MIX	1	sound	value	7	1.000000	101	45	0
-preset-include-fx	BROWSER	0	button	1	APPLY	1	transient	execute	0		0	55	0
-preset-include-fx	BROWSER	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-preset-include-fx	BROWSER	0	button	2	CANCEL	1	transient	execute	1		0	63	0
-preset-include-fx	BROWSER	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-preset-include-fx	BROWSER	0	button	3	CHAR -	1	transient	execute	2		0	39	0
-preset-include-fx	BROWSER	0	knob	3	INCLUDE FX	1	transient	value	2	1.000000	0	67	0
-preset-include-fx	BROWSER	0	button	4	CHAR +	1	transient	execute	3		0	41	0
-preset-include-fx	BROWSER	0	knob	4	DUPLICATE	1	transient	value	3	0.000000	0	62	0
-preset-include-fx	BROWSER	0	button	5	INSERT	1	transient	execute	4		0	41	0
-preset-include-fx	BROWSER	0	knob	5		0	transient	value	4	0.000000	0	0	0
-preset-include-fx	BROWSER	0	button	6	ERASE	1	transient	execute	5		0	55	0
-preset-include-fx	BROWSER	0	knob	6		0	transient	value	5	0.000000	0	0	0
-preset-include-fx	BROWSER	0	button	7	LEFT	1	transient	execute	6		0	29	0
-preset-include-fx	BROWSER	0	knob	7		0	transient	value	6	0.000000	0	0	0
-preset-include-fx	BROWSER	0	button	8	RIGHT	1	transient	execute	7		0	34	0
-preset-include-fx	BROWSER	0	knob	8		0	transient	value	7	0.000000	0	0	0
-preset-include-fx	BROWSER	1	button	1	APPLY	1	transient	execute	0		0	55	0
-preset-include-fx	BROWSER	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
-preset-include-fx	BROWSER	1	button	2	CANCEL	1	transient	execute	1		0	63	0
-preset-include-fx	BROWSER	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
-preset-include-fx	BROWSER	1	button	3	CHAR -	1	transient	execute	2		0	39	0
-preset-include-fx	BROWSER	1	knob	3	INCLUDE FX	1	transient	value	2	1.000000	0	67	0
-preset-include-fx	BROWSER	1	button	4	CHAR +	1	transient	execute	3		0	41	0
-preset-include-fx	BROWSER	1	knob	4	DUPLICATE	1	transient	value	3	0.000000	0	62	0
-preset-include-fx	BROWSER	1	button	5	INSERT	1	transient	execute	4		0	41	0
-preset-include-fx	BROWSER	1	knob	5		0	transient	value	4	0.000000	0	0	0
-preset-include-fx	BROWSER	1	button	6	ERASE	1	transient	execute	5		0	55	0
-preset-include-fx	BROWSER	1	knob	6		0	transient	value	5	0.000000	0	0	0
-preset-include-fx	BROWSER	1	button	7	LEFT	1	transient	execute	6		0	29	0
-preset-include-fx	BROWSER	1	knob	7		0	transient	value	6	0.000000	0	0	0
-preset-include-fx	BROWSER	1	button	8	RIGHT	1	transient	execute	7		0	34	0
-preset-include-fx	BROWSER	1	knob	8		0	transient	value	7	0.000000	0	0	0
+preset-include-fx	FILES	0	button	1	APPLY	1	transient	execute	0		0	55	0
+preset-include-fx	FILES	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+preset-include-fx	FILES	0	button	2	CANCEL	1	transient	execute	1		0	63	0
+preset-include-fx	FILES	0	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+preset-include-fx	FILES	0	button	3	CHAR -	1	transient	execute	2		0	39	0
+preset-include-fx	FILES	0	knob	3	INCLUDE FX	1	transient	value	2	1.000000	0	67	0
+preset-include-fx	FILES	0	button	4	CHAR +	1	transient	execute	3		0	41	0
+preset-include-fx	FILES	0	knob	4	DUPLICATE	1	transient	value	3	0.000000	0	62	0
+preset-include-fx	FILES	0	button	5	INSERT	1	transient	execute	4		0	41	0
+preset-include-fx	FILES	0	knob	5		0	transient	value	4	0.000000	0	0	0
+preset-include-fx	FILES	0	button	6	ERASE	1	transient	execute	5		0	55	0
+preset-include-fx	FILES	0	knob	6		0	transient	value	5	0.000000	0	0	0
+preset-include-fx	FILES	0	button	7	LEFT	1	transient	execute	6		0	29	0
+preset-include-fx	FILES	0	knob	7		0	transient	value	6	0.000000	0	0	0
+preset-include-fx	FILES	0	button	8	RIGHT	1	transient	execute	7		0	34	0
+preset-include-fx	FILES	0	knob	8		0	transient	value	7	0.000000	0	0	0
+preset-include-fx	FILES	1	button	1	APPLY	1	transient	execute	0		0	55	0
+preset-include-fx	FILES	1	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
+preset-include-fx	FILES	1	button	2	CANCEL	1	transient	execute	1		0	63	0
+preset-include-fx	FILES	1	knob	2	CHARACTER	1	transient	value	1	0.000000	0	67	0
+preset-include-fx	FILES	1	button	3	CHAR -	1	transient	execute	2		0	39	0
+preset-include-fx	FILES	1	knob	3	INCLUDE FX	1	transient	value	2	1.000000	0	67	0
+preset-include-fx	FILES	1	button	4	CHAR +	1	transient	execute	3		0	41	0
+preset-include-fx	FILES	1	knob	4	DUPLICATE	1	transient	value	3	0.000000	0	62	0
+preset-include-fx	FILES	1	button	5	INSERT	1	transient	execute	4		0	41	0
+preset-include-fx	FILES	1	knob	5		0	transient	value	4	0.000000	0	0	0
+preset-include-fx	FILES	1	button	6	ERASE	1	transient	execute	5		0	55	0
+preset-include-fx	FILES	1	knob	6		0	transient	value	5	0.000000	0	0	0
+preset-include-fx	FILES	1	button	7	LEFT	1	transient	execute	6		0	29	0
+preset-include-fx	FILES	1	knob	7		0	transient	value	6	0.000000	0	0	0
+preset-include-fx	FILES	1	button	8	RIGHT	1	transient	execute	7		0	34	0
+preset-include-fx	FILES	1	knob	8		0	transient	value	7	0.000000	0	0	0
 save-as	PROJECT	0	button	1	APPLY	1	transient	execute	0		0	55	0
 save-as	PROJECT	0	knob	1	CURSOR	1	transient	value	0	0.000000	0	45	0
 save-as	PROJECT	0	button	2	CANCEL	1	transient	execute	1		0	63	0

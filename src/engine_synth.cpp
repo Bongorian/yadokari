@@ -54,7 +54,33 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
  if(v.instrument==unsigned(Instrument::Chimera)){
   if(v.env>0 && chimera_.owner()==t){
    for(unsigned p=0;p<5;++p)v.parameters[p]+=(v.targets[p]-v.parameters[p])*.005f;
-   l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters);
+   const auto& cue=chimera_pickups_[t];
+   const float increment=chimera_score_increment();
+   const bool preroll=cue.started && cue.serial==runtime_[t].step_serial+1;
+   const float aligned=preroll?__builtin_fmaxf(0,cue.lead-float(int64_t(runtime_[t].due)-int64_t(sample_count_))*increment):-1;
+   if(chimera_.control_due()){
+    ChimeraState detail;
+    const auto state=track(t);
+    const auto& runtime=runtime_[t];
+    const auto modulation=mod_runtime(t);
+    const auto& base=v.sound_locked?v.chimera_base:state.chimera;
+    for(unsigned i=0;i<kChimeraDetailCount;++i){
+     detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,kChimeraMacroCount+i),
+       base.values[i],runtime.active_locks,unsigned(runtime.automation_cell),control_all_,control_all_id_,
+       control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&modulation).value;
+    }
+    const bool sequenced=v.off_at!=0 || preroll;
+    const ChimeraPhrase* phrase=nullptr;
+    if(chimera_.attack_pending()){
+     if(sequenced && detail.values[ChimeraProgram-kChimeraMacroCount]==ChimeraSing){
+      unsigned step=preroll?runtime.position:runtime.last_step;
+      phrase=chimera_speech_.phrase(t,128+runtime.pattern*kSteps+step);
+     }
+     if(!phrase)phrase=chimera_speech_.phrase(t,v.note);
+    }
+    float initial=preroll?aligned:(sequenced && phrase?phrase->lead:0);
+    l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters,&detail,phrase,initial,increment,aligned);
+   }else l=rr=chimera_.next(v.frequency,v.a,!v.released,v.parameters,nullptr,nullptr,0,increment,aligned);
    if(chimera_.owner()!=t)v.env=0;
   }
   return;

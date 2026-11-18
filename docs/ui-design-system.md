@@ -43,7 +43,7 @@ The comparison rectangles and time conditions for verification, their separation
 
 [ContentValue / ContentRow](../src/ui/content.h) is drawn by the [shared widgets](../src/ui/content_widgets.h). A value row unifies the name, a fixed-width tnum value field, and the shape at its bottom edge: continuous values = bar, signed values = bar with a center mark, stepped values = segments, enumerated values = chip. Stepped values with more than 24 divisions are shown with the divisions bundled, and the exact value is read from the number. A section is a heading + divider; key/value is a pair of information; a list is ordered main information, sub information, state mark; empty carries a heading and the next action. The Mixer strip unifies meter, level, pan and state in the same hierarchy. The level body uses the shared Track-kind color; MASTER / input / Group use the existing teal token; the hold mark is motion; warnings are warn; excess / clip is danger. See the color division of Plan A. No bevels or shadows are used.
 
-On the Synth left side, the existing knob assignments are projected onto a 2-column × 4-row grid; the declared tiers and the operable targets are not changed. Settings places each category's values into the same value rows, Browser into the same list, and Mixer into the shared strip. The Step / Tracker / Kit matrix / Song timeline — the operation targets themselves — keep their dedicated layouts.
+On the Synth left side, the existing knob assignments are projected onto a 2-column × 4-row grid; the declared tiers and the operable targets are not changed. Settings places each category's values into the same value rows, FILES into the same list, and Mixer into the shared strip. The Step / Tracker / Kit matrix / Song timeline — the operation targets themselves — keep their dedicated layouts.
 
 ## Visualization declarations and vocabulary
 
@@ -84,7 +84,7 @@ Types are defined by the work, not by the entrance. The [machine-readable types 
 | Signal | ROUTING / MIXER / SEND / COMP | Whole path | Diagram and values of the selected part |
 | Structure | CLIP / SCENE / SONG / AUDIO | Arrangement | The shape and state of the selected element |
 | Performance | PERFORM / LOOPER | Transformation values | The shape of the transformation |
-| Selection | LIBRARY / BROWSER / ENGINE / PROJECT | List / hierarchy | Selection / audition |
+| Selection | LIBRARY / FILES / ENGINE / PROJECT | List / hierarchy | Selection / audition |
 | Settings | SETTINGS | Items and values | Preview of the selected item |
 | Diagnostics | DIAGNOSTICS | USB / HID / AUDIO | MIDI / LOG |
 | Temporary layer | Confirmation, name entry, hint, toast, overlay | Common components, not a page | Same |
@@ -103,7 +103,7 @@ Placement decisions: GENERATE is a sound-design type that edits the note-generat
 Sound snapshots are placed only on the free T7/T8 of surfaces whose subject is a sound, and RECALL POOL is not shown for an empty pool. PERFORM T8 is always AUDIO. The SAMPLER right Top prioritizes material processing / recording, and sound snapshots are reached from the PROJECT list's STORE POOL / RECALL POOL. PROJECT K4 is POOL SLOT; items are selected and executed with the 4-D's rotation and press. BROWSER's COLLECT is abolished; PROJECT T5 is the only COLLECT. Browser K7 is AUDITION LEVEL, K8 is FAV FILTER (a value); starting/stopping audition and changing FAVORITE are Top only.
 
 
-DrumKit's SYNTH CORE is declared as a selection type that selects a child Pad (left: Pad list; right: the selected Pad). K1 is PAD; the following knobs are the attached material and the Pad's mix values; sound snapshots are unified into the PROJECT list. TONE returns to the sound-design type: left is the channel-configuration values, right is the shape of the filter and so on. For the instrument-type PAD, the Kit's K1 is TEMPO, and Pad selection is by SELECT + PAD / 4-D. ENGINE is right T5 LOAD ENGINE / T8 BACK; a 4-D press is the entrance to the sound list. Turning a knob alone does not attach anything. Layer's CORE and TONE are on left T1/T2; the child's USE/REMOVE are on CORE's left T3/T4 (an exception present in the shared declarations). The exit of a MIDI private profile is also placed on right T8.
+DrumKit's SYNTH CORE is declared as a selection type that selects a child Pad (left: Pad list; right: the selected Pad). K1 is PAD; the following knobs are the attached material and the Pad's mix values; sound snapshots are unified into the PROJECT list. TONE returns to the sound-design type: left is the channel-configuration values, right is the shape of the filter and so on. For the instrument-type PAD, the Kit's K1 is TEMPO, and Pad selection is by SELECT + PAD / 4-D. ENGINE is right T5 DEFAULT SOUND / T8 BACK; a 4-D press is the entrance to the sound list. Turning a knob alone does not attach anything. Layer's CORE and TONE are on left T1/T2; the child's USE/REMOVE are on CORE's left T3/T4 (an exception present in the shared declarations). The exit of a MIDI private profile is also placed on right T8.
 
 ## Color and lines
 

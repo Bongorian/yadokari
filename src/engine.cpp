@@ -34,7 +34,7 @@ Engine::Engine(uint32_t sample_rate):pattern_staging_(new PatternState()),patter
  va_triggers_.init(rate_);
  // Complete descriptor initialization before the real-time owner starts.
  (void)engine_descriptor(0);
- if(rate_==48000)chimera_.init();
+ if(rate_==48000){chimera_.init();chimera_speech_.init();}
  if(rate_==48000){granular_=alloc_array<GranularVoice>(kSharedVoiceCapacity);if(granular_){bool ready=true;for(unsigned i=0;i<kSharedVoiceCapacity;++i)ready=ready && granular_[i].ready();if(!ready){delete[] granular_;granular_=nullptr;}else for(unsigned i=0;i<kSharedVoiceCapacity;++i)granular_[i].init(rate_);}}
  if(rate_==48000){resonators_=alloc_array<ResonatorVoice>(16);if(resonators_){bool ready=true;for(unsigned t=0;t<16;++t)ready=ready && resonators_[t].ready();if(!ready){delete[] resonators_;resonators_=nullptr;}else for(unsigned t=0;t<16;++t)resonators_[t].init(0x12345678u+t);}}
  if(rate_==48000){textures_=alloc_array<TextureVoice>(16);if(textures_){bool ready=true;for(unsigned t=0;t<16;++t)ready=ready && textures_[t].ready();if(!ready){delete[] textures_;textures_=nullptr;}else for(unsigned t=0;t<16;++t)textures_[t].init(0x12345678u+t);}}
@@ -64,6 +64,7 @@ bool Engine::stage_project(const ProjectState& p,const WavView* assets) {
  for(const auto& t:p.tracks) if(!engine_rate_supported(t.instrument,rate_)) return false;
  if(!textures_)for(const auto& t:p.tracks)if(t.instrument==Instrument::Texture)return false;
  if(!resonators_)for(const auto& t:p.tracks)if(t.instrument==Instrument::Resonator)return false;
+ if(!chimera_speech_.prepare_project(p.chimera_ipa))return false;
  staged_assets_=assets!=nullptr; if(assets)for(unsigned i=0;i<kSampleAssets;++i)staged_samples_[i]=assets[i];
  snapshot_generation_=published_generation_+1;*staging_=p; __atomic_store_n(&snapshot_pending_,1,__ATOMIC_RELEASE);
  if(!commands_->push({CommandType::ApplySnapshot,0,0,0})) { __atomic_store_n(&snapshot_pending_,0,__ATOMIC_RELEASE); return false; }

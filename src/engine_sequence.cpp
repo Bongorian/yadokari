@@ -8,6 +8,8 @@
 namespace groove {
 void Engine::reset_track(unsigned t,bool reset_position) {
  clear_kit_early(t);
+ if(chimera_pickups_[t].started && chimera_.owner()==t)chimera_.stop();
+ chimera_pickups_[t]=ChimeraPickup{};chimera_pickup_mask_&=~(1u<<t);
  auto& r=runtime_[t]; const auto& state=track(t); r.retriggers=0;for(auto& repeat:kit_repeat_[t])repeat.remaining=0;kit_repeat_pads_[t]=0;kit_repeat_tracks_&=uint16_t(~(1u<<t)); for(auto& lock:r.active_locks)lock.enabled=false;
  if(reset_position) { r.position=state.direction==PlaybackDirection::Reverse?uint8_t(state.length-1):0; r.backward=false; r.cycle=0;r.follow_due=false; r.automation_live=false;r.lane_triggers=r.automation_tick=r.automation_cell=0;event_seed_tick_valid_[t]=false;r.arp_random=project_->random_seed^(0x9e3779b9u*(t+1));if(!r.arp_random)r.arp_random=1;r.last_step=r.position;r.grid=r.last_grid=sample_count_;r.last_period_q32=0; r.fraction=0; }
  else r.position%=state.length;
@@ -19,18 +21,61 @@ uint64_t Engine::step_period(unsigned t) const {return runtime_[t].period_q32;}
 // slowing an already-running step.
 void Engine::schedule_retrigger(unsigned t){auto& r=runtime_[t];uint64_t offset=(r.retrigger_period*r.retrigger_index)/r.retrigger_count;uint64_t fraction=uint64_t(r.retrigger_fraction)+uint32_t(offset);int64_t due=r.retrigger_origin+int64_t(offset>>32)+int64_t(fraction>>32);r.retrigger_at=due<0?0:uint64_t(due);}
 void Engine::set_tempo(unsigned tempo){if(tempo<20 || tempo>300 || tempo==bpm_)return;unsigned old=bpm_;bpm_=uint16_t(tempo);project_->tempo=uint16_t(tempo);if(!external_clock_)tempo_q16_=uint32_t(tempo)<<16;for(unsigned i=0;i<80;++i){auto& pad=i<64?repeat_pads_[i]:repeat_midi_[i-64];if(pad.gate_due>sample_count_){uint64_t remaining=pad.gate_due-sample_count_;uint64_t scaled=(remaining*old+tempo/2)/tempo;pad.gate_due=sample_count_+(scaled?scaled:1);}}refresh_repeat_gate();}
-// SPP counts six MIDI clocks (one sixteenth note). Do not reconstruct
-// probability history or scene-follow decisions; seek the active clips only.
+// SPP counts six MIDI clocks (one sixteenth note). When an arrangement
+// owns the transport, first locate its section and recover each clip's origin.
 bool Engine::seek_song(unsigned position,bool send_midi){
- if(playing_ || position>16383 || (project_->song.enabled && song_has_snapshots(project_->song))){seek_armed_=false;event(EngineEventType::SongPosition,0,0,1,uint16_t(position));return false;}
- if(send_midi && !external_clock_ && !midi(0xf2,uint8_t(position&127),uint8_t(position>>7))){seek_armed_=false;event(EngineEventType::SongPosition,0,0,1,uint16_t(position));return false;}
- reset_clip_follow_seeds();stopped_at_=sample_count_;song_position_=uint16_t(position);song_phase_=0;lfo_transport_beat_=position/4;lfo_transport_fraction_=uint64_t(position%4)*uint64_t(rate_)*60/4;for(auto& r:runtime_)r.tempo_lfo.initialized=false;clock_phase_=0;bar_phase_=uint64_t(position%16)*uint64_t(rate_)*60;metro_ticks_=position*6;pending_scene_=-1;pending_stop_=0;for(auto& pending:pending_pattern_)pending=-1;chain_bars_=chain_position_=0;chain_armed_=true;song_armed_=true;song_finished_=false;song_section_=song_bars_=0;song_transpose_=0;song_mute_mask_=0;
- for(unsigned t=0;t<16;++t){note_off(t);reset_track(t,true);auto& r=runtime_[t];const auto& state=track(t);unsigned numerator=position*state.speed_num,den=state.speed_den;unsigned index=(numerator+den-1)/den;unsigned rem=index*den-numerator;unsigned len=state.length;
+ auto rejected=[&](){seek_armed_=false;event(EngineEventType::SongPosition,0,0,1,uint16_t(position));return false;};
+ if(playing_ || position>16383)return rejected();
+ constexpr unsigned ticks_per_step=kSongTicksPerBeat/4;
+ const auto& song=project_->song;
+ const bool arrangement=song.enabled && song.length;
+ unsigned tick=position*ticks_per_step,section=0,section_start=0;
+ unsigned origins[kTracks]{};
+ if(arrangement){
+  unsigned total=0;
+  for(unsigned i=0;i<song.length;++i)total+=song_section_ticks(song.sections[i]);
+  if(tick>=total){if(!song.loop)return rejected();tick%=total;}
+  unsigned patterns[kTracks]{};
+  bool playing[kTracks]{};
+  for(;section<song.length;++section){
+   const auto& part=song.sections[section];
+   const auto& scene=project_->scenes[part.scene];
+   for(unsigned t=0;t<kTracks;++t){
+    const unsigned pattern=part.ticks?part.patterns[t]:scene.pattern_for_track[t];
+    const bool active=part.ticks?bool(part.playing_mask&(1u<<t)):!((scene.mute_mask|part.mute_mask)&(1u<<t));
+    if(!part.ticks || (part.restart_mask&(1u<<t)) || pattern!=patterns[t] || playing[t]!=active)origins[t]=section_start;
+    patterns[t]=pattern;playing[t]=active;
+   }
+   unsigned end=section_start+song_section_ticks(part);
+   if(tick<end)break;
+   section_start=end;
+  }
+ }
+ if(send_midi && !external_clock_ && !midi(0xf2,uint8_t(position&127),uint8_t(position>>7)))return rejected();
+ reset_clip_follow_seeds();stopped_at_=sample_count_;song_position_=uint16_t(position);song_phase_=0;
+ lfo_transport_beat_=position/4;lfo_transport_fraction_=uint64_t(position%4)*uint64_t(rate_)*60/4;
+ for(auto& r:runtime_)r.tempo_lfo.initialized=false;
+ clock_phase_=0;bar_phase_=uint64_t(position%16)*uint64_t(rate_)*60;metro_ticks_=position*6;
+ pending_scene_=-1;pending_stop_=0;for(auto& pending:pending_pattern_)pending=-1;
+ chain_bars_=chain_position_=0;chain_armed_=true;song_armed_=!arrangement;song_finished_=false;
+ song_section_=song_bars_=0;song_transpose_=0;song_mute_mask_=0;
+ arrangement_tick_=tick;arrangement_tick_phase_=0;
+ if(arrangement){
+  apply_song_section(section,true);
+  song_elapsed_ticks_=tick-section_start;
+  song_bars_=uint16_t(song_elapsed_ticks_/kSongTicksPerBar);
+ }
+ for(unsigned t=0;t<kTracks;++t){
+  note_off(t);reset_track(t,true);auto& r=runtime_[t];const auto& state=track(t);
+  const unsigned numerator=(tick-origins[t])*state.speed_num,den=ticks_per_step*state.speed_den;
+  const unsigned index=(numerator+den-1)/den,rem=index*den-numerator,len=state.length;
   if(state.direction==PlaybackDirection::Forward){r.position=uint8_t(index%len);r.cycle=index/len;r.backward=false;}
   else if(state.direction==PlaybackDirection::Reverse){r.position=uint8_t(len-1-index%len);r.cycle=index/len;r.backward=false;}
   else if(len==1){r.position=0;r.cycle=index;r.backward=false;}
   else{unsigned span=2*(len-1),phase=index%span;r.position=uint8_t(phase<len?phase:span-phase);r.cycle=index/span;r.backward=phase>=len-1 || (phase==0 && index!=0);}
-  r.automation_tick=index;r.automation_cell=index;r.lane_triggers=0;uint64_t delay=(r.period_q32*rem)/den;r.grid=int64_t(sample_count_)+int64_t(delay>>32);r.fraction=uint32_t(delay);r.last_grid=r.grid;r.last_step=r.position;r.last_period_q32=0;r.due=step_due(t);
+  r.automation_tick=index;r.automation_cell=index;r.lane_triggers=0;
+  uint64_t delay=(r.period_q32*rem)/den;r.grid=int64_t(sample_count_)+int64_t(delay>>32);r.fraction=uint32_t(delay);
+  r.last_grid=r.grid;r.last_step=r.position;r.last_period_q32=0;r.due=step_due(t);
  }
  seek_armed_=true;event(EngineEventType::SongPosition,0,0,0,uint16_t(position));return true;
 }

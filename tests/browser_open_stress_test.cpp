@@ -3,22 +3,32 @@
 // service call) instead of the blocking load(), and a second OPEN
 // while a load is in flight must never re-enter begin/load.
 #include "session_files.h"
+#include "ui_renderer.h"
 #include <cassert>
 #include <cstdio>
 #include <cstring>
+#include <memory>
 using namespace groove;
 namespace {
 struct FakeFs : IFileAccess {
+ static constexpr unsigned file_count=72;
+ unsigned folder_reads=0;
  unsigned list(const char*, FileEntry* entries, unsigned capacity) override {
   unsigned n = 0;
   auto add = [&](const char* name, bool dir, uint64_t bytes) {
    if (n < capacity) { copy_text(entries[n].name, sizeof entries[n].name, name); entries[n].directory = dir; entries[n].bytes = bytes; ++n; }
   };
   add("KICK.WAV", false, 1000); add("SNARE.WAV", false, 2000);
+  for(unsigned i=0;i<file_count-2;++i){
+   char name[16];
+   std::snprintf(name,sizeof name,"TAKE%02u.WAV",i);
+   add(name,false,1000);
+  }
   return n;
  }
  bool list_browser(const char* path, FileEntry* entries, unsigned capacity, unsigned& count) override {
-  count = list(path, entries, capacity); return capacity >= 2;
+  if(std::strcmp(path,"assets")==0)++folder_reads;
+  count = list(path, entries, capacity); return capacity >= file_count;
  }
  bool read(const char*, uint64_t, void*, unsigned, unsigned& got) override { got = 0; return true; }
  bool write(const char*, uint64_t, const void*, unsigned, bool) override { return true; }
@@ -33,12 +43,14 @@ struct FakeLibrary : ISampleLibrary {
  static uint8_t pcm[256];
  int polls_left = 0, begin_count = 0, blocking_loads = 0, reentries = 0;
  bool in_flight = false;
+ char load_path[160]{};
  bool load(const char*, WavView& view) override { ++blocking_loads; fill(view); return true; }
  WavView lookup(const char*) const override { return {}; }
  bool prepare(const ProjectState&, WavView*) override { return true; }
  bool supports_incremental_load() const override { return true; }
- bool begin_incremental_load(const char*, uint32_t) override {
+ bool begin_incremental_load(const char* path, uint32_t) override {
   if (in_flight) ++reentries;
+  copy_text(load_path,sizeof load_path,path);
   in_flight = true; ++begin_count; polls_left = 40; return true;
  }
  SampleLoadProgress poll_incremental_load(WavView& view) override {
@@ -59,17 +71,46 @@ int main() {
  copy_text(perf.browser().directory,sizeof perf.browser().directory,"assets");
  FakeFs fs; FakeLibrary lib;
  SessionFiles files(fs, lib, engine, project, perf);
- perf.set_mode(UiMode::Browser);
- // Entering Browser mode already queues a Refresh; service it and the
- // listing is populated through the real action path.
- for (int i = 0; i < 10 && perf.browser().count == 0; ++i) files.service();
- assert(perf.browser().count == 2);
+ auto position=[&]{return perf.browser().folder_offset+perf.browser().cursor;};
+ auto push=[&](uint8_t direction){assert(perf.control(1,direction));assert(perf.control(1,0));};
+ // A cold FILE press accepts input before the listing has any rows.
+ assert(perf.control(8,0x10) && perf.control(8,0));
+ assert(perf.mode()==UiMode::Browser && perf.browser().count==0);
+ assert(perf.encoder(4));push(0x10);
+ auto renderer=std::make_unique<UiRenderer>();
+ bool processing=false;
+ renderer->text_observer=[](const SoftwareCanvas::TextPlacement& t,void* context){
+  if(!std::strcmp(t.text,"PROCESSING"))*static_cast<bool*>(context)=true;
+ };
+ renderer->text_observer_context=&processing;
+ renderer->draw(project,perf);
+ assert(processing && fs.folder_reads==0);
+ assert(files.service() && perf.browser().folder_total==FakeFs::file_count && position()==5);
+ // Refreshing a cached page leaves its rows navigable, with no reads
+ // caused by the input. A crossing waits for the single action slot.
+ assert(perf.request_file(FileAction::Refresh));
+ const unsigned reads=fs.folder_reads;
+ assert(perf.encoder(2));push(0x04);
+ assert(position()==6 && fs.folder_reads==reads);
+ assert(perf.move_browser(56) && position()==62);
+ assert(perf.encoder(3));push(0x10);
+ assert(position()==62 && perf.pending_file_action()==FileAction::Refresh);
+ assert(files.service() && perf.pending_file_action()==FileAction::FolderMove);
+ assert(perf.encoder(-4) && position()==62 && !perf.file_action_pending());
+ assert(perf.encoder(3));push(0x10);
+ assert(files.service() && position()==66);
+ assert(perf.move_browser(-66) && files.service() && position()==0);
  // First OPEN starts exactly one incremental load; the blocking path
  // is never used and service() returns after one poll quantum.
- perf.browser().cursor = 0;
  assert(perf.request_file(FileAction::Open));
+ // Navigation before OPEN is taken cannot change the file it will open.
+ assert(perf.encoder(1) && position()==0);
  files.service();
- assert(lib.begin_count == 1 && lib.blocking_loads == 0);
+ assert(lib.begin_count == 1 && lib.blocking_loads == 0 && perf.browser().processing);
+ assert(position()==1 && !std::strcmp(lib.load_path,"assets/KICK.WAV"));
+ const unsigned reads_during_load=fs.folder_reads;
+ assert(perf.encoder(1));push(0x04);push(0x04);push(0x10);
+ assert(position()==1 && fs.folder_reads==reads_during_load && lib.in_flight);
  assert(!perf.browser().previewing);
  // Re-press storm while in flight: 100 OPEN requests + service calls
  // must not begin another load nor complete early.
@@ -85,8 +126,9 @@ int main() {
  for (int i = 0; i < 200 && lib.begin_count < 2; ++i) files.service();
  assert(lib.begin_count == 2 && lib.blocking_loads == 0);
  for (int i = 0; i < 400 && std::strcmp(perf.browser().preview_path, "assets/SNARE.WAV"); ++i) files.service();
- assert(perf.browser().previewing);
+ assert(!perf.browser().previewing);
  assert(std::strcmp(perf.browser().preview_path, "assets/SNARE.WAV") == 0);
+ assert(!perf.browser().processing);
  // OPEN x100 storm across both files: alternating targets defeat the
  // replay cache, so loads keep cycling - always incremental, never
  // re-entrant, and the browser ends consistent.
@@ -99,6 +141,10 @@ int main() {
  }
  for (int i = 0; i < 400; ++i) files.service();
  assert(lib.begin_count > begins_before);
+ assert(!perf.browser().previewing);
+ assert(perf.browser().preview_path[0]);
+ assert(perf.request_file(FileAction::Preview));
+ for(int i=0;i<200 && !perf.browser().previewing;++i)files.service();
  assert(perf.browser().previewing);
  std::printf("browser open stress: %d incremental loads, 0 blocking, 0 re-entries\n", lib.begin_count);
  std::printf("browser-open-stress test passed\n");

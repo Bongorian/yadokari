@@ -5,7 +5,7 @@
 use super::human_airway::HumanAirway;
 use crate::airway::decimator::Decimator;
 use crate::anatomy::geom::Vec2;
-use crate::anatomy::human::{ArticKey, ArticPatch, BODY_MALE, HumanBody, N_ARTIC};
+use crate::anatomy::human::{ArticKey, ArticPatch, BODY_MALE, HumanBody};
 use crate::control::articulators::ArticulatorBank;
 use crate::control::score::{Blended, ControlKey, Gesture, GestureScore, N_CONTROL};
 use crate::math::{PI, clamp, exp, js_max, js_min, js_sign, js_trunc_i32, pow, tanh};
@@ -143,6 +143,7 @@ pub struct HumanVoice {
     /// gestural score and voice clock (s)
     pub score: GestureScore,
     pub clock: f64,
+    pub score_time: Option<f64>,
     blend: [Blended; N_CONTROL],
     base_abduction: f64,
     base_closure: f64,
@@ -209,7 +210,7 @@ impl HumanVoice {
             dc_y: 0.0,
             dc_coef: exp((-2.0 * PI * 25.0) / fs_out),
             score: GestureScore::new(),
-            clock: 0.0,
+            clock: 0.0, score_time: None,
             blend: [Blended::default(); N_CONTROL],
             base_abduction: 0.0,
             base_closure: 0.0,
@@ -267,6 +268,7 @@ impl HumanVoice {
     /// Cancel scheduled gestures (speech stops; the voice returns to the performer's posture).
     pub fn cancel_score(&mut self) {
         self.score.clear();
+        self.score_time = None;
     }
 
     /// breath/voice on (1) or off (0); intermediate values scale the pressure
@@ -364,7 +366,7 @@ impl HumanVoice {
     /// Control-rate update: articulator dynamics, geometry → areas, breath, pitch.
     fn control(&mut self) {
         let dt = self.ctrl_every as f64 / self.fs;
-        let t = self.clock;
+        let t = self.score_time.unwrap_or(self.clock);
         let mut breath_act = 0.0;
         let mut breath_val = 0.0;
         let mut f0_target = self.source.f0;

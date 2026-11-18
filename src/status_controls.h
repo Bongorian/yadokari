@@ -18,9 +18,29 @@ inline StatusControl header_status(unsigned index,const HeaderStatusContext& c){
  case 4:d={"External clock",StatusAction::Clock,true};d.selected=c.external_clock;break;
  case 5:d=c.strip==StripMode::Pitch?StatusControl{"Strip pitch",StatusAction::StripPitch,true}:c.strip==StripMode::Mod?StatusControl{"Strip modulation",StatusAction::StripMod,true}:c.strip==StripMode::Notes?StatusControl{"Strip notes",StatusAction::StripNotes,true}:StatusControl{"Strip perform",StatusAction::StripPerform,true};d.selected=true;break;
  default:break;}return d;}
-// The registry uses SAMPLE for SoundFont and SAMPLER for sampled voices.
-// They belong to one existing source category, with one symbol and label.
-inline const char* engine_family_name(Instrument instrument){const auto* d=instrument_descriptor(unsigned(instrument));if(!d)return "";return !__builtin_strcmp(d->family,"SAMPLE")?"SAMPLER":d->family;}
+inline const char* engine_family_name(Instrument instrument){const auto* d=instrument_descriptor(unsigned(instrument));return d?d->family:"";}
+// Presentation order is independent of the numeric IDs used in saved projects.
+inline constexpr Instrument kEngineDisplayOrder[]={
+ Instrument::DaisyAnalogDrums,Instrument::DaisySyntheticDrums,
+ Instrument::PolySaw,Instrument::DaisySynth,Instrument::Acid,Instrument::Empty,
+ Instrument::Wavetable,Instrument::VirtualAnalog,Instrument::Additive,Instrument::PhaseDist,Instrument::Layer,Instrument::Formant,
+ Instrument::Sampler,Instrument::SoundFont,Instrument::Granular,
+ Instrument::PlaitsMacro,Instrument::FM,Instrument::Fm6,
+ Instrument::WaveSequence,Instrument::ChipClock,Instrument::TapeMicrosound,Instrument::WestCoast,Instrument::SpectralFreeze,
+ Instrument::ExternalMidi,Instrument::DrumKit,
+ Instrument::Resonator,Instrument::Texture,Instrument::Chimera
+};
+static_assert(sizeof kEngineDisplayOrder/sizeof *kEngineDisplayOrder==unsigned(Instrument::Unknown));
+inline int engine_display_index(Instrument engine){
+ for(unsigned i=0;i<instrument_count();++i)if(kEngineDisplayOrder[i]==engine)return int(i);
+ return int(instrument_count());
+}
+inline Instrument step_engine_display(Instrument engine,int delta){
+ int next=engine_display_index(engine)+delta;
+ if(next<0)next=0;
+ if(next>=int(instrument_count()))next=int(instrument_count())-1;
+ return kEngineDisplayOrder[next];
+}
 inline StatusControl engine_family_control(Instrument instrument){
  const auto* d=instrument_descriptor(unsigned(instrument));if(!d || instrument==Instrument::Empty || instrument==Instrument::Unknown)return {};
  const char* family=engine_family_name(instrument);

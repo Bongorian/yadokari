@@ -41,7 +41,7 @@ inline constexpr PageDescriptor kPageDescriptors[] = {
  {UiMode::Project, PageFamily::Manage, "PROJECT", PadMode::Play, false, kPageGeometry},
  {UiMode::Settings, PageFamily::Manage, "SETTINGS", PadMode::Play, false, kPageGeometry},
  {UiMode::Modulation, PageFamily::Sound, "MODULATION", PadMode::Play, false, kPageGeometry},
- {UiMode::Browser, PageFamily::Manage, "BROWSER", PadMode::Play, false, kPageGeometry},
+ {UiMode::Browser, PageFamily::Manage, "FILES", PadMode::Play, false, kPageGeometry},
  {UiMode::Library, PageFamily::Manage, "PRESETS", PadMode::Play, false, kPageGeometry},
  {UiMode::Routing, PageFamily::Sound, "ROUTING", PadMode::Play, false, kPageGeometry},
  {UiMode::Diagnostics, PageFamily::Manage, "DIAGNOSTICS", PadMode::Play, false, kPageGeometry},

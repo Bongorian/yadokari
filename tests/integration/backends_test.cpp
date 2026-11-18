@@ -206,8 +206,9 @@ int main(){
  // Audition completion returns the browser to Preview; a late completion for
  // an older audition must not cancel a newly queued one.
  {char directory[]="build/mk3-preview-XXXXXX";assert(mkdtemp(directory));DesktopFiles fs;char path[160];assert(join_path(path,sizeof path,directory,"hit.wav"));uint8_t wav[76]{};assert(wav_header(wav,8,48000));for(unsigned i=44;i<76;++i)wav[i]=uint8_t(i*3);assert(fs.write(path,0,wav,sizeof wav,true));DesktopSampleAssets assets;assets.files(&fs);auto p=std::make_unique<ProjectState>();auto e=std::make_unique<Engine>();assert(e->stage_project(*p));Performance ui(*e,*p);SessionFiles files(fs,assets,*e,*p,ui,directory);float out[128]{};e->render(out,0);assert(copy_text(ui.browser().directory,sizeof ui.browser().directory,directory));files.refresh();ui.set_mode(UiMode::Browser);
-  assert(ui.soft_key(0) && files.service() && ui.browser().previewing);e->render(out,16);assert(ui.browser().previewing);assert(files.service() && !ui.browser().previewing && !std::strcmp(ui.soft_label(2),"PREVIEW"));
-  assert(ui.soft_key(2) && files.service() && ui.browser().previewing);e->render(out,16);assert(ui.soft_key(0) && files.service() && ui.browser().previewing);assert(files.service() && ui.browser().previewing);e->render(out,0);assert(files.service() && ui.browser().previewing);e->render(out,16);assert(files.service() && !ui.browser().previewing);
+  assert(ui.soft_key(0) && files.service() && !ui.browser().previewing);
+  assert(ui.soft_key(2) && files.service() && ui.browser().previewing);e->render(out,16);assert(ui.browser().previewing);assert(files.service() && !ui.browser().previewing && !std::strcmp(ui.soft_label(2),"PREVIEW"));
+  assert(ui.soft_key(2) && files.service() && ui.browser().previewing);e->render(out,16);assert(ui.request_file(FileAction::Preview) && files.service() && ui.browser().previewing);assert(files.service() && ui.browser().previewing);e->render(out,0);assert(files.service() && ui.browser().previewing);e->render(out,16);assert(files.service() && !ui.browser().previewing);
   assert(ui.soft_key(2) && files.service() && ui.browser().previewing);while(e->command_space())assert(e->submit({CommandType::SetTempo,0,0,120}));assert(ui.soft_key(2));assert(!files.service() && ui.browser().previewing);e->render(out,0);assert(ui.soft_key(2) && files.service() && !ui.browser().previewing);
  }
  // Auditioning a different selection replaces the playing source in one
@@ -281,7 +282,7 @@ int main(){
  auto project=std::make_unique<ProjectState>();Engine engine;Performance perf(engine,*project);assert(perf.set_instrument(Instrument::DaisyAnalogDrums));MockController controller;MockAudio audio(engine);assert(audio.start());
  assert(perf.control(1,0x40)&&perf.control(8,0x10));assert(perf.take_save_request()&&!perf.take_update_request());
  assert(perf.control(7,0x02));assert(perf.control(7,0));assert(perf.update_confirm_pending() && !perf.take_update_request());assert(perf.control(1,0));assert(perf.encoder_push());assert(perf.take_update_request()&&!perf.take_save_request());
- assert(perf.control(8,0)&&perf.control(1,0)&&perf.control(8,0x10));assert(perf.mode()==UiMode::Project && !perf.take_save_request() && !perf.take_update_request());perf.set_mode(UiMode::Pad);
+ assert(perf.control(8,0)&&perf.control(1,0)&&perf.control(8,0x10));assert(perf.mode()==UiMode::Browser && !perf.take_save_request() && !perf.take_update_request());perf.set_mode(UiMode::Pad);
  // Mute and Solo are live track controls: clip/scene launches and pattern
  // replacement must not silently restore a different pattern's mixer state.
  {auto p=std::make_unique<ProjectState>();track_at(*p,0,0).instrument=Instrument::ExternalMidi;track_at(*p,1,0).instrument=Instrument::ExternalMidi;track_at(*p,1,0).steps[0].enabled=true;p->scenes[1].pattern_for_track[0]=0;

@@ -22,7 +22,7 @@ int main(){
  assert(ui->set_parameter(32,.8f));flush();begin("Bell One");assert(ui->browser_confirmation());assert(ui->browser_edit_key(0) && files.service());assert(read_project_file(fs,"PRESETS/Bell One.mgxp",*saved));assert(saved->tracks[0].engine_parameters[0]==p->tracks[0].engine_parameters[0]);
  assert(ui->set_instrument(Instrument::DrumKit));flush();p->tracks[0].kit.pads[0].level=.23f;p->patterns[0].tracks[0].kit.steps[0][2].enabled=true;assert(engine->stage_project(*p));ui->project_loaded();flush();assert(files.save_preset("PRESETS/Kit One.mgx"));p->patterns[0].tracks[0].kit.steps[0][2].enabled=false;p->patterns[0].tracks[0].kit.steps[0][5].enabled=true;p->tracks[0].level=.42f;p->tracks[0].kit.pads[0].level=.9f;assert(engine->stage_project(*p));ui->project_loaded();flush();assert(files.load_preset("PRESETS/Kit One.mgx"));flush();assert(p->tracks[0].kit.pads[0].level==.23f && p->tracks[0].level==.42f);assert(!p->patterns[0].tracks[0].kit.steps[0][2].enabled && p->patterns[0].tracks[0].kit.steps[0][5].enabled);
 
- // Every suffix can carry every kind; Browser labels and OPEN follow TYPE.
+ // Every suffix can carry every kind; FILES labels and OPEN / LOAD follow TYPE.
  const char* suffixes[]={".mgx",".MGXS",".mgxk",".mgxp"};
  auto content=std::make_unique<ProjectState>();
  for(unsigned kind=1;kind<=3;++kind)for(const char* suffix:suffixes){
@@ -34,7 +34,7 @@ int main(){
   ui->browser().directory[0]=0;files.refresh();bool found=false;
   for(unsigned i=0;i<ui->browser().count;++i)if(!__builtin_strcmp(ui->browser().entries[i].name,path)){ui->browser().cursor=i;found=true;assert(ui->browser().entries[i].content_kind==kind);break;}
   assert(found);p->tempo=103;assert(engine->stage_project(*p));ui->project_loaded();flush();
-  assert(ui->request_file(FileAction::Open) && files.service());flush();
+  assert(ui->request_file(kind==1?FileAction::Open:FileAction::Load) && files.service());flush();
   assert(p->tempo==(kind==1?137:103));assert(p->tracks[0].instrument==content->tracks[0].instrument);
   // Old versions are still rejected under each accepted suffix.
   uint8_t old_version=uint8_t(kFormatVersion-1);assert(fs.write(path,4,&old_version,1,false));

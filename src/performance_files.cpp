@@ -19,6 +19,7 @@ auto Performance::select_source(unsigned engine) -> bool{
  source_cursor_=uint8_t(engine);source_arm_unknown_=false;return inspect_source_library();
 }
 auto Performance::inspect_source_library() -> bool{
+ browser_move_deferred_=0;
  browser_.library_instrument=Instrument(source_cursor_);browser_.library_kits=Instrument(source_cursor_)==Instrument::DrumKit;
  browser_.library_resume=false;browser_.library_originals=false;browser_.library_offset=browser_.library_total=browser_.cursor=browser_.count=0;browser_.library_list=true;
  browser_refresh_pending_=true;dirty_=true;return true;
@@ -33,14 +34,68 @@ auto Performance::open_preset_library(bool kits) -> bool{
  browser_refresh_pending_=false;if(from_engine){browser_.library_offset=offset;browser_.cursor=cursor;}return request_file(from_engine?FileAction::LibraryRestore:FileAction::LibraryOpen);
 }
 auto Performance::move_browser(int delta) -> bool{
- if(file_action_pending()){return false;}unsigned total=browser_.folder_total?browser_.folder_total:browser_.count;
- unsigned cursor=unsigned(bounded(int(browser_.folder_offset+browser_.cursor)+delta,0,total?int(total-1):0));
- if(cursor/64==browser_.folder_offset/64){browser_.cursor=cursor-browser_.folder_offset;dirty_=true;return true;}
- browser_.folder_delta=int(cursor)-int(browser_.folder_offset+browser_.cursor);return request_file(FileAction::FolderMove);
+ return move_file_rows(delta,false);
 }
-auto Performance::move_preset_library(int delta) -> bool{if(file_action_pending())return false;browser_.library_delta=delta;return request_file(FileAction::LibraryMove);}
+auto Performance::move_preset_library(int delta) -> bool{return move_file_rows(delta,true);}
+
+auto Performance::move_file_rows(int delta,bool library) -> bool{
+ const auto action=library?FileAction::LibraryMove:FileAction::FolderMove;
+ const auto pending=pending_file_action();
+ const bool paging=pending==action;
+ auto& queued=library?browser_.library_delta:browser_.folder_delta;
+ browser_move_deferred_+=delta;
+
+ // Selection-dependent work resolves its path when the file owner takes it.
+ // Preserve that selection, and wait for the first page if there are no rows.
+ if(pending!=FileAction::None &&
+    (!browser_.count || (!paging && pending!=FileAction::Refresh && pending!=FileAction::LibraryRestore)))return true;
+
+ const unsigned offset=library?browser_.library_offset:browser_.folder_offset;
+ const unsigned total=library?browser_.library_total:browser_.folder_total;
+ const int64_t current=int64_t(offset)+browser_.cursor;
+ int64_t target=current+browser_move_deferred_+(paging?queued:0);
+ const unsigned count=browser_.count?(total?total:browser_.count):0;
+ if(!count)target=0;
+ else if(library)target=(target%count+count)%count;
+ else if(target<0)target=0;
+ else if(target>=count)target=count-1;
+
+ if(!count || (target>=offset && target-offset<browser_.count)){
+  if(paging){file_action_=FileAction::None;queued=0;}
+  browser_.cursor=count?unsigned(target-offset):0;
+  browser_move_deferred_=0;
+  dirty_=true;
+  return true;
+ }
+ // FolderMove performs the same scan as an automatic Refresh.
+ const bool combines_refresh=!library && pending==FileAction::Refresh && !file_action_pending();
+ if(!paging && ((pending!=FileAction::None && !combines_refresh) || !request_file(action)))return true;
+ if(combines_refresh)browser_refresh_pending_=false;
+ queued=int(target-current);
+ browser_move_deferred_=0;
+ return true;
+}
+
+auto Performance::resume_file_navigation() -> void{
+ if(!browser_move_deferred_ || pending_file_action()!=FileAction::None || modal_active())return;
+ if(mode_==UiMode::Browser || browser_.library_list)move_file_rows(0,mode_!=UiMode::Browser);
+ else browser_move_deferred_=0;
+}
 auto Performance::preset_fx_editing()const -> bool{return browser_editing() && (browser_.edit.operation==BrowserOperation::SavePreset || browser_.edit.operation==BrowserOperation::OverwritePreset);}
-auto Performance::open_project_browser() -> bool{browser_.new_project_list=false;if(file_action_pending() || browser_editing())return false;char parent[160];copy_text(parent,sizeof parent,project_path_);char* slash=nullptr;for(char* p=parent;*p;++p)if(*p=='/')slash=p;if(slash)*slash=0;else parent[0]=0;copy_text(browser_.directory,sizeof browser_.directory,parent);set_mode(UiMode::Browser);return request_file(FileAction::Refresh);}
+auto Performance::open_project_browser() -> bool{
+ browser_.new_project_list=false;
+ if(file_action_pending() || browser_editing())return false;
+ char parent[160];
+ copy_text(parent,sizeof parent,project_path_);
+ parent_path(parent);
+ if(__builtin_strcmp(browser_.directory,parent)){
+  browser_.count=0;
+  browser_move_deferred_=0;
+  copy_text(browser_.directory,sizeof browser_.directory,parent);
+ }
+ set_mode(UiMode::Browser);
+ return request_file(FileAction::Refresh);
+}
 auto Performance::begin_project_save_as() -> bool{if(file_action_pending() || browser_editing())return false;BrowserFileEdit next;next.operation=BrowserOperation::SaveProject;copy_text(next.source,sizeof next.source,kUserProject);copy_text(next.name,sizeof next.name,project_name());data_strip_mgx_suffix(next.name);browser_.edit=next;axes_.modal=ModalKind::Rename;dirty_=true;return true;}
 auto Performance::bake_control()const -> bool{return bake_current() && bake_stage_!=BakeStage::Collect && !browser_editing() && !repeat_mode_ && !freeze_modal_ && !stretch_modal_ && (mode_==UiMode::Routing || mode_==UiMode::Sampler || mode_==UiMode::Browser || (mode_==UiMode::Project && bake_stage_==BakeStage::Done));}
 auto Performance::bake_hint()const -> const char*{if(!bake_current())return "";switch(bake_stage_){case BakeStage::Capture:return "BAKE 1/5: PLAY / SHIFT + RESAMPLE";case BakeStage::Trim:return "BAKE 2/5: TRIM / NEXT: ROOT + ZONE";case BakeStage::Tune:return "BAKE 3/5: ROOT + ZONE / SAVE PRESET";case BakeStage::Name:return "BAKE 4/5: NAME / SAVE PRESET";case BakeStage::Collect:return "BAKE 5/5: COLLECT PRESET + SAMPLE";case BakeStage::Done:return "BAKE DONE: PORTABLE PRESET SAVED";default:return "";}}
@@ -113,7 +168,10 @@ auto Performance::request_file(FileAction action) -> bool{
  }
 auto Performance::pending_file_action()const -> FileAction{return resample_cancel_request_?FileAction::CancelResample:record_stop_request_?FileAction::RecordToggle:file_action_!=FileAction::None?file_action_:browser_refresh_pending_?(mode_==UiMode::Library || browser_.library_resume?FileAction::LibraryRestore:source_select_?FileAction::LibraryInspect:FileAction::Refresh):FileAction::None;}
 auto Performance::take_file_action() -> FileAction{if(resample_cancel_request_){resample_cancel_request_=false;return FileAction::CancelResample;}if(record_stop_request_){record_stop_request_=false;return FileAction::RecordToggle;}auto a=file_action_;file_action_=FileAction::None;if(a==FileAction::None && browser_refresh_pending_){browser_refresh_pending_=false;const auto refresh=mode_==UiMode::Library || browser_.library_resume?FileAction::LibraryRestore:source_select_?FileAction::LibraryInspect:FileAction::Refresh;browser_.library_resume=false;return refresh;}if(a==FileAction::Refresh)browser_refresh_pending_=false;return a;}
-auto Performance::browser_controls()const -> BrowserContext{bool part=browser_.cursor<browser_.count && !browser_.entries[browser_.cursor].directory && is_recording_part(browser_.entries[browser_.cursor].name);bool mf=browser_.cursor<browser_.count && is_midi_file(browser_.entries[browser_.cursor].name);return {shifted(),midi_browser(),browser_.previewing,other_preview_target(),part,mf,browser_.new_project_list};}
+auto Performance::browser_controls()const -> BrowserContext{bool part=browser_.cursor<browser_.count && !browser_.entries[browser_.cursor].directory && is_recording_part(browser_.entries[browser_.cursor].name);bool mf=browser_.cursor<browser_.count && is_midi_file(browser_.entries[browser_.cursor].name);return {shifted(),midi_browser(),browser_.previewing,other_preview_target(),part,mf,browser_.new_project_list,
+ browser_.cursor<browser_.count && browser_.entries[browser_.cursor].directory,
+ browser_.cursor<browser_.count?unsigned(browser_.entries[browser_.cursor].content_kind):0,
+ browser_.cursor<browser_.count && is_ipa_file(browser_.entries[browser_.cursor].name)};}
 auto Performance::set_step_sample_lock(unsigned step,uint16_t id,int value) -> bool{if(step>=kSteps || (id!=300 && id!=301 && id!=302))return false;if(value>=0)return set_lock(step,id,float(value));const auto& old=track_const(selected_).steps[step];auto next=old;bool found=false,any=false;for(auto& lock:next.locks){if(lock.enabled && lock.id==lock_target(selected_step_,id)){lock.enabled=false;found=true;}any|=lock.enabled;}if(!found)return true;if(!any)next.lock_only=false;Command after{CommandType::SetRecordedStep,selected_,uint8_t(step),0},before=after;after.recorded_step=next;before.recorded_step=old;return edit(after,before);}
 auto Performance::set_sound_override(unsigned slot) -> bool{if(slot>=kPresetSlots && slot!=65535)return false;Command after{CommandType::SetSoundOverride,selected_,0,uint16_t(slot)},before=after;before.value=track_const(selected_).sound_override;return edit(after,before);}
 auto Performance::set_sound_lock(unsigned step,unsigned sound) -> bool{if(step>=kSteps || (sound>=kPresetSlots && sound!=kNoPreset))return false;Command after{CommandType::SetSoundLock,selected_,uint8_t(step),uint16_t(sound)},before=after;before.value=track(selected_).steps[step].sound;return edit(after,before);}

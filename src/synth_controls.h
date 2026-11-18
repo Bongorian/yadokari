@@ -38,6 +38,7 @@ inline SynthControl synth_button_control(unsigned index,const SynthControlContex
   }
  }
  if(c.instrument==Instrument::Layer){if(index==0)return {"LAYER",SynthAction::Generator,true};if(index==2)return {"USE CHILD",SynthAction::LayerUse,true};if(index==3)return {"REMOVE",SynthAction::LayerRemove,true};}
+ if(c.instrument==Instrument::Chimera){if(index==2)return {"ARTICULATION",SynthAction::Shape,true};if(index==3)return {"VOICE",SynthAction::Lab,true};}
  if(c.instrument==Instrument::Texture){if(index==0)return {"GRAINS",SynthAction::Generator,true};if(index==2)return {"BLEND",SynthAction::Shape,true};if(index==3)return {"INPUT / QUALITY",SynthAction::Lab,true};}
  if(c.instrument==Instrument::Resonator){if(index==0)return {"RESONATOR",SynthAction::Generator,true};if(index==2)return {"EXCITER",SynthAction::Shape,true};}
  switch(index){

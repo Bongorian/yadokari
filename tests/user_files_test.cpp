@@ -27,6 +27,12 @@ static bool containers(){Fixture f;auto* entries=new UserFileEntry[256];const Co
 }
 static bool media(){Fixture f;auto w=file_fixture::wav(),m=file_fixture::midi(),bank=file_fixture::syx();std::vector<uint8_t> sf(kSoundFontFixture,kSoundFontFixture+sizeof kSoundFontFixture);unsigned old=sf.size();sf.resize(sf.size()+8+2*1024*1024);std::memcpy(sf.data()+old,"JUNK",4);update::put32(sf.data()+old+4,2*1024*1024);update::put32(sf.data()+4,sf.size()-8);
  CHECK(put(f.files,"Tone.wav",w) && bytes_equal(f.fs,"ASSETS/SAMPLES/Tone.wav",w));CHECK(put(f.files,"Pattern.mid",m) && bytes_equal(f.fs,"ASSETS/MIDI/Pattern.mid",m));CHECK(put(f.files,"Large.sf2",sf) && bytes_equal(f.fs,"ASSETS/SOUNDFONTS/Large.sf2",sf));CHECK(f.fs.max_write<=32768);
+ const std::string ipa="60\tma\n62\tʃi\n";
+ std::vector<uint8_t> speech(ipa.begin(),ipa.end());
+ CHECK(put(f.files,"Voice.ipa",speech) && bytes_equal(f.fs,"ASSETS/SPEECH/Voice.ipa",speech));
+ CHECK(!put(f.files,"Voice.ipa",{0xff,0xfe}) && bytes_equal(f.fs,"ASSETS/SPEECH/Voice.ipa",speech));
+ UserFileEntry score[2];unsigned count=0;
+ CHECK(f.files.list(UserShelf::Speech,score,2,count) && count==1 && !std::strcmp(score[0].path,"ASSETS/SPEECH/Voice.ipa"));
  CHECK(put(f.files,"My Bank.syx",bank));CHECK(!std::strcmp(f.files.destination(),"PRESETS/DX7/MY BANK"));FileEntry entries[40];CHECK(f.fs.list(f.files.destination(),entries,40)==32);for(unsigned i=0;i<32;++i){char path[192];CHECK(join_path(path,sizeof path,f.files.destination(),entries[i].name));CHECK(data_content_kind(f.fs,path)==unsigned(ContentKind::Preset));}CHECK(!f.fs.exists("PRESETS/DX7/.MGX-TRANSFER.tmp") && !f.fs.exists("My Bank.syx"));return true;
 }
 static bool reject_and_keep(){Fixture f;auto w=file_fixture::wav();CHECK(put(f.files,"Good.wav",w));uint8_t sum[32];update::Sha256::hash(w.data(),w.size(),sum);CHECK(put(f.files,"Good.wav",w) && f.files.error()==UserFileError::Ok && bytes_equal(f.fs,"ASSETS/SAMPLES/Good.wav",w));auto broken=w;broken[0]='X';CHECK(!put(f.files,"Good.wav",broken) && f.files.error()==UserFileError::Invalid && bytes_equal(f.fs,"ASSETS/SAMPLES/Good.wav",w));

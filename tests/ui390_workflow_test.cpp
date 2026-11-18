@@ -43,7 +43,7 @@ int main(){
  for(unsigned id=0;id<instrument_count();++id){
   ui.set_shift(false);ui.set_mode(UiMode::Synth);assert(ui.set_instrument(Instrument(id)));flush();
   assert(ui.set_wave_profile(false));if(ui.layer_page())assert(ui.soft_key(1));assert(ui.soft_key(4) && ui.source_select());
-  assert(!std::strcmp(ui.soft_label(4),"LOAD ENGINE"));
+  assert(!std::strcmp(ui.soft_label(4),"DEFAULT SOUND"));
   assert(ui.soft_key(7) && !ui.source_select());
   if(id==unsigned(Instrument::Sampler) || id==unsigned(Instrument::DrumKit)){
    assert(!std::strcmp(ui.soft_label(2),"TRIM"));

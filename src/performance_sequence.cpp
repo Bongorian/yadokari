@@ -2,7 +2,7 @@
 #include "performance.h"
 namespace groove {
 auto Performance::start_count_in_record() -> bool{if(module_transport_blocked())return false;if(!arm_note_record(true))return false;if(playing_)return true;if(project_.midi_clock_slave)return play();if(!send({CommandType::StartCountIn,0,0,0}))return false;counting_in_=true;count_beat_=1;playing_=true;dirty_=true;return true;}
-auto Performance::seek_song(unsigned position) -> bool{if(position>16383 || playing_ || counting_in_ || (project_.song.enabled && song_has_snapshots(project_.song))){notify(UiNotice::Failed);return false;}if(!send({CommandType::SeekSong,0,0,uint16_t(position)}))return false;song_position_=uint16_t(position);seek_ready_=true;dirty_=true;return true;}
+auto Performance::seek_song(unsigned position) -> bool{if(position>16383 || playing_ || counting_in_){notify(UiNotice::Failed);return false;}if(!send({CommandType::SeekSong,0,0,uint16_t(position)}))return false;song_position_=uint16_t(position);seek_ready_=true;dirty_=true;return true;}
 auto Performance::record_navigation() -> void{if(home_navigation_pending_){if(!page_left_down_ && !page_right_down_)home_navigation_pending_=false;return;}if(modal_active() || track_peek_active_)return;auto n=navigation();if(!axes_.history.empty() && axes_.history.current()==n)axes_.history.replace_current(n);else axes_.history.record(n);}
 auto Performance::step_button_edge(bool down)  -> void{
   if(down) { step_reentry_=mode_==UiMode::Step;step_down_=true; step_since_=now_ms_; step_long_fired_=false; }
@@ -30,7 +30,18 @@ auto Performance::library_catalog_key(unsigned i) -> bool{
  using A=LibraryAction;switch(control.action){
  case A::Kind:return request_file(FileAction::LibraryKind);
  case A::Origin:return request_file(FileAction::LibraryOriginals);
- case A::Files:set_mode(UiMode::Browser);return request_file(FileAction::Refresh);
+ case A::Files:{
+  if(file_action_pending())return false;
+  char path[160]{};
+  if(browser_.cursor<browser_.count)copy_text(path,sizeof path,browser_.library_paths[browser_.cursor]);
+  set_mode(UiMode::Browser);
+  if(path[0]){
+   copy_text(browser_.reveal_file,sizeof browser_.reveal_file,filename(path));
+   parent_path(path);copy_text(browser_.directory,sizeof browser_.directory,path);
+   browser_.favorites_only=false;
+  }
+  return request_file(FileAction::Refresh);
+ }
  case A::Preview:return request_file(FileAction::Preview);case A::StopPreview:return request_file(FileAction::StopPreview);
  case A::Load:return request_file(FileAction::Load);case A::Previous:return move_preset_library(-1);case A::Next:return move_preset_library(1);
  case A::StoreFile:return request_file(FileAction::SaveCurrentPreset);case A::SaveAs:return begin_preset_save();case A::Duplicate:return begin_preset_save(true);

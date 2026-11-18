@@ -5,9 +5,15 @@ namespace groove {
 struct ChimeraGeometry {
  struct Point {float x,y;};
  static constexpr unsigned points=32,sections=16;
- Point outer[points],inner[points],tongue[points],nasal[points],glottis;
+ Point outer[points],inner[points],tongue[points],nasal[points],velum[points],glottis;
  Point section_inner[sections],section_outer[sections];
  float pressure[sections],gate;
+ unsigned model;
+ struct Tube {
+  char name[12];
+  float length,radius[sections],pressure[sections];
+ };
+ Tube animal[5];
 };
-static_assert(sizeof(ChimeraGeometry)==1356,"Chimera C ABI geometry layout");
+static_assert(sizeof(ChimeraGeometry)==2336,"Chimera C ABI geometry layout");
 }

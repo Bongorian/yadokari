@@ -20,7 +20,7 @@ inline SamplerControl sampler_button_control(unsigned index,const SamplerContext
  if(c.shift && index>=4 && index<=6){auto r=sampler_recording_control(index-4,c.recording,c.auditioning);SamplerControl d{r.label,SamplerAction::Record,r.enabled};d.selected=sampler_recording_selected(index-4,c.recording,c.auditioning);return d;}
  if(index==4)return {c.sampler_page==3?"STRETCH":"AUTO CHOP",SamplerAction::Chop,true};
  if(index==5)return {"MAP PADS",SamplerAction::MapPads,true};
- if(index==6)return {"BROWSER",SamplerAction::OpenBrowser,true};
+ if(index==6)return {"FILES",SamplerAction::OpenBrowser,true};
  if(index==7){if(c.shift && c.sampler_page==3)return {"FILE LOOP",SamplerAction::FileLoop,true};if(c.shift && c.sampler_page==4)return {"CLEAR ZONES",SamplerAction::ClearZones,true};return {c.shift?"CHOP STEPS":"LOOP TAKE",c.shift?SamplerAction::ChopSteps:SamplerAction::LoopTake,true};}
  return {};
 }

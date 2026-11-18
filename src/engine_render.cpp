@@ -14,7 +14,8 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
  for(auto& pad:local_midi_)for(auto& n:pad)if(n.held && n.releasing && midi(uint8_t(0x80|n.channel),n.note,0))n.held=false;
  for(unsigned t=0;t<16;++t)if(pending_midi_off_&(1u<<t))note_off_main(t);
  for(auto& p:poly_voices_)if(p.pending)release_poly(p);
- bool timing_changed=false,snapshot_applied=false; for(unsigned n=0;n<255;++n){const CommandState* front=commands_->peek_front();if(!front)break;const SoundState* payload=nullptr;if(carries_sound(front->type)){if(!sound_commands_->pop(*sound_command_consumer_)){__atomic_store_n(&project_event_loss_,1,__ATOMIC_RELEASE);commands_->pop_advance();continue;}payload=sound_command_consumer_;}if(front->restore_morph && !morph_commands_->pop(*morph_command_consumer_)){__atomic_store_n(&project_event_loss_,1,__ATOMIC_RELEASE);commands_->pop_advance();continue;}snapshot_applied|=front->type==CommandType::ApplySnapshot;auto audit_at=render_audit_.command_begin();command(*front,payload);render_audit_.command_end(audit_at,unsigned(front->type),front->track);commands_->pop_advance();timing_changed=true;}
+ bool score_changed=chimera_speech_.consume();
+ bool timing_changed=score_changed,snapshot_applied=false; for(unsigned n=0;n<255;++n){const CommandState* front=commands_->peek_front();if(!front)break;const SoundState* payload=nullptr;if(carries_sound(front->type)){if(!sound_commands_->pop(*sound_command_consumer_)){__atomic_store_n(&project_event_loss_,1,__ATOMIC_RELEASE);commands_->pop_advance();continue;}payload=sound_command_consumer_;}if(front->restore_morph && !morph_commands_->pop(*morph_command_consumer_)){__atomic_store_n(&project_event_loss_,1,__ATOMIC_RELEASE);commands_->pop_advance();continue;}snapshot_applied|=front->type==CommandType::ApplySnapshot;auto audit_at=render_audit_.command_begin();command(*front,payload);render_audit_.command_end(audit_at,unsigned(front->type),front->track);commands_->pop_advance();timing_changed=true;}
  if(__atomic_exchange_n(&panic_requested_,0,__ATOMIC_ACQUIRE)){auto audit_at=render_audit_.command_begin();command({CommandType::Panic,0,0,0});render_audit_.command_end(audit_at,unsigned(CommandType::Panic),0);timing_changed=true;}
  consume_freeze_capture();
  // A reconnect snapshot must not echo a slave clock. In master mode reserve
@@ -31,7 +32,7 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
   control_refresh_cursor_=uint8_t((t+1)&15);
   control_refresh_mask_&=uint16_t(~(1u<<t));refresh_parameters(t);
  }
- for(unsigned t=0;t<16;++t){if(timing_changed)update_timing(t);refresh_cc(t);if((expression_resend_mask_&(1u<<t)) && refresh_expression(t))expression_resend_mask_&=uint16_t(~(1u<<t));}
+ for(unsigned t=0;t<16;++t){if(timing_changed){update_timing(t);plan_chimera_pickup(t);}refresh_cc(t);if((expression_resend_mask_&(1u<<t)) && refresh_expression(t))expression_resend_mask_&=uint16_t(~(1u<<t));}
  // Step and explicit parameter changes already refresh effects at their
  // boundary. A 200 Hz pass is sufficient for continuous morph targets.
  if(sample_count_>=effects_refresh_due_){refresh_effects();effects_refresh_due_=sample_count_+rate_/200;}
@@ -87,7 +88,8 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
     auto& r=runtime_[t];
     if((audio_lane_mask_&(1u<<t)) || (twin_isolated_ && t==freeze_track_))continue;
     if(r.follow_due && int64_t(sample_count_)>=r.grid)follow_clip(t);
-    if(r.playing) for(unsigned budget=0;budget<4 && sample_count_>=r.due && (!r.follow_due || int64_t(sample_count_)>=r.grid);++budget) {if(t==freeze_track_ && (freeze_state_==1 || freeze_state_==2) && r.position==0){if(r.pattern!=freeze_pattern_)freeze_state_=4;else if(freeze_state_==1){freeze_state_=2;freeze_frames_=0;}else freeze_state_=3;}play_step(t);advance(t);parameter_boundary=true;}
+    if(chimera_pickup_mask_&(1u<<t))start_chimera_pickup(t);
+    if(r.playing) for(unsigned budget=0;budget<4 && sample_count_>=r.due && (!r.follow_due || int64_t(sample_count_)>=r.grid);++budget) {if(t==freeze_track_ && (freeze_state_==1 || freeze_state_==2) && r.position==0){if(r.pattern!=freeze_pattern_)freeze_state_=4;else if(freeze_state_==1){freeze_state_=2;freeze_frames_=0;}else freeze_state_=3;}play_step(t);advance(t);plan_chimera_pickup(t);parameter_boundary=true;}
     if(r.retriggers && sample_count_>=r.retrigger_at) { if(track(t).arp_mode)trigger_step_arp(t,r.retrigger_velocity,r.retrigger_note,r.effective_step,r.accumulator_offset,r.accumulator_degrees,r.retrigger_index);else trigger_step_chord(t,r.retrigger_velocity,r.retrigger_note,r.effective_step,r.accumulator_offset,r.accumulator_degrees); --r.retriggers;++r.retrigger_index;schedule_retrigger(t); }
    }freeze_write_=freeze_state_==2;if(parameter_boundary)refresh_effects();
    if(arrangement_clock && (scene_take_.state()==SceneTake::Recording || scene_take_.state()==SceneTake::Finishing)){uint64_t tick=arrangement_tick_+(arrangement_tick_phase_>=clock_period/2);if(arrangement_dirty_)scene_take_.observe(tick,project_->active_scene,project_->clips,captured_mute_mask(),arrangement_restarts_);else if(musical_tick)scene_take_.advance(arrangement_tick_);}
@@ -187,7 +189,7 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
    visual_build_track_=0;visual_build_active_=true;
    frame.chimera_available=chimera_.ready();
    frame.chimera_busy=chimera_.owner()<kTracks && chimera_.owner()!=frame.taps.track;
-   if(frame.chimera_available && track(frame.taps.track).instrument==Instrument::Chimera)chimera_.geometry(frame.taps.track,frame.chimera);
+   if(frame.chimera_available && track(frame.taps.track).instrument==Instrument::Chimera)chimera_.geometry(frame.taps.track,frame.chimera,chimera_model(track(frame.taps.track).chimera));
   }
   if(visual_build_active_){
    auto audit_visual_clock=render_audit_.clock();unsigned audit_visual_at=audit_visual_clock?audit_visual_clock():0;

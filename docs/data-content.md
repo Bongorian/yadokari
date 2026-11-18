@@ -16,17 +16,18 @@ Canonical definitions: [layout and exclusion rules](../src/data_layout.h), [drum
 | `PRESETS/` | Named presets as .mgxp | Where presets are saved. A name collision asks OVERWRITE / CANCEL. Saving does not consume the Project pool |
 | `KITS/` | Kit sounds as .mgxk | The regular user Kit shelf. Old formats are not loaded |
 | `ASSETS/SAMPLES/`, `ASSETS/SOUNDFONTS/`, `ASSETS/MIDI/` | WAV, SF2 and MIDI assets | License information and the actual audio are kept. New containers are .mgxs / .mgxk / .mgxp |
-| `GROOVE/CURRENT.TXT` | The location of the last opened/saved song | Not shown in the Browser |
-| `BENCH.MGXS` | The canonical system copy of the fixed evaluation song | Not shown in the Browser. Opened via the alias copy in Debug |
-| Root REMOTE.ON / RECOVERY.ON / network settings, `FIRMWARE/` | Operational information for updates and communication | Not shown in the Browser |
+| `ASSETS/SPEECH/` | UTF-8 IPA files (.ipa) for CHIMERA | LOAD attaches the assignments to a track. The Song saves the imported text. |
+| `GROOVE/CURRENT.TXT` | The location of the last opened/saved song | Not shown in FILES |
+| `BENCH.MGXS` | The canonical system copy of the fixed evaluation song | Not shown in FILES. Opened via the alias copy in Debug |
+| Root REMOTE.ON / RECOVERY.ON / network settings, `FIRMWARE/` | Operational information for updates and communication | Not shown in FILES |
 
-The Browser shows supported `.mgx` / `.mgxs` / `.mgxk` / `.mgxp` / `.wav` / `.mid` / `.midi` files and recoverable recording `.part` files (PART). For MGX files it displays SONG / KIT / PATCH from the leading TYPE, and OPEN also follows the kind. Unknown extensions are not shown as WAV. The 64-entry list limit is applied after out-of-scope files are excluded; the folder list limit itself is 64 entries.
+FILES shows supported `.mgx` / `.mgxs` / `.mgxk` / `.mgxp` / `.wav` / `.mid` / `.midi` / `.sf2` / `.ipa` files and recoverable recording `.part` files (PART). For MGX files it displays SONG / KIT / PATCH from the leading TYPE, and OPEN / LOAD follow the kind. Unknown extensions are not shown as WAV. The 64-entry list limit is applied after out-of-scope files are excluded; the folder list limit itself is 64 entries.
 
 ## Standard content
 
 No demo songs are bundled, and the 256-slot preset pool is not pre-filled.
 
-- **BROWSER → FACTORY → DEBUG → Benchmark.mgxs**: operational-check data that uses the 16 persistent tracks.
+- **FILE → FACTORY → DEBUG → Benchmark.mgxs**: operational-check data that uses the 16 persistent tracks.
 - **FACTORY → DEBUG → Test-Tone.mgxp / 440Hz.wav**: material for checking editing presets and PCM.
 - **FACTORY → KITS**: the three kits Circuit / Dust / Wood. Pads 1–6 are Kick / Snare / Closed Hat / Open Hat / Clap / Tom. The 18 WAVs are generated from the firmware.
 

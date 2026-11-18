@@ -1,12 +1,13 @@
 // SCR-EDT-01 SOURCE SELECT (SPEC 2.8, S-04): re-pressing the Synth
 // page button inside Synth mode opens the family-grouped engine list,
-// the ENGINE/FAMILY knobs walk it, LOAD ENGINE (Top5)
+// the ENGINE/FAMILY knobs walk it, DEFAULT SOUND (Top5)
 // confirms through the single SetInstrument command path and lands on
 // the CORE view, and replacing an Unknown engine needs a second
 // confirm because it discards the preserved payload (SPEC 2.9).
 #include "performance.h"
 #include <cassert>
 #include <cstdio>
+#include <cstring>
 #include <initializer_list>
 using namespace groove;
 int main() {
@@ -24,21 +25,19 @@ int main() {
  assert(perf.source_select());
  assert(perf.source_cursor() == unsigned(Instrument::PolySaw)); // first public engine; Empty does not default to Kick
  assert(perf.knob_label(1)[0] == 'E'); // ENGINE
- // ENGINE knob walks the registry in enum order.
+ // ENGINE knob walks the grouped display order.
  perf.knob(1, 1000);
- assert(perf.source_cursor() == unsigned(Instrument::Sampler));
+ assert(perf.source_cursor() == unsigned(Instrument::DaisySynth));
  perf.knob(1, -1000);
  assert(perf.source_cursor() == unsigned(Instrument::PolySaw));
- // FAMILY knob jumps to the first engine of the next family
- // (PolySaw is SYNTH; next is SAMPLER, whose only engine is Sampler).
+ // FAMILY knob selects the first engine in the next family.
  perf.knob(0, 1000);
  assert(perf.source_cursor() == unsigned(Instrument::Sampler));
- // Main encoder scrolls too.
  perf.encoder(1);
- assert(perf.source_cursor() == unsigned(Instrument::DaisySynth));
+ assert(perf.source_cursor() == unsigned(Instrument::SoundFont));
  perf.encoder(-1);
  assert(perf.source_cursor() == unsigned(Instrument::Sampler));
- // Confirm with LOAD ENGINE: single SetInstrument, selector closes,
+ // Confirm with DEFAULT SOUND: single SetInstrument, selector closes,
  // landing view is CORE (instrument_view 0).
  assert(!perf.knob(7,1000) && perf.source_select());assert(perf.soft_key(4));
  assert(!perf.source_select());
@@ -49,7 +48,7 @@ int main() {
  assert(perf.source_select());
  assert(perf.source_cursor() == unsigned(Instrument::Sampler));
  perf.knob(1, -1000);
- assert(perf.source_cursor() == unsigned(Instrument::PolySaw));
+ assert(perf.source_cursor() == unsigned(Instrument::Formant));
  perf.control(7, 0x20); perf.control(7, 0x00);
  assert(!perf.source_select());
  assert(track().instrument == Instrument::Sampler);
@@ -68,9 +67,19 @@ int main() {
  assert(track().instrument == Instrument::PolySaw);
  // The complete registry is public and contiguous again after removal.
  assert(instrument_count()==28);
- assert(perf.toggle_source_select());assert(perf.select_source(unsigned(Instrument::ExternalMidi)));assert(perf.encoder(1));assert(perf.source_cursor()==unsigned(Instrument::Acid));assert(perf.encoder(-1));assert(perf.source_cursor()==unsigned(Instrument::ExternalMidi));
- assert(perf.select_source(unsigned(Instrument::PolySaw)));assert(perf.knob(0,-1000));assert(perf.source_cursor()==unsigned(Instrument::DaisyAnalogDrums));
- for(unsigned id=0;id<instrument_count();++id){assert(perf.select_source(id));if(id+1<instrument_count()){assert(perf.encoder(1));assert(perf.source_cursor()==id+1);}}
+ assert(perf.toggle_source_select());
+ bool seen[unsigned(Instrument::Unknown)]{};
+ for(unsigned i=0;i<instrument_count();++i){
+  unsigned id=unsigned(kEngineDisplayOrder[i]);assert(id<instrument_count() && !seen[id]);seen[id]=true;
+  assert(perf.select_source(id));
+  if(i+1<instrument_count()){
+   assert(perf.encoder(1));assert(perf.source_cursor()==unsigned(kEngineDisplayOrder[i+1]));
+  }
+ }
+ assert(perf.select_source(unsigned(Instrument::Resonator)));
+ assert(perf.encoder(1) && perf.source_cursor()==unsigned(Instrument::Texture));
+ assert(perf.encoder(1) && perf.source_cursor()==unsigned(Instrument::Chimera));
+ assert(!std::strcmp(engine_family_name(Instrument::SoundFont),"SAMPLER"));
  assert(perf.toggle_source_select());
  // Leaving the mode closes the selector.
  perf.control(7, 0x20); perf.control(7, 0x00);

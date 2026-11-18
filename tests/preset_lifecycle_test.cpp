@@ -11,6 +11,22 @@ int main(){
  std::setvbuf(stdout,nullptr,_IONBF,0);auto previous=std::filesystem::current_path();char root[]="/tmp/mgx12-lifecycle-XXXXXX";assert(mkdtemp(root) && !chdir(root));DesktopFiles fs(true);assert(fs.directory("FACTORY") && fs.directory("FACTORY/PRESETS") && fs.directory("FACTORY/KITS") && fs.directory("PRESETS") && fs.directory("KITS") && fs.directory("PROJECTS"));
  auto p=std::make_unique<ProjectState>(),factory=std::make_unique<ProjectState>(),decoded=std::make_unique<ProjectState>();make_empty_project(*p);make_empty_project(*factory);factory->content_kind=ContentKind::Preset;factory->tracks[0].instrument=Instrument::VirtualAnalog;factory->tracks[0].preset_identity=builtin_factory_identity(17);copy_text(factory->tracks[0].preset_name,96,"Bass");assert(save_recoverable(fs,"FACTORY/PRESETS/Bass.mgxp",*factory));uint32_t factory_crc=0;assert(file_checksum(fs,"FACTORY/PRESETS/Bass.mgxp",factory_crc));
  p->tracks[0].instrument=Instrument::VirtualAnalog;copy_text(p->tracks[0].track_name,96,"Bass role");auto e=std::make_unique<Engine>();auto ui=std::make_unique<Performance>(*e,*p);DesktopSampleAssets samples;samples.files(&fs);ProjectDecodeSlot preview_worker;auto files=std::make_unique<SessionFiles>(fs,samples,*e,*p,*ui);float scratch[2]{};auto flush=[&]{e->render(scratch,0);ui->poll();};assert(e->stage_project(*p));ui->project_loaded();flush();
+ // The card view opens an IPA file without changing the assignment. LOAD
+ // compiles the file and the existing Song save path preserves the text.
+ assert(ui->select_track(15) && ui->set_instrument(Instrument::Chimera));flush();
+ assert(fs.directory("ASSETS") && fs.directory("ASSETS/SPEECH"));
+ const char ipa[]="60\tka\n62\tʃi\n";
+ assert(fs.write("ASSETS/SPEECH/Voice.ipa",0,ipa,sizeof ipa-1,true));
+ ui->set_mode(UiMode::Browser);
+ copy_text(ui->browser().directory,sizeof ui->browser().directory,"ASSETS/SPEECH");
+ files->refresh();
+ assert(ui->browser().count==1 && !ui->soft_enabled(2));
+ assert(ui->soft_key(0) && files->service() && !p->chimera_ipa[15].size);
+ assert(ui->soft_key(3) && files->service());flush();
+ assert(p->chimera_ipa[15].size==sizeof ipa-1);
+ assert(files->save("PROJECTS/Speech.mgxs") && read_project_file(fs,"PROJECTS/Speech.mgxs",*decoded));
+ assert(decoded->chimera_ipa[15].size==sizeof ipa-1 && !std::memcmp(decoded->chimera_ipa[15].data,ipa,sizeof ipa-1));
+ assert(ui->select_track(0));ui->set_mode(UiMode::Pad);
  assert(files->load_preset("FACTORY/PRESETS/Bass.mgxp"));flush();auto id=p->tracks[0].preset_identity;assert(id.revision==1 && !__builtin_strcmp(p->tracks[0].track_name,"Bass role"));unsigned slot=p->tracks[0].preset_slot;assert(slot<256 && same_preset_revision(p->sounds[slot].identity,id));assert(files->load_preset("FACTORY/PRESETS/Bass.mgxp"));flush();unsigned assigned=0;for(const auto& s:p->sounds)assigned+=s.identity.assigned();assert(assigned==1);
  assert(ui->set_parameter(engine_target(Instrument::VirtualAnalog,4),1800));flush();assert(files->save("PROJECTS/Pinned.mgxs"));
  assert(files->save_preset("FACTORY/PRESETS/Bass.mgxp"));flush();assert(p->tracks[0].preset_identity.guid==id.guid && p->tracks[0].preset_identity.revision==2 && p->tracks[0].preset_identity.parent_revision==1 && p->tracks[0].preset_identity.origin==PresetOrigin::User);uint32_t after=0;assert(file_checksum(fs,"FACTORY/PRESETS/Bass.mgxp",after) && after==factory_crc);assert(fs.exists("PRESETS/Bass.mgxp"));
@@ -24,7 +40,14 @@ int main(){
  files->set_project_load_worker(&preview_worker);
  assert(ui->soft_key(4) && files->service());flush();assert(ui->library_catalog_controls() && ui->browser().count==2 && !ui->browser().previewing && !files->kit_load_busy());
  const auto selected_id=p->tracks[0].preset_identity;const auto quiet=e->preview_state();
- assert(ui->encoder(1) && files->service());flush();assert(!files->kit_load_busy() && !preview_worker.busy() && !ui->browser().previewing && e->preview_state()==quiet && same_preset_identity(p->tracks[0].preset_identity,selected_id));
+ const unsigned start_row=ui->browser().cursor;
+ assert(ui->request_file(FileAction::LibraryRestore));
+ assert(ui->encoder(1) && ui->browser().cursor!=start_row);
+ const unsigned moved_row=ui->browser().cursor;
+ assert(ui->control(1,0x04) && ui->control(1,0) && ui->browser().cursor==start_row);
+ assert(ui->control(1,0x10) && ui->control(1,0) && ui->browser().cursor==moved_row);
+ assert(files->service() && ui->browser().cursor==moved_row);
+ flush();assert(!files->kit_load_busy() && !preview_worker.busy() && !ui->browser().previewing && e->preview_state()==quiet && same_preset_identity(p->tracks[0].preset_identity,selected_id));
  assert(ui->soft_key(0) && files->service() && ui->browser().library_kits && !files->kit_load_busy());
  assert(ui->soft_key(0) && files->service() && !ui->browser().library_kits && !ui->browser().previewing);
  assert(ui->soft_key(1) && files->service() && ui->browser().library_originals && !files->kit_load_busy());
@@ -40,7 +63,17 @@ int main(){
  assert(ui->soft_key(5) && files->service());drain_preview();assert(ui->mode()==UiMode::Pad && !__builtin_strcmp(p->tracks[0].track_name,"Low voice"));
  // File shelf and sound selection are distinct history pages. Engine inspection
  // never auditions, installs or allocates pool entries.
- assert(ui->control(8,0));assert(ui->control(8,4) && files->service());assert(ui->mode()==UiMode::Browser && !ui->library_catalog_controls());assert(ui->control(8,0));
+ assert(ui->control(8,4) && files->service());assert(ui->mode()==UiMode::Library && ui->library_catalog_controls());assert(ui->control(8,0));
+ char selected[96];assert(copy_text(selected,sizeof selected,filename(ui->browser().library_paths[ui->browser().cursor])));
+ assert(ui->soft_key(6) && files->service());
+ assert(ui->mode()==UiMode::Browser && !ui->library_catalog_controls());
+ assert(!std::strcmp(ui->browser().entries[ui->browser().cursor].name,selected));
+ const auto before_open=p->tracks[0].preset_identity;
+ assert(ui->soft_key(0) && files->service());
+ assert(!files->kit_load_busy() && !ui->browser().previewing &&
+        std::strstr(ui->browser().status,"BROWSER: KIND > PRESETS") &&
+        same_preset_identity(p->tracks[0].preset_identity,before_open));
+ assert(ui->control(8,16) && files->service());assert(ui->mode()==UiMode::Browser);assert(ui->control(8,0));
  ui->set_mode(UiMode::Synth);assert(ui->toggle_source_select() && files->service());flush();assert(ui->source_select() && !ui->browser().previewing && ui->browser().count==2);
  assert(ui->knob(2,1000) && files->service());flush();unsigned embedded_cursor=ui->browser().cursor;assert(!ui->browser().previewing);unsigned pool_before=0;for(const auto& sound:p->sounds)pool_before+=sound.identity.assigned();auto working_before=p->tracks[0].preset_identity;
  assert(ui->encoder_push() && files->service());flush();assert(ui->mode()==UiMode::Library && ui->library_catalog_controls() && ui->browser().cursor==embedded_cursor);assert(ui->page_back() && files->service());flush();assert(ui->mode()==UiMode::Synth && ui->source_select() && !ui->browser().previewing && ui->browser().cursor==embedded_cursor);
@@ -48,7 +81,7 @@ int main(){
  assert(ui->knob(3,1000) && files->service());flush();assert(ui->browser().library_originals);unsigned cursor=ui->browser().cursor;
  ui->set_mode(UiMode::Mixer);assert(ui->page_back() && files->service());flush();assert(ui->mode()==UiMode::Library && ui->browser().library_originals && ui->browser().cursor==cursor);
  assert(same_preset_revision(p->tracks[0].preset_identity,working_before));unsigned pool_after=0;for(const auto& sound:p->sounds)pool_after+=sound.identity.assigned();assert(pool_after==pool_before);
- ui->set_mode(UiMode::Synth);assert(ui->toggle_source_select());assert(ui->select_source(unsigned(Instrument::Sampler)) && files->service());flush();assert(ui->browser().count==0 && !ui->browser().previewing);assert(!ui->soft_enabled(6) && !std::strcmp(ui->soft_label(4),"LOAD ENGINE"));assert(ui->toggle_source_select());
+ ui->set_mode(UiMode::Synth);assert(ui->toggle_source_select());assert(ui->select_source(unsigned(Instrument::Sampler)) && files->service());flush();assert(ui->browser().count==0 && !ui->browser().previewing);assert(!ui->soft_enabled(6) && !std::strcmp(ui->soft_label(4),"DEFAULT SOUND"));assert(ui->toggle_source_select());
  // A one-engine kit attaches its type without changing the independent name.
  make_empty_project(*factory);factory->content_kind=ContentKind::Kit;factory->tracks[0].instrument=Instrument::DrumKit;factory->tracks[0].preset_identity=builtin_factory_identity(18);assert(save_recoverable(fs,"KITS/Kit.mgxp",*factory));assert(files->load_preset("KITS/Kit.mgxp"));flush();assert(p->tracks[0].instrument==Instrument::DrumKit && !__builtin_strcmp(p->tracks[0].track_name,"Low voice"));
  // Named SMF notes publish the name and phrase in a single undoable edit.

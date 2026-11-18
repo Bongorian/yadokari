@@ -1,5 +1,6 @@
 #pragma once
 #include "data_layout.h"
+#include "chimera_state.h"
 #include "project_files.h"
 #include "file_replace.h"
 #include "dx7_import.h"
@@ -9,11 +10,11 @@ namespace groove {
 // File-service owner only. Both transports use this state machine; no DSP I/O.
 enum class UserFileError:uint8_t {Ok,Closed,Busy,Path,Type,Protected,Length,Hash,Invalid,Io,Exists,Limit};
 inline const char* user_file_error(UserFileError e){static const char* names[]={"OK","CLOSED","BUSY","INVALID_PATH","UNSUPPORTED_TYPE","IN_USE","LENGTH_MISMATCH","HASH_MISMATCH","INVALID_CONTENT","IO_ERROR","EXISTS","LIMIT"};return names[unsigned(e)];}
-enum class UserShelf:uint8_t {Projects,Presets,Kits,Samples,Banks,Midi,Recordings,Count};
-inline const char* user_shelf(UserShelf s){return unsigned(s)<7?kUserShelves[unsigned(s)]:"";}
+enum class UserShelf:uint8_t {Projects,Presets,Kits,Samples,Banks,Midi,Recordings,Speech,Count};
+inline const char* user_shelf(UserShelf s){return s<UserShelf::Count?kUserShelves[unsigned(s)]:"";}
 inline bool user_filename(const char* name){unsigned n=0;for(;name[n];++n){unsigned c=uint8_t(name[n]);if(c<32 || c=='/' || c=='\\' || c==':' || c=='*' || c=='?' || c=='"' || c=='<' || c=='>' || c=='|')return false;}return n && n<88 && name[0]!='.' && name[n-1]!='.' && name[n-1]!=' ';}
-inline bool user_extension(const char* name){const char* ext[]={".mgxs",".mgxk",".mgxp",".wav",".mid",".syx",".sf2"};for(const char* e:ext)if(data_suffix(name,e))return true;return false;}
-inline bool user_file_path(const char* path){if(!path || !*path || *path=='/' || *path=='\\')return false;unsigned depth=0;for(const char* at=path;*at;){const char* end=at;while(*end && *end!='/'){if(*end=='\\' || *end==':' || uint8_t(*end)<32)return false;++end;}unsigned n=unsigned(end-at);if(!n || (n==1 && at[0]=='.') || (n==2 && at[0]=='.' && at[1]=='.') || ++depth>6)return false;at=*end?end+1:end;if(*end && !*at)return false;}bool shelf=false;for(unsigned i=0;i<7;++i){const char* root=user_shelf(UserShelf(i));if(data_under(path,root) && !data_equal(path,root))shelf=true;}return shelf && !factory_path(path) && user_extension(path) && !data_suffix(path,".syx");}
+inline bool user_extension(const char* name){const char* ext[]={".mgxs",".mgxk",".mgxp",".wav",".mid",".syx",".sf2",".ipa"};for(const char* e:ext)if(data_suffix(name,e))return true;return false;}
+inline bool user_file_path(const char* path){if(!path || !*path || *path=='/' || *path=='\\')return false;unsigned depth=0;for(const char* at=path;*at;){const char* end=at;while(*end && *end!='/'){if(*end=='\\' || *end==':' || uint8_t(*end)<32)return false;++end;}unsigned n=unsigned(end-at);if(!n || (n==1 && at[0]=='.') || (n==2 && at[0]=='.' && at[1]=='.') || ++depth>6)return false;at=*end?end+1:end;if(*end && !*at)return false;}bool shelf=false;for(unsigned i=0;i<unsigned(UserShelf::Count);++i){const char* root=user_shelf(UserShelf(i));if(data_under(path,root) && !data_equal(path,root))shelf=true;}return shelf && !factory_path(path) && user_extension(path) && !data_suffix(path,".syx");}
 struct UserFileEntry {char path[192]{};uint64_t bytes=0;};
 class UserFiles {
  IFileAccess& fs_;const ProjectState& project_;const char* current_=nullptr;
@@ -37,7 +38,13 @@ class UserFiles {
  }
  bool riff(const char* kind){uint8_t h[12],c[8];if(!read(temporary_,0,h,12) || !wav_tag(h,"RIFF") || !wav_tag(h+8,kind) || uint64_t(wav_u32(h+4))+8!=length_)return false;uint64_t at=12;unsigned count=0;bool data=false,fmt=false,sdta=false,pdta=false;while(at<length_){if(++count>4096 || length_-at<8 || !read(temporary_,at,c,8))return false;uint64_t n=wav_u32(c+4),end=at+8+n+(n&1);if(end>length_ || end<at)return false;if(wav_tag(c,"data"))data=n!=0;if(wav_tag(c,"fmt "))fmt=n>=16;if(wav_tag(c,"LIST") && n>=4){uint8_t tag[4];if(!read(temporary_,at+8,tag,4))return false;if(wav_tag(tag,"sdta")){if(sdta || !sf2_list(at+12,at+8+n,false))return false;sdta=true;}if(wav_tag(tag,"pdta")){if(pdta || !sf2_list(at+12,at+8+n,true))return false;pdta=true;}}at=end;}if(kind[0]=='s')return sdta && pdta;WavView v;uint64_t offset;return fmt && data && sample_file_header(fs_,temporary_,v,offset);}
  bool midi(){uint8_t h[14],c[8];if(!read(temporary_,0,h,14) || !wav_tag(h,"MThd") || h[4] || h[5] || h[6] || h[7]!=6 || h[8] || h[9]>1)return false;unsigned tracks=unsigned(h[10])*256+h[11];if(!tracks || tracks>256 || !(h[12]|h[13]))return false;uint64_t at=14;for(unsigned i=0;i<tracks;++i){if(!read(temporary_,at,c,8) || !wav_tag(c,"MTrk"))return false;uint64_t n=(uint32_t(c[4])<<24)|(uint32_t(c[5])<<16)|(uint32_t(c[6])<<8)|c[7];if(n>length_ || at+8+n>length_)return false;at+=8+n;}return at==length_;}
- bool classify(){uint8_t h[23]{};if(length_<12 || !read(temporary_,0,h,length_<23?unsigned(length_):23))return fail(UserFileError::Invalid);const char* root=nullptr;unsigned kind=0;
+ bool classify_ipa(){
+  char text[kChimeraIpaBytes];
+  if(length_>sizeof text || !read(temporary_,0,text,unsigned(length_)))return fail(UserFileError::Invalid);
+  if(!yadokari_chimera_valid_ipa(text,unsigned(length_)))return fail(UserFileError::Invalid);
+  return join_path(destination_,sizeof destination_,user_shelf(UserShelf::Speech),name_) || fail(UserFileError::Path);
+ }
+ bool classify(){if(data_suffix(name_,".ipa"))return classify_ipa();uint8_t h[23]{};if(length_<12 || !read(temporary_,0,h,length_<23?unsigned(length_):23))return fail(UserFileError::Invalid);const char* root=nullptr;unsigned kind=0;
   if(data_suffix(name_,".mgxs") || data_suffix(name_,".mgxk") || data_suffix(name_,".mgxp")){kind=data_content_header(h,sizeof h);if(!kind || !valid_project_file(fs_,temporary_))return fail(UserFileError::Invalid);root=data_shelf_for_content(kind);}
   else if(data_suffix(name_,".wav")){if(!riff("WAVE"))return fail(UserFileError::Invalid);root=user_shelf(UserShelf::Samples);}
   else if(data_suffix(name_,".sf2")){if(!riff("sfbk"))return fail(UserFileError::Invalid);root=user_shelf(UserShelf::Banks);}
@@ -57,8 +64,8 @@ public:
  const char* destination()const{return destination_;}uint64_t received()const{return received_;}uint64_t length()const{return length_;}
  void cancel(){if(upload_){fs_.remove(temporary_);upload_=false;}received_=length_=0;}
  void close(){cancel();open_=false;}
- bool begin(const char* name,uint64_t length,const uint8_t sha[32]){if(!available())return false;if(upload_)return fail(UserFileError::Busy);if(!name || !user_filename(name))return fail(UserFileError::Path);if(!user_extension(name))return fail(UserFileError::Type);if(!sha)return fail(UserFileError::Hash);if(!length || length>1024ull*1024*1024)return fail(UserFileError::Limit);
-  copy_text(name_,sizeof name_,name);const char* root=data_suffix(name,".wav")?user_shelf(UserShelf::Samples):data_suffix(name,".sf2")?user_shelf(UserShelf::Banks):data_suffix(name,".mid")?user_shelf(UserShelf::Midi):data_suffix(name,".syx")?"PRESETS/DX7":data_suffix(name,".mgxs")?"PROJECTS":data_suffix(name,".mgxk")?"KITS":"PRESETS";
+ bool begin(const char* name,uint64_t length,const uint8_t sha[32]){if(!available())return false;if(upload_)return fail(UserFileError::Busy);if(!name || !user_filename(name))return fail(UserFileError::Path);if(!user_extension(name))return fail(UserFileError::Type);if(!sha)return fail(UserFileError::Hash);if(!length || length>(data_suffix(name,".ipa")?kChimeraIpaBytes:1024ull*1024*1024))return fail(UserFileError::Limit);
+  copy_text(name_,sizeof name_,name);const char* root=data_suffix(name,".wav")?user_shelf(UserShelf::Samples):data_suffix(name,".sf2")?user_shelf(UserShelf::Banks):data_suffix(name,".mid")?user_shelf(UserShelf::Midi):data_suffix(name,".ipa")?user_shelf(UserShelf::Speech):data_suffix(name,".syx")?"PRESETS/DX7":data_suffix(name,".mgxs")?"PROJECTS":data_suffix(name,".mgxk")?"KITS":"PRESETS";
   if((data_suffix(name,".wav") || data_suffix(name,".sf2")) && __builtin_strlen(root)+__builtin_strlen(name)+4>=sizeof project_.assets[0].path)return fail(UserFileError::Path);
   if(!join_path(temporary_,sizeof temporary_,root,".MGX-TRANSFER.tmp") || !dirs(temporary_))return fail(UserFileError::Io);
   if(fs_.exists(temporary_))return fail(UserFileError::Exists);
@@ -78,7 +85,7 @@ public:
  bool get(const char* path,uint64_t at,void* bytes,unsigned wanted,unsigned& got){got=0;if(!available())return false;if(upload_)return fail(UserFileError::Busy);if(!user_file_path(path))return fail(UserFileError::Path);return fs_.read(path,at,bytes,wanted,got) || fail(UserFileError::Io);}
  uint64_t size(const char* path){return available() && user_file_path(path)?fs_.size(path):0;}
  bool space(uint64_t& free,uint64_t& total){return available() && (fs_.space(free,total) || fail(UserFileError::Io));}
- bool list(UserShelf shelf,UserFileEntry* out,unsigned capacity,unsigned& count){count=0;if(!available())return false;if(upload_)return fail(UserFileError::Busy);if(unsigned(shelf)>=7)return fail(UserFileError::Path);
+ bool list(UserShelf shelf,UserFileEntry* out,unsigned capacity,unsigned& count){count=0;if(!available())return false;if(upload_)return fail(UserFileError::Busy);if(shelf>=UserShelf::Count)return fail(UserFileError::Path);
   struct Scan{char dirs[96][192]{};FileEntry entries[128]{};};auto* scan=alloc_new<Scan>();if(!scan)return fail(UserFileError::Io);copy_text(scan->dirs[0],192,user_shelf(shelf));unsigned head=0,tail=1;bool ok=true;
   while(ok && head<tail){const char* dir=scan->dirs[head++];if(!fs_.exists(dir))continue;unsigned n=0;if(!fs_.list_checked(dir,scan->entries,128,n)){ok=false;break;}for(unsigned i=0;i<n;++i){const auto& e=scan->entries[i];char path[192];if(!join_path(path,sizeof path,dir,e.name)){ok=false;break;}if(e.directory){if(tail==96 || !copy_text(scan->dirs[tail++],192,path)){ok=false;break;}}else if(user_file_path(path)){if(count==capacity){ok=false;break;}copy_text(out[count].path,sizeof out[count].path,path);out[count++].bytes=e.bytes;}}}
   delete scan;return ok || fail(UserFileError::Limit);

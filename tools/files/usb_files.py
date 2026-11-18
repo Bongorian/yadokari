@@ -12,7 +12,7 @@ from raw_usb_control import RawUsbLink
 
 HEADER = struct.Struct('<4sBBHIIII')
 ERRORS = ['OK','CLOSED','BUSY','INVALID_PATH','UNSUPPORTED_TYPE','IN_USE','LENGTH_MISMATCH','HASH_MISMATCH','INVALID_CONTENT','IO_ERROR','EXISTS','LIMIT']
-SHELVES = ['projects', 'presets', 'kits', 'samples', 'soundfonts', 'midi', 'recordings']
+SHELVES = ['projects', 'presets', 'kits', 'samples', 'soundfonts', 'midi', 'recordings', 'speech']
 
 def checksum(data):
     value = 2166136261
