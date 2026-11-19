@@ -5,12 +5,22 @@
 # suite was developed and qualified there — x86-64 runners fail
 # the catalog-environment gate by design and diverge elsewhere.
 # The three gated jobs are:
-#   host-tests : the host test suite (make test), GCC 13.3 per the
-#                catalog environment lock.
+#   host-tests : the host test suite (make test), run inside the
+#                pinned dev container (docker/Dockerfile).
 #   firmware   : full firmware builds via scripts/build-firmware.sh
 #                (Pi 4) and scripts/build-firmware-pi5.sh (Pi 5),
-#                Arm GNU Toolchain 15.2.rel1 (pinned version + SHA-256),
-#                Circle at its pinned commit (handled by the script).
+#                also inside the pinned dev container, which carries
+#                the Arm GNU Toolchain 15.2.rel1 (pinned version +
+#                SHA-256); Circle at its pinned commit (handled by
+#                the script).
+#   Both jobs execute inside the container, not on the bare runner:
+#   the runner image itself drifts (on 2026-11-19 image
+#   20261116.188.1 changed the compiler/libm fingerprints and the
+#   catalog-environment gate refused on the bare runner, while the
+#   same tree passed inside the container in the same run). The
+#   container's apt universe is snapshot-pinned to the catalog
+#   lock, so it is the only environment whose fingerprint is
+#   guaranteed to match the lock (CI inventory D8).
 #   container  : the dev container (docker/Dockerfile, apt pinned to
 #                the catalog lock via snapshot.ubuntu.com) builds, and
 #                the environment-sensitive subset — the catalog gate,
@@ -93,11 +103,6 @@ jobs:
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
-      - name: Install host toolchain (GCC 13.3, catalog lock)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends g++-13 python3 python3-pil python3-usb make libsdl2-dev
-          rustup toolchain install 1.100.0 --profile minimal
       - name: Clone pinned Circle for the tool tests
         # Several python tool tests read the pinned Circle checkout
         # (git show / git archive against .deps/circle-build and
@@ -121,19 +126,45 @@ jobs:
           sudo mkswap /swapfile2 || true
           sudo swapon /swapfile2 || true
           free -h
-      - name: Host test suite
-        # The ASan build of tests/integration/backends_test.cpp overflows
-        # the default 8 MB stack in main; the suite needs a raised limit.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build dev container (layer cache)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          tags: yadokari-dev:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Host test suite (inside the pinned dev container)
+        # The suite runs inside the pinned dev container (D8): the
+        # bare runner's compiler/libm fingerprints drift with the
+        # runner image and the catalog gate refuses there. The
+        # container pattern mirrors the container job: the ASan
+        # build of tests/integration/backends_test.cpp overflows
+        # the default 8 MB stack in main, hence the raised ulimit;
         # ci-test.sh adds the scoped D1 retry for the two evidenced
-        # load-sensitive targets; any other failure fails immediately.
-        # FLAKE_LOG collects one line per retry fire for the trend
-        # artifact below; annotations and the job summary remain the
-        # per-run visible record.
-        env:
-          FLAKE_LOG: ci-flake-log.tsv
+        # load-sensitive targets; any other failure fails
+        # immediately. FLAKE_LOG collects one line per retry fire
+        # for the trend artifact below; the retry summary is
+        # mirrored into the real job summary afterwards, as in the
+        # container job.
         run: |
-          ulimit -s unlimited || ulimit -s 262144 || true
-          scripts/ci-test.sh CXX=g++-13
+          set +e
+          docker run --rm --ulimit stack=268435456:268435456 \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' \
+            -e GITHUB_STEP_SUMMARY=/src/.ci-retry-summary.md \
+            -e FLAKE_LOG=/src/ci-flake-log.tsv \
+            -e GITHUB_JOB -e GITHUB_RUN_ID \
+            -v "$PWD":/src -w /src yadokari-dev \
+            bash -c "ulimit -s 262144 || true; scripts/ci-test.sh CXX=g++-13"
+          status=$?
+          if [ -f .ci-retry-summary.md ]; then
+            cat .ci-retry-summary.md >> "$GITHUB_STEP_SUMMARY"
+            rm -f .ci-retry-summary.md
+          fi
+          exit $status
       - name: Upload flake trend log (host-tests)
         if: always()
         uses: actions/upload-artifact@v4
@@ -143,46 +174,33 @@ jobs:
           if-no-files-found: ignore
           retention-days: 90
 
-  # The firmware job runs on an arm64 runner on purpose: the
-  # factory-content generation environment is fingerprint-locked
-  # to native AArch64 Ubuntu 24.04 / GCC 13.3 (see
-  # tools/content/catalog_environment.lock.json), and the build
-  # verifies that fingerprint. An x86_64 runner fails that gate
-  # by design.
+  # The firmware builds run inside the pinned dev container
+  # (D8): the factory-content generation environment is
+  # fingerprint-locked to native AArch64 Ubuntu 24.04 / GCC 13.3
+  # (see tools/content/catalog_environment.lock.json), the build
+  # verifies that fingerprint, and only the container's
+  # snapshot-pinned environment is guaranteed to match it — the
+  # bare arm64 runner matched only until its image drifted. An
+  # x86_64 environment fails that gate by design.
   firmware:
     needs: preflight
     runs-on: ubuntu-24.04-arm
-    # Observed maximum 5 min; 30 covers a cold toolchain download
-    # plus both platform builds (D6).
+    # Observed maximum 5 min on the bare runner; 30 covers a cold
+    # dev-container image build plus both platform builds (D6).
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - name: Install Rust for the Chimera engine
-        run: rustup toolchain install 1.100.0 --profile minimal --target aarch64-unknown-none
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends g++-13 python3 python3-pil make git xz-utils
-      - name: Cache Arm GNU Toolchain
-        id: cache-arm
-        uses: actions/cache@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build dev container (layer cache)
+        uses: docker/build-push-action@v6
         with:
-          path: /opt/arm-gnu-toolchain
-          key: arm-gnu-toolchain-${{ env.ARM_TC_VERSION }}-${{ runner.arch }}
-      - name: Install Arm GNU Toolchain 15.2.rel1 (pinned)
-        if: steps.cache-arm.outputs.cache-hit != 'true'
-        run: |
-          arch="$(uname -m)"
-          case "$arch" in
-            x86_64)  sha="$ARM_TC_SHA256_X86_64" ;;
-            aarch64) sha="$ARM_TC_SHA256_AARCH64" ;;
-            *) echo "unsupported arch: $arch" >&2; exit 1 ;;
-          esac
-          url="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_TC_VERSION}/binrel/arm-gnu-toolchain-${ARM_TC_VERSION}-${arch}-aarch64-none-elf.tar.xz"
-          curl -fL "$url" -o /tmp/arm.tar.xz
-          echo "$sha  /tmp/arm.tar.xz" | sha256sum -c -
-          sudo mkdir -p /opt/arm-gnu-toolchain
-          sudo tar -xJf /tmp/arm.tar.xz -C /opt/arm-gnu-toolchain --strip-components=1
+          context: .
+          file: docker/Dockerfile
+          tags: yadokari-dev:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Cache Circle checkout
         uses: actions/cache@v4
         with:
@@ -193,19 +211,19 @@ jobs:
           key: circle-7a81e1b480fe7d19fc1fc695b89bff0a0848f44b-${{ hashFiles('scripts/patch-*.py', 'scripts/circle-pi5-cdc.patch') }}
       - name: Throwaway CI update key (CI builds are never official)
         run: head -c 32 /dev/urandom > "$RUNNER_TEMP/ci-update-key.pub"
-      - name: Build firmware
-        env:
-          UPDATE_PUBLIC_KEY: ${{ runner.temp }}/ci-update-key.pub
+      - name: Build firmware (inside the pinned dev container)
+        # The image carries the pinned Arm toolchain and Rust; its
+        # PATH already points at them. The throwaway update key is
+        # bind-mounted at the same path so UPDATE_PUBLIC_KEY
+        # resolves inside the container.
         run: |
-          export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
-          aarch64-none-elf-g++ --version | head -1
-          scripts/build-firmware.sh
-      - name: Build firmware (Pi 5)
-        env:
-          UPDATE_PUBLIC_KEY: ${{ runner.temp }}/ci-update-key.pub
-        run: |
-          export PATH="/opt/arm-gnu-toolchain/bin:$PATH"
-          scripts/build-firmware-pi5.sh
+          docker run --rm \
+            -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*' \
+            -e UPDATE_PUBLIC_KEY="$RUNNER_TEMP/ci-update-key.pub" \
+            -v "$PWD":/src -w /src \
+            -v "$RUNNER_TEMP":"$RUNNER_TEMP" \
+            yadokari-dev \
+            bash -c "aarch64-none-elf-g++ --version | head -1 && scripts/build-firmware.sh && scripts/build-firmware-pi5.sh"
       - name: Upload firmware images
         uses: actions/upload-artifact@v4
         with:
