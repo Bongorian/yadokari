@@ -52,7 +52,7 @@ ARG ARM_TC_SHA256_AARCH64=46195685b6aec1077e3f1b7706b43a6aa1fef4d8d3bff3a411b7da
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      g++-13 gcc-13 make python3 python3-pil python3-usb git xz-utils curl ca-certificates libsdl2-dev nodejs \
+      g++-13 gcc-13 make patch python3 python3-pil python3-usb git xz-utils curl ca-certificates libsdl2-dev nodejs \
  && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100 \
  && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100 \
  && update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-13 100 \
