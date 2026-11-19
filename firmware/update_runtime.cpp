@@ -1,3 +1,4 @@
+#include "../src/update/data_growth.h"
 #include "update_runtime.h"
 #include "update_key.h"
 #include "../src/update/view.h"
@@ -23,7 +24,16 @@
 using namespace groove::update;
 unsigned GrooveFirmwareVersion(){return GROOVE_FW_VERSION;}
 CUpdateDisk::CUpdateDisk():m_Buffer(static_cast<u8*>(palloc())){}
-bool CUpdateDisk::sector(unsigned lba,uint8_t* bytes,bool write){auto* d=CDeviceNameService::Get()->GetDevice("emmc1",TRUE);if(!d||!m_Buffer||d->Seek(u64(lba)*512)!=u64(lba)*512)return false;if(write){memcpy(m_Buffer,bytes,512);return d->Write(m_Buffer,512)==512;}if(d->Read(m_Buffer,512)!=512)return false;memcpy(bytes,m_Buffer,512);return true;}
+bool CUpdateDisk::sector(unsigned lba,uint8_t* bytes,bool write){return sectors(lba,bytes,1,write);}
+bool CUpdateDisk::sectors(unsigned lba,uint8_t* bytes,unsigned count,bool write){
+ auto* d=CDeviceNameService::Get()->GetDevice("emmc1",TRUE);
+ if(!d || !m_Buffer || count>8 || d->Seek(u64(lba)*512)!=u64(lba)*512)return false;
+ if(growth_watchdog)growth_watchdog->Start(15);
+ const unsigned n=count*512;
+ if(write){memcpy(m_Buffer,bytes,n);return d->Write(m_Buffer,n)==int(n);}
+ if(d->Read(m_Buffer,n)!=int(n))return false;
+ memcpy(bytes,m_Buffer,n);return true;
+}
 // The operator EEPROM acknowledgement (EEPROM.OK) is the evidence a
 // rev-1.0-class board may use firmware tryboot (the early-Pi 4 caution,
 // carried to Pi 5 rev 1.0 by the strict rule). Round 1 on the real Pi 5
@@ -125,7 +135,21 @@ public:
 };
 CUpdateRuntime::CUpdateRuntime(CInterruptSystem* interrupt):m_Storage(m_Disk,"SD:","SLOTA:","SLOTB:"),m_Manager(m_Storage,m_Reboot,UpdatePublicKey),m_Receiver(m_Manager),m_Interrupt(interrupt),m_Status("LOCAL UPDATE MODE ONLY"){}
 
+namespace {
+constexpr bool remote_diagnostics_enabled(bool prepared,bool marker){return prepared && marker;}
+static_assert(remote_diagnostics_enabled(true,true) && !remote_diagnostics_enabled(true,false) &&
+              !remote_diagnostics_enabled(false,true) && !remote_diagnostics_enabled(false,false),
+              "Diagnostics require a prepared A/B card and REMOTE.ON");
+}
 bool CUpdateRuntime::Initialize(bool recovery){
+ if(recovery){
+  auto* disk=CDeviceNameService::Get()->GetDevice("emmc1",TRUE);
+  uint64_t sectors=disk?disk->GetSize()/512:0;
+  CBcmWatchdog watchdog;m_Disk.growth_watchdog=&watchdog;
+  bool grown=sectors && sectors<=0xffffffff && groove::update::expand_data(m_Disk,uint32_t(sectors));
+  m_Disk.growth_watchdog=nullptr;
+  if(!grown){m_Status="DATA EXPANSION INCOMPLETE";Enter();return false;}
+ }
  m_Ready=m_Storage.mount()&&m_Manager.load();
  const bool storage_ready=m_Ready;
  const auto* dtb=CMachineInfo::Get()->GetDTB();if(dtb){auto* node=dtb->FindNode("/chosen/bootloader");if(node){auto* p=dtb->FindProperty(node,"partition");auto* t=dtb->FindProperty(node,"tryboot");if(p&&t&&dtb->GetPropertyValueLength(p)==4&&dtb->GetPropertyValueLength(t)==4){m_Partition=dtb->GetPropertyValueWord(p,0);m_Tryboot=dtb->GetPropertyValueWord(t,0)!=0;m_Identity=m_Partition>=1&&m_Partition<=3;}}}
@@ -138,24 +162,14 @@ bool CUpdateRuntime::Initialize(bool recovery){
  FILINFO remote_marker{};
  const bool cdc_marker=f_stat("DATA:/REMOTE.ON",&remote_marker)==FR_OK && !(remote_marker.fattrib&AM_DIR);
 #if defined(GROOVE_CDC_DEFAULT_ON) && RASPPI >= 5
- // 0.9.1 Pi 5 release configuration (firmware/circle-pi5.mk): the
- // USB-C CDC gadget is on by default, with the behaviour a Pi 4
- // shows when DATA:/REMOTE.ON is present; no opt-in marker file
- // is required. The marker still works -- it is simply not
- // needed. The define is never set for Pi 4 or development builds.
+ // The Pi 5 status channel enumerates even without REMOTE.ON.
  const bool cdc_default_on=true;
 #else
  const bool cdc_default_on=false;
 #endif
- // Gadget enumeration follows the channel decision alone, not update
- // storage readiness: PollUsbControl serves STATUS without
- // remote_ready() precisely so a card whose update layout is not
- // prepared -- the single-partition release card, for example -- can
- // still report the INVALID UPDATE SD LAYOUT status below. m_Remote,
- // which gates every mutating and diagnostic command, keeps requiring
- // prepared storage. tests/cdc_gate_test.py executes this truth table.
+ // Explicit diagnostics require the provisioned journal and marker on both boards.
  const bool cdc_channel=cdc_marker||cdc_default_on;
- m_Remote=storage_ready && cdc_channel;
+ m_Remote=remote_diagnostics_enabled(storage_ready,cdc_marker);
  if(cdc_channel && !StartGadget())m_Status="USB-C GADGET INITIALIZATION FAILED";
  if(m_Remote && m_TrialFallback){Enter();StartNetwork(false);}
  if(!m_Ready)m_Status="INVALID UPDATE SD LAYOUT / JOURNAL";
@@ -223,7 +237,14 @@ bool CUpdateRuntime::StartGadget(){
 #endif
 }
 void CUpdateRuntime::StartNetwork(bool wifi,bool diagnostics){
- if((!m_Ready&&!m_TrialFallback)||m_Net||m_Manager.receiving())return;
+ if((!m_Ready&&!m_TrialFallback)||m_Manager.receiving())return;
+ if(m_Net){
+  if(!wifi && !m_NetworkWifi && !m_FileNetFailed && !m_TrialFallback){
+   if(!diagnostics && !m_Listener)m_Listener=new CUpdateListener(m_Net);
+   if(!m_ControlListener)m_ControlListener=new CUpdateListener(m_Net,16701);
+  }
+  return;
+ }
  #ifndef GROOVE_UPDATE_WIFI
  if(wifi){m_Status="WI-FI NOT INCLUDED IN THIS BUILD";return;}
 #else
@@ -240,7 +261,17 @@ void CUpdateRuntime::StartNetwork(bool wifi,bool diagnostics){
 }
 // A single Circle network stack is selected on first use after boot. Normal
 // playback never starts it merely because the private REMOTE marker exists.
-CNetSubSystem* CUpdateRuntime::BeginFilesNetwork(const char* ssid,bool station){
+CNetSubSystem* CUpdateRuntime::BeginFilesNetwork(const char* ssid,bool station,bool ethernet){
+ if(ethernet){
+  if(m_Active || m_Manager.receiving()){m_Status="UPDATE BUSY";return nullptr;}
+  if(m_Net && m_NetworkWifi){m_Status="RESTART TO SELECT ETHERNET";return nullptr;}
+  if(!m_Net){
+   m_Net=new CNetSubSystem(nullptr,nullptr,nullptr,nullptr,"groovebox",NetDeviceTypeEthernet);
+   if(!m_Net->Initialize(FALSE)){m_Status="ETHERNET INITIALIZATION FAILED";m_FileNetFailed=true;}
+  }
+  if(m_FileNetFailed)return nullptr;
+  return m_Net;
+ }
 #ifdef GROOVE_UPDATE_WIFI
  if(m_Active || m_Manager.receiving()){m_Status="UPDATE BUSY";return nullptr;}
  if(m_Net){if(station==m_FileAP){m_Status="RESTART TO CHANGE WI-FI MODE";return nullptr;}if(!m_NetworkWifi || !m_FileWlan){m_Status="RESTART TO SELECT WI-FI";return nullptr;}if(m_FileAP){if(!m_FileWlan->CreateOpenNet(ssid,6,false)){m_Status="AP START FAILED";return nullptr;}}else if(!m_FileWpa){m_FileWpa=new CWPASupplicant("DATA:/wpa_supplicant.conf");if(!m_FileWpa->Initialize()){m_Status="WI-FI CONFIGURATION FAILED";return nullptr;}}return m_Net;}

@@ -1872,6 +1872,9 @@ test-run-factory-library: build/test-factory-library
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-factory-library $(abspath assets/factory-library)
 test-all: test-run-factory-library
 
+build/mount-factory: tools/content/mount_factory.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(DEMO_HEADERS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O0 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs $< build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) -o $@ $(UI_BASE_ARCHIVE)
+
 build/test-factory-library-audit: tests/factory_library_audit_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(DEMO_HEADERS) $(UI_BASE_ARCHIVE)
 	$(CXX) $(HOST_FLAGS) $(SAN) -O0 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs $< build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) -o $@ $(UI_BASE_ARCHIVE)
 .PHONY: test-run-factory-library-audit

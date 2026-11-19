@@ -31,7 +31,7 @@ inline bool restore_factory_project(IFileAccess& fs,const char* path,ProjectStat
 inline bool install_factory_content(IFileAccess& fs,const uint8_t* sample,unsigned sample_bytes,FactoryInstallReport& report){
  if(kFactoryLibraryFormatVersion!=kFormatVersion)return false;
  for(const char* path:kCanonicalDataDirectories)if(!fs.directory(path))return false;
- if(!sample || sample_bytes!=96044 || !restore_factory_bytes(fs,"FACTORY/DEBUG/demo-slices.wav",sample,sample_bytes,report))return false;
+ (void)sample;(void)sample_bytes;
  auto* project=alloc_new<ProjectState>();if(!project)return false;bool ok=true;
  // A single reusable 48 KB PCM buffer, never on an audio or caller stack.
  auto* drum=alloc_array<uint8_t>(48044);if(!drum){delete project;return false;}
@@ -54,14 +54,6 @@ inline bool install_factory_content(IFileAccess& fs,const uint8_t* sample,unsign
  if(!synth)ok=false;
  for(const auto& entry:kFactorySynthDrums){if(!ok)break;ok=entry.bytes<=kFactorySynthDrumMaxBytes && entry.offset<=sizeof kFactorySynthDrumPacked && entry.packed<=sizeof kFactorySynthDrumPacked-entry.offset && unpack_factory_library(kFactorySynthDrumPacked+entry.offset,entry.packed,synth,entry.bytes,entry.sha256) && restore_factory_bytes(fs,entry.path,synth,entry.bytes,report);}
  delete[] synth;
- if(ok)ok=restore_factory_bytes(fs,"FACTORY/DEBUG/Sine.sf2",kSoundFontFixture,sizeof kSoundFontFixture,report);
- if(ok){make_empty_project(*project);project->content_kind=ContentKind::Preset;auto t=track_at(*project,0,0);t.instrument=Instrument::SoundFont;t.preset_identity=builtin_factory_identity(0x300);copy_text(t.preset_name,96,"SF2 Debug Sine");copy_text(project->assets[0].path,96,"FACTORY/DEBUG/Sine.sf2");ok=file_checksum(fs,project->assets[0].path,project->assets[0].metadata.content_crc) && restore_factory_project(fs,"FACTORY/DEBUG/SF2-Sine.mgxp",*project,report);}
- // Operational debug score only. New hardware load qualification is deferred
- // until the user and developer define its workload after the migration.
- if(ok){project->song=SongState{};make_benchmark_project(*project);ok=restore_factory_project(fs,"BENCH.MGXS",*project,report);}
- if(ok){make_benchmark_project(*project);ok=restore_factory_project(fs,"FACTORY/DEBUG/Benchmark.mgxs",*project,report);}
- // Editable debug synth patch: simple sine macro, no external routing.
- if(ok){make_empty_project(*project);project->content_kind=ContentKind::Preset;auto tr=track_at(*project,0,0);tr.instrument=Instrument::PlaitsMacro;tr.preset_identity=builtin_factory_identity(0x301);copy_text(tr.preset_name,96,"Test Tone");tr.plaits_model=0;tr.level=.2f;tr.root_note=69;tr.engine_parameters[0]=0;tr.engine_parameters[1]=0;tr.engine_parameters[2]=0;ok=restore_factory_project(fs,"FACTORY/DEBUG/Test-Tone.mgxp",*project,report);}
  if(ok){
   const char* drums[]={"808-Kick","808-Snare","Closed-Hat","Open-Hat","Clap","Noise-Rim","FM-Tom-Low","FM-Tom-High","FM-Cowbell","FM-Metal","Chip-Perc","Acid-Zap","VA-Hit","Noise-Sweep","909-Kick","909-Snare"};
   make_empty_project(*project);project->content_kind=ContentKind::Kit;auto tr=track_at(*project,0,0);tr.instrument=Instrument::DrumKit;tr.preset_identity=builtin_factory_identity(0x302);copy_text(tr.preset_name,96,"Techno 01");bool available=true;
@@ -73,11 +65,6 @@ inline bool install_factory_content(IFileAccess& fs,const uint8_t* sample,unsign
   if(available)ok=restore_factory_project(fs,"FACTORY/KITS/Techno-01.mgxk",*project,report);
  }
  delete project;
- // Exact PCM16 440 Hz at -18 dBFS, one second, for sample/route diagnostics.
- const unsigned bytes=96044;auto* tone=alloc_array<uint8_t>(bytes);if(!tone)return false;
- wav_header_ch(tone,48000,48000,1);for(unsigned i=0;i<48000;++i){int16_t s=int16_t(4125.0*sin(6.283185307179586*440.0*double(i)/48000.0));tone[44+2*i]=uint8_t(s);tone[45+2*i]=uint8_t(uint16_t(s)>>8);}
- if(ok){ok=restore_factory_bytes(fs,"FACTORY/DEBUG/440Hz.wav",tone,bytes,report);}
- delete[] tone;
  // Retire exact factory aliases only after their replacements are ready.
  // The renamed FluidR3 GM patch keeps its GUID; user shelf copies are untouched.
  if(ok){const char* aliases[]={"BENCH.MGX","FACTORY/DEBUG/Benchmark.mgx","FACTORY/DEBUG/Test-Tone.mgx","FACTORY/KITS/Techno-01.mgx","FACTORY/PRESETS/LIBRARY/M1 Piano.mgxp","FACTORY/PRESETS/LIBRARY/DX7 Lately Bass.mgxp"};

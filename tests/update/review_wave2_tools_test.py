@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory() as d:
         try:ensure_file(cache,'boot.bin',digest,'https://unused.invalid')
         except OSError:pass
     assert not list(cache.iterdir())
-lock=json.loads(LOCK.read_text());assert len(lock['sha256'])==5 and all(len(h)==64 for h in lock['sha256'].values())
+lock=json.loads(LOCK.read_text());assert len(lock['sha256'])==7 and all(len(h)==64 for h in lock['sha256'].values())
 script=(root/'scripts/prepare-sd.sh').read_text();assert lock['revision'] in script and 'pi_boot.py' in script and 'curl ' not in script
 ui=(root/'docs/ui-design-system.md').read_text();assert all(term not in ui for term in ['STORE SOUND','RECALL SOUND','SOURCE','19 main page types'])
 assert 'LIBRARY / FILES / ENGINE / PROJECT' in ui and '20 main page types' in ui

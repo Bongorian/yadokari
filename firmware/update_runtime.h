@@ -23,7 +23,9 @@ unsigned GrooveFirmwareVersion();
 class CUpdateDisk:public groove::update::BlockDevice {
  u8* m_Buffer;
 public:
+ CBcmWatchdog* growth_watchdog=nullptr;
  CUpdateDisk();
+ bool sectors(unsigned lba,uint8_t* bytes,unsigned count,bool write)override;
  bool sector(unsigned lba,uint8_t* bytes,bool write)override;
 };
 class CUpdateReboot:public groove::update::Rebooter {
@@ -40,7 +42,7 @@ class CUpdateRuntime {
  groove::update::PadLatch m_PadLatch;
  groove::update::ButtonLatch m_ButtonLatch;groove::update::BenchmarkRequests m_BenchmarkRequests;
  CInterruptSystem* m_Interrupt;CUSBCDCGadget* m_Gadget=nullptr;CNetSubSystem* m_Net=nullptr;CUpdateListener* m_Listener=nullptr;CUpdateListener* m_ControlListener=nullptr;CSocket* m_Client=nullptr;CSocket* m_ControlClient=nullptr;
- CUSBSerialDevice* m_LastSerial=nullptr;CString m_Status;FATFS m_DataFs{};FIL m_Offline{};bool m_OfflineOpen=false,m_GadgetReady=false,m_NetworkWifi=false;
+ CUSBSerialDevice* m_LastSerial=nullptr;CString m_Status;FATFS m_DataFs{};FIL m_Offline{};bool m_OfflineOpen=false,m_GadgetReady=false,m_NetworkWifi=false,m_FileNetFailed=false;
  unsigned m_Partition=0,m_LastActivity=0;bool m_Tryboot=false,m_Identity=false,m_Ready=false,m_Active=false,m_Autoboot=false,m_Remote=false,m_TrialFallback=false,m_JournalTrial=false;unsigned m_Start=0,m_FallbackStart=0;
  char m_Reply[64]{};unsigned m_ReplyUsed=0,m_ReplySent=0;enum Channel { Idle,Serial,TCP,OfflineChannel } m_Channel=Idle;
  static constexpr unsigned kLogChunkBytes=240;
@@ -56,7 +58,7 @@ public:
  explicit CUpdateRuntime(CInterruptSystem* interrupt);
  bool Initialize(bool recovery);
  bool AdoptBootGadget(CUSBCDCGadget* gadget){if(!gadget || m_Gadget)return false;m_Gadget=gadget;m_GadgetReady=true;return true;}
- CNetSubSystem* BeginFilesNetwork(const char* ssid,bool station=false);
+ CNetSubSystem* BeginFilesNetwork(const char* ssid,bool station=false,bool ethernet=false);
  bool EndFilesNetwork();
  bool FilesAccessPoint()const{return m_FileAP;}
  const char* NetworkStatus()const{return m_Status;}

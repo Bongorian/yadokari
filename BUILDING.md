@@ -19,8 +19,18 @@ make test               # host test suite (no hardware needed)
 make simulator          # PC virtual MK3 (needs SDL2)
 scripts/build-firmware.sh   # firmware: fetches Circle at a pinned
                             # commit and applies the patch series
-scripts/prepare-sd.sh       # assemble the SD-card image
+# Build board-specific BOOT/A/B/DATA images in a new directory.
+# Set UPDATE_PUBLIC_KEY to the trusted raw 32-byte public key.
+FIRMWARE_VERSION=10000 UPDATE_PUBLIC_KEY=/path/to/public.bin scripts/release-sd.sh build/release-100
 ```
+
+The release builder verifies each factory asset against the locked SHA-256 in
+`assets/factory-library/manifest.json`. Install the matching FluidR3 GM
+SoundFont at `/usr/share/sounds/sf2/FluidR3_GM.sf2`, or set
+`FACTORY_SOUNDFONT` to its path. The build also needs Python 3.11 or newer
+and the `zip` utility. `DATA_MIB` controls the initial DATA capacity.
+`scripts/prepare-sd.sh` assembles the shared files and runs the 187-original
+mount gate in an empty `BOOT_OUTPUT_DIR`.
 
 ## Mac
 

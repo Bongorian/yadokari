@@ -16,11 +16,13 @@ int main(int argc,char** argv){using namespace groove;assert(argc==2 && chdir(ar
  for(unsigned kit=0;kit<3;++kit){char path[160];std::snprintf(path,sizeof path,"FACTORY/KITS/%s.mgxk",factory_kit_name(kit));assert(files.load(path));e->render(audio,0);ui.poll();
   for(unsigned pad=0;pad<6;++pad){Command hit{CommandType::Trigger,0,0,110};hit.parameter=1;hit.scalar=float(60+pad);assert(e->submit(hit));float peak=0;for(unsigned n=0;n<24000;n+=128){e->render(audio,128);ui.poll();for(float v:audio){assert(std::isfinite(v));peak=std::fmax(peak,std::abs(v));}}assert(peak>.008f);std::printf("%s %s: isolated peak %.4f\n",factory_kit_name(kit),factory_drum_name(pad),peak);}
  }
+ // Staging supplies no demo song; place the fixture demo explicitly.
+ make_empty_project(*p);assert(save_recoverable(fs,kFactoryStartupProject,*p));
  assert(files.load(kFactoryStartupProject));e->render(audio,0);ui.poll();const unsigned tempo=p->tempo;p->tempo=99;
  assert(!files.save(kFactoryStartupProject));ui.request_save();assert(ui.browser_editing() && data_equal(ui.browser().edit.source,kUserProject));ui.cancel_browser_edit();
  assert(files.save("PROJECTS/Edited.mgx"));assert(data_equal(ui.project_path(),"PROJECTS/Edited.mgx"));assert(files.load(kFactoryStartupProject));e->render(audio,0);ui.poll();assert(p->tempo==tempo);
  assert(files.load("PROJECTS/Edited.mgx"));e->render(audio,0);ui.poll();assert(p->tempo==99);
  // Internal kind, not extension, selects preset load into the current track.
- assert(data_content_kind(fs,"FACTORY/DEBUG/Test-Tone.mgxp")==3);assert(files.load_preset("FACTORY/DEBUG/Test-Tone.mgxp"));e->render(audio,0);ui.poll();assert(p->tempo==99);
+ assert(data_content_kind(fs,"FACTORY/PRESETS/WT Glass Motion.mgxp")==3);assert(files.load_preset("FACTORY/PRESETS/WT Glass Motion.mgxp"));e->render(audio,0);ui.poll();assert(p->tempo==99);
  std::puts("factory workflow: protected original, Save As, reload/reset, typed preset passed");
 }

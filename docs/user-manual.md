@@ -55,7 +55,7 @@ For features and limitations, see the [feature list](feature-matrix.md); for a l
   - [MIDI Local Control](#midi-local-control)
 - [Files, connections and startup](#files-connections-and-startup)
   - [Organizing DATA and files](#organizing-data-and-files)
-  - [Adding and carrying out files over Wi-Fi](#adding-and-carrying-out-files-over-wi-fi)
+  - [File transfer over Ethernet](#file-transfer-over-ethernet)
   - [USB-C transfer and the device theme](#usb-c-transfer-and-the-device-theme)
   - [The boot display and standard data](#the-boot-display-and-standard-data)
 - [Limitations](#limitations)
@@ -533,7 +533,7 @@ On LOOPER, **Top2 TIMELINE** opens linear audio placement. Select an empty Track
 3. Use **K1 CURSOR** for the character position, and **K2 CHARACTER** or 4-D rotation for the character. Edit with Top5 INSERT, Top6 ERASE, Top7 LEFT, Top8 RIGHT.
 4. Save with **Top1 APPLY** or a 4-D press; cancel with Top2 CANCEL. The `.mgxs` extension for songs is completed automatically (an entered MGX-family extension is also replaced). Even if you specify an existing name in SAVE AS, it will not overwrite, so enter a different name.
 5. After completion, SAVE updates that song itself. Open the current song's folder with **Top2 OPEN / Top6 FILES**, and when you OPEN a different song in FILES, subsequent saves go to that song as well. Uppercase and mixed-case MGX/MGK/MGP are also handled.
-6. After a successful save/load, the startup song is remembered in `GROOVE/CURRENT.TXT`. If the startup reference is invalid or missing, it tries `FACTORY/DEBUG/Benchmark.mgxs`. After a reboot, check the song name, notes, sounds, Song, and assets. The Undo history and temporary states during performance are not resumed.
+6. After a successful save/load, the startup song is remembered in `GROOVE/CURRENT.TXT`. If the startup reference is invalid or missing, it tries `FACTORY/DEMOS/Startup.mgxs`. After a reboot, check the song name, notes, sounds, Song, and assets. The Undo history and temporary states during performance are not resumed.
 
 PROJECT's Tops are **SAVE / OPEN / NEW / SAVE AS / COLLECT / FILES / STORE POOL / RECALL POOL**. The asset number is **K1 ASSET**. The internal format of the MGX family is MGXC. `.mgx` / `.mgxs` / `.mgxk` / `.mgxp` are all loadable, and even if the name and contents differ, a file is opened by its internal kind. A normal SAVE keeps the existing name, and SAVE AS aligns it to the standard extension. A normal save creates no history backup, and switches over from a verified `.tmp`. OPEN also checks a same-name `.tmp` only when the original file is unusable, and displays `Recovered .tmp` when recovering. If a corrupt original file and tmp remain and SAVE is refused, recover with OPEN and save under a new name. Past `.bak` files and numbered generations are not read. There is no guarantee against power being cut during writing. Do not treat a save failure or sync warning as success; wait for completion.
 
@@ -580,7 +580,7 @@ For a `.part` from an interrupted recording, select it in FILES and use <strong>
 
 There is no dedicated operation on the unit to bulk-export a Song into per-Track WAVs. Either record an internal bus with REC SOURCE into a WAV, or record via <strong>MK3 LINE OUT → an external recorder / a PC's audio input</strong>. Internal recording involves assignment to the destination Track, so use an empty Track and check the effect on the original song. When recording something long, check the SD's free space first.
 
-Even if you connect this unit's Pi USB-C to a PC, it does not necessarily become a generic USB audio/MIDI device or SD storage. For USB-C file operations use the dedicated MGF1 CLI, and over the network use Wi-Fi FILE TRANSFER. See the transfer procedures later in this manual.
+Even if you connect this unit's Pi USB-C to a PC, it does not necessarily become a generic USB audio/MIDI device or SD storage. For USB-C file operations use the dedicated MGF1 CLI, and over the network use Ethernet FILE TRANSFER. See the transfer procedures later in this manual.
 
 
 ---
@@ -776,11 +776,11 @@ For an external 32-voice bank, stop playback, select a `.syx` in FILES and **OPE
 
 ### SoundFont banks
 
-Select a `.sf2` in FILES and press **LOAD**. The first sound in the bank is loaded onto the selected Track. Edit with K1 **BANK**, K2 **PROGRAM** (both 0-based), K3 **TUNE** and K4 **GAIN** under **SYNTH → CORE**. A BANK / PROGRAM combination that does not exist is silent. If the manufacturer's sound list is 1-based, subtract 1 from PROGRAM. You can use `FACTORY/DEBUG/SF2-Sine.mgxp` as an entry point.
+Select a `.sf2` in FILES and press **LOAD**. The first sound in the bank is loaded onto the selected Track. Edit with K1 **BANK**, K2 **PROGRAM** (both 0-based), K3 **TUNE** and K4 **GAIN** under **SYNTH → CORE**. A BANK / PROGRAM combination that does not exist is silent. If the manufacturer's sound list is 1-based, subtract 1 from PROGRAM. Open the included FluidR3 GM bank in ASSETS/SOUNDFONTS.
 
 A normal SAVE PRESET creates a small `.mgxp` that references the SF2's path and CRC. To carry a sound out, use COLLECT, which moves the Preset together with the SF2 in assets as a folder. If the original SF2 is changed or deleted and the CRC no longer matches, loading is held and the current sound is kept. SF2 files are read into RAM. Very large banks, and reproduction of every SF2 feature, are not guaranteed.
 
-- **Worked example** — Play the debug sine and check that the sound stops when you release the key. OPEN one of your own SF2 files, choose a sound by BANK / PROGRAM, then SAVE PRESET → COLLECT, and load the bundled Preset again. The sound, velocity, key range and release are reproduced as they were. A program that does not exist is silent, and if a material is missing the current sound is kept.
+- **Worked example** — Play a preset using FluidR3 GM and check that the sound stops when you release the key. OPEN one of your own SF2 files, choose a sound by BANK / PROGRAM, then SAVE PRESET → COLLECT, and load the bundled Preset again. The sound, velocity, key range and release are reproduced as they were. A program that does not exist is silent, and if a material is missing the current sound is kept.
 
 ### Opening a large SoundFont
 
@@ -1070,21 +1070,13 @@ For save destinations and the DATA layout, see [DATA and content layout](data-co
 
 Long engine names and sample names scroll sideways within their frame. They hold 1.2 seconds each at the head and the tail and travel back and forth at 28 px/second. The engine selection's K2 is also displayed without abbreviation. The update screen also applies SETTINGS' current theme and pixel order, and after a CANCEL the whole normal screen is redrawn.
 
-### Adding and carrying out files over Wi-Fi
+### File transfer over Ethernet
 
-**Wi-Fi is disabled in the 0.9.0 build.** The official image disables it for WLAN licensing reasons. Use Ethernet or USB-C for file transfer (next section).
+Connect the Pi and the computer to the same Ethernet network with DHCP. Open **SETTINGS → SYSTEM → Top5 FILE TRANSFER**, leave ETHERNET selected and press **Top5 START**. Performance pauses during the session.
 
-These are illustrative screens generated with the common renderer. They are not photographs of the real device, and the displayed numbers are examples.
-
-![File transfer ready](manual/transfer-ready.png)
-
-![File transfer receiving](manual/transfer-receiving.png)
-
-The operation on the real device is **SETTINGS → SYSTEM → Top5 FILE TRANSFER**. **Top1 AP** on the left connects to the body's own Wi-Fi; **Top2 STATION** joins a network already configured in DATA. Once you have chosen, press **Top5 START** on the right. The overlay displays PERFORMANCE PAUSED / CLOSE TO RESUME while the transfer owns storage. Pad and knob input returns as soon as it closes. Use the SSID, CONNECTION CODE and ADDRESS on the screen.
-
-1. For AP, connect your phone or PC to the screen's `Groovebox-...`. Keep it as a Wi-Fi network with no internet connection, and open the displayed `http://192.168.76.1/`. For STATION, open the screen's ADDRESS on the same network as the body. Use `groovebox.local` in environments where it can be discovered; if it does not open, use the IP address.
+1. Open the displayed ADDRESS in the computer's browser. Optional WLAN builds also offer AP and STATION.
 2. Enter the body's code into the browser's **Connection code** and **Connect**. Choose a shelf from **Songs / Presets / Kits / Samples / SoundFonts / MIDI / Recordings**. Check the free space and the list.
-3. Add files with **Add / replace files** or by drag & drop. The save destination is decided automatically from the content. Even if an MGX name's extension is wrong, it is judged by the internal kind. A large SF2 shows progress and can be cancelled with **Cancel**. Maximum 1 GiB; only `.mgxs/.mgxk/.mgxp/.wav/.mid/.syx/.sf2` are accepted. A `.syx` expands a DX7 32-voice bank into 32 Preset files and does not register them into the pool automatically.
+3. Add files with **Add / replace files** or by drag & drop. The save destination is decided automatically from the content. Even if an MGX name's extension is wrong, it is judged by the internal kind. A large SF2 shows progress and can be cancelled with **Cancel**. Maximum 1 GiB; only `.mgxs/.mgxk/.mgxp/.wav/.mid/.syx/.sf2/.ipa` are accepted. A `.syx` expands a DX7 32-voice bank into 32 Preset files and does not register them into the pool automatically.
 4. Carry files out with **Download** in the list, and delete with **Delete** → confirmation. The currently open song and declared materials cannot be deleted. A same-name upload replaces the file only after verification of length, SHA256 and content kind. The current song and its referenced materials refuse overwriting too.
 5. End the transfer with **Top6 FILES** on the real device and move to FILES. Songs enter **PROJECTS**; select one and **OPEN** it. You can also end with **Top8 CLOSE**, and it ends automatically after 10 minutes. After it ends, HTTP cannot be connected to. Resume performance with **PLAY**.
 
@@ -1096,7 +1088,7 @@ COLLECT's material copies get short index / CRC names. A long-named EXPORT folde
 
 ### USB-C transfer and the device theme
 
-In addition to the everyday Wi-Fi Web, a development host can transfer Songs and materials directly from the [USB file CLI](reference/usb-files.md). A PUT replaces a same-name file only if it verifies, and the open song and declared referenced materials are protected. During recording or file processing the reply is BUSY. After the USB session closes, OPEN the transferred .mgxs under FILE → PROJECTS.
+Alongside Ethernet file transfer, a development host can transfer Songs and materials directly from the [USB file CLI](reference/usb-files.md). A PUT replaces a same-name file only if it verifies, and the open song and declared referenced materials are protected. During recording or file processing the reply is BUSY. After the USB session closes, OPEN the transferred .mgxs under FILE → PROJECTS.
 
 For the theme: SETTINGS → DISPLAY → select THEME with the 4-D → K1. The right LCD's 3×3 list shows the fixed nine names. CYBER 2 is the default. A selection is reflected in the display immediately, is saved to DEVICE.CFG, and is not overwritten by loading or saving a song.
 
@@ -1106,7 +1098,7 @@ For the theme: SETTINGS → DISPLAY → select THEME with the 4-D → K1. The ri
 
 After the MK3's USB enumeration, the left screen stays black and the right screen shows the YADOKARI splash — the hermit-crab mark, the YADOKARI wordmark and the VIBE GROOVEBOX tagline — with the firmware version stamped across the bottom by the firmware itself; when initialisation finishes it moves to the operation screen. The NI standard screen from power-on to USB enumeration cannot be changed from software. At the first boot, right after an update, and so on, the standard data is verified, so it takes longer than a normal boot. Normally only the existence and size are checked. Save work in progress under a different name in PROJECTS.
 
-The additional 79 sounds are selected and loaded from FILE → FACTORY → PRESETS → LIBRARY, and the 24 kits from FILE → FACTORY → KITS → LIBRARY. The original PRESETS/KITS are kept and can be used for editing. For restoring the factory originals and handling shared materials, see the [library](factory-library.md).
+The 163 library presets are selected and loaded from FILE → FACTORY → PRESETS → LIBRARY, and the 24 kits from FILE → FACTORY → KITS → LIBRARY. The original PRESETS/KITS are kept and can be used for editing. For restoring the factory originals and handling shared materials, see the [library](factory-library.md).
 
 
 ---

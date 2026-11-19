@@ -2,7 +2,11 @@
 #include "manager.h"
 #include <ff.h>
 namespace groove { namespace update {
-class BlockDevice {public:virtual ~BlockDevice(){};virtual bool sector(unsigned lba,uint8_t* bytes,bool write)=0;};
+class BlockDevice {public:virtual ~BlockDevice(){};virtual bool sector(unsigned lba,uint8_t* bytes,bool write)=0;
+ virtual bool sectors(unsigned lba,uint8_t* bytes,unsigned count,bool write){
+  for(unsigned i=0;i<count;++i)if(!sector(lba+i,bytes+i*512,write))return false;
+  return true;
+ }};
 // Fixed, provisioned MBR layout. Sector 8 marker prevents interpreting an
 // ordinary single-partition SD card as an update target. No online repartition.
 inline bool valid_layout(BlockDevice& disk){

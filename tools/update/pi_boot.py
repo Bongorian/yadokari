@@ -16,8 +16,8 @@ def ensure_file(cache, name, digest, url):
         if not target.is_file() or hashlib.sha256(target.read_bytes()).hexdigest()!=digest:
             raise ValueError('Pi boot cache SHA256 mismatch: '+str(target))
         return target
-    cache.mkdir(parents=True,exist_ok=True)
-    fd, temp = tempfile.mkstemp(prefix='.'+name+'-',suffix='.download',dir=cache)
+    target.parent.mkdir(parents=True,exist_ok=True)
+    fd, temp = tempfile.mkstemp(prefix='.'+target.name+'-',suffix='.download',dir=target.parent)
     try:
         checksum = hashlib.sha256()
         with os.fdopen(fd,'wb') as output, urlopen(url,timeout=30) as source:
@@ -38,6 +38,6 @@ def main():
         for name,digest in lock['sha256'].items():
             ensure_file(a.cache,name,digest,f"https://raw.githubusercontent.com/raspberrypi/firmware/{a.revision}/boot/{name}")
     except (OSError,ValueError) as e:raise SystemExit(str(e))
-    print('Pi boot: all5 pinned downloads/cache entries verified by SHA256')
+    print(f'Pi boot: {len(lock["sha256"])} boot files verified by SHA256')
 
 if __name__=='__main__':main()

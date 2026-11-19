@@ -633,20 +633,22 @@ inline void preserve_engn(PreservedStore* store,PreservedTrackEntry* entry,const
 // to `instrument` and reset nothing; field sinks are the track/sound
 // engine fields. Returns false when a known sub-chunk is malformed or
 // fails validation. Obsolete CHIMERA banks reject the file outright.
-inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,PreservedStore* store,PreservedTrackEntry* entry,Instrument instrument,bool& obsolete){
+inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,PreservedStore* store,PreservedTrackEntry* entry,Instrument instrument,bool& reject_container){
  ChunkReader<ChunkSource> r(src);
  ChunkBuffer extras;bool extras_overflow=false,name_seen=false;unsigned seen=0;
  while(!src.at_end()){
   uint32_t kind;uint16_t version,flags;ChunkSource sub;
   if(!read_framed(r,kind,version,sub,&flags))return false;
-  if(instrument==Instrument::Chimera && kind==kChunkChimera && version==1){obsolete=true;return false;}
+  if(instrument==Instrument::Chimera && kind==kChunkChimera && version==1){reject_container=true;return false;}
   bool handled=false;
   if(kind==kChunkName && version==1 && f.preset_name){if(name_seen || flags || sub.size>=96)return false;name_seen=true;for(unsigned i=0;i<sub.size;++i){unsigned c=sub.data[i];if(c<32 || c>126)return false;f.preset_name[i]=char(c);}f.preset_name[sub.size]=0;handled=true;}
   const auto* descriptor=engine_descriptor(unsigned(instrument));
   const auto& state=descriptor?descriptor->state:engine_state_contract();
   for(unsigned i=0;i<state.count;++i){const auto& chunk=state.chunks[i];
    if(chunk.fourcc!=kind || chunk.version!=version || flags || (kind==kChunkKit && !f.kit))continue;
-   if((seen&(1u<<i)) || !chunk.decode(sub,f)){return false;}seen|=1u<<i;
+   if(seen&(1u<<i))return false;
+   if(!chunk.decode(sub,f)){if(instrument==Instrument::Layer)reject_container=true;return false;}
+   seen|=1u<<i;
    handled=true;break;
   }
   if(!handled){
@@ -663,7 +665,7 @@ inline bool parse_engn_subchunks(ChunkSource& src,const EngineStateView& f,Prese
   else if(extras.size){if(entry->extra_sub.set(extras.data,extras.size))entry->extra_for=int32_t(instrument);}
  }
  const auto* descriptor=engine_descriptor(unsigned(instrument));
- if(instrument==Instrument::Chimera && !(seen&2))obsolete=true;
+ if(descriptor && (seen&descriptor->state.required)!=descriptor->state.required)reject_container=true;
  return descriptor && (seen&descriptor->state.required)==descriptor->state.required;
 }
 inline bool track_engine_fields_valid(ConstTrackView t){
@@ -696,9 +698,9 @@ inline bool parse_track_engn(ChunkSource& src,TrackView t,PreservedStore* store,
  t.instrument=instrument;
  const auto f=engine_state_view(t);
  ChunkSource rest;rest.data=src.data+src.pos;rest.size=src.size-src.pos;
- bool obsolete=false;
- if(!parse_engn_subchunks(rest,f,store,entry,instrument,obsolete) || !track_engine_fields_valid(t)){
-  if(obsolete)return false;
+ bool reject_container=false;
+ if(!parse_engn_subchunks(rest,f,store,entry,instrument,reject_container) || !track_engine_fields_valid(t)){
+  if(reject_container)return false;
   reset_track_engine_fields(t);t.instrument=Instrument::Unknown;
   if(entry)entry->extra_sub.clear(),entry->extra_for=-1;
   preserve_engn(store,entry,raw,raw_size);
@@ -724,9 +726,9 @@ inline bool parse_sound_engn(ChunkSource& src,SoundState& s,PreservedStore* stor
  s.instrument=instrument;
  const auto f=engine_state_view(s);
  ChunkSource rest;rest.data=src.data+src.pos;rest.size=src.size-src.pos;
- bool obsolete=false;
- if(!parse_engn_subchunks(rest,f,store,entry,instrument,obsolete) || !sound_engine_fields_valid(s)){
-  if(obsolete)return false;
+ bool reject_container=false;
+ if(!parse_engn_subchunks(rest,f,store,entry,instrument,reject_container) || !sound_engine_fields_valid(s)){
+  if(reject_container)return false;
   reset_sound_engine_fields(s);s.instrument=Instrument::Unknown;
   if(entry)entry->extra_sub.clear(),entry->extra_for=-1;
   preserve_engn(store,entry,raw,raw_size);

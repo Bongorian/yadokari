@@ -1,3 +1,4 @@
+#include "update/data_growth.h"
 #include "update/fat_storage.h"
 #include "update/receiver.h"
 #include "update/view.h"
@@ -34,7 +35,13 @@ class Disk:public BlockDevice {
 public:
  explicit Disk(const char* path,bool create=false){disk_fd=open(path,O_RDWR|(create?(O_CREAT|O_EXCL):0),0600);check(disk_fd>=0,"Cannot open SD image (init never overwrites)");struct stat info{};check(!fstat(disk_fd,&info)&&S_ISREG(info.st_mode),"Only regular virtual SD image files are accepted");}
  ~Disk(){close(disk_fd);disk_fd=-1;}
- bool sector(unsigned lba,uint8_t* b,bool write)override {if(write)return pwrite(disk_fd,b,512,off_t(lba)*512)==512&&fsync(disk_fd)==0;return pread(disk_fd,b,512,off_t(lba)*512)==512;}
+ bool sector(unsigned lba,uint8_t* data,bool write)override{return sectors(lba,data,1,write);}
+ bool sectors(unsigned lba,uint8_t* data,unsigned count,bool write)override{
+  const ssize_t size=ssize_t(count)*512;
+  const off_t offset=off_t(lba)*512;
+  if(write)return pwrite(disk_fd,data,size,offset)==size && fsync(disk_fd)==0;
+  return pread(disk_fd,data,size,offset)==size;
+ }
 };
 class MockReboot:public Rebooter {public:bool allowed=true;unsigned partition=0;bool tryboot=false;bool supported()const override{return allowed;}bool restart(unsigned p,bool trial)override{partition=p;tryboot=trial;return true;}};
 static std::vector<uint8_t> read_file(const char* path){FILE* f=fopen(path,"rb");check(f,"Cannot read file");check(!fseek(f,0,SEEK_END),"File seek");long n=ftell(f);check(n>=0&&n<=16*1024*1024,"Oversized host file");rewind(f);std::vector<uint8_t> b(static_cast<size_t>(n));check(fread(b.data(),1,b.size(),f)==b.size(),"Short host read");fclose(f);return b;}
@@ -42,15 +49,19 @@ static void fat_write(const char* path,const std::vector<uint8_t>& bytes){
  std::string name(path);for(size_t i=3;i<name.size();++i)if(name[i]=='/'){std::string directory=name.substr(0,i);FRESULT result=f_mkdir(directory.c_str());check(result==FR_OK||result==FR_EXIST,"FAT directory");}
  FIL f;check(f_open(&f,path,FA_WRITE|FA_CREATE_ALWAYS)==FR_OK,"FAT open write");UINT count=0;check(f_write(&f,bytes.data(),UINT(bytes.size()),&count)==FR_OK&&count==bytes.size(),"FAT write");check(f_sync(&f)==FR_OK,"FAT sync");check(f_close(&f)==FR_OK,"FAT close");}
 static std::vector<uint8_t> fat_read(const char* path){FIL f;check(f_open(&f,path,FA_READ)==FR_OK,"FAT open read");std::vector<uint8_t> b(f_size(&f));UINT n=0;check(f_read(&f,b.data(),UINT(b.size()),&n)==FR_OK&&n==b.size(),"FAT read");check(f_close(&f)==FR_OK,"FAT close read");return b;}
-static void initialize(Disk& disk,const std::vector<uint8_t>& image,uint32_t version,unsigned data_mib=64){
+static void initialize(Disk& disk,const std::vector<uint8_t>& image,uint32_t version,unsigned data_mib=64,bool release=false){
  check(data_mib>=64&&data_mib<=32768,"DATA size must be 64..32768 MiB");
  check(!image.empty()&&image.size()<=MaxImage&&version,"Invalid factory image");
  check(!ftruncate(disk_fd,off_t(2048+3*131072+uint64_t(data_mib)*2048)*512),"Create sparse image");uint8_t b[512]{};
  for(unsigned i=0;i<4;++i){auto* p=b+446+16*i;p[4]=0x0c;put32(p+8,2048+i*131072);put32(p+12,i==3?data_mib*2048:131072);}b[510]=0x55;b[511]=0xaa;check(disk.sector(0,b,true),"MBR write");
  uint8_t marker[512]={'G','S','D','1'};Sha256::hash(b+446,64,marker+4);check(disk.sector(8,marker,true),"Layout marker");
  uint8_t work[65536];FATFS fs[4]{};MKFS_PARM options{FM_FAT32,0,0,0,0};
- for(unsigned i=0;i<4;++i){char path[3]={char('0'+i),':',0};check(f_mkfs(path,&options,work,sizeof work)==FR_OK,"Format virtual FAT32");check(f_mount(fs+i,path,1)==FR_OK,"Mount virtual FAT32");}
- fat_write("0:/RECOVER.DAT",{2,4,6,8});fat_write("1:/KERNEL.IMG",image);fat_write("3:/PROTECT.DAT",{1,3,3,7,9});
+ for(unsigned i=0;i<4;++i){char path[3]={char('0'+i),':',0};if(i==3 && data_mib>=1024)options.au_size=8192;check(f_mkfs(path,&options,work,sizeof work)==FR_OK,"Format virtual FAT32");check(f_mount(fs+i,path,1)==FR_OK,"Mount virtual FAT32");}
+ if(release){
+  const char* labels[]={"0:BOOT","1:A","2:B","3:DATA"};
+  for(auto label:labels)check(f_setlabel(label)==FR_OK,"Volume label");
+ }else{fat_write("0:/RECOVER.DAT",{2,4,6,8});fat_write("3:/PROTECT.DAT",{1,3,3,7,9});}
+ fat_write("1:/KERNEL.IMG",image);
  State state;state.sequence=1;state.highest=version;state.slots[0].version=version;state.slots[0].size=uint32_t(image.size());Sha256::hash(image.data(),image.size(),state.slots[0].hash);encode_state(state,b);check(disk.sector(32,b,true),"Initial journal");state.sequence=2;encode_state(state,b);check(disk.sector(16,b,true),"Redundant journal");
  for(unsigned i=0;i<4;++i){char path[3]={char('0'+i),':',0};check(f_mount(nullptr,path,0)==FR_OK,"Unmount format");}
 }
@@ -98,14 +109,24 @@ static void cycle(Manager& manager,MockReboot& reboot,const std::vector<uint8_t>
  std::puts("update cycle: A1 -> B2 -> failed A3 -> B2 -> retry A3 confirmed; active B bytes preserved PASS");
 }
 int main(int argc,char** argv){try{
- check(argc>=3,"Usage: update-sim init IMAGE FACTORY VERSION | put/get IMAGE FATPATH HOSTFILE | exercise/install/serve/serial IMAGE PUBLIC PACKAGE_OR_PORT_OR_FD | status IMAGE");std::string command=argv[1];Disk disk(argv[2],command=="init");
- if(command=="init"){check(argc==5||argc==6,"init arguments");initialize(disk,read_file(argv[3]),uint32_t(std::stoul(argv[4])),argc==6?unsigned(std::stoul(argv[5])):64);return 0;}
+ check(argc>=3,"Usage: update-sim init IMAGE FACTORY VERSION | put/get IMAGE FATPATH HOSTFILE | exercise/install/serve/serial IMAGE PUBLIC PACKAGE_OR_PORT_OR_FD | status IMAGE");std::string command=argv[1];bool release=command=="init-release";Disk disk(argv[2],command=="init" || release);
+ if(command=="init" || release){check(argc==5||argc==6,"init arguments");initialize(disk,read_file(argv[3]),uint32_t(std::stoul(argv[4])),argc==6?unsigned(std::stoul(argv[5])):64,release);return 0;}
+ if(command=="grow"){struct stat st{};check(!fstat(disk_fd,&st) && uint64_t(st.st_size)/512<=0xffffffff,"SD capacity");check(expand_data(disk,uint32_t(st.st_size/512)),"DATA expansion failed");return 0;}
  FatStorage storage(disk,"0:","1:","2:");check(storage.mount(),"Invalid layout or unmountable FAT");MockReboot reboot;
- if(command=="put"||command=="get"){check(argc==5,"put/get arguments");FATFS data;bool extra=argv[3][0]=='3';if(extra)check(f_mount(&data,"3:",1)==FR_OK,"Mount data");if(command=="put")fat_write(argv[3],read_file(argv[4]));else{auto bytes=fat_read(argv[3]);FILE* f=fopen(argv[4],"wb");check(f,"Output file");check(fwrite(bytes.data(),1,bytes.size(),f)==bytes.size(),"Output write");fclose(f);}return 0;}
+ if(command=="put"||command=="get"){check(argc==5,"put/get arguments");FATFS data;bool extra=argv[3][0]=='3';if(extra)check(f_mount(&data,"3:",1)==FR_OK,"Mount data");if(command=="put"){
+  // The DATA bank can be much larger than an update payload. Stream files
+  // directly into FatFs, keeping the kernel/package size checks elsewhere.
+  fat_write(argv[3],{});
+  FILE* input=fopen(argv[4],"rb");check(input,"Open source");
+  FIL dest;check(f_open(&dest,argv[3],FA_WRITE)==FR_OK,"Open DATA destination");
+  uint8_t block[32768];size_t n;
+  while((n=fread(block,1,sizeof block,input))){UINT wrote;check(f_write(&dest,block,UINT(n),&wrote)==FR_OK && wrote==n,"Write file");}
+  check(!ferror(input) && !fclose(input) && f_close(&dest)==FR_OK,"Finish file");
+ }else{auto bytes=fat_read(argv[3]);FILE* f=fopen(argv[4],"wb");check(f,"Output file");check(fwrite(bytes.data(),1,bytes.size(),f)==bytes.size(),"Output write");fclose(f);}return 0;}
  uint8_t key[32]{};if(command!="status"&&command!="screen"){check(argc==(command=="cycle"?6:5),"Command arguments");auto bytes=read_file(argv[3]);check(bytes.size()==32,"Public key length");memcpy(key,bytes.data(),32);}Manager manager(storage,reboot,key);check(manager.load(),"No valid update journal");manager.arm(true);
  if(command=="exercise")exercise(disk,storage,key,read_file(argv[4]));
  else if(command=="cycle")cycle(manager,reboot,read_file(argv[4]),read_file(argv[5]));
- else if(command=="install")check(install(manager,read_file(argv[4])),error_name(manager.error()));
+ else if(command=="install"){if(!install(manager,read_file(argv[4])))throw std::runtime_error(error_name(manager.error()));}
  else if(command=="serial")serve(manager,std::stoi(argv[4]));
  else if(command=="serve"){int sock=socket(AF_INET,SOCK_STREAM,0);check(sock>=0,"Socket");sockaddr_in address{};address.sin_family=AF_INET;address.sin_addr.s_addr=htonl(INADDR_LOOPBACK);address.sin_port=htons(uint16_t(std::stoi(argv[4])));check(!bind(sock,reinterpret_cast<sockaddr*>(&address),sizeof address)&&!listen(sock,1),"Listen");socklen_t size=sizeof address;check(!getsockname(sock,reinterpret_cast<sockaddr*>(&address),&size),"Get port");printf("PORT %u\n",ntohs(address.sin_port));fflush(stdout);int client=accept(sock,nullptr,nullptr);check(client>=0,"Accept");serve(manager,client);close(client);close(sock);}
  else if(command=="screen"){check(argc==4,"screen arguments");auto canvas=std::make_unique<groove::SoftwareCanvas>();draw_view(*canvas,manager,"HOST UPDATE SIMULATION",1,false,0);FILE* f=fopen(argv[3],"wb");check(f,"Screen output");fprintf(f,"P6\n960 272\n255\n");for(unsigned y=0;y<272;++y)for(unsigned x=0;x<960;++x){uint32_t pixel=canvas->pixels[x/480][y*480+x%480];uint8_t rgb[3]={uint8_t(pixel>>16),uint8_t(pixel>>8),uint8_t(pixel)};check(fwrite(rgb,1,3,f)==3,"Screen write");}fclose(f);}

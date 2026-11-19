@@ -19,12 +19,12 @@ for folder in ('ASSETS','FACTORY','PROJECTS','PRESETS','KITS','RECORDINGS'):
             assert header[:6] == b'MGXC'+format_version.to_bytes(2,'little'), str(p)
             assert header[10:14] == b'TYPE' and header[22] in (1,2,3), str(p)
 # Existing current-file locators may retain the untyped extension. Never infer kind from it.
-session = root/'FACTORY/DEBUG/Benchmark.mgxs'
+session = root/'FACTORY/DEMOS/Startup.mgxs'
 locator=root/'GROOVE/CURRENT.TXT'
 if locator.exists():
     candidate=root/locator.read_text().strip()
     if candidate.is_file() and candidate.resolve().is_relative_to(root.resolve()): session=candidate
-session_magic=session.read_bytes()[:4]
+session_magic=session.read_bytes()[:4] if session.is_file() else b''
 session_schema=session_magic.decode('ascii') if len(session_magic)==4 and all(32<=c<127 for c in session_magic) else session_magic.hex()
 (root/'manifest.json').write_text(json.dumps({'firmware_version':version,'project_schema':'MGXC','project_format':format_version,'platform':'Pi4/AArch64/Circle','hardware_verified':False,'public_key_sha256':hashlib.sha256(public).hexdigest(),'signed_updates_enabled':any(public),'initial_session_schema':session_schema,'files':files},indent=2)+'\n')
 print(f'Boot package: firmware {version}, factory schema MGXC v{format_version}, existing session {session_schema}, {len(files)} hashed files; no physical boot assertion')

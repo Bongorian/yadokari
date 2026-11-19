@@ -44,7 +44,7 @@ What the instrument does, area by area. File formats are specified in
 
 ## Sound engines
 
-- 27 registered engines, all selectable from the ENGINE page and
+- 27 sound/MIDI engines plus EMPTY, all selectable from the ENGINE page and
   addressed by stable GUIDs: VA DUAL, FM 6, Plaits, RESONATOR, TEXTURE,
   WAVETABLE, GRANULAR, FORMANT/VOSIM, ADDITIVE, PHASE DIST, SoundFont,
   Sampler, Drum Kit and Layer, among others. The five Creative engines

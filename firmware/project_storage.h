@@ -84,6 +84,6 @@ private:
  groove::PreservedStore m_Preserved;
  CRecoveryWatchdog* m_Watchdog=nullptr;
  bool m_InstallingFactory=false;
- char m_CurrentProject[160]="FACTORY/DEBUG/Benchmark.mgxs";
+ char m_CurrentProject[160]="FACTORY/DEMOS/Startup.mgxs";
  const char* m_Drive="SD:";FATFS m_Fs{};bool m_Mounted=false;
 };

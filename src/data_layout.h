@@ -27,7 +27,7 @@ inline bool factory_path(const char* path){char clean[192];return canonical_path
 inline bool data_playable_file(const char* name){if(data_mgx_file(name))return true;const char* extensions[]={".wav",".mid",".midi",".syx",".sf2",".part",".ipa"};for(const char* ext:extensions)if(data_suffix(name,ext))return true;return false;}
 inline bool data_browser_entry(const char* directory,const char* name,bool folder){
  char path[192];if(name[0]=='.' || !join_path(path,sizeof path,directory,name))return false;
- if(data_under(path,"GROOVE") || data_under(path,"firmware") || (data_equal(path,"BENCH.MGXS") || data_equal(path,"BENCH.MGX")))return false;
+ if(data_under(path,"FACTORY/DEBUG") || data_under(path,"GROOVE") || data_under(path,"firmware") || (data_equal(path,"BENCH.MGXS") || data_equal(path,"BENCH.MGX")))return false;
  return folder || data_playable_file(name);
 }
 inline constexpr const char* kRetiredFactoryDemos[]={"01-Neon-House.mgx","02-Foundry.mgx","03-Paper-Moon.mgx","04-Night-Transit.mgx","05-Saltwater.mgx","06-Glass-Orbit.mgx","07-Afterimage.mgx","08-Ion-Relay.mgx","09-Sun-Circuit.mgx","10-Seven-Lanterns.mgx","01-Velvet-Platform.mgx","02-Pressure-Lock.mgx","03-Last-Train-Home.mgx","04-Broken-Signal.mgx","05-Tidal-Dub.mgx","06-Floating-Gardens.mgx","07-Chrome-Sunset.mgx","08-Vector-Funk.mgx","09-Terracotta.mgx","10-Sevenfold.mgx"};
@@ -57,8 +57,8 @@ inline unsigned data_content_header(const uint8_t* h,unsigned n){
 }
 inline unsigned data_content_kind(IFileAccess& fs,const char* path){uint8_t header[23];unsigned got=0;return fs.read(path,0,header,sizeof header,got)?data_content_header(header,got):0;}
 inline constexpr const char* kUserShelves[]={"PROJECTS","PRESETS","KITS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","RECORDINGS","ASSETS/SPEECH"};
-inline constexpr const char* kCanonicalDataDirectories[]={"GROOVE","PROJECTS","PRESETS","PRESETS/DX7","RECORDINGS","KITS","ASSETS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","ASSETS/SPEECH","FACTORY","FACTORY/DEMOS","FACTORY/DEBUG","FACTORY/KITS","FACTORY/DRUMS","FACTORY/PRESETS","FACTORY/PRESETS/SAMPLES"};
+inline constexpr const char* kCanonicalDataDirectories[]={"GROOVE","PROJECTS","PRESETS","PRESETS/DX7","RECORDINGS","KITS","ASSETS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","ASSETS/SPEECH","FACTORY","FACTORY/DEMOS","FACTORY/KITS","FACTORY/DRUMS","FACTORY/PRESETS","FACTORY/PRESETS/SAMPLES"};
 inline const char* data_shelf_for_content(unsigned kind){return kind==1?kUserShelves[0]:kind==2?kUserShelves[2]:kind==3?kUserShelves[1]:nullptr;}
 constexpr const char* kUserProject="PROJECTS/Untitled.mgxs";
-constexpr const char* kFactoryStartupProject="FACTORY/DEBUG/Benchmark.mgxs";
+constexpr const char* kFactoryStartupProject="FACTORY/DEMOS/Startup.mgxs";
 }

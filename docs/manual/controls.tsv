@@ -391,7 +391,7 @@ source	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 source	SYNTH	0	knob	3		0	selection	value	2	1.000000	0	0	0
 source	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 source	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-source	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+source	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 source	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 source	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 source	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -407,7 +407,7 @@ source	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 source	SYNTH	1	knob	3		0	selection	value	2	1.000000	0	0	0
 source	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 source	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-source	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+source	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 source	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 source	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 source	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -423,7 +423,7 @@ engine-sounds	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 engine-sounds	SYNTH	0	knob	3	SOUND	1	selection	value	2	1.000000	0	38	0
 engine-sounds	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 engine-sounds	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+engine-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 engine-sounds	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-sounds	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 engine-sounds	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -439,7 +439,7 @@ engine-sounds	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 engine-sounds	SYNTH	1	knob	3	SOUND	1	selection	value	2	1.000000	0	38	0
 engine-sounds	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 engine-sounds	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+engine-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 engine-sounds	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-sounds	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 engine-sounds	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -519,7 +519,7 @@ engine-no-sounds	SYNTH	0	button	3		0	selection	empty	2		0	0	0
 engine-no-sounds	SYNTH	0	knob	3		0	selection	value	2	1.000000	0	0	0
 engine-no-sounds	SYNTH	0	button	4		0	selection	empty	3		0	0	0
 engine-no-sounds	SYNTH	0	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-no-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+engine-no-sounds	SYNTH	0	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 engine-no-sounds	SYNTH	0	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-no-sounds	SYNTH	0	button	6		0	selection	empty	5		0	0	0
 engine-no-sounds	SYNTH	0	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -535,7 +535,7 @@ engine-no-sounds	SYNTH	1	button	3		0	selection	empty	2		0	0	0
 engine-no-sounds	SYNTH	1	knob	3		0	selection	value	2	1.000000	0	0	0
 engine-no-sounds	SYNTH	1	button	4		0	selection	empty	3		0	0	0
 engine-no-sounds	SYNTH	1	knob	4		0	selection	value	3	0.000000	0	0	0
-engine-no-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	93	0
+engine-no-sounds	SYNTH	1	button	5	DEFAULT SOUND	1	selection	execute	4		0	109	0
 engine-no-sounds	SYNTH	1	knob	5	ROOT	1	selection	value	4	60.000000	0	30	0
 engine-no-sounds	SYNTH	1	button	6	TRACK NAME	1	selection	execute	5		0	72	0
 engine-no-sounds	SYNTH	1	knob	6	LEVEL	1	selection	value	5	0.600000	1	36	0
@@ -1067,7 +1067,7 @@ mixer	MIXER	0	button	5	FREEZE	1	signal	execute	0		0	61	0
 mixer	MIXER	0	knob	5	DELAY SEND	1	signal	value	4	0.400000	5	70	0
 mixer	MIXER	0	button	6	TWIN	1	signal	execute	1		0	48	0
 mixer	MIXER	0	knob	6	CRUSH	1	signal	value	5	0.000000	6	38	0
-mixer	MIXER	0	button	7	UNDO	1	signal	execute	6		0	49	0
+mixer	MIXER	0	button	7	PAT NEXT	1	signal	exit	5		0	73	0
 mixer	MIXER	0	knob	7	LFO DEPTH	1	signal	value	6	0.000000	7	62	0
 mixer	MIXER	0	button	8	REDO	1	signal	execute	7		0	48	0
 mixer	MIXER	0	knob	8	LFO HZ	1	signal	value	7	1.000000	8	40	0
@@ -1895,7 +1895,7 @@ midi	MODULATION	0	button	3	MACRO MAP	1	sound	selection	2		0	66	0
 midi	MODULATION	0	knob	3	CC VALUE	1	sound	value	2	0.000000	128	55	0
 midi	MODULATION	0	button	4	MIDI/RPN	1	sound	selection	3		0	53	0
 midi	MODULATION	0	knob	4	TRANSPOSE	1	sound	value	3	0.000000	0	67	0
-midi	MODULATION	0	button	5	MULTITIMBRAL	1	sound	execute	4		0	83	0
+midi	MODULATION	0	button	5	MIDI MODULE	1	sound	execute	4		0	73	0
 midi	MODULATION	0	knob	5	VELOCITY	1	sound	value	4	1.000000	0	55	0
 midi	MODULATION	0	button	6	PAT NEXT	1	sound	exit	5		0	73	0
 midi	MODULATION	0	knob	6	SCALE ROOT	1	sound	value	5	0.000000	0	70	0
@@ -1911,7 +1911,7 @@ midi	MODULATION	1	button	3	MACRO MAP	1	sound	selection	2		0	66	0
 midi	MODULATION	1	knob	3	CC VALUE	1	sound	value	2	0.000000	128	55	0
 midi	MODULATION	1	button	4	MIDI/RPN	1	sound	selection	3		0	53	0
 midi	MODULATION	1	knob	4	PROGRAM	1	sound	value	3	0.000000	0	54	0
-midi	MODULATION	1	button	5	MULTITIMBRAL	1	sound	execute	4		0	83	0
+midi	MODULATION	1	button	5	MIDI MODULE	1	sound	execute	4		0	73	0
 midi	MODULATION	1	knob	5	VELOCITY	1	sound	value	4	1.000000	0	55	0
 midi	MODULATION	1	button	6	PAT NEXT	1	sound	exit	5		0	73	0
 midi	MODULATION	1	knob	6	SCALE ROOT	1	sound	value	5	0.000000	0	70	0
@@ -1927,7 +1927,7 @@ midi-input	MODULATION	0	button	3	MACRO MAP	1	sound	selection	2		0	66	0
 midi-input	MODULATION	0	knob	3	CC VALUE	1	sound	value	2	0.000000	128	55	0
 midi-input	MODULATION	0	button	4	MIDI/RPN	1	sound	selection	3		0	53	0
 midi-input	MODULATION	0	knob	4	TRANSPOSE	1	sound	value	3	0.000000	0	67	0
-midi-input	MODULATION	0	button	5	MULTITIMBRAL	1	sound	execute	4		0	83	0
+midi-input	MODULATION	0	button	5	MIDI MODULE	1	sound	execute	4		0	73	0
 midi-input	MODULATION	0	knob	5	VELOCITY	1	sound	value	4	1.000000	0	55	0
 midi-input	MODULATION	0	button	6	PAT NEXT	1	sound	exit	5		0	73	0
 midi-input	MODULATION	0	knob	6	SCALE ROOT	1	sound	value	5	0.000000	0	70	0
@@ -1943,7 +1943,7 @@ midi-input	MODULATION	1	button	3	MACRO MAP	1	sound	selection	2		0	66	0
 midi-input	MODULATION	1	knob	3	CC VALUE	1	sound	value	2	0.000000	128	55	0
 midi-input	MODULATION	1	button	4	MIDI/RPN	1	sound	selection	3		0	53	0
 midi-input	MODULATION	1	knob	4	PROGRAM	1	sound	value	3	0.000000	0	54	0
-midi-input	MODULATION	1	button	5	MULTITIMBRAL	1	sound	execute	4		0	83	0
+midi-input	MODULATION	1	button	5	MIDI MODULE	1	sound	execute	4		0	73	0
 midi-input	MODULATION	1	knob	5	VELOCITY	1	sound	value	4	1.000000	0	55	0
 midi-input	MODULATION	1	button	6	PAT NEXT	1	sound	exit	5		0	73	0
 midi-input	MODULATION	1	knob	6	SCALE ROOT	1	sound	value	5	0.000000	0	70	0
@@ -1993,11 +1993,11 @@ perform	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
 perform	PERFORM	0	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 perform	PERFORM	0	button	5	STORE A	1	performance	execute	4		0	66	0
 perform	PERFORM	0	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-perform	PERFORM	0	button	6	STORE B	1	performance	execute	5		0	65	0
+perform	PERFORM	0	button	6	VOCODER	1	performance	exit	5		0	52	0
 perform	PERFORM	0	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 perform	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 perform	PERFORM	0	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-perform	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+perform	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 perform	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 perform	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 perform	PERFORM	1	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2009,11 +2009,11 @@ perform	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 perform	PERFORM	1	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 perform	PERFORM	1	button	5	RESET LIVE	1	performance	execute	4		0	65	0
 perform	PERFORM	1	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-perform	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
+perform	PERFORM	1	button	6	STORE B	1	performance	execute	5		0	65	0
 perform	PERFORM	1	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 perform	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 perform	PERFORM	1	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-perform	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+perform	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 perform	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 macros	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 macros	PERFORM	0	knob	1	MACRO 1	1	performance	value	0	0.000000	0	49	0
@@ -2025,11 +2025,11 @@ macros	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
 macros	PERFORM	0	knob	4	MACRO 4	1	performance	value	3	0.000000	0	49	0
 macros	PERFORM	0	button	5	STORE A	1	performance	execute	4		0	66	0
 macros	PERFORM	0	knob	5	MACRO 5	1	performance	value	4	0.000000	0	49	0
-macros	PERFORM	0	button	6	STORE B	1	performance	execute	5		0	65	0
+macros	PERFORM	0	button	6	VOCODER	1	performance	exit	5		0	52	0
 macros	PERFORM	0	knob	6	MACRO 6	1	performance	value	5	0.000000	0	49	0
 macros	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 macros	PERFORM	0	knob	7	MACRO 7	1	performance	value	6	0.000000	0	49	0
-macros	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+macros	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 macros	PERFORM	0	knob	8	MACRO 8	1	performance	value	7	0.000000	0	49	0
 macros	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 macros	PERFORM	1	knob	1	MACRO 1	1	performance	value	0	0.000000	0	49	0
@@ -2041,11 +2041,11 @@ macros	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 macros	PERFORM	1	knob	4	MACRO 4	1	performance	value	3	0.000000	0	49	0
 macros	PERFORM	1	button	5	RESET LIVE	1	performance	execute	4		0	65	0
 macros	PERFORM	1	knob	5	MACRO 5	1	performance	value	4	0.000000	0	49	0
-macros	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
+macros	PERFORM	1	button	6	STORE B	1	performance	execute	5		0	65	0
 macros	PERFORM	1	knob	6	MACRO 6	1	performance	value	5	0.000000	0	49	0
 macros	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 macros	PERFORM	1	knob	7	MACRO 7	1	performance	value	6	0.000000	0	49	0
-macros	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+macros	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 macros	PERFORM	1	knob	8	MACRO 8	1	performance	value	7	0.000000	0	49	0
 live-fx	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 live-fx	PERFORM	0	knob	1	FX AMOUNT	1	performance	value	0	0.600000	0	65	0
@@ -2054,14 +2054,14 @@ live-fx	PERFORM	0	knob	2	A/B MORPH	1	performance	value	1	0.000000	0	64	0
 live-fx	PERFORM	0	button	3	GESTURE	1	performance	selection	2		0	52	0
 live-fx	PERFORM	0	knob	3	REPEAT RATE	1	performance	value	2	0.333333	0	76	0
 live-fx	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
-live-fx	PERFORM	0	knob	4	SEQ FX TYPE	1	performance	value	3	0.000000	0	72	0
+live-fx	PERFORM	0	knob	4	SONG FX TYPE	1	performance	value	3	0.000000	0	81	0
 live-fx	PERFORM	0	button	5	FX BANK 1	1	performance	execute	4		0	59	0
-live-fx	PERFORM	0	knob	5	SEQ FX AMT	1	performance	value	4	0.500000	0	67	0
+live-fx	PERFORM	0	knob	5	SONG FX AMT	1	performance	value	4	0.500000	0	75	0
 live-fx	PERFORM	0	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
 live-fx	PERFORM	0	knob	6	STEP	1	performance	value	5	1.000000	0	29	0
 live-fx	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 live-fx	PERFORM	0	knob	7	TRACK	1	performance	value	6	5.000000	0	38	0
-live-fx	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+live-fx	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 live-fx	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	0	40	0
 live-fx	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 live-fx	PERFORM	1	knob	1	FX AMOUNT	1	performance	value	0	0.600000	0	65	0
@@ -2077,7 +2077,7 @@ live-fx	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
 live-fx	PERFORM	1	knob	6	STEP	1	performance	value	5	1.000000	0	29	0
 live-fx	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 live-fx	PERFORM	1	knob	7	TRACK	1	performance	value	6	5.000000	0	38	0
-live-fx	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+live-fx	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 live-fx	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	0	40	0
 gesture	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 gesture	PERFORM	0	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2093,7 +2093,7 @@ gesture	PERFORM	0	button	6	PLAY LOOP	1	performance	execute	5		0	80	0
 gesture	PERFORM	0	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 gesture	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 gesture	PERFORM	0	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-gesture	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+gesture	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 gesture	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 gesture	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 gesture	PERFORM	1	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2105,11 +2105,11 @@ gesture	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 gesture	PERFORM	1	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 gesture	PERFORM	1	button	5	CLEAR	1	performance	execute	4		0	55	0
 gesture	PERFORM	1	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-gesture	PERFORM	1	button	6	CAPTURE	1	performance	execute	5		0	70	0
+gesture	PERFORM	1	button	6	RECALL NOTES	1	performance	execute	5		0	102	0
 gesture	PERFORM	1	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 gesture	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 gesture	PERFORM	1	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-gesture	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+gesture	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 gesture	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 mutation	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 mutation	PERFORM	0	knob	1	MUTATION %	1	performance	value	0	0.000000	0	71	0
@@ -2125,7 +2125,7 @@ mutation	PERFORM	0	button	6	COMMIT	1	performance	execute	5		0	44	0
 mutation	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
 mutation	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 mutation	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
-mutation	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+mutation	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 mutation	PERFORM	0	knob	8		0	performance	value	7	0.000000	0	0	0
 mutation	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 mutation	PERFORM	1	knob	1	MUTATION %	1	performance	value	0	0.000000	0	71	0
@@ -2141,8 +2141,168 @@ mutation	PERFORM	1	button	6	REVERT	1	performance	execute	5		0	44	0
 mutation	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
 mutation	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 mutation	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
-mutation	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+mutation	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 mutation	PERFORM	1	knob	8		0	performance	value	7	0.000000	0	0	0
+vocoder	PERFORM	0	button	1		0	performance	empty	0		0	0	0
+vocoder	PERFORM	0	knob	1	MODULATOR	1	performance	value	0	0.600000	0	68	0
+vocoder	PERFORM	0	button	2		0	performance	empty	1		0	0	0
+vocoder	PERFORM	0	knob	2	CARRIER	1	performance	value	1	0.500000	0	49	0
+vocoder	PERFORM	0	button	3		0	performance	empty	2		0	0	0
+vocoder	PERFORM	0	knob	3	MIX	1	performance	value	2	1.000000	0	20	0
+vocoder	PERFORM	0	button	4		0	performance	empty	3		0	0	0
+vocoder	PERFORM	0	knob	4		0	performance	value	3	0.000000	0	0	0
+vocoder	PERFORM	0	button	5	USE INSERT 1	1	performance	execute	4		0	77	0
+vocoder	PERFORM	0	knob	5		0	performance	value	4	0.400000	0	0	0
+vocoder	PERFORM	0	button	6	USE INSERT 2	1	performance	execute	5		0	77	0
+vocoder	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
+vocoder	PERFORM	0	button	7		0	performance	empty	6		0	0	0
+vocoder	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
+vocoder	PERFORM	0	button	8	BACK	1	performance	exit	7		0	48	0
+vocoder	PERFORM	0	knob	8		0	performance	value	7	1.000000	0	0	0
+vocoder	PERFORM	1	button	1		0	performance	empty	0		0	0	0
+vocoder	PERFORM	1	knob	1	MODULATOR	1	performance	value	0	0.600000	0	68	0
+vocoder	PERFORM	1	button	2		0	performance	empty	1		0	0	0
+vocoder	PERFORM	1	knob	2	CARRIER	1	performance	value	1	0.500000	0	49	0
+vocoder	PERFORM	1	button	3		0	performance	empty	2		0	0	0
+vocoder	PERFORM	1	knob	3	MIX	1	performance	value	2	1.000000	0	20	0
+vocoder	PERFORM	1	button	4		0	performance	empty	3		0	0	0
+vocoder	PERFORM	1	knob	4		0	performance	value	3	0.000000	0	0	0
+vocoder	PERFORM	1	button	5	USE INSERT 1	1	performance	execute	4		0	77	0
+vocoder	PERFORM	1	knob	5		0	performance	value	4	0.400000	0	0	0
+vocoder	PERFORM	1	button	6	USE INSERT 2	1	performance	execute	5		0	77	0
+vocoder	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
+vocoder	PERFORM	1	button	7		0	performance	empty	6		0	0	0
+vocoder	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
+vocoder	PERFORM	1	button	8	BACK	1	performance	exit	7		0	48	0
+vocoder	PERFORM	1	knob	8		0	performance	value	7	1.000000	0	0	0
+live-tools	PERFORM	0	button	1		0	performance	empty	0		0	0	0
+live-tools	PERFORM	0	knob	1		0	performance	value	0	0.600000	0	0	0
+live-tools	PERFORM	0	button	2		0	performance	empty	1		0	0	0
+live-tools	PERFORM	0	knob	2		0	performance	value	1	0.000000	0	0	0
+live-tools	PERFORM	0	button	3		0	performance	empty	2		0	0	0
+live-tools	PERFORM	0	knob	3		0	performance	value	2	1.000000	0	0	0
+live-tools	PERFORM	0	button	4		0	performance	empty	3		0	0	0
+live-tools	PERFORM	0	knob	4		0	performance	value	3	0.000000	0	0	0
+live-tools	PERFORM	0	button	5	RECORDING	1	performance	exit	4		0	64	0
+live-tools	PERFORM	0	knob	5		0	performance	value	4	0.400000	0	0	0
+live-tools	PERFORM	0	button	6	FX MAP	1	performance	exit	5		0	42	0
+live-tools	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
+live-tools	PERFORM	0	button	7	MIDI MODULE	1	performance	exit	6		0	73	0
+live-tools	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
+live-tools	PERFORM	0	button	8	BACK	1	performance	exit	7		0	48	0
+live-tools	PERFORM	0	knob	8		0	performance	value	7	1.000000	0	0	0
+live-tools	PERFORM	1	button	1		0	performance	empty	0		0	0	0
+live-tools	PERFORM	1	knob	1		0	performance	value	0	0.600000	0	0	0
+live-tools	PERFORM	1	button	2		0	performance	empty	1		0	0	0
+live-tools	PERFORM	1	knob	2		0	performance	value	1	0.000000	0	0	0
+live-tools	PERFORM	1	button	3		0	performance	empty	2		0	0	0
+live-tools	PERFORM	1	knob	3		0	performance	value	2	1.000000	0	0	0
+live-tools	PERFORM	1	button	4		0	performance	empty	3		0	0	0
+live-tools	PERFORM	1	knob	4		0	performance	value	3	0.000000	0	0	0
+live-tools	PERFORM	1	button	5	RECORDING	1	performance	exit	4		0	64	0
+live-tools	PERFORM	1	knob	5		0	performance	value	4	0.400000	0	0	0
+live-tools	PERFORM	1	button	6	FX MAP	1	performance	exit	5		0	42	0
+live-tools	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
+live-tools	PERFORM	1	button	7	MIDI MODULE	1	performance	exit	6		0	73	0
+live-tools	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
+live-tools	PERFORM	1	button	8	BACK	1	performance	exit	7		0	48	0
+live-tools	PERFORM	1	knob	8		0	performance	value	7	1.000000	0	0	0
+recording	PERFORM	0	button	1	MONITOR	1	performance	selection	0		0	50	0
+recording	PERFORM	0	knob	1	RECORD BUS	1	performance	value	0	0.000000	0	71	0
+recording	PERFORM	0	button	2	IMMEDIATE	1	performance	selection	1		0	61	0
+recording	PERFORM	0	knob	2	MONITOR	1	performance	value	1	0.000000	0	50	0
+recording	PERFORM	0	button	3	1 BAR	1	performance	selection	2		0	33	0
+recording	PERFORM	0	knob	3	BARS	1	performance	value	2	1.000000	0	30	0
+recording	PERFORM	0	button	4	LOOPER	1	performance	selection	3		0	44	0
+recording	PERFORM	0	knob	4	TRACK	1	performance	value	3	5.000000	0	38	0
+recording	PERFORM	0	button	5	CAPTURE AUDIO	1	performance	execute	4		0	90	0
+recording	PERFORM	0	knob	5		0	performance	value	4	0.000000	0	0	0
+recording	PERFORM	0	button	6	REC INPUT	1	performance	execute	5		0	60	0
+recording	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
+recording	PERFORM	0	button	7	REC SOURCE	1	performance	execute	6		0	70	0
+recording	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
+recording	PERFORM	0	button	8	RESAMPLE	1	performance	execute	7		0	60	0
+recording	PERFORM	0	knob	8		0	performance	value	7	0.000000	0	0	0
+recording	PERFORM	1	button	1	MONITOR	1	performance	selection	0		0	50	0
+recording	PERFORM	1	knob	1	RECORD BUS	1	performance	value	0	0.000000	0	71	0
+recording	PERFORM	1	button	2	IMMEDIATE	1	performance	selection	1		0	61	0
+recording	PERFORM	1	knob	2	MONITOR	1	performance	value	1	0.000000	0	50	0
+recording	PERFORM	1	button	3	1 BAR	1	performance	selection	2		0	33	0
+recording	PERFORM	1	knob	3	BARS	1	performance	value	2	1.000000	0	30	0
+recording	PERFORM	1	button	4	LOOPER	1	performance	selection	3		0	44	0
+recording	PERFORM	1	knob	4	TRACK	1	performance	value	3	5.000000	0	38	0
+recording	PERFORM	1	button	5	CAPTURE AUDIO	1	performance	execute	4		0	90	0
+recording	PERFORM	1	knob	5		0	performance	value	4	0.000000	0	0	0
+recording	PERFORM	1	button	6	REC INPUT	1	performance	execute	5		0	60	0
+recording	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
+recording	PERFORM	1	button	7	REC SOURCE	1	performance	execute	6		0	70	0
+recording	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
+recording	PERFORM	1	button	8	RESAMPLE	1	performance	execute	7		0	60	0
+recording	PERFORM	1	knob	8		0	performance	value	7	0.000000	0	0	0
+fx-map	PERFORM	0	button	1	TRACK FX	1	performance	selection	0		0	55	0
+fx-map	PERFORM	0	knob	1		0	performance	value	0	0.600000	0	0	0
+fx-map	PERFORM	0	button	2		0	performance	empty	1		0	0	0
+fx-map	PERFORM	0	knob	2		0	performance	value	1	0.000000	0	0	0
+fx-map	PERFORM	0	button	3		0	performance	empty	2		0	0	0
+fx-map	PERFORM	0	knob	3		0	performance	value	2	1.000000	0	0	0
+fx-map	PERFORM	0	button	4		0	performance	empty	3		0	0	0
+fx-map	PERFORM	0	knob	4		0	performance	value	3	0.000000	0	0	0
+fx-map	PERFORM	0	button	5	GROUP FX	1	performance	exit	4		0	56	0
+fx-map	PERFORM	0	knob	5		0	performance	value	4	0.400000	0	0	0
+fx-map	PERFORM	0	button	6	MASTER FX	1	performance	exit	5		0	63	0
+fx-map	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
+fx-map	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
+fx-map	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
+fx-map	PERFORM	0	button	8	PRESET FX	1	performance	exit	7		0	62	0
+fx-map	PERFORM	0	knob	8		0	performance	value	7	1.000000	0	0	0
+fx-map	PERFORM	1	button	1	TRACK FX	1	performance	selection	0		0	55	0
+fx-map	PERFORM	1	knob	1		0	performance	value	0	0.600000	0	0	0
+fx-map	PERFORM	1	button	2		0	performance	empty	1		0	0	0
+fx-map	PERFORM	1	knob	2		0	performance	value	1	0.000000	0	0	0
+fx-map	PERFORM	1	button	3		0	performance	empty	2		0	0	0
+fx-map	PERFORM	1	knob	3		0	performance	value	2	1.000000	0	0	0
+fx-map	PERFORM	1	button	4		0	performance	empty	3		0	0	0
+fx-map	PERFORM	1	knob	4		0	performance	value	3	0.000000	0	0	0
+fx-map	PERFORM	1	button	5	GROUP FX	1	performance	exit	4		0	56	0
+fx-map	PERFORM	1	knob	5		0	performance	value	4	0.400000	0	0	0
+fx-map	PERFORM	1	button	6	MASTER FX	1	performance	exit	5		0	63	0
+fx-map	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
+fx-map	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
+fx-map	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
+fx-map	PERFORM	1	button	8	PRESET FX	1	performance	exit	7		0	62	0
+fx-map	PERFORM	1	knob	8		0	performance	value	7	1.000000	0	0	0
+midi-module	PERFORM	0	button	1		0	performance	empty	0		0	0	0
+midi-module	PERFORM	0	knob	1		0	performance	value	0	0.600000	0	0	0
+midi-module	PERFORM	0	button	2		0	performance	empty	1		0	0	0
+midi-module	PERFORM	0	knob	2		0	performance	value	1	0.000000	0	0	0
+midi-module	PERFORM	0	button	3		0	performance	empty	2		0	0	0
+midi-module	PERFORM	0	knob	3		0	performance	value	2	1.000000	0	0	0
+midi-module	PERFORM	0	button	4		0	performance	empty	3		0	0	0
+midi-module	PERFORM	0	knob	4		0	performance	value	3	0.000000	0	0	0
+midi-module	PERFORM	0	button	5	ENTER MODULE	1	performance	execute	4		0	86	0
+midi-module	PERFORM	0	knob	5		0	performance	value	4	0.400000	0	0	0
+midi-module	PERFORM	0	button	6		0	performance	empty	5		0	0	0
+midi-module	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
+midi-module	PERFORM	0	button	7		0	performance	empty	6		0	0	0
+midi-module	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
+midi-module	PERFORM	0	button	8	BACK	1	performance	exit	7		0	48	0
+midi-module	PERFORM	0	knob	8		0	performance	value	7	1.000000	0	0	0
+midi-module	PERFORM	1	button	1		0	performance	empty	0		0	0	0
+midi-module	PERFORM	1	knob	1		0	performance	value	0	0.600000	0	0	0
+midi-module	PERFORM	1	button	2		0	performance	empty	1		0	0	0
+midi-module	PERFORM	1	knob	2		0	performance	value	1	0.000000	0	0	0
+midi-module	PERFORM	1	button	3		0	performance	empty	2		0	0	0
+midi-module	PERFORM	1	knob	3		0	performance	value	2	1.000000	0	0	0
+midi-module	PERFORM	1	button	4		0	performance	empty	3		0	0	0
+midi-module	PERFORM	1	knob	4		0	performance	value	3	0.000000	0	0	0
+midi-module	PERFORM	1	button	5	ENTER MODULE	1	performance	execute	4		0	86	0
+midi-module	PERFORM	1	knob	5		0	performance	value	4	0.400000	0	0	0
+midi-module	PERFORM	1	button	6		0	performance	empty	5		0	0	0
+midi-module	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
+midi-module	PERFORM	1	button	7		0	performance	empty	6		0	0	0
+midi-module	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
+midi-module	PERFORM	1	button	8	BACK	1	performance	exit	7		0	48	0
+midi-module	PERFORM	1	knob	8		0	performance	value	7	1.000000	0	0	0
 generate	GENERATE	0	button	1	RHYTHM	1	sound	selection	0		0	46	0
 generate	GENERATE	0	knob	1	PULSES	1	sound	value	0	5.000000	0	44	0
 generate	GENERATE	0	button	2	ACCUM	1	sound	selection	1		0	39	0
@@ -2473,11 +2633,11 @@ PERFORM-page-0	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
 PERFORM-page-0	PERFORM	0	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 PERFORM-page-0	PERFORM	0	button	5	STORE A	1	performance	execute	4		0	66	0
 PERFORM-page-0	PERFORM	0	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-PERFORM-page-0	PERFORM	0	button	6	STORE B	1	performance	execute	5		0	65	0
+PERFORM-page-0	PERFORM	0	button	6	VOCODER	1	performance	exit	5		0	52	0
 PERFORM-page-0	PERFORM	0	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 PERFORM-page-0	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-0	PERFORM	0	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-PERFORM-page-0	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-0	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 PERFORM-page-0	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 PERFORM-page-0	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-0	PERFORM	1	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2489,11 +2649,11 @@ PERFORM-page-0	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 PERFORM-page-0	PERFORM	1	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 PERFORM-page-0	PERFORM	1	button	5	RESET LIVE	1	performance	execute	4		0	65	0
 PERFORM-page-0	PERFORM	1	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-PERFORM-page-0	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
+PERFORM-page-0	PERFORM	1	button	6	STORE B	1	performance	execute	5		0	65	0
 PERFORM-page-0	PERFORM	1	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 PERFORM-page-0	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-0	PERFORM	1	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-PERFORM-page-0	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-0	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 PERFORM-page-0	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 PERFORM-page-1	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-1	PERFORM	0	knob	1	MACRO 1	1	performance	value	0	0.000000	0	49	0
@@ -2505,11 +2665,11 @@ PERFORM-page-1	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
 PERFORM-page-1	PERFORM	0	knob	4	MACRO 4	1	performance	value	3	0.000000	0	49	0
 PERFORM-page-1	PERFORM	0	button	5	STORE A	1	performance	execute	4		0	66	0
 PERFORM-page-1	PERFORM	0	knob	5	MACRO 5	1	performance	value	4	0.000000	0	49	0
-PERFORM-page-1	PERFORM	0	button	6	STORE B	1	performance	execute	5		0	65	0
+PERFORM-page-1	PERFORM	0	button	6	VOCODER	1	performance	exit	5		0	52	0
 PERFORM-page-1	PERFORM	0	knob	6	MACRO 6	1	performance	value	5	0.000000	0	49	0
 PERFORM-page-1	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-1	PERFORM	0	knob	7	MACRO 7	1	performance	value	6	0.000000	0	49	0
-PERFORM-page-1	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-1	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 PERFORM-page-1	PERFORM	0	knob	8	MACRO 8	1	performance	value	7	0.000000	0	49	0
 PERFORM-page-1	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-1	PERFORM	1	knob	1	MACRO 1	1	performance	value	0	0.000000	0	49	0
@@ -2521,11 +2681,11 @@ PERFORM-page-1	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 PERFORM-page-1	PERFORM	1	knob	4	MACRO 4	1	performance	value	3	0.000000	0	49	0
 PERFORM-page-1	PERFORM	1	button	5	RESET LIVE	1	performance	execute	4		0	65	0
 PERFORM-page-1	PERFORM	1	knob	5	MACRO 5	1	performance	value	4	0.000000	0	49	0
-PERFORM-page-1	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
+PERFORM-page-1	PERFORM	1	button	6	STORE B	1	performance	execute	5		0	65	0
 PERFORM-page-1	PERFORM	1	knob	6	MACRO 6	1	performance	value	5	0.000000	0	49	0
 PERFORM-page-1	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-1	PERFORM	1	knob	7	MACRO 7	1	performance	value	6	0.000000	0	49	0
-PERFORM-page-1	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-1	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 PERFORM-page-1	PERFORM	1	knob	8	MACRO 8	1	performance	value	7	0.000000	0	49	0
 PERFORM-page-2	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-2	PERFORM	0	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2541,7 +2701,7 @@ PERFORM-page-2	PERFORM	0	button	6	PLAY LOOP	1	performance	execute	5		0	80	0
 PERFORM-page-2	PERFORM	0	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 PERFORM-page-2	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-2	PERFORM	0	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-PERFORM-page-2	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-2	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 PERFORM-page-2	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 PERFORM-page-2	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-2	PERFORM	1	knob	1	LEVEL	1	performance	value	0	0.600000	1	36	0
@@ -2553,11 +2713,11 @@ PERFORM-page-2	PERFORM	1	button	4	MUTATION	1	performance	selection	3		0	57	0
 PERFORM-page-2	PERFORM	1	knob	4	DRIVE	1	performance	value	3	0.000000	4	34	0
 PERFORM-page-2	PERFORM	1	button	5	CLEAR	1	performance	execute	4		0	55	0
 PERFORM-page-2	PERFORM	1	knob	5	DELAY SEND	1	performance	value	4	0.400000	5	70	0
-PERFORM-page-2	PERFORM	1	button	6	CAPTURE	1	performance	execute	5		0	70	0
+PERFORM-page-2	PERFORM	1	button	6	RECALL NOTES	1	performance	execute	5		0	102	0
 PERFORM-page-2	PERFORM	1	knob	6	CRUSH	1	performance	value	5	0.000000	6	38	0
 PERFORM-page-2	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-2	PERFORM	1	knob	7	LFO DEPTH	1	performance	value	6	0.000000	7	62	0
-PERFORM-page-2	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-2	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 PERFORM-page-2	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	8	40	0
 PERFORM-page-3	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-3	PERFORM	0	knob	1	MUTATION %	1	performance	value	0	0.000000	0	71	0
@@ -2573,7 +2733,7 @@ PERFORM-page-3	PERFORM	0	button	6	COMMIT	1	performance	execute	5		0	44	0
 PERFORM-page-3	PERFORM	0	knob	6		0	performance	value	5	0.000000	0	0	0
 PERFORM-page-3	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-3	PERFORM	0	knob	7		0	performance	value	6	0.000000	0	0	0
-PERFORM-page-3	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-3	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 PERFORM-page-3	PERFORM	0	knob	8		0	performance	value	7	0.000000	0	0	0
 PERFORM-page-3	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-3	PERFORM	1	knob	1	MUTATION %	1	performance	value	0	0.000000	0	71	0
@@ -2589,7 +2749,7 @@ PERFORM-page-3	PERFORM	1	button	6	REVERT	1	performance	execute	5		0	44	0
 PERFORM-page-3	PERFORM	1	knob	6		0	performance	value	5	0.000000	0	0	0
 PERFORM-page-3	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-3	PERFORM	1	knob	7		0	performance	value	6	0.000000	0	0	0
-PERFORM-page-3	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-3	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 PERFORM-page-3	PERFORM	1	knob	8		0	performance	value	7	0.000000	0	0	0
 PERFORM-page-4	PERFORM	0	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-4	PERFORM	0	knob	1	FX AMOUNT	1	performance	value	0	0.600000	0	65	0
@@ -2598,14 +2758,14 @@ PERFORM-page-4	PERFORM	0	knob	2	A/B MORPH	1	performance	value	1	0.000000	0	64	0
 PERFORM-page-4	PERFORM	0	button	3	GESTURE	1	performance	selection	2		0	52	0
 PERFORM-page-4	PERFORM	0	knob	3	REPEAT RATE	1	performance	value	2	0.333333	0	76	0
 PERFORM-page-4	PERFORM	0	button	4	MUTATION	1	performance	selection	3		0	57	0
-PERFORM-page-4	PERFORM	0	knob	4	SEQ FX TYPE	1	performance	value	3	0.000000	0	72	0
+PERFORM-page-4	PERFORM	0	knob	4	SONG FX TYPE	1	performance	value	3	0.000000	0	81	0
 PERFORM-page-4	PERFORM	0	button	5	FX BANK 1	1	performance	execute	4		0	59	0
-PERFORM-page-4	PERFORM	0	knob	5	SEQ FX AMT	1	performance	value	4	0.500000	0	67	0
+PERFORM-page-4	PERFORM	0	knob	5	SONG FX AMT	1	performance	value	4	0.500000	0	75	0
 PERFORM-page-4	PERFORM	0	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
 PERFORM-page-4	PERFORM	0	knob	6	STEP	1	performance	value	5	1.000000	0	29	0
 PERFORM-page-4	PERFORM	0	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-4	PERFORM	0	knob	7	TRACK	1	performance	value	6	5.000000	0	38	0
-PERFORM-page-4	PERFORM	0	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-4	PERFORM	0	button	8	LOOPER	1	performance	exit	7		0	62	0
 PERFORM-page-4	PERFORM	0	knob	8	LFO HZ	1	performance	value	7	1.000000	0	40	0
 PERFORM-page-4	PERFORM	1	button	1	A/B MORPH	1	performance	selection	0		0	64	0
 PERFORM-page-4	PERFORM	1	knob	1	FX AMOUNT	1	performance	value	0	0.600000	0	65	0
@@ -2621,17 +2781,17 @@ PERFORM-page-4	PERFORM	1	button	6	CONTROL ALL	1	performance	execute	5		0	77	0
 PERFORM-page-4	PERFORM	1	knob	6	STEP	1	performance	value	5	1.000000	0	29	0
 PERFORM-page-4	PERFORM	1	button	7	LIVE FX	1	performance	exit	6		0	44	0
 PERFORM-page-4	PERFORM	1	knob	7	TRACK	1	performance	value	6	5.000000	0	38	0
-PERFORM-page-4	PERFORM	1	button	8	AUDIO	1	performance	exit	7		0	53	0
+PERFORM-page-4	PERFORM	1	button	8	LIVE TOOLS	1	performance	exit	7		0	65	0
 PERFORM-page-4	PERFORM	1	knob	8	LFO HZ	1	performance	value	7	1.000000	0	40	0
 PERFORM-page-5	PERFORM	0	button	1	LOOPER	1	performance	selection	0		0	44	0
 PERFORM-page-5	PERFORM	0	knob	1	TRACK	1	performance	value	0	5.000000	0	38	0
-PERFORM-page-5	PERFORM	0	button	2	AUDIO	1	performance	selection	1		0	53	0
+PERFORM-page-5	PERFORM	0	button	2	TIMELINE	1	performance	selection	1		0	71	0
 PERFORM-page-5	PERFORM	0	knob	2	INPUT	1	performance	value	1	1.000000	0	35	0
 PERFORM-page-5	PERFORM	0	button	3		0	performance	empty	8		0	0	0
 PERFORM-page-5	PERFORM	0	knob	3	LENGTH	1	performance	value	2	0.000000	0	45	0
 PERFORM-page-5	PERFORM	0	button	4		0	performance	empty	8		0	0	0
 PERFORM-page-5	PERFORM	0	knob	4	BARS	1	performance	value	3	1.000000	0	30	0
-PERFORM-page-5	PERFORM	0	button	5	RECORD	0	performance	execute	2		0	63	0
+PERFORM-page-5	PERFORM	0	button	5	PREPARE + REC	1	performance	execute	2		0	105	0
 PERFORM-page-5	PERFORM	0	knob	5	FEEDBACK	1	performance	value	4	1.000000	0	59	0
 PERFORM-page-5	PERFORM	0	button	6	DUPLICATE	0	performance	execute	3		0	80	0
 PERFORM-page-5	PERFORM	0	knob	6	LEVEL	1	performance	value	5	0.800000	0	36	0
@@ -2647,7 +2807,7 @@ PERFORM-page-5	PERFORM	1	button	3		0	performance	empty	8		0	0	0
 PERFORM-page-5	PERFORM	1	knob	3	LENGTH	1	performance	value	2	0.000000	0	45	0
 PERFORM-page-5	PERFORM	1	button	4		0	performance	empty	8		0	0	0
 PERFORM-page-5	PERFORM	1	knob	4	BARS	1	performance	value	3	1.000000	0	30	0
-PERFORM-page-5	PERFORM	1	button	5	RECORD	0	performance	execute	2		0	63	0
+PERFORM-page-5	PERFORM	1	button	5	PREPARE + REC	1	performance	execute	2		0	105	0
 PERFORM-page-5	PERFORM	1	knob	5	FEEDBACK	1	performance	value	4	1.000000	0	59	0
 PERFORM-page-5	PERFORM	1	button	6	TAKE UNDO	0	performance	execute	6		0	82	0
 PERFORM-page-5	PERFORM	1	knob	6	LEVEL	1	performance	value	5	0.800000	0	36	0
@@ -2913,7 +3073,7 @@ clip-kit	CLIP	1	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip-kit	CLIP	1	knob	8	COPY SCOPE	1	arrangement	value	7	0.000000	0	70	0
 looper	PERFORM	0	button	1	LOOPER	1	performance	selection	0		0	44	0
 looper	PERFORM	0	knob	1	TRACK	1	performance	value	0	5.000000	0	38	0
-looper	PERFORM	0	button	2	AUDIO	1	performance	selection	1		0	53	0
+looper	PERFORM	0	button	2	TIMELINE	1	performance	selection	1		0	71	0
 looper	PERFORM	0	knob	2	INPUT	1	performance	value	1	1.000000	0	35	0
 looper	PERFORM	0	button	3		0	performance	empty	8		0	0	0
 looper	PERFORM	0	knob	3	LENGTH	1	performance	value	2	0.000000	0	45	0
@@ -2945,7 +3105,7 @@ looper	PERFORM	1	button	8	SONG	1	performance	exit	1		0	31	0
 looper	PERFORM	1	knob	8		0	performance	value	7	0.000000	0	0	0
 audio-timeline	PERFORM	0	button	1	LOOPER	1	arrangement	selection	0		0	44	0
 audio-timeline	PERFORM	0	knob	1	TRACK	1	arrangement	value	0	5.000000	0	38	0
-audio-timeline	PERFORM	0	button	2	AUDIO	1	arrangement	selection	1		0	53	0
+audio-timeline	PERFORM	0	button	2	TIMELINE	1	arrangement	selection	1		0	71	0
 audio-timeline	PERFORM	0	knob	2	CLIP	1	arrangement	value	1	1.000000	0	26	0
 audio-timeline	PERFORM	0	button	3		0	arrangement	empty	8		0	0	0
 audio-timeline	PERFORM	0	knob	3	START BAR	1	arrangement	value	2	1.000000	0	62	0
@@ -2953,7 +3113,7 @@ audio-timeline	PERFORM	0	button	4		0	arrangement	empty	8		0	0	0
 audio-timeline	PERFORM	0	knob	4	TRIM IN s	1	arrangement	value	3	0.000000	0	53	0
 audio-timeline	PERFORM	0	button	5	RECORD	1	arrangement	execute	2		0	63	0
 audio-timeline	PERFORM	0	knob	5	TRIM END s	1	arrangement	value	4	0.000000	0	63	0
-audio-timeline	PERFORM	0	button	6	DUPLICATE	1	arrangement	execute	3		0	80	0
+audio-timeline	PERFORM	0	button	6	NO SOURCE CLIP	0	arrangement	execute	3		0	111	0
 audio-timeline	PERFORM	0	knob	6	CLIP GAIN	1	arrangement	value	5	1.000000	0	56	0
 audio-timeline	PERFORM	0	button	7	DELETE CLIP	1	arrangement	execute	4		0	90	0
 audio-timeline	PERFORM	0	knob	7	PAN	1	arrangement	value	6	0.000000	0	23	0
@@ -2987,7 +3147,7 @@ sampler	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler	SAMPLER	0	knob	5	REVERSE	1	material	value	4	0.000000	0	51	0
 sampler	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler	SAMPLER	0	knob	6	LEVEL	1	material	value	5	0.350000	1	36	0
-sampler	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+sampler	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 sampler	SAMPLER	0	knob	7	FILTER	1	material	value	6	1.000000	3	39	0
 sampler	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler	SAMPLER	0	knob	8	DRIVE	1	material	value	7	0.000000	4	34	0
@@ -3019,7 +3179,7 @@ trim	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 trim	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 trim	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 trim	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-trim	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+trim	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 trim	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 trim	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 trim	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3051,7 +3211,7 @@ slices	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 slices	SAMPLER	0	knob	5	CHOKE	1	material	value	4	0.000000	0	38	0
 slices	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 slices	SAMPLER	0	knob	6	PAD	1	material	value	5	1.000000	0	23	0
-slices	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+slices	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 slices	SAMPLER	0	knob	7	PAD SLICE	1	material	value	6	1.000000	0	58	0
 slices	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 slices	SAMPLER	0	knob	8	REVERSE	1	material	value	7	0.000000	0	51	0
@@ -3083,7 +3243,7 @@ sampler-record	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-record	SAMPLER	0	knob	5	CHOKE	1	material	value	4	0.000000	0	38	0
 sampler-record	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-record	SAMPLER	0	knob	6	PAD	1	material	value	5	1.000000	0	23	0
-sampler-record	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+sampler-record	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 sampler-record	SAMPLER	0	knob	7	PAD SLICE	1	material	value	6	1.000000	0	58	0
 sampler-record	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-record	SAMPLER	0	knob	8	REVERSE	1	material	value	7	0.000000	0	51	0
@@ -3211,7 +3371,7 @@ sampler-start-marker	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-start-marker	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 sampler-start-marker	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-start-marker	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-sampler-start-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+sampler-start-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 sampler-start-marker	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 sampler-start-marker	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-start-marker	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3243,7 +3403,7 @@ sampler-end-marker	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 sampler-end-marker	SAMPLER	0	knob	5	CROSSFADE	1	material	value	4	4.000000	84	66	0
 sampler-end-marker	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 sampler-end-marker	SAMPLER	0	knob	6	ATTACK	1	material	value	5	0.000000	85	43	0
-sampler-end-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+sampler-end-marker	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 sampler-end-marker	SAMPLER	0	knob	7	RELEASE	1	material	value	6	8.000000	86	51	0
 sampler-end-marker	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 sampler-end-marker	SAMPLER	0	knob	8	PLAY MODE	1	material	value	7	0.000000	0	63	0
@@ -3275,7 +3435,7 @@ wave	SAMPLER	0	button	5	STRETCH	1	material	execute	4		0	51	0
 wave	SAMPLER	0	knob	5	START FINE	1	material	value	4	0.000000	0	66	0
 wave	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 wave	SAMPLER	0	knob	6	END FINE	1	material	value	5	1.000000	0	53	0
-wave	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+wave	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 wave	SAMPLER	0	knob	7	ATTACK	1	material	value	6	0.000000	0	43	0
 wave	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 wave	SAMPLER	0	knob	8	RELEASE	1	material	value	7	8.000000	0	51	0
@@ -3307,7 +3467,7 @@ zones	SAMPLER	0	button	5	AUTO CHOP	1	material	execute	4		0	63	0
 zones	SAMPLER	0	knob	5	ZONE	1	material	value	4	1.000000	0	30	0
 zones	SAMPLER	0	button	6	MAP PADS	1	material	execute	5		0	57	0
 zones	SAMPLER	0	knob	6	KEY LOW	1	material	value	5	0.000000	0	51	0
-zones	SAMPLER	0	button	7	FILES	1	material	exit	6		0	73	0
+zones	SAMPLER	0	button	7	FILES	1	material	exit	6		0	50	0
 zones	SAMPLER	0	knob	7	KEY HIGH	1	material	value	6	0.000000	0	53	0
 zones	SAMPLER	0	button	8	LOOP TAKE	1	material	execute	7		0	62	0
 zones	SAMPLER	0	knob	8	ROOT	1	material	value	7	60.000000	0	30	0
@@ -3335,12 +3495,12 @@ routing	ROUTING	0	button	3	MONITOR	1	signal	selection	2		0	50	0
 routing	ROUTING	0	knob	3	AUDITION LEVEL	1	signal	value	2	0.650000	0	93	0
 routing	ROUTING	0	button	4	REC MODE	1	signal	selection	4		0	57	0
 routing	ROUTING	0	knob	4	MONITOR	1	signal	value	3	0.000000	0	50	0
-routing	ROUTING	0	button	5	CAPTURE	1	signal	execute	3		0	70	0
+routing	ROUTING	0	button	5	RECORDING	1	signal	exit	3		0	64	0
 routing	ROUTING	0	knob	5	TRACK BUS	1	signal	value	4	1.000000	0	63	0
 routing	ROUTING	0	button	6	OVERDUB IN	1	signal	execute	5		0	68	0
 routing	ROUTING	0	knob	6	INPUT BUS	1	signal	value	5	2.000000	0	60	0
 routing	ROUTING	0	button	7	MIXER	1	signal	exit	1		0	35	0
-routing	ROUTING	0	knob	7	CAPTURE BUS	1	signal	value	6	0.000000	0	78	0
+routing	ROUTING	0	knob	7		0	signal	value	6	0.000000	0	0	0
 routing	ROUTING	0	button	8		0	signal	empty	8		0	0	0
 routing	ROUTING	0	knob	8	TRACK	1	signal	value	7	6.000000	0	38	0
 routing	ROUTING	1	button	1	GROUP FX	1	signal	selection	0		0	56	0
@@ -3356,7 +3516,7 @@ routing	ROUTING	1	knob	5	TRACK BUS	1	signal	value	4	1.000000	0	63	0
 routing	ROUTING	1	button	6	RESAMPLE	1	signal	execute	4		0	60	0
 routing	ROUTING	1	knob	6	INPUT BUS	1	signal	value	5	2.000000	0	60	0
 routing	ROUTING	1	button	7	MIXER	1	signal	exit	1		0	35	0
-routing	ROUTING	1	knob	7	CAPTURE BUS	1	signal	value	6	0.000000	0	78	0
+routing	ROUTING	1	knob	7		0	signal	value	6	0.000000	0	0	0
 routing	ROUTING	1	button	8		0	signal	empty	8		0	0	0
 routing	ROUTING	1	knob	8	TRACK	1	signal	value	7	6.000000	0	38	0
 resample	ROUTING	0	button	1	GROUP FX	1	signal	selection	0		0	56	0
@@ -3367,12 +3527,12 @@ resample	ROUTING	0	button	3	MONITOR	1	signal	selection	2		0	50	0
 resample	ROUTING	0	knob	3	AUDITION LEVEL	1	signal	value	2	0.650000	0	93	0
 resample	ROUTING	0	button	4	REC MODE	1	signal	selection	4		0	57	0
 resample	ROUTING	0	knob	4	MONITOR	1	signal	value	3	0.000000	0	50	0
-resample	ROUTING	0	button	5	CAPTURE	1	signal	execute	3		0	70	0
+resample	ROUTING	0	button	5	RECORDING	1	signal	exit	3		0	64	0
 resample	ROUTING	0	knob	5	TRACK BUS	1	signal	value	4	1.000000	0	63	0
 resample	ROUTING	0	button	6	OVERDUB IN	1	signal	execute	5		0	68	0
 resample	ROUTING	0	knob	6	INPUT BUS	1	signal	value	5	2.000000	0	60	0
 resample	ROUTING	0	button	7	MIXER	1	signal	exit	1		0	35	0
-resample	ROUTING	0	knob	7	CAPTURE BUS	1	signal	value	6	0.000000	0	78	0
+resample	ROUTING	0	knob	7		0	signal	value	6	0.000000	0	0	0
 resample	ROUTING	0	button	8		0	signal	empty	8		0	0	0
 resample	ROUTING	0	knob	8	TRACK	1	signal	value	7	6.000000	0	38	0
 resample	ROUTING	1	button	1	GROUP FX	1	signal	selection	0		0	56	0
@@ -3388,7 +3548,7 @@ resample	ROUTING	1	knob	5	TRACK BUS	1	signal	value	4	1.000000	0	63	0
 resample	ROUTING	1	button	6	RESAMPLE	1	signal	execute	4		0	60	0
 resample	ROUTING	1	knob	6	INPUT BUS	1	signal	value	5	2.000000	0	60	0
 resample	ROUTING	1	button	7	MIXER	1	signal	exit	1		0	35	0
-resample	ROUTING	1	knob	7	CAPTURE BUS	1	signal	value	6	0.000000	0	78	0
+resample	ROUTING	1	knob	7		0	signal	value	6	0.000000	0	0	0
 resample	ROUTING	1	button	8		0	signal	empty	8		0	0	0
 resample	ROUTING	1	knob	8	TRACK	1	signal	value	7	6.000000	0	38	0
 group-fx	ROUTING	0	button	1	MAIN / CUE	1	signal	selection	0		0	64	0
@@ -4073,7 +4233,7 @@ diagnostics	DIAGNOSTICS	0	button	4		0	diagnostics	empty	3		0	0	0
 diagnostics	DIAGNOSTICS	0	knob	4		0	diagnostics	value	3	0.500000	0	0	0
 diagnostics	DIAGNOSTICS	0	button	5	LED TEST	1	diagnostics	execute	4		0	54	0
 diagnostics	DIAGNOSTICS	0	knob	5		0	diagnostics	value	4	0.500000	0	0	0
-diagnostics	DIAGNOSTICS	0	button	6	LCD TEST	1	diagnostics	execute	5		0	54	0
+diagnostics	DIAGNOSTICS	0	button	6		0	diagnostics	empty	5		0	0	0
 diagnostics	DIAGNOSTICS	0	knob	6		0	diagnostics	value	5	0.500000	0	0	0
 diagnostics	DIAGNOSTICS	0	button	7	TONE TEST	1	diagnostics	execute	6		0	62	0
 diagnostics	DIAGNOSTICS	0	knob	7		0	diagnostics	value	6	0.500000	0	0	0
@@ -4089,7 +4249,7 @@ diagnostics	DIAGNOSTICS	1	button	4		0	diagnostics	empty	3		0	0	0
 diagnostics	DIAGNOSTICS	1	knob	4		0	diagnostics	value	3	0.500000	0	0	0
 diagnostics	DIAGNOSTICS	1	button	5	LED TEST	1	diagnostics	execute	4		0	54	0
 diagnostics	DIAGNOSTICS	1	knob	5		0	diagnostics	value	4	0.500000	0	0	0
-diagnostics	DIAGNOSTICS	1	button	6	LCD TEST	1	diagnostics	execute	5		0	54	0
+diagnostics	DIAGNOSTICS	1	button	6		0	diagnostics	empty	5		0	0	0
 diagnostics	DIAGNOSTICS	1	knob	6		0	diagnostics	value	5	0.500000	0	0	0
 diagnostics	DIAGNOSTICS	1	button	7	TONE TEST	1	diagnostics	execute	6		0	62	0
 diagnostics	DIAGNOSTICS	1	knob	7		0	diagnostics	value	6	0.500000	0	0	0
@@ -6495,6 +6655,134 @@ engine-26-page-2	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
 engine-26-page-2	SYNTH	1	knob	7	LEVEL	1	sound	value	6	0.350000	1	36	0
 engine-26-page-2	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
 engine-26-page-2	SYNTH	1	knob	8		0	sound	value	7	16.000000	0	0	0
+engine-27-page-0	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-0	SYNTH	0	knob	1	TONGUE X	1	sound	value	0	0.750000	33632	56	0
+engine-27-page-0	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-0	SYNTH	0	knob	2	TONGUE Y	1	sound	value	1	0.500000	33633	56	0
+engine-27-page-0	SYNTH	0	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-0	SYNTH	0	knob	3	JAW	1	sound	value	2	0.500000	33634	25	0
+engine-27-page-0	SYNTH	0	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-0	SYNTH	0	knob	4	LIP ROUND	1	sound	value	3	0.500000	33635	60	0
+engine-27-page-0	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-0	SYNTH	0	knob	5	BREATH	1	sound	value	4	0.500000	33636	44	0
+engine-27-page-0	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
+engine-27-page-0	SYNTH	0	knob	6	LEVEL	1	sound	value	5	0.350000	1	36	0
+engine-27-page-0	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-0	SYNTH	0	knob	7	PAN	1	sound	value	6	0.000000	2	23	0
+engine-27-page-0	SYNTH	0	button	8		0	sound	empty	7		0	0	0
+engine-27-page-0	SYNTH	0	knob	8		0	sound	value	7	0.000000	0	0	0
+engine-27-page-0	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-0	SYNTH	1	knob	1	TONGUE X	1	sound	value	0	0.750000	33632	56	0
+engine-27-page-0	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-0	SYNTH	1	knob	2	TONGUE Y	1	sound	value	1	0.500000	33633	56	0
+engine-27-page-0	SYNTH	1	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-0	SYNTH	1	knob	3	JAW	1	sound	value	2	0.500000	33634	25	0
+engine-27-page-0	SYNTH	1	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-0	SYNTH	1	knob	4	LIP ROUND	1	sound	value	3	0.500000	33635	60	0
+engine-27-page-0	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-0	SYNTH	1	knob	5	BREATH	1	sound	value	4	0.500000	33636	44	0
+engine-27-page-0	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
+engine-27-page-0	SYNTH	1	knob	6	LEVEL	1	sound	value	5	0.350000	1	36	0
+engine-27-page-0	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-0	SYNTH	1	knob	7	PAN	1	sound	value	6	0.000000	2	23	0
+engine-27-page-0	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
+engine-27-page-0	SYNTH	1	knob	8		0	sound	value	7	0.000000	0	0	0
+engine-27-page-1	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-1	SYNTH	0	knob	1	LEVEL	1	sound	value	0	0.350000	1	36	0
+engine-27-page-1	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-1	SYNTH	0	knob	2	PAN	1	sound	value	1	0.000000	2	23	0
+engine-27-page-1	SYNTH	0	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-1	SYNTH	0	knob	3	CUTOFF	1	sound	value	2	1.000000	3	44	0
+engine-27-page-1	SYNTH	0	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-1	SYNTH	0	knob	4	DRIVE	1	sound	value	3	0.000000	4	34	0
+engine-27-page-1	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-1	SYNTH	0	knob	5	DELAY SEND	1	sound	value	4	0.000000	5	70	0
+engine-27-page-1	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
+engine-27-page-1	SYNTH	0	knob	6	CRUSH	1	sound	value	5	0.000000	6	38	0
+engine-27-page-1	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-1	SYNTH	0	knob	7	LFO DEPTH	1	sound	value	6	0.000000	7	62	0
+engine-27-page-1	SYNTH	0	button	8		0	sound	empty	7		0	0	0
+engine-27-page-1	SYNTH	0	knob	8	LFO HZ	1	sound	value	7	1.000000	8	40	0
+engine-27-page-1	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-1	SYNTH	1	knob	1	LEVEL	1	sound	value	0	0.350000	1	36	0
+engine-27-page-1	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-1	SYNTH	1	knob	2	PAN	1	sound	value	1	0.000000	2	23	0
+engine-27-page-1	SYNTH	1	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-1	SYNTH	1	knob	3	CUTOFF	1	sound	value	2	1.000000	3	44	0
+engine-27-page-1	SYNTH	1	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-1	SYNTH	1	knob	4	DRIVE	1	sound	value	3	0.000000	4	34	0
+engine-27-page-1	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-1	SYNTH	1	knob	5	DELAY SEND	1	sound	value	4	0.000000	5	70	0
+engine-27-page-1	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
+engine-27-page-1	SYNTH	1	knob	6	CRUSH	1	sound	value	5	0.000000	6	38	0
+engine-27-page-1	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-1	SYNTH	1	knob	7	LFO DEPTH	1	sound	value	6	0.000000	7	62	0
+engine-27-page-1	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
+engine-27-page-1	SYNTH	1	knob	8	LFO HZ	1	sound	value	7	1.000000	8	40	0
+engine-27-page-2	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-2	SYNTH	0	knob	1	TIP X	1	sound	value	0	0.000000	33643	30	0
+engine-27-page-2	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-2	SYNTH	0	knob	2	TIP Y	1	sound	value	1	0.000000	33644	30	0
+engine-27-page-2	SYNTH	0	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-2	SYNTH	0	knob	3	TIP CURL	1	sound	value	2	0.000000	33645	52	0
+engine-27-page-2	SYNTH	0	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-2	SYNTH	0	knob	4	TONGUE ROOT	1	sound	value	3	0.000000	33646	78	0
+engine-27-page-2	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-2	SYNTH	0	knob	5	LIP APERTURE	1	sound	value	4	0.000000	33647	81	0
+engine-27-page-2	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
+engine-27-page-2	SYNTH	0	knob	6	LIP PROTRUSION	1	sound	value	5	0.000000	33648	93	0
+engine-27-page-2	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-2	SYNTH	0	knob	7	LIP WIDTH	1	sound	value	6	0.000000	33649	58	0
+engine-27-page-2	SYNTH	0	button	8		0	sound	empty	7		0	0	0
+engine-27-page-2	SYNTH	0	knob	8	LIP TO TEETH	1	sound	value	7	0.000000	33650	76	0
+engine-27-page-2	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-2	SYNTH	1	knob	1	TIP X	1	sound	value	0	0.000000	33643	30	0
+engine-27-page-2	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-2	SYNTH	1	knob	2	TIP Y	1	sound	value	1	0.000000	33644	30	0
+engine-27-page-2	SYNTH	1	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-2	SYNTH	1	knob	3	TIP CURL	1	sound	value	2	0.000000	33645	52	0
+engine-27-page-2	SYNTH	1	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-2	SYNTH	1	knob	4	TONGUE ROOT	1	sound	value	3	0.000000	33646	78	0
+engine-27-page-2	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-2	SYNTH	1	knob	5	LIP APERTURE	1	sound	value	4	0.000000	33647	81	0
+engine-27-page-2	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
+engine-27-page-2	SYNTH	1	knob	6	LIP PROTRUSION	1	sound	value	5	0.000000	33648	93	0
+engine-27-page-2	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-2	SYNTH	1	knob	7	LIP WIDTH	1	sound	value	6	0.000000	33649	58	0
+engine-27-page-2	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
+engine-27-page-2	SYNTH	1	knob	8	LIP TO TEETH	1	sound	value	7	0.000000	33650	76	0
+engine-27-page-3	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-3	SYNTH	0	knob	1	BODY	1	sound	value	0	0.000000	33637	30	0
+engine-27-page-3	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-3	SYNTH	0	knob	2	VIBRATO DEPTH	1	sound	value	1	0.000000	33638	88	0
+engine-27-page-3	SYNTH	0	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-3	SYNTH	0	knob	3	VIBRATO RATE	1	sound	value	2	6.000000	33639	80	0
+engine-27-page-3	SYNTH	0	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-3	SYNTH	0	knob	4	GLIDE	1	sound	value	3	12.000000	33640	33	0
+engine-27-page-3	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-3	SYNTH	0	knob	5	PRESSURE	1	sound	value	4	0.000000	33641	59	0
+engine-27-page-3	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
+engine-27-page-3	SYNTH	0	knob	6	BREATHINESS	1	sound	value	5	0.000000	33642	78	0
+engine-27-page-3	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-3	SYNTH	0	knob	7	MODE	1	sound	value	6	0.000000	33657	31	0
+engine-27-page-3	SYNTH	0	button	8		0	sound	empty	7		0	0	0
+engine-27-page-3	SYNTH	0	knob	8	SPECIES	1	sound	value	7	0.000000	33658	48	0
+engine-27-page-3	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-27-page-3	SYNTH	1	knob	1	BODY	1	sound	value	0	0.000000	33637	30	0
+engine-27-page-3	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
+engine-27-page-3	SYNTH	1	knob	2	VIBRATO DEPTH	1	sound	value	1	0.000000	33638	88	0
+engine-27-page-3	SYNTH	1	button	3	ARTICULATION	1	sound	selection	2		0	82	0
+engine-27-page-3	SYNTH	1	knob	3	VIBRATO RATE	1	sound	value	2	6.000000	33639	80	0
+engine-27-page-3	SYNTH	1	button	4	VOICE	1	sound	selection	3		0	34	0
+engine-27-page-3	SYNTH	1	knob	4	GLIDE	1	sound	value	3	12.000000	33640	33	0
+engine-27-page-3	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-27-page-3	SYNTH	1	knob	5	PRESSURE	1	sound	value	4	0.000000	33641	59	0
+engine-27-page-3	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
+engine-27-page-3	SYNTH	1	knob	6	BREATHINESS	1	sound	value	5	0.000000	33642	78	0
+engine-27-page-3	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-27-page-3	SYNTH	1	knob	7	MODE	1	sound	value	6	0.000000	33657	31	0
+engine-27-page-3	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
+engine-27-page-3	SYNTH	1	knob	8	VOICE MODE	1	sound	value	7	0.000000	33659	68	0
 layer-edit-0	SYNTH	0	button	1	LAYER	1	sound	selection	0		0	36	0
 layer-edit-0	SYNTH	0	knob	1	TRACK	1	sound	value	0	6.000000	0	38	0
 layer-edit-0	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
@@ -6911,6 +7199,134 @@ save-as	PROJECT	1	button	7	LEFT	1	transient	execute	6		0	29	0
 save-as	PROJECT	1	knob	7		0	transient	value	6	0.000000	0	0	0
 save-as	PROJECT	1	button	8	RIGHT	1	transient	execute	7		0	34	0
 save-as	PROJECT	1	knob	8		0	transient	value	7	0.000000	0	0	0
+transfer-ready	PROJECT	0	button	1		0	selection	selection	0		0	0	0
+transfer-ready	PROJECT	0	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-ready	PROJECT	0	button	2		0	selection	selection	1		0	0	0
+transfer-ready	PROJECT	0	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-ready	PROJECT	0	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-ready	PROJECT	0	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-ready	PROJECT	0	button	4		0	selection	exit	3		0	0	0
+transfer-ready	PROJECT	0	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-ready	PROJECT	0	button	5	START	0	selection	execute	4		0	36	0
+transfer-ready	PROJECT	0	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-ready	PROJECT	0	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-ready	PROJECT	0	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-ready	PROJECT	0	button	7		0	selection	exit	6		0	0	0
+transfer-ready	PROJECT	0	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-ready	PROJECT	0	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-ready	PROJECT	0	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-ready	PROJECT	1	button	1		0	selection	selection	0		0	0	0
+transfer-ready	PROJECT	1	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-ready	PROJECT	1	button	2		0	selection	selection	1		0	0	0
+transfer-ready	PROJECT	1	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-ready	PROJECT	1	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-ready	PROJECT	1	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-ready	PROJECT	1	button	4		0	selection	exit	3		0	0	0
+transfer-ready	PROJECT	1	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-ready	PROJECT	1	button	5	START	0	selection	execute	4		0	36	0
+transfer-ready	PROJECT	1	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-ready	PROJECT	1	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-ready	PROJECT	1	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-ready	PROJECT	1	button	7		0	selection	exit	6		0	0	0
+transfer-ready	PROJECT	1	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-ready	PROJECT	1	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-ready	PROJECT	1	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-receiving	PROJECT	0	button	1		0	selection	selection	0		0	0	0
+transfer-receiving	PROJECT	0	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-receiving	PROJECT	0	button	2		0	selection	selection	1		0	0	0
+transfer-receiving	PROJECT	0	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-receiving	PROJECT	0	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-receiving	PROJECT	0	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-receiving	PROJECT	0	button	4		0	selection	exit	3		0	0	0
+transfer-receiving	PROJECT	0	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-receiving	PROJECT	0	button	5	START	0	selection	execute	4		0	36	0
+transfer-receiving	PROJECT	0	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-receiving	PROJECT	0	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-receiving	PROJECT	0	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-receiving	PROJECT	0	button	7		0	selection	exit	6		0	0	0
+transfer-receiving	PROJECT	0	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-receiving	PROJECT	0	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-receiving	PROJECT	0	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-receiving	PROJECT	1	button	1		0	selection	selection	0		0	0	0
+transfer-receiving	PROJECT	1	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-receiving	PROJECT	1	button	2		0	selection	selection	1		0	0	0
+transfer-receiving	PROJECT	1	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-receiving	PROJECT	1	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-receiving	PROJECT	1	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-receiving	PROJECT	1	button	4		0	selection	exit	3		0	0	0
+transfer-receiving	PROJECT	1	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-receiving	PROJECT	1	button	5	START	0	selection	execute	4		0	36	0
+transfer-receiving	PROJECT	1	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-receiving	PROJECT	1	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-receiving	PROJECT	1	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-receiving	PROJECT	1	button	7		0	selection	exit	6		0	0	0
+transfer-receiving	PROJECT	1	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-receiving	PROJECT	1	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-receiving	PROJECT	1	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-error	PROJECT	0	button	1		0	selection	selection	0		0	0	0
+transfer-error	PROJECT	0	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-error	PROJECT	0	button	2		0	selection	selection	1		0	0	0
+transfer-error	PROJECT	0	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-error	PROJECT	0	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-error	PROJECT	0	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-error	PROJECT	0	button	4		0	selection	exit	3		0	0	0
+transfer-error	PROJECT	0	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-error	PROJECT	0	button	5	START	0	selection	execute	4		0	36	0
+transfer-error	PROJECT	0	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-error	PROJECT	0	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-error	PROJECT	0	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-error	PROJECT	0	button	7		0	selection	exit	6		0	0	0
+transfer-error	PROJECT	0	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-error	PROJECT	0	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-error	PROJECT	0	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-error	PROJECT	1	button	1		0	selection	selection	0		0	0	0
+transfer-error	PROJECT	1	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-error	PROJECT	1	button	2		0	selection	selection	1		0	0	0
+transfer-error	PROJECT	1	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-error	PROJECT	1	button	3	ETHERNET	0	selection	selection	2		0	59	0
+transfer-error	PROJECT	1	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-error	PROJECT	1	button	4		0	selection	exit	3		0	0	0
+transfer-error	PROJECT	1	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-error	PROJECT	1	button	5	START	0	selection	execute	4		0	36	0
+transfer-error	PROJECT	1	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-error	PROJECT	1	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-error	PROJECT	1	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-error	PROJECT	1	button	7		0	selection	exit	6		0	0	0
+transfer-error	PROJECT	1	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-error	PROJECT	1	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-error	PROJECT	1	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-usb	PROJECT	0	button	1		0	selection	selection	0		0	0	0
+transfer-usb	PROJECT	0	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-usb	PROJECT	0	button	2		0	selection	selection	1		0	0	0
+transfer-usb	PROJECT	0	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-usb	PROJECT	0	button	3		0	selection	selection	2		0	0	0
+transfer-usb	PROJECT	0	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-usb	PROJECT	0	button	4		0	selection	exit	3		0	0	0
+transfer-usb	PROJECT	0	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-usb	PROJECT	0	button	5		0	selection	execute	4		0	0	0
+transfer-usb	PROJECT	0	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-usb	PROJECT	0	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-usb	PROJECT	0	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-usb	PROJECT	0	button	7		0	selection	exit	6		0	0	0
+transfer-usb	PROJECT	0	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-usb	PROJECT	0	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-usb	PROJECT	0	knob	8		0	selection	value	7	0.000000	0	0	0
+transfer-usb	PROJECT	1	button	1		0	selection	selection	0		0	0	0
+transfer-usb	PROJECT	1	knob	1		0	selection	value	0	1.000000	0	0	0
+transfer-usb	PROJECT	1	button	2		0	selection	selection	1		0	0	0
+transfer-usb	PROJECT	1	knob	2		0	selection	value	1	6.000000	0	0	0
+transfer-usb	PROJECT	1	button	3		0	selection	selection	2		0	0	0
+transfer-usb	PROJECT	1	knob	3		0	selection	value	2	1.000000	0	0	0
+transfer-usb	PROJECT	1	button	4		0	selection	exit	3		0	0	0
+transfer-usb	PROJECT	1	knob	4		0	selection	value	3	1.000000	0	0	0
+transfer-usb	PROJECT	1	button	5		0	selection	execute	4		0	0	0
+transfer-usb	PROJECT	1	knob	5		0	selection	value	4	0.000000	0	0	0
+transfer-usb	PROJECT	1	button	6	FILES	1	selection	exit	5		0	32	0
+transfer-usb	PROJECT	1	knob	6		0	selection	value	5	0.000000	0	0	0
+transfer-usb	PROJECT	1	button	7		0	selection	exit	6		0	0	0
+transfer-usb	PROJECT	1	knob	7		0	selection	value	6	0.000000	0	0	0
+transfer-usb	PROJECT	1	button	8	CLOSE	1	selection	exit	7		0	37	0
+transfer-usb	PROJECT	1	knob	8		0	selection	value	7	0.000000	0	0	0
 type-099	PAD	0	button	1	STEP 1-16	1	instrument	selection	0		0	59	0
 type-099	PAD	0	knob	1	TEMPO	1	instrument	value	0	99.000000	0	38	0
 type-099	PAD	0	button	2	STEP 17-32	1	instrument	selection	1		0	66	0

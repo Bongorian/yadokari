@@ -33,7 +33,10 @@ int main(int argc,char** argv) {
  FILE* controls=std::fopen(wave5_review?"build/wave5-review/screens-controls.tsv":"build/manual-controls.tsv","w");if(!controls)return 1;
  std::fprintf(controls,"screen\tmode\tshift\tkind\tnumber\tlabel\tenabled\ttype\twork\tslot\tvalue\tparameter\tlabel_width\tplacement_exception\n");
  auto shot=[&](const char* name){
-  audit_text.frame=name;const auto& meaning=ui::screen_meaning(screen_type(ui));if(frames)std::fprintf(frames,"%s\t%s\t%u\t%u\t%u\t%s\t%s\t%s\t%s\n",name,mode_name(ui.mode()),unsigned(p->tracks[ui.selected_track()].instrument),ui.instrument_view(),unsigned(ui.tracker_view()),meaning.name,meaning.left,meaning.right,ui.page_title());
+  const bool transferring=ui.transfer_view().active;
+  const char* mode=transferring?"FILE TRANSFER":mode_name(ui.mode());
+  const char* title=transferring?"FILE TRANSFER":ui.page_title();
+  audit_text.frame=name;const auto& meaning=ui::screen_meaning(screen_type(ui));if(frames)std::fprintf(frames,"%s\t%s\t%u\t%u\t%u\t%s\t%s\t%s\t%s\n",name,mode,unsigned(p->tracks[ui.selected_track()].instrument),ui.instrument_view(),unsigned(ui.tracker_view()),transferring?"transfer":meaning.name,transferring?"connection":meaning.left,transferring?"files":meaning.right,title);
   if(!std::strstr(name,"overlay") && !std::strstr(name,"help")){ui.browser().status[0]=0;ui_frames+=120000;ui.animate(ui_frames/48);}
   ui.notify(UiNotice::None); // Drop notices left by the exhaustive control audit before documenting a normal page.
   const auto track=track_at(*p,p->active_pattern,ui.selected_track());unsigned slot=track.instrument==Instrument::DrumKit?track.kit.pads[ui.selected_kit_pad()].sample[0]:track.sample_slot;
@@ -43,7 +46,7 @@ int main(int argc,char** argv) {
   char path[160];if(themed)std::snprintf(path,sizeof path,"%s/%s.ppm",frame_dir.c_str(),name);else std::snprintf(path,sizeof path,"build/manual-%s.ppm",name);FILE* f=std::fopen(path,"wb");if(!f)throw std::runtime_error("screen open");std::fprintf(f,"P6\n960 272\n255\n");
   for(unsigned y=0;y<272;++y)for(unsigned x=0;x<960;++x){uint32_t v=screen->pixels[x/480][y*480+x%480];unsigned char rgb[]={uint8_t(v>>16),uint8_t(v>>8),uint8_t(v)};if(std::fwrite(rgb,1,3,f)!=3)throw std::runtime_error("screen write");}
   if(std::fclose(f))throw std::runtime_error("screen close");
-  bool prior_shift=ui.shifted();for(unsigned modifier=0;modifier<2;++modifier){ui.set_shift(modifier);for(unsigned i=0;i<8;++i){const auto top=ui.soft_presentation(i);std::fprintf(controls,"%s\t%s\t%d\tbutton\t%u\t%s\t%d\t%s\t%s\t%u\t\t0\t%d\t%d\n",name,mode_name(ui.mode()),ui.shifted(),i+1,ui.soft_label(i),ui.soft_enabled(i),meaning.name,ui::top_work_name(top.work),ui.top_slot(i),ui::text_width(top.label,ui::FontRole::Small)+(top.icon?18:0),int(top_placement_exception(ui,i)));std::fprintf(controls,"%s\t%s\t%d\tknob\t%u\t%s\t%d\t%s\tvalue\t%u\t%.6f\t%u\t%d\t0\n",name,mode_name(ui.mode()),ui.shifted(),i+1,ui.knob_label(i),*ui.knob_label(i)!=0,meaning.name,i,ui.knob_display_value(i),ui.knob_parameter(i),ui::text_width(ui.knob_label(i),ui::FontRole::Small));}}ui.set_shift(prior_shift);
+  bool prior_shift=ui.shifted();for(unsigned modifier=0;modifier<2;++modifier){ui.set_shift(modifier);for(unsigned i=0;i<8;++i){const auto top=ui.soft_presentation(i);std::fprintf(controls,"%s\t%s\t%d\tbutton\t%u\t%s\t%d\t%s\t%s\t%u\t\t0\t%d\t%d\n",name,mode,ui.shifted(),i+1,ui.soft_label(i),ui.soft_enabled(i),transferring?"transfer":meaning.name,ui::top_work_name(top.work),ui.top_slot(i),ui::text_width(top.label,ui::FontRole::Small)+(top.icon?18:0),int(top_placement_exception(ui,i)));std::fprintf(controls,"%s\t%s\t%d\tknob\t%u\t%s\t%d\t%s\tvalue\t%u\t%.6f\t%u\t%d\t0\n",name,mode,ui.shifted(),i+1,ui.knob_label(i),*ui.knob_label(i)!=0,meaning.name,i,ui.knob_display_value(i),ui.knob_parameter(i),ui::text_width(ui.knob_label(i),ui::FontRole::Small));}}ui.set_shift(prior_shift);
 
  };
  if(wave5_review){
@@ -74,11 +77,23 @@ int main(int argc,char** argv) {
  for(unsigned type=0;type<20;++type){ui.set_parameter(94,float(type));ui.set_parameter(95,0.6f);ui.set_parameter(96,0.5f);char name[32];std::snprintf(name,sizeof name,"insert-%u",type);shot(name);}ui.soft_key(1);shot("compressor");
  ui.set_mode(UiMode::Modulation);ui.soft_key(1);shot("automation");ui.soft_key(2);shot("macro-map");ui.soft_key(3);shot("midi");ui.set_shift(true);shot("midi-input");ui.soft_key(3);ui.set_shift(false);shot("nrpn");
  ui.set_mode(UiMode::Perform);shot("perform");ui.soft_key(1);shot("macros");ui.soft_key(6);shot("live-fx");ui.soft_key(2);shot("gesture");ui.soft_key(3);shot("mutation");
+ ui.soft_key(0);const auto morph=ui.navigation();ui.soft_key(5);
+ if(!ui.on_perform_page(PerformVocoder))return 1;
+ shot("vocoder");ui.restore_navigation(morph);
+ ui.set_shift(true);ui.soft_key(7);ui.set_shift(false);
+ if(!ui.on_perform_page(PerformTools))return 1;
+ shot("live-tools");const auto tools=ui.navigation();
+ for(const auto& face: {std::pair<unsigned,PerformPage>{4,PerformRecording},{5,PerformFxMap},{6,PerformModule}}){
+  ui.restore_navigation(tools);ui.soft_key(face.first);
+  if(!ui.on_perform_page(face.second))return 1;
+  shot(face.first==4?"recording":face.first==5?"fx-map":"midi-module");
+ }
+ ui.restore_navigation(morph);
  ui.set_mode(UiMode::Generate);shot("generate");ui.soft_key(2);ui.set_shift(true);shot("groove-apply-all");ui.set_shift(false);ui.soft_key(0);
  ui.set_mode(UiMode::Modulation);ui.soft_key(0);shot("modulation");ui.set_parameter(11,1);ui.set_parameter(12,4);advance(30000);shot("modulation-sync");ui.set_parameter(11,0);
  for(unsigned mode: {unsigned(UiMode::Generate),unsigned(UiMode::Perform)}){ui.set_mode(UiMode(mode));for(unsigned i=0;i<6;++i)ui.encoder_direction(0x20);unsigned last=5;for(unsigned page=0;page<=last;++page){char name[64];std::snprintf(name,sizeof name,"%s-page-%u",mode_name(UiMode(mode)),page);shot(name);ui.encoder_direction(0x08);}}
  ui.set_mode(UiMode::Synth);ui.set_instrument(Instrument::DrumKit);advance();ui.set_mode(UiMode::Effects);for(unsigned i=0;i<6;++i)ui.encoder_direction(0x20);for(unsigned page=0;page<6;++page){char name[64];std::snprintf(name,sizeof name,"effects-page-%u",page);shot(name);ui.encoder_direction(0x08);}ui.set_mode(UiMode::Pad);shot("kit-pads");{auto prior=track_at(*p,p->active_pattern,ui.selected_track()).kit.steps[0][0];auto hit=prior;hit.enabled=true;if(!ui.set_kit_step(0,0,hit))throw std::runtime_error("kit clip fixture failed");advance();ui.set_mode(UiMode::Clip);shot("clip-kit");ui.set_mode(UiMode::Pad);ui.set_kit_step(0,0,prior);advance();}
- {auto lane=p->audio[ui.selected_track()];ui.set_mode(UiMode::Perform);for(unsigned i=0;i<5;++i)ui.encoder_direction(0x08);lane.kind=TrackKind::Looper;ui.set_audio_lane(ui.selected_track(),lane);advance();shot("looper");lane.kind=TrackKind::Audio;ui.set_audio_lane(ui.selected_track(),lane);advance();shot("audio-timeline");lane.kind=TrackKind::Instrument;ui.set_audio_lane(ui.selected_track(),lane);advance();}
+ {auto lane=p->audio[ui.selected_track()];ui.set_mode(UiMode::Perform);for(unsigned i=0;i<5;++i)ui.encoder_direction(0x08);lane.kind=TrackKind::Looper;ui.set_audio_lane(ui.selected_track(),lane);advance();shot("looper");lane.kind=TrackKind::Audio;ui.set_audio_lane(ui.selected_track(),lane);advance();ui.soft_key(1);if(!ui.on_perform_page(PerformTimeline))return 1;shot("audio-timeline");lane.kind=TrackKind::Instrument;ui.set_audio_lane(ui.selected_track(),lane);advance();}
  ui.select_track(5);ui.set_mode(UiMode::Sampler);shot("sampler");ui.soft_key(1);shot("trim");ui.soft_key(2);shot("slices");ui.set_shift(true);shot("sampler-record");ui.set_shift(false);
  auto source_region=track_at(*p,p->active_pattern,5).sample_edit;auto cropped_region=source_region;cropped_region.start=.12f;cropped_region.end=.88f;ui.sample_edit(cropped_region);advance();
  ui.set_mode(UiMode::Synth);ui.set_wave_profile(false);ui.soft_key(0);shot("sampler-source-idle");
@@ -119,6 +134,12 @@ int main(int argc,char** argv) {
  ui.set_instrument(Instrument::WestCoast);ui.set_mode(UiMode::Synth);ui.soft_key(2);shot("synth-folder");
  ui.set_mode(UiMode::Synth);ui.set_instrument(Instrument::VirtualAnalog);advance();ui.set_mode(UiMode::Effects);for(unsigned i=0;i<6;++i)ui.encoder_direction(0x20);for(unsigned i=0;i<3;++i)ui.encoder_direction(0x08);ui.set_parameter(94,20);ui.set_parameter(95,19.f/24);advance();shot("effects-pitch-shift");ui.set_parameter(94,21);ui.set_parameter(95,.5f);advance();shot("effects-rotary");ui.set_mode(UiMode::Synth);ui.begin_preset_save();ui.knob(2,1000);shot("preset-include-fx");ui.cancel_browser_edit();
  ui.set_mode(UiMode::Project);ui.soft_key(3);shot("save-as");ui.cancel_browser_edit();
+ TransferView network;network.active=true;network.wired=true;network.wifi_available=false;network.started=true;
+ copy_text(network.ssid,sizeof network.ssid,"ETHERNET / DHCP");copy_text(network.address,sizeof network.address,"http://192.0.2.2/");
+ copy_text(network.code,sizeof network.code,"12345678");copy_text(network.status,sizeof network.status,"READY");
+ ui.transfer_view(network);shot("transfer-ready");network.received=512;network.length=1024;copy_text(network.status,sizeof network.status,"RECEIVING");ui.transfer_view(network);shot("transfer-receiving");
+ network.failed=true;copy_text(network.status,sizeof network.status,"HTTP START FAILED");ui.transfer_view(network);shot("transfer-error");
+ network={};network.active=network.started=network.usb=true;copy_text(network.ssid,sizeof network.ssid,"USB-C / MGF1 v1");ui.transfer_view(network);shot("transfer-usb");ui.transfer_view({});
  FILE* report=std::fopen("build/manual-review-probes.txt","w");if(!report)return 1;
  std::fprintf(report,"Current code review probes; host only, no hardware or file writes\nBrowser overwrite: queued=%d before_capture=%d after_capture=%d\nSampler ZONES SHIFT+encoder: accepted=%d (Warp dispatch reachable)\n",queued,before==FileAction::Capture,after==FileAction::Capture,warp);
  ui.set_mode(UiMode::Pad);p->tempo=99;shot("type-099");p->tempo=100;shot("type-100");

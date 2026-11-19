@@ -1718,84 +1718,84 @@
       "bytes": 1024044,
       "crc32": 217579815,
       "sha256": "7fdb6d5f5b2204b8d70c814995f4a74bca3e61a06349a9d827215892a839c664",
-      "source": "mk3-preset-pack/assets/sampler/L-Ambient-90.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-Ambient-90.wav"
     },
     {
       "path": "ASSETS/SAMPLES/L-Breakbeat-132.wav",
       "bytes": 698226,
       "crc32": 865405510,
       "sha256": "0945af4c18d7d7301bb68f1f2b8e30c6da59581beea002cb2aebcb9d9d6d3001",
-      "source": "mk3-preset-pack/assets/sampler/L-Breakbeat-132.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-Breakbeat-132.wav"
     },
     {
       "path": "ASSETS/SAMPLES/L-Funk-104.wav",
       "bytes": 886198,
       "crc32": 2909647575,
       "sha256": "26bfa4e9639313f352233dbe105ad61250296bc85a674dece18cc05708790ba7",
-      "source": "mk3-preset-pack/assets/sampler/L-Funk-104.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-Funk-104.wav"
     },
     {
       "path": "ASSETS/SAMPLES/L-House-124.wav",
       "bytes": 743270,
       "crc32": 3854385961,
       "sha256": "1a00976282eb218c4002fe2ba9dcd308df63f4e40b29257e801065c7bc39d8b7",
-      "source": "mk3-preset-pack/assets/sampler/L-House-124.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-House-124.wav"
     },
     {
       "path": "ASSETS/SAMPLES/L-Jungle-172.wav",
       "bytes": 535858,
       "crc32": 194192815,
       "sha256": "e9d91f6a9089dce0b8d9cfb2aaa928334315c76b2895614fc5cf9442dd3a0f49",
-      "source": "mk3-preset-pack/assets/sampler/L-Jungle-172.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-Jungle-172.wav"
     },
     {
       "path": "ASSETS/SAMPLES/L-Techno-138.wav",
       "bytes": 667870,
       "crc32": 1928924964,
       "sha256": "82870437306e38c30b1c784c5924975f6b301e7cfe295a1a4c1011b63d5e2ebc",
-      "source": "mk3-preset-pack/assets/sampler/L-Techno-138.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/L-Techno-138.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Clavisynth.wav",
       "bytes": 1915186,
       "crc32": 2608164258,
       "sha256": "66ad6ec5066e1773933c28e317203cdde5310d05c6001c17f0dfc34e42260502",
-      "source": "mk3-preset-pack/assets/sampler/M-Clavisynth.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Clavisynth.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Electric-Piano.wav",
       "bytes": 3800674,
       "crc32": 3124823455,
       "sha256": "d8f6abbd97f7b1a1a1c2a898d84c4f1a3909a4cbced459c7ecb8ccc6e8c33d14",
-      "source": "mk3-preset-pack/assets/sampler/M-Electric-Piano.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Electric-Piano.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Grand-Piano.wav",
       "bytes": 3840044,
       "crc32": 3598316739,
       "sha256": "47534fdaa3cf55ca34fb3a99ae296d4aefcc28ce69d168fb951d138785a43cb8",
-      "source": "mk3-preset-pack/assets/sampler/M-Grand-Piano.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Grand-Piano.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Kalimba.wav",
       "bytes": 465126,
       "crc32": 2797465028,
       "sha256": "c7eae8ea1e5d90545022cb2f285ae73127da0fff984f8737adf9fb78800be2bc",
-      "source": "mk3-preset-pack/assets/sampler/M-Kalimba.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Kalimba.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Marimba.wav",
       "bytes": 619754,
       "crc32": 4116533783,
       "sha256": "3237d18cf1e1d8863264c4d72bd0c7f70646a74e77eb26fceeb754cf83bd57d6",
-      "source": "mk3-preset-pack/assets/sampler/M-Marimba.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Marimba.wav"
     },
     {
       "path": "ASSETS/SAMPLES/M-Vibraphone.wav",
       "bytes": 2534458,
       "crc32": 166052699,
       "sha256": "b32bf691707d2497726a2acb06ca3e5042b275d3384c122a26d63bf6d4f68189",
-      "source": "mk3-preset-pack/assets/sampler/M-Vibraphone.wav (content-side build from the repo factory library CC0 material; DATA shelf asset, already present on device)"
+      "source": "assets/factory-library/sampler/M-Vibraphone.wav"
     }
   ],
   "soundfont_source": "Existing DATA FluidR3 GM.sf2; set FACTORY_SOUNDFONT to this exact file when staging a fresh SD; SF2 audio is not embedded in firmware",

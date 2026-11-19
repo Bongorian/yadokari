@@ -37,6 +37,8 @@ public:
  static bool pending(IFileAccess& fs){FileReplace x(fs);for(const char* root:kUserShelves){if(!x.paths(root) || fs.exists(x.plan_) || fs.exists(x.draft_) || fs.exists(x.old_) || fs.exists(x.next_))return true;}return false;}
  static bool recover_all(IFileAccess& fs){FileReplace transaction(fs);for(const char* root:kUserShelves){if(!transaction.paths(root))return false;if(fs.exists(transaction.plan_)){bool won=false;if(!transaction.recover(won))return false;}else if(fs.exists(transaction.draft_)){Record record;if(transaction.decode(transaction.draft_,record)){if(!fs.move(transaction.draft_,transaction.plan_))return false;bool won=false;if(!transaction.recover(won))return false;}else if(!fs.remove(transaction.draft_))return false;}else if(fs.exists(transaction.old_) || fs.exists(transaction.next_))return false;}
   // These fixed receive names are reserved by this service, never user names.
-  constexpr const char* receives[]={"PROJECTS","PRESETS","KITS","ASSETS/SAMPLES","ASSETS/SOUNDFONTS","ASSETS/MIDI","RECORDINGS","PRESETS/DX7"};for(const char* root:receives){char source[96];if(!join_path(source,sizeof source,root,".MGX-TRANSFER.tmp") || (fs.exists(source) && !fs.remove(source)))return false;}return true;}
+  auto clean_receive=[&](const char* root){char source[96];if(!join_path(source,sizeof source,root,".MGX-TRANSFER.tmp") || (fs.exists(source) && !fs.remove(source)))return false;return true;};
+  for(const char* root:kUserShelves)if(!clean_receive(root))return false;
+  return clean_receive("PRESETS/DX7");}
 };
 }

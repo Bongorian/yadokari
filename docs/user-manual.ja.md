@@ -55,7 +55,7 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
   - [MIDI Local Control](#midi-local-control)
 - [ファイル・接続・起動](#ファイル接続起動)
   - [DATAとファイルの整理](#dataとファイルの整理)
-  - [Wi-Fiでファイルを追加・持ち出す](#wi-fiでファイルを追加持ち出す)
+  - [Ethernetでファイルを追加・持ち出す](#ethernetでファイルを追加持ち出す)
   - [USB-C転送とデバイステーマ](#usb-c転送とデバイステーマ)
   - [起動時の表示と標準データ](#起動時の表示と標準データ)
 - [制限について](#制限について)
@@ -536,7 +536,7 @@ LOOPERの **Top2 TIMELINE** で線形音声の配置を開きます。必要な�
 3. **K1 CURSOR**で文字位置、**K2 CHARACTER**または4-D回転で文字。Top5 INSERT、Top6 ERASE、Top7 LEFT、Top8 RIGHTで編集します。
 4. **Top1 APPLY**または4-D押下で保存、Top2 CANCELで中止。ソング用の`.mgxs`を自動補完します（入力したMGX家族の拡張子も置き換えます）。SAVE ASで既存名を指定しても上書きしないので、別名を入力します。
 5. 完了後のSAVEはその曲自身を更新します。**Top2 OPEN / Top6 FILES**で現在曲のフォルダーを開き、FILESで別の曲をOPENすると、以後のSAVE先もその曲になります。大文字・大小混在のMGX/MGK/MGPも扱います。
-6. 保存・読込み成功後、起動曲を`GROOVE/CURRENT.TXT`に記憶します。起動時の参照が無効・欠落なら`FACTORY/DEBUG/Benchmark.mgxs`を試します。再起動後に曲名・音符・音色・Song・素材を確認します。Undoや演奏中の一時状態は再開対象ではありません。
+6. 保存・読込み成功後、起動曲を`GROOVE/CURRENT.TXT`に記憶します。起動時の参照が無効・欠落なら`FACTORY/DEMOS/Startup.mgxs`を試します。再起動後に曲名・音符・音色・Song・素材を確認します。Undoや演奏中の一時状態は再開対象ではありません。
 
 PROJECTのTopは **SAVE / OPEN / NEW / SAVE AS / COLLECT / FILES / STORE POOL / RECALL POOL**。素材番号は**K1 ASSET**。MGX家族の内部形式はMGXCです。`.mgx`／`.mgxs`／`.mgxk`／`.mgxp`はすべて読込み対象で、名前と中身が違っても内部種別で開きます。通常SAVEは既存の名前を維持し、SAVE ASで標準拡張子に揃います。通常保存は履歴バックアップを作らず、検証した`.tmp`から切り替えます。OPENは元ファイルが使えないときだけ同名`.tmp`も調べ、復旧時は`Recovered .tmp`を表示します。破損した元ファイルとtmpが残ってSAVEを拒否された場合は、OPENで復旧して別名SAVEしてください。過去の`.bak`／番号付き世代は読みません。書込み中の電源断に対する保証はありません。保存失敗・同期警告を成功と扱わず、完了を待ちます。
 
@@ -779,11 +779,11 @@ ENGINEのPlaitsは「PLAITS 24」です。「PLAITS OSC」はありません。S
 
 ### SoundFontバンク
 
-FILESで`.sf2`を選び**LOAD**。選択Trackへバンク内の最初の音色を装着します。**SYNTH → CORE**のK1 **BANK**、K2 **PROGRAM**（どちらも0始まり）、K3 **TUNE**、K4 **GAIN**で編集。存在しないBANK／PROGRAMの組合せは無音です。メーカーの音色一覧が1始まりならPROGRAMは1を引きます。入口には`FACTORY/DEBUG/SF2-Sine.mgxp`を使えます。
+FILESで`.sf2`を選び**LOAD**。選択Trackへバンク内の最初の音色を装着します。**SYNTH → CORE**のK1 **BANK**、K2 **PROGRAM**（どちらも0始まり）、K3 **TUNE**、K4 **GAIN**で編集。存在しないBANK／PROGRAMの組合せは無音です。メーカーの音色一覧が1始まりならPROGRAMは1を引きます。同梱のFluidR3 GMはASSETS/SOUNDFONTSから開けます。
 
 通常のSAVE PRESETはSF2のパスとCRCを参照する小さい`.mgxp`を作ります。持出しはCOLLECTを使い、Presetとassets内のSF2をフォルダごと運びます。元SF2を変更・削除してCRCが一致しない場合は装着を保留し、現在の音色を保持します。SF2はRAMへ読み込みます。大容量bankや全SF2機能の再現は保証していません。
 
-- **操作例** — debug sineで発音し、離鍵で消音することを確かめます。手持ちSF2をLOADし、BANK／PROGRAMから音色を選んで、SAVE PRESET → COLLECTし、同梱Presetを再装着します。音色・velocity・音域・releaseがそのまま再現されます。存在しないprogramは無音で、素材が欠けた場合は現在の音色が保持されます。
+- **操作例** — FluidR3 GMを使う音色で発音し、離鍵で消音することを確かめます。手持ちSF2をLOADし、BANK／PROGRAMから音色を選んで、SAVE PRESET → COLLECTし、同梱Presetを再装着します。音色・velocity・音域・releaseがそのまま再現されます。存在しないprogramは無音で、素材が欠けた場合は現在の音色が保持されます。
 
 ### 大きいSoundFontを開くとき
 
@@ -1073,21 +1073,13 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 
 長い音源名・サンプル名は枠内で横スクロールします。先頭と末尾を各1.2秒保持し、28px/秒で往復。音源選択のK2も省略せず表示します。更新画面にもSETTINGSの現在のテーマとpixel orderを適用し、CANCEL後は通常画面全体を描き直します。
 
-### Wi-Fiでファイルを追加・持ち出す
+### Ethernetでファイルを追加・持ち出す
 
-**0.9.0ビルドではWi-Fiは無効です。** WLANスタックのライセンス上の理由で公式イメージでは無効化されています。ファイル転送はEthernetまたはUSB-Cを使ってください（次節）。
+PiとPCをDHCPのある同じ有線ネットワークに接続します。**SETTINGS → SYSTEM → Top5 FILE TRANSFER**を開き、既定のETHERNETを選んだまま**Top5 START**を押します。転送中は演奏が一時停止します。
 
-共通rendererで生成した説明用画面です。実機写真ではなく、表示の数値は例です。
-
-![File transfer ready](manual/transfer-ready.png)
-
-![File transfer receiving](manual/transfer-receiving.png)
-
-実機の操作は **SETTINGS → SYSTEM → Top5 FILE TRANSFER**。左の **Top1 AP** は本体のWi-Fiへ接続、**Top2 STATION** はDATAに設定済みのネットワークへ参加します。選んだら右の **Top5 START** を押します。転送中は性能とストレージを確保するため演奏入力を休止し、画面に「PERFORMANCE PAUSED / CLOSE TO RESUME」を表示します。CLOSE後すぐにパッドとノブを再び使えます。再生はPLAYで再開します。
-
-1. APならスマホ／PCを画面の`Groovebox-...`へ接続します。インターネット接続のないWi-Fiとして維持し、表示された`http://192.168.76.1/`を開きます。STATIONなら本体と同じネットワークで画面のADDRESSを開きます。`groovebox.local`は発見できる環境で使い、開けなければIPアドレスを使います。
+1. PCのブラウザで画面のADDRESSを開きます。WLANを有効にしたビルドではAPとSTATIONも選べます。
 2. ブラウザの **Connection code** へ本体のcodeを入力し **Connect**。**Songs／Presets／Kits／Samples／SoundFonts／MIDI／Recordings** から棚を選びます。空き容量と一覧を確認します。
-3. **Add / replace files** またはdrag＆dropで追加します。保存先は内容から自動決定します。MGXの名前の拡張子が誤っていても内部種別で判定します。大きなSF2は進捗を表示し、**Cancel** で中止できます。最大1GiB、受付は`.mgxs/.mgxk/.mgxp/.wav/.mid/.syx/.sf2`のみ。`.syx`はDX7の32音色バンクを32個のPresetファイルに展開し、poolへ自動登録しません。
+3. **Add / replace files** またはdrag＆dropで追加します。保存先は内容から自動決定します。MGXの名前の拡張子が誤っていても内部種別で判定します。大きなSF2は進捗を表示し、**Cancel** で中止できます。最大1GiB、受付は`.mgxs/.mgxk/.mgxp/.wav/.mid/.syx/.sf2/.ipa`のみ。`.syx`はDX7の32音色バンクを32個のPresetファイルに展開し、poolへ自動登録しません。
 4. 一覧の **Download** で持ち出し、**Delete** → 確認で削除します。現在開いている曲と宣言済み素材は削除できません。同名アップロードは長さ・SHA256・内容種別の検証後に置換します。現在曲とその参照素材は上書きも拒否します。
 5. 実機の **Top6 FILES** で転送を終了してFILESへ移ります。曲は **PROJECTS** に入り、選択して **OPEN** します。**Top8 CLOSE** でも終了でき、10分経過でも自動終了します。終了後はHTTPへ接続できません。演奏は **PLAY** で再開します。
 
@@ -1109,7 +1101,7 @@ COLLECTの素材コピーは短いindex／CRC名になります。長い名前�
 
 MK3のUSB列挙後、左画面は黒のまま、右画面にYADOKARIのスプラッシュ（ヤドカリのマークとワードマーク、VIBE GROOVEBOXのタグライン）を表示し、画面下部にはファームウェア自身が版数を重ねて表示します。初期化を終えると操作画面へ移ります。電源投入からUSB列挙までのNI標準画面はソフトウェアから変更できません。初回・更新直後などは標準データを照合するため、通常起動より時間が掛かります。通常は存在とサイズだけを確認します。編集中の内容はPROJECTSへ別名保存してください。
 
-追加の79音色は FILE → FACTORY → PRESETS → LIBRARY、24キットは FILE → FACTORY → KITS → LIBRARY から選択してLOADします。元のPRESETS/KITSは保持し、編集用として使えます。ファクトリー原本の復元と共有素材の扱いは[ライブラリ](factory-library.md)を参照してください。
+ライブラリの163音色は FILE → FACTORY → PRESETS → LIBRARY、24キットは FILE → FACTORY → KITS → LIBRARY から選択してLOADします。元のPRESETS/KITSは保持し、編集用として使えます。ファクトリー原本の復元と共有素材の扱いは[ライブラリ](factory-library.md)を参照してください。
 
 
 ---

@@ -1,42 +1,7 @@
 {
-  "revision": 13,
-  "sha256": "45e463cf9dc5d46840105da3c44a41338e82284a385ec327933123c9ada807a8",
+  "revision": 14,
+  "sha256": "097ca32fdff16d9f53a2b014cbe1d44dd80568864d8a0f9463b7741d6bafbf37",
   "files": [
-    {
-      "path": "BENCH.MGXS",
-      "size": 1295533,
-      "sha256": "cc91c9aa73449b9e937899e2e25bd81c8c13371a36bea11048176f101bc97445"
-    },
-    {
-      "path": "FACTORY/DEBUG/440Hz.wav",
-      "size": 96044,
-      "sha256": "7ca185a6d87ec11419e53d82fa56ad8bd294c84f0168b60aeeb7e2c47739596e"
-    },
-    {
-      "path": "FACTORY/DEBUG/Benchmark.mgxs",
-      "size": 1295533,
-      "sha256": "749c44a41904c5a585f5a678ab1a18c2d0bec13070d5a241310abb1b230d8c4b"
-    },
-    {
-      "path": "FACTORY/DEBUG/SF2-Sine.mgxp",
-      "size": 7576,
-      "sha256": "1b91712fc0de38f79965a633edd48d71d48a80ba36332f1396eae47d1202e26e"
-    },
-    {
-      "path": "FACTORY/DEBUG/Sine.sf2",
-      "size": 946,
-      "sha256": "d44ec058c2762b7c698f245f1a1a158bb5536025558fb88065d0a646ea3e587e"
-    },
-    {
-      "path": "FACTORY/DEBUG/Test-Tone.mgxp",
-      "size": 7569,
-      "sha256": "13686b22cb3573616d5fa6513687e498e2e5c4e2c43a48c443bb775e831f18ed"
-    },
-    {
-      "path": "FACTORY/DEBUG/demo-slices.wav",
-      "size": 96044,
-      "sha256": "0adba99c56ba1b0d2c2aec05099e1547e6f6336db93a07cb2603a4c4974167a9"
-    },
     {
       "path": "FACTORY/DRUMS/Circuit-Clap.wav",
       "size": 24044,

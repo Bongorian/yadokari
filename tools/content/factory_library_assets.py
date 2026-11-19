@@ -7,7 +7,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('output',type=Path);a=p.parse_args()
     manifest=json.loads((ROOT/'assets/factory-library/manifest.json').read_text())
     for asset in manifest['assets']:
-        source=ROOT/asset['source'] if asset.get('source') else Path(os.environ.get('FACTORY_SOUNDFONT',str(ROOT/asset['path'])))
+        source=ROOT/asset['source'] if asset.get('source') else Path(os.environ.get('FACTORY_SOUNDFONT','/usr/share/sounds/sf2/FluidR3_GM.sf2'))
         if not source.is_file():raise SystemExit(f"Missing factory asset source: {source}; supply FACTORY_SOUNDFONT for FluidR3 GM")
         with source.open('rb') as f:digest=hashlib.file_digest(f,'sha256').hexdigest()
         if digest!=asset['sha256']:raise SystemExit(f'Factory asset hash mismatch: {source}')

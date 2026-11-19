@@ -38,13 +38,13 @@ int main(){
  // Required masks apply to every registered engine, for both track and sound.
  unsigned checked=0;auto sound=std::make_unique<SoundState>();
  for(unsigned id=0;id<instrument_count();++id){const auto* d=engine_descriptor(id);for(unsigned missing=0;missing<d->state.count;++missing)if(d->state.required&(1u<<missing)){
-  *sound=SoundState{};sound->instrument=Instrument(id);ChunkBuffer payload;assert(write_sound_engn(payload,*sound,nullptr));unsigned pre=payload.data[0]+3;auto parts=parse(payload.data+pre,payload.size-pre);for(auto it=parts.begin();it!=parts.end();++it)if(it->kind==d->state.chunks[missing].fourcc){parts.erase(it);break;}ChunkBuffer broken;assert(broken.write(payload.data,pre));emit(broken,parts);ChunkSource src{broken.data,broken.size,0};PreservedStore keep;assert(parse_sound_engn(src,*sound,&keep,&keep.sounds[0]) && sound->instrument==Instrument::Unknown && keep.sounds[0].engn.size==broken.size);
-  auto track=track_at(*q,0,0);ChunkSource track_src{broken.data,broken.size,0};assert(parse_track_engn(track_src,track,&keep,&keep.tracks[0]) && track.instrument==Instrument::Unknown);++checked;
+  *sound=SoundState{};sound->instrument=Instrument(id);ChunkBuffer payload;assert(write_sound_engn(payload,*sound,nullptr));unsigned pre=payload.data[0]+3;auto parts=parse(payload.data+pre,payload.size-pre);for(auto it=parts.begin();it!=parts.end();++it)if(it->kind==d->state.chunks[missing].fourcc){parts.erase(it);break;}ChunkBuffer broken;assert(broken.write(payload.data,pre));emit(broken,parts);ChunkSource src{broken.data,broken.size,0};PreservedStore keep;assert(!parse_sound_engn(src,*sound,&keep,&keep.sounds[0]));
+  auto track=track_at(*q,0,0);ChunkSource track_src{broken.data,broken.size,0};assert(!parse_track_engn(track_src,track,&keep,&keep.tracks[0]));++checked;
  }}assert(checked>20);
  auto base=tree(original);
  auto& engn=node(node(node(base,kChunkTrks).children,kChunkTrck).children,kChunkEngn);assert(!engn.children.empty());auto known=engn.children.back();engn.children.push_back(known);assert(decode(base,*q) && q->tracks[0].instrument==Instrument::Unknown);
- base=tree(original);node(node(node(base,kChunkTrks).children,kChunkTrck).children,kChunkEngn).children.back().flags=1;assert(decode(base,*q) && q->tracks[0].instrument==Instrument::Unknown);
- base=tree(original);node(node(node(base,kChunkSnds).children,kChunkSnd).children,kChunkEngn).children.back().flags=1;assert(decode(base,*q) && q->sounds[0].instrument==Instrument::Unknown);
+ base=tree(original);node(node(node(base,kChunkTrks).children,kChunkTrck).children,kChunkEngn).children.back().flags=1;assert(!decode(base,*q));
+ base=tree(original);node(node(node(base,kChunkSnds).children,kChunkSnd).children,kChunkEngn).children.back().flags=1;assert(!decode(base,*q));
  // Optional name sections must not use last-wins either.
  base=tree(original);auto& named=node(node(node(base,kChunkTrks).children,kChunkTrck).children,kChunkEngn);Node name{kChunkName,1,0,{'A'},{},false};named.children.push_back(name);named.children.push_back(name);assert(decode(base,*q) && q->tracks[0].instrument==Instrument::Unknown);
  // All interpreted container/state flags and singleton duplicates reject.
@@ -55,7 +55,7 @@ int main(){
   assert(!decode(base,*q));
  }
  base=tree(original);node(node(base,kChunkPtrn).children,kChunkPmut).prefix.push_back(0);assert(!decode(base,*q));
- for(unsigned variant=0;variant<2;++variant){LayerPart part;part.sound.instrument=Instrument::VirtualAnalog;ChunkBuffer child;assert(layer_write_child(child,part));unsigned pre=child.data[0]+3;auto parts=parse(child.data+pre,child.size-pre);if(variant)parts.push_back(parts.back());else parts.back().flags=1;ChunkBuffer altered;assert(altered.write(child.data,pre));emit(altered,parts);ChunkSource leaf{altered.data,altered.size,0};assert(layer_read_child(leaf,part) && part.sound.instrument==Instrument::Unknown && part.raw_size==altered.size);}
+ for(unsigned variant=0;variant<2;++variant){LayerPart part;part.sound.instrument=Instrument::VirtualAnalog;ChunkBuffer child;assert(layer_write_child(child,part));unsigned pre=child.data[0]+3;auto parts=parse(child.data+pre,child.size-pre);if(variant)parts.push_back(parts.back());else parts.back().flags=1;ChunkBuffer altered;assert(altered.write(child.data,pre));emit(altered,parts);ChunkSource leaf{altered.data,altered.size,0};if(variant){assert(layer_read_child(leaf,part) && part.sound.instrument==Instrument::Unknown && part.raw_size==altered.size);}else{assert(!layer_read_child(leaf,part));};}
  SampleEdit edit;for(auto& v:edit.slice_warp)v=true;uint8_t bytes[]={2,1,0};ChunkSource source{bytes,3,0};ChunkReader<ChunkSource> reader(source);assert(read_warp(reader,edit) && edit.slice_warp[0] && !edit.slice_warp[1]);for(unsigned i=2;i<64;++i)assert(!edit.slice_warp[i]);ChunkSource absent{};ChunkReader<ChunkSource> absent_reader(absent);assert(read_warp(absent_reader,edit));for(bool v:edit.slice_warp)assert(!v);
  std::printf("Wave2 codec: four container scopes/PREF/copy/steal, v557 Song/Preset/Kit byte hashes, %u required track+sound cases, flags/duplicates and warp tail passed\n",checked);
 }

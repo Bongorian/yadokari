@@ -133,7 +133,7 @@ void Engine::trigger_frozen(unsigned t){
  v.sample_mode=SampleMode::OneShot;v.looping=false;v.released=false;v.off_at=0;v.choke_group=0;v.kit_pad=255;
  SampleEdit edit{};v.base_sample_edit=edit;v.sampler_source_epoch=0;v.sample_speed=edit.speed;
  v.sampler.start_edit(view,rate_,1.0f,false,false,edit,1.0f);
- v.env=1;
+ v.a=1;v.env=1;
 }
 bool Engine::twin_capture_allowed(unsigned t){
  if(t>=16 || audio_lane_mask_&(1u<<t) || track(t).frozen_asset<kSampleAssets)return false;

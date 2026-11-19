@@ -240,7 +240,7 @@ bool CProjectStorage::PrepareContent(){
  CLogger::Get()->Write("groove",ok?LogNotice:LogWarning,"Factory gate build %u revision %u skipped %u stat %u marker %u elapsed-us %u",GrooveFirmwareVersion(),groove::kFactoryCatalogRevision,unsigned(gate.skipped),gate.stat_checked,unsigned(gate.marker_saved),unsigned(CTimer::GetClockTicks()-started));
  const auto& report=gate.install;
  CLogger::Get()->Write("groove",ok?LogNotice:LogWarning,"Factory catalog checked %u repaired %u demos %u ok %u retired %u",report.checked,report.repaired,groove::kFactoryDemoCount,unsigned(ok),report.retired);
- if(ok){char previous[160]{};if(!groove::read_project_location(*this,"GROOVE/CURRENT.TXT",previous,sizeof previous) || !groove::data_content_kind(*this,previous) || groove::data_equal(previous,"BENCH.MGXS") || groove::retired_factory_demo(previous))ok=groove::write_project_location(*this,"GROOVE/CURRENT.TXT",groove::kFactoryStartupProject);}
+ if(ok){char previous[160]{};if(!groove::read_project_location(*this,"GROOVE/CURRENT.TXT",previous,sizeof previous) || !groove::data_content_kind(*this,previous) || groove::data_under(previous,"FACTORY/DEBUG") || groove::data_equal(previous,"BENCH.MGXS") || groove::retired_factory_demo(previous))ok=groove::write_project_location(*this,"GROOVE/CURRENT.TXT",groove::kFactoryStartupProject);}
  unsigned files=0,dirs=0;m_InstallingFactory=true;if(ok && !strcmp(m_Drive,"DATA:"))ok=CleanContentReports(*this,"DATA:/FACTORY","FACTORY",0,m_Watchdog,files,dirs);m_InstallingFactory=false;
  CLogger::Get()->Write("groove",ok?LogNotice:LogWarning,"DATA content cleanup files %u dirs %u ok %u",files,dirs,unsigned(ok));
  return ok;

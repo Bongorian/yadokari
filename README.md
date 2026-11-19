@@ -64,13 +64,12 @@ leaves no trace on the controller.
 
 ## 🚀 Quick start
 
-1. **Download** the latest Pi image from [Releases](https://github.com/Bongorian/yadokari/releases).
-2. **Copy** the zip's contents onto a FAT32-formatted microSD card.
-3. **Insert** the card into a Raspberry Pi 4 or 5 (4 GB RAM or more) — the same card boots either — connect the MK3 to the Pi's USB-A port (USB-B on the MK3), power on.
+1. **Download** the latest Pi image from [Releases](https://github.com/Bongorian/yadokari/releases/latest).
+2. **Flash** the extracted board-specific .img to the entire microSD card. This replaces its contents.
+3. **Insert** the card into a Raspberry Pi 4 or 5 (4 GB RAM or more) matching the image, connect the MK3 to the Pi's USB-A port (USB-B on the MK3), power on.
 4. **Play.** The factory library (187 presets & kits, level-normalised) is built in. 🎶
 
-No SoundFont is bundled: SF2-based presets light up once you drop your own
-`.sf2` onto the device over the file door (Ethernet or USB — see the manual).
+The image includes the FluidR3 GM bank and the shared samples used by the factory originals. Add other banks over Ethernet or USB-C.
 
 ## 📸 Screenshots
 
@@ -109,7 +108,7 @@ No SoundFont is bundled: SF2-based presets light up once you drop your own
 
 **💾 Content & files**
 - Songs `.mgxs` · kits `.mgxk` · presets `.mgxp` — one content model, stable GUIDs, factory library curated as data
-- File door over Ethernet or USB for songs, presets, kits, WAV, SF2, MIDI and DX7 banks (Wi-Fi disabled in the 0.9.0 build)
+- File door over Ethernet or USB for songs, presets, kits, WAV, SF2, MIDI and DX7 banks (Wi-Fi is disabled in release builds — see [known limitations](docs/known-limitations.md))
 - Standard MIDI file import/export; multitimbral external MIDI (Ch 1–16 → Track 1–16)
 
 ## 🔌 The dream build: a Pi inside the MK3

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Build a NEW four-partition SD image; never opens a physical block device."""
 import argparse
+import json
+import hashlib
+import os
+import struct
 from pathlib import Path
 import subprocess
 import tempfile
@@ -19,7 +23,7 @@ parser.add_argument('--data-mib', type=int, default=1024, help='Protected DATA c
 parser.add_argument('--offline-package', type=Path)
 parser.add_argument('--early-pi4-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi4 rev1.0/1.1; does not change EEPROM')
 parser.add_argument('--early-pi5-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi 5 PCB rev 1.0; does not change EEPROM')
-parser.add_argument('--remote-control', action='store_true', help='Enable USB-C update control on this new image')
+parser.add_argument('--remote-control', action=argparse.BooleanOptionalAction, default=True, help='Include DATA/REMOTE.ON')
 args = parser.parse_args()
 if (args.early_pi4_eeprom_writable and args.board != 'pi4' or
         args.early_pi5_eeprom_writable and args.board != 'pi5'):
@@ -54,10 +58,17 @@ if '\x00' in cmdline or len(cmdline.encode()) > 4096 or len(cmdline.splitlines()
 cmdline = cmdline.rstrip('\r\n') + '\n'
 run = lambda *items: subprocess.run([str(item) for item in items], check=True)
 sim = root / 'build/update-sim'
-run(sim, 'init', args.output, args.factory, args.version, args.data_mib)
+final_image=args.output.resolve()
+workspace=tempfile.TemporaryDirectory(prefix='.provision-',dir=final_image.parent)
+args.output=Path(workspace.name)/'card.img'
+run(sim, 'init-release', args.output, args.factory, args.version, args.data_mib)
 with tempfile.TemporaryDirectory() as temp:
     staging = Path(temp)
+    volumes=('BOOT','A','B','DATA')
+    files={'A/KERNEL.IMG':hashlib.sha256(args.factory.read_bytes()).hexdigest()}
     def put(partition, name, source):
+        with source.open('rb') as stream:
+            files[volumes[partition]+'/'+name]=hashlib.file_digest(stream,'sha256').hexdigest()
         run(sim, 'put', args.output, f'{partition}:/{name}', source)
     for index in range(3):
         for name in boot_files:
@@ -82,7 +93,7 @@ with tempfile.TemporaryDirectory() as temp:
             for file in sorted(source.rglob('*')):
                 if file.is_file():
                     put(3, str(file.relative_to(args.boot_files)), file)
-    for name in ('START-HERE.md','FIRMWARE-UPDATES.md','manifest.json'):
+    for name in ('START-HERE.md','FIRMWARE-UPDATES.md'):
         source = args.boot_files / name
         if source.is_file():
             put(3, name, source)
@@ -98,4 +109,24 @@ with tempfile.TemporaryDirectory() as temp:
         marker = staging / 'REMOTE.ON'
         marker.write_text('Enable USB-C update control. Physical access can stop and reboot this device.\n')
         put(3, 'REMOTE.ON', marker)
-print('Created', args.output, '(recovery + A + B + protected data). Physical boot remains unverified.')
+    manifest=staging/'manifest.json'
+    manifest.write_text(json.dumps({'board':args.board,'firmware_version':args.version,'files':files},indent=2,sort_keys=True)+'\n')
+    put(3,'manifest.json',manifest)
+# Only a fully provisioned image may opt into first-boot expansion. Save
+# immutable geometry separately from both redundant update journal sectors.
+with args.output.open('r+b',buffering=0) as disk:
+    mbr=disk.read(512)
+    data_start=struct.unpack_from('<I',mbr,446+3*16+8)[0]
+    disk.seek(data_start*512)
+    bpb=disk.read(512)
+    intent=bytearray(512)
+    intent[:4]=b'GRW1'
+    intent[4:36]=hashlib.sha256(mbr).digest()
+    intent[36:68]=hashlib.sha256(bpb).digest()
+    intent[480:]=hashlib.sha256(intent[:480]).digest()
+    disk.seek(40*512)
+    disk.write(mbr+bpb+intent)
+    os.fsync(disk.fileno())
+os.link(args.output,final_image)
+workspace.cleanup()
+print('Created', final_image, '(recovery + A + B + protected data). Physical boot remains unverified.')

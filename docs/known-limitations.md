@@ -6,7 +6,7 @@ story, kept current per release.
 
 ## Connectivity
 
-- **Wi-Fi is disabled in the 0.9.0 build.** The WLAN support
+- **Wi-Fi is disabled in the release build.** The WLAN support
   available to this firmware includes Plan 9-derived code
   licensed under the GPL v2 only, and its combination with this
   GPL v3 firmware has not been cleared, so the official image is
@@ -24,13 +24,28 @@ story, kept current per release.
   card's data partition workflow — see the update guide).
   A lost or compromised key likewise means re-flashing; there is
   no remote key-revocation mechanism.
+- **Distribution is a provision-built A/B image.** Releases ship
+  as one board-specific image (BOOT / A / B / DATA partitions);
+  the single-partition ZIP of earlier releases is retired. Moving
+  from a single-partition card means flashing the new image —
+  back up your songs first. The provisioned DATA volume starts
+  small and Recovery expands it to the end of the card on first
+  boot; an interrupted expansion resumes in Recovery.
+- **Remote diagnostics are opt-in by marker.** On a prepared
+  (A/B) card, remote diagnostic and update commands require the
+  DATA/REMOTE.ON marker; official images bundle the marker by
+  default so open-source users can develop against the release
+  build. Delete the marker and reboot to opt out. Gadget
+  enumeration for local file transfer and status is a separate
+  gate and does not by itself enable diagnostics.
 
 ## Content and formats
 
-- **No SoundFont is bundled.** The SF2 engine is built in, but
-  banks are yours to add (licensing). The Browser shows a clear
-  "bank missing" state when a preset references a bank that is
-  not installed.
+- **SoundFont content.** The factory image includes FluidR3 GM for its factory presets. Other banks are user-supplied. Large-bank load time depends on the card and board.
+- **No bundled demo song yet.** The default and recovery song
+  slot (FACTORY/DEMOS/Startup.mgxs) is in place, but the official
+  demo song has not been supplied yet; until it is, a card with
+  no saved song boots to an empty project.
 - **Current formats only.** Project/preset/kit files use the
   current format family (.mgxs/.mgxk/.mgxp). Files written for
   earlier, pre-release format revisions are not migrated; the
@@ -63,9 +78,12 @@ story, kept current per release.
   fits on a Pi 5 can be refused during playback on a Pi 4.
   See [hardware profiles](hardware-profiles.md).
 - **USB-C CDC is on by default on Pi 5**: the control/update
-  channel enumerates with no opt-in file. (On Pi 4 the
-  channel is enabled with the remote marker file or from
-  the update screen, as in 0.9.0.)
+  channel enumerates with no opt-in file, for local file
+  transfer and status. (On Pi 4 the channel enumerates when
+  the REMOTE.ON marker is present — official images bundle
+  it — or from the update screen. Remote diagnostics on
+  either board additionally require the prepared A/B layout
+  and the marker; see "Updates and signing".)
 - **A 16 GB Pi 5 currently gets no CPU-heap arena** (the
   Circle memory map covers at most 8 GiB of DRAM); it runs
   with the pre-arena memory layout.

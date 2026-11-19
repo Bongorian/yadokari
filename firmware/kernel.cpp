@@ -169,8 +169,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  // instead of dereferencing a failed allocation.
  if(!engine || !project){m_Logger.Write(FromKernel,LogError,"Boot allocation failed (engine/project)");return ShutdownHalt;}
  BootTrace("Engine and project allocated / default state");
- groove::make_demo(*project,false);
- track_at(*project,0,15).instrument=groove::Instrument::DaisySynth;
+ groove::make_empty_project(*project);
  BootTrace("Default state ready / SD init");
  groove::RecoverySource initial_recovery;if(m_EMMC.Initialize() && m_Storage.Mount()) { BootTrace("SD mounted / factory prepare"); if(!m_Storage.PrepareContent())m_Logger.Write(FromKernel,LogWarning,"DATA factory preparation incomplete / retry next boot"); BootTrace("Factory returned / project load"); if(groove::FileReplace::pending(m_Storage)){m_Logger.Write(FromKernel,LogError,"DATA transaction requires recovery; refusing project writes");return ShutdownHalt;} if(m_Storage.Load(*project,&initial_recovery)) m_Logger.Write(FromKernel,LogNotice,"Saved project loaded"); else m_Logger.Write(FromKernel,LogNotice,"No valid project; using defaults"); } else m_Logger.Write(FromKernel,LogWarning,"SD unavailable; save disabled");
  BootTrace("Project load returned / sample preparation");
@@ -178,7 +177,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  if(!m_Storage.prepare(*project,sample_bindings) || !engine->stage_project(*project,sample_bindings)) {
   m_Logger.Write(FromKernel,LogWarning,"Saved project has missing sample assets or unsupported runtime settings; using defaults without modifying the file");
   initial_recovery={};for(auto& view:sample_bindings)view={};delete project; project=groove::alloc_cpu_new<groove::ProjectState>();if(!project){m_Logger.Write(FromKernel,LogError,"Boot allocation failed (default project)");return ShutdownHalt;}
-  groove::make_demo(*project,false);
+  groove::make_empty_project(*project);
   if(!engine->stage_project(*project)) m_Logger.Write(FromKernel,LogError,"Default project snapshot failed");
  }
  BootTrace("Project staged / initial render");

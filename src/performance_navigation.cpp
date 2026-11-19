@@ -76,6 +76,14 @@ auto Performance::audio_control(unsigned index)const -> AudioControl{
  if(!shifted() && index==1)return {on_perform_page(PerformTimeline) && audio_lane().kind==TrackKind::Instrument?"CREATE AUDIO":"TIMELINE",AudioAction::Audio,!busy};
  if(index==2 && !busy && !live_recording_ && on_perform_page(PerformLooper) && audio_lane().kind!=TrackKind::Looper)
   return {"PREPARE + REC",AudioAction::Record,audio_available_ && !multitimbral()};
+ if(control.action==AudioAction::Duplicate && control.enabled){
+  const auto& lane=audio_lane();
+  const auto& clip=lane.clips[audio_clip_cursor_];
+  bool space=false;for(const auto& other:lane.clips)if(other.asset>=kSampleAssets)space=true;
+  if(clip.asset>=kSampleAssets)return {"NO SOURCE CLIP",AudioAction::Duplicate,false};
+  if(!space)return {"CLIPS FULL",AudioAction::Duplicate,false};
+  if(!project_.assets[clip.asset].metadata.rate)return {"MISSING RATE",AudioAction::Duplicate,false};
+ }
  if(index>=2 && index<=6 && !live_recording_ && on_perform_page(PerformTimeline) && audio_lane().kind!=TrackKind::Audio)control.enabled=false;
  return control;
 }
@@ -147,7 +155,10 @@ auto Performance::prepare_looper_track() -> bool{
  looper_track_=uint8_t(destination);
  return true;
 }
-auto Performance::audio_key(unsigned index) -> bool{const auto d=audio_control(index);if(!d.enabled)return false;auto a=audio_lane();
+auto Performance::audio_key(unsigned index) -> bool{const auto d=audio_control(index);if(!d.enabled){
+  if(d.action==AudioAction::Duplicate){copy_text(browser_.status,sizeof browser_.status,d.label);notify(UiNotice::Failed);}
+  return false;
+ }auto a=audio_lane();
   switch(d.action){
   case AudioAction::Instrument:a.kind=TrackKind::Instrument;break;
   case AudioAction::Looper:return on_perform_page(PerformLooper)?prepare_looper_track():enter_audio_surface(PerformLooper);
@@ -180,8 +191,8 @@ auto Performance::input_key(unsigned i) -> bool{auto d=input_button(i,mode_==UiM
  case InputAction::ChordEdit:if(step_chord_edit_){step_chord_edit_=false;set_mode(step_chord_origin_);}else{step_chord_origin_=mode_;set_mode(UiMode::Keyboard);step_chord_edit_=true;}dirty_=true;return true;
  case InputAction::Sounds:return open_preset_library();case InputAction::PreviousSound:return request_file(FileAction::LibraryPrev);case InputAction::NextSound:return request_file(FileAction::LibraryNext);
  case InputAction::Undo:return undo();case InputAction::Redo:return redo();default:return false;}}
-auto Performance::soft_selected(unsigned i)const -> bool{if(transfer_view_.active)return !transfer_view_.usb && i<2 && (i==1)==transfer_view_.station;if(library_catalog_controls())return library_catalog_button(i).selected;if(input_top(i))return i==5 && step_chord_editor() && !shifted();if(source_select_ && !modal_active())return false;unsigned slot=top_slot(i);return slot<8 && page_top_selected(slot);}
-auto Performance::soft_key(unsigned i) -> bool{if(transfer_view_.active){if(i==7)transfer_close_=true;else if(i==5){transfer_browse_=true;transfer_close_=true;}else if(!transfer_view_.started && !transfer_view_.failed && i<2)transfer_view_.station=i==1;else if(!transfer_view_.started && !transfer_view_.failed && i==4)transfer_start_=true;else return false;dirty_=true;return true;}NavigationScope navigation(*this);if(library_catalog_controls())return library_catalog_key(i);if(input_top(i))return input_key(i);if(source_select_ && !modal_active()){if(i==5 && shifted())return begin_track_rename();if(i==4)return source_confirm();if(i==7)return toggle_source_select();return false;}unsigned slot=top_slot(i);return slot<8 && !((source_select_ || kit_edit_page()) && i>=6) && page_top_key(slot);}
+auto Performance::soft_selected(unsigned i)const -> bool{if(transfer_view_.active)return !transfer_view_.usb && i==(transfer_view_.wired?2u:unsigned(transfer_view_.station));if(library_catalog_controls())return library_catalog_button(i).selected;if(input_top(i))return i==5 && step_chord_editor() && !shifted();if(source_select_ && !modal_active())return false;unsigned slot=top_slot(i);return slot<8 && page_top_selected(slot);}
+auto Performance::soft_key(unsigned i) -> bool{if(transfer_view_.active){if(i==7)transfer_close_=true;else if(i==5){transfer_browse_=true;transfer_close_=true;}else if(i<3 && soft_enabled(i)){transfer_view_.wired=i==2;transfer_view_.station=i==1;}else if(!transfer_view_.started && !transfer_view_.failed && i==4)transfer_start_=true;else return false;dirty_=true;return true;}NavigationScope navigation(*this);if(library_catalog_controls())return library_catalog_key(i);if(input_top(i))return input_key(i);if(source_select_ && !modal_active()){if(i==5 && shifted())return begin_track_rename();if(i==4)return source_confirm();if(i==7)return toggle_source_select();return false;}unsigned slot=top_slot(i);return slot<8 && !((source_select_ || kit_edit_page()) && i>=6) && page_top_key(slot);}
 auto Performance::page_top_presentation(unsigned index)const  -> ui::ControlPresentation{if(composition_modal_){if(index>=2)return ui::ControlDescriptor<ModalAction>{};return ui::ControlDescriptor<ModalAction>{modal_label(index),index==0?ModalAction::Accept:ModalAction::Cancel,true};}if(twin_modal_==1){if(index<2)return ui::ControlDescriptor<ModalAction>{modal_label(index),index?ModalAction::Cancel:ModalAction::Accept,index!=0 || twin_config_.valid()};return ui::ControlDescriptor<ModalAction>{};}if(common_top(index).action!=CommonTopAction::None)return common_top(index);if(!browser_editing() && modal_active())return modal_button(index,modal_progress());if(mode_==UiMode::Modulation && modulation_page_==3 && index==4)return modulation_button_control(index,modulation_controls());if(index==7 && bake_control())return ui::ControlDescriptor<SynthAction>{bake_next_label(),SynthAction::BakePreset,true};if(audio_page())return audio_control(index);if(browser_editing())return browser_edit_button_control(index,browser_edit_controls());if(mode_==UiMode::Song)return song_button_control(index,song_controls());
   if(!repeat_mode_ && mode_==UiMode::Generate && gen_page_==0 && shifted() && (index==4 || index==5))return generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_);
   if(mode_==UiMode::Chord && !repeat_mode_)return input_button(index,true,shifted(),history_cursor_>0,history_cursor_<history_size_,track_const(selected_).instrument==Instrument::DrumKit);

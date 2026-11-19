@@ -7,8 +7,8 @@ constexpr uint8_t icon_for(DiagnosticsAction action){switch(action){case Diagnos
 
 using DiagnosticsControl=ui::ControlDescriptor<DiagnosticsAction>;
 inline DiagnosticsControl diagnostics_button(unsigned index){
- if(index<4 || index>=8)return {};
- const char* names[]={"LED TEST","LCD TEST","TONE TEST","EXIT"};
+ if(index<4 || index==5 || index>=8)return {};
+ const char* names[]={"LED TEST","","TONE TEST","EXIT"};
  return {names[index-4],index==7?DiagnosticsAction::Exit:index==6?DiagnosticsAction::Tone:DiagnosticsAction::Test,true};
 }
 }

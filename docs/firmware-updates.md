@@ -19,7 +19,25 @@ make update-test
 
 Give `prepare.py` an existing `--key-dir`, a `--version` greater than the current highest, and a new `--output-dir`. `--label` is a short ASCII identifier. The Circle/toolchain paths follow the [setup](pi4-development-setup.md). The app and recovery are built, but this does not mean the recovery is replaced over an online transfer.
 
-Remote firmware updates require a provisioned SD card with Recovery, A, B and DATA partitions. The single-partition SD release ZIP provides USB status and file transfer. For a new Pi 5 A/B card, pass `--board pi5 --remote-control` to `provision.py` with the Pi 5 application and recovery kernels and a boot tree containing the Pi 5 device tree and overlay. The tool produces a new image file for initial setup. Pi 5 PCB revision 1.0 uses the separate `--early-pi5-eeprom-writable` acknowledgement after physical verification. A provisioned target can accept subsequent signed updates over USB-C or wired Ethernet. Wired Ethernet needs a reachable DHCP network, and an update can enter Ethernet mode from a USB control connection.
+Release media are board-specific, four-partition images produced by `tools/update/provision.py`. Unzip the image for your board and flash it to a card. Back up songs before migrating an old single-volume card. New images include DATA/REMOTE.ON. Remove it and reboot to disable remote control and diagnostics. On Pi 5 the release USB CDC port still enumerates for local file transfer and status.
+
+| Bootloader partition | Volume | Purpose |
+|---|---|---|
+| 1 | BOOT | Independent Recovery and boot selection |
+| 2 | A | Initially confirmed application |
+| 3 | B | Alternate signed update slot |
+| 4 | DATA | Songs, factory originals, samples and the REMOTE.ON marker |
+
+Recovery expands the provisioned DATA volume on first boot when the card has more space. Its progress is recorded separately from the firmware journal. An interrupted expansion resumes in Recovery. The provisioner accepts an initial DATA capacity of 64–32768 MiB (release default 1024). The final filesystem must fit FAT32 cluster and MBR limits. STATUS partition numbers use the table above.
+
+| Operation | Required conditions |
+|---|---|
+| Browser file transfer | Start FILE TRANSFER locally, Ethernet link and DHCP, then enter the displayed code. USB-C uses the file protocol. |
+| Remote diagnostics | Valid A/B layout and journal, DATA/REMOTE.ON and boot identity. The diagnostic request must be accepted in the current mode. |
+| Signed update | Prepared A/B layout, supported board/EEPROM, armed update mode, matching public key and higher version. USB-C and wired Ethernet use the same verifier. |
+| Offline update | Put UPDATE.GUP in DATA, enter Recovery, then verify and apply it. |
+
+The optional early-board EEPROM acknowledgement requires physical verification. The public firmware is the reference implementation for Recovery, tryboot and signed updates.
 
 Transfer the generated `update.gup` with `remote.py`. On a connection where no TTY is assigned to USB CDC, `--raw-usb` can be used. Before running, finish any recording and file processing, and check the STATUS, version, partition and tryboot recorded by the update tool.
 
