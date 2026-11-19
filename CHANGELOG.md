@@ -27,6 +27,23 @@ semver numbering described in the release notes
   now show that their values are saved with the Song.
 - Kept a queued FILES OPEN bound to the selected row when a pad is pressed.
 
+## 0.9.7
+
+- CHIMERA is now a regular sound: it runs in the shared voice pool (up to
+  two voices on Pi 4, three on Pi 5, by measured cost), offers POLY, MONO
+  and LEGATO voice modes, works as a layer leaf, and carries its IPA
+  phrase inside the sound so phrases travel with presets.
+- Added a dedicated VOCODER page in PERFORM: opening it assigns the
+  vocoder insert and its modulator and carrier automatically.
+- The looper is now its own PERFORM page and prepares a free track and
+  audio lane automatically; re-entering restores the previous looper
+  track, and linear editing stays on the AUDIO TIMELINE page.
+- TWIN PREPARE no longer needs the track stopped or silent; preparation
+  wraps at a bar boundary while playing.
+- Added an FX MAP overview and family tags, consolidated the recording
+  and capture actions on the RECORDING page (CAPTURE AUDIO), and made
+  PAT NEXT available on MIXER without SHIFT.
+
 ## 0.9.6
 
 - Completed CHIMERA: all playing surfaces (PAD, KEYBOARD, CHORD and step
