@@ -25,7 +25,8 @@ class DaisyDrumBank {
  daisysp::HiHat<> hat_;
  unsigned kit_=0,voice_=0,recoveries_=0;
  float rate_=48000,last_=0;
- uint64_t last_at_=~uint64_t(0);
+ uint64_t last_at_=0;
+ bool cached_=false;
  static float unit(float x,float fallback){return isfinite(x)?(x<0?0:(x>1?1:x)):fallback;}
  void recover(){
   ++recoveries_;
@@ -34,7 +35,7 @@ class DaisyDrumBank {
  }
  float process(){return kit_==0?(voice_==0?analog_kick_.Process():voice_==1?analog_snare_.Process():hat_.Process()):(voice_==0?synthetic_kick_.Process():voice_==1?synthetic_snare_.Process():hat_.Process());}
 public:
- void init(float rate){rate_=rate>0?rate:48000;analog_kick_.Init(rate_);analog_snare_.Init(rate_);synthetic_kick_.Init(rate_);synthetic_snare_.Init(rate_);hat_.Init(rate_);last_=0;last_at_=~uint64_t(0);}
+ void init(float rate){rate_=isfinite(rate) && rate>0?rate:48000;analog_kick_.Init(rate_);analog_snare_.Init(rate_);synthetic_kick_.Init(rate_);synthetic_snare_.Init(rate_);hat_.Init(rate_);cached_=false;}
  void trigger(unsigned kit,const float* p,float velocity,float hz){
   const float voice=unit(p[0],0),tune=unit(p[1],0.5f),tone=unit(p[2],0.5f),decay=unit(p[3],0.5f),accent_amount=unit(p[4],1);
   kit_=kit?1:0;voice_=unsigned(voice*2.999f);if(voice_>2)voice_=2;
@@ -53,13 +54,13 @@ public:
  }
  // One generator step per output sample, shared by all voices of the track.
  float next(uint64_t now){
-  if(now==last_at_)return last_;
-  last_at_=now;float x=process();
-  if(!isfinite(x)){recover();x=0;}
-  return last_=x;
+  if(cached_ && now==last_at_)return last_;
+  last_=next();
+  last_at_=now;cached_=true;
+  return last_;
  }
  // Standalone stepping (tests, offline tools): advances on every call.
- float next(){float x=process();if(!isfinite(x)){recover();x=0;}return last_=x;}
+ float next(){cached_=false;float x=process();if(isfinite(x))return x;recover();return 0;}
  unsigned recoveries()const{return recoveries_;}
 };
 }

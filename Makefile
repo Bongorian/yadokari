@@ -2174,3 +2174,10 @@ build/test-data-growth: tests/update/data_growth_test.cpp src/update/data_growth
 test-run-data-growth: build/test-data-growth
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-data-growth
 test-all: test-run-data-growth
+
+build/test-daisy-drum-recovery: tests/daisy_drum_recovery_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -fno-access-control $^ -o $@
+.PHONY: test-run-daisy-drum-recovery
+test-run-daisy-drum-recovery: build/test-daisy-drum-recovery
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-daisy-drum-recovery
+test-all: test-run-daisy-drum-recovery
