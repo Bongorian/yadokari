@@ -20,10 +20,15 @@ int main(){
   assert(std::isfinite(bank.next(0)) && bank.recoveries()==1);
  }
  auto engine=std::make_unique<Engine>();
- assert(engine->submit({CommandType::SetInstrument,0,0,uint16_t(Instrument::DaisyAnalogDrums)}));
+ auto project=std::make_unique<ProjectState>();make_empty_project(*project);
+ project->tracks[0].instrument=Instrument::DaisyAnalogDrums;
+ project->tracks[0].engine_parameters[0]=0; // inject into the selected kick, not the default snare
+ assert(engine->stage_project(*project));
+ float master[128];engine->render(master,0);
  assert(engine->submit({CommandType::Trigger,0,0,127}));
- float master[128];engine->render(master,64);
+ engine->render(master,64);
  auto& bank=engine->public_drums_[0];
+ assert(bank.kit_==0 && bank.voice_==0);
  bank.analog_kick_.tone_lp_=nan;
  engine->render(master,64);
  for(float x:master)assert(std::isfinite(x));
