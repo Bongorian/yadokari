@@ -151,7 +151,7 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
  }
  advance_legacy_voice(v);
    if(v.instrument>=unsigned(Instrument::WaveSequence) && v.instrument<=unsigned(Instrument::SpectralFreeze) && v.env>=0.00001f){l=rr=(v.composite?v.leaf->creative:creative_[t]).next(v.instrument,v.frequency,float(rate_),float(bpm_),v.parameters,v.creative_state,samples_,v.sample_slot,v.released,feedback_input_)*v.a*v.env;v.env*=v.released?0.998f:0.999995f;}
-   else if((v.instrument==unsigned(Instrument::DaisyAnalogDrums) || v.instrument==unsigned(Instrument::DaisySyntheticDrums)) && v.env>=0.00001f){l=rr=public_drums_[t].next()*0.4f*v.a*v.env;if(v.released)v.env*=0.998f;}
+   else if((v.instrument==unsigned(Instrument::DaisyAnalogDrums) || v.instrument==unsigned(Instrument::DaisySyntheticDrums)) && v.env>=0.00001f){l=rr=public_drums_[t].next(sample_count_)*0.4f*v.a*v.env;if(v.released)v.env*=0.998f;}
    else if(v.instrument==unsigned(Instrument::PlaitsMacro)){if(auto* dsp=plaits_dsp(t,v)){if(v.env>=0.00001f && !dsp->gated()){l=rr=dsp->next()*0.5f*v.env;if(v.released)v.env*=0.998f;}else{dsp->stop();v.env=0;}}}
    else if(v.instrument==unsigned(Instrument::DaisySynth)) l=rr=v.daisy.process()*0.25f;
    else if((v.instrument==unsigned(Instrument::PolySaw) || v.instrument==unsigned(Instrument::FM) || v.instrument==unsigned(Instrument::Acid)) && v.env>=0.00001f) {
