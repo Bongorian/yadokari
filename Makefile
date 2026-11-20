@@ -2165,3 +2165,12 @@ build/test-midi-clock-slave-oracle: tests/midi_clock_slave_oracle_test.cpp build
 test-run-midi-clock-slave-oracle: build/test-midi-clock-slave-oracle
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-midi-clock-slave-oracle --ci
 test-all: test-run-midi-clock-slave-oracle
+
+build/update-sim: src/update/data_growth.h
+build/test-data-growth: tests/update/data_growth_test.cpp src/update/data_growth.h src/update/fat_storage.h
+	@mkdir -p build
+	$(CXX) -std=c++17 -O1 -Isrc -Ithird_party/fatfs-host -Ithird_party/monocypher -Wall -Wextra -Werror $(SAN) $< -o $@
+.PHONY: test-run-data-growth
+test-run-data-growth: build/test-data-growth
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-data-growth
+test-all: test-run-data-growth

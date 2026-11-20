@@ -42,6 +42,8 @@ inline bool expand_data(BlockDevice& disk,uint32_t capacity){
  const uint32_t required=uint32_t((uint64_t(size-reserved)+uint64_t(spc)*2+127u*spc)/(128u*spc+1))+1;
  const uint32_t newfat=required>oldfat?required:oldfat,shift=newfat-oldfat;
  if(uint64_t(reserved)+newfat>=size || (size-reserved-newfat)/spc>0x0ffffff5u || shift>size-old)return false;
+ const uint32_t old_end=2+(old-reserved-oldfat)/spc,new_end=2+(size-reserved-newfat)/spc;
+ if(old_end>uint64_t(oldfat)*128 || new_end>uint64_t(newfat)*128)return false;
  auto checkpoint=[&](uint32_t next,uint32_t offset){
   uint8_t r[512]{};memcpy(r,"GPR1",4);put32(r+4,++seq);put32(r+8,next);put32(r+12,offset);put32(r+16,size);
   memcpy(r+24,intent+4,32);seal_growth(r);index=1-index;
@@ -90,8 +92,34 @@ inline bool expand_data(BlockDevice& disk,uint32_t capacity){
  }
  // Publish only after the complete new FAT and data area are durable.
  put32(boot+36,newfat);put32(boot+32,size);
- if(!disk.sector(base+info,buffer,false))return false;
- put32(buffer+488,0xffffffff);put32(buffer+492,0xffffffff);
+ // Phase 2 may replay after either FSInfo copy was written. Derive the
+ // original free count from the original FAT extent, never from those copies.
+ // Phase 1 zeroed the newly allocated FAT sectors. Padding in the old FAT is
+ // only now becoming addressable and may contain nonzero bytes.
+ uint32_t free_count=new_end-old_end,next_free=0xffffffff;
+ for(uint32_t sector=0;sector<oldfat && sector*128u<new_end;++sector){
+  if(!disk.sector(base+reserved+sector,fat,false))return false;
+  bool dirty=false;
+  for(unsigned i=0;i<128;++i){
+   const uint32_t cluster=sector*128u+i;
+   if(cluster<2 || cluster>=new_end)continue;
+   auto* entry=fat+i*4;
+   const uint32_t value=get32(entry);
+   if(cluster<old_end){
+    if(value&0x0fffffffu)continue;
+    ++free_count;
+   }else if(value&0x0fffffffu){
+    put32(entry,value&0xf0000000u);
+    dirty=true;
+   }
+   if(next_free==0xffffffff)next_free=cluster;
+  }
+  if(dirty && !disk.sector(base+reserved+sector,fat,true))return false;
+ }
+ if(next_free==0xffffffff && new_end>old_end)next_free=old_end;
+ memset(buffer,0,512);
+ put32(buffer,0x41615252);put32(buffer+484,0x61417272);
+ put32(buffer+488,free_count);put32(buffer+492,next_free);put32(buffer+508,0xaa550000);
  if(!disk.sector(base+backup+info,buffer,true) || !disk.sector(base+info,buffer,true) ||
     !disk.sector(base+backup,boot,true) || !disk.sector(base,boot,true))return false;
  put32(original+part+12,size);
