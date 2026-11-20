@@ -30,7 +30,7 @@ struct BundleVoiceState {
  ~BundleVoiceState(){}
 };
 struct RenderBundleJob {
- static constexpr unsigned kFrames=192,kSubFrames=24,kSubBlocks=kFrames/kSubFrames,kMaxParams=25,kMaxRefresh=6;
+ static constexpr unsigned kFrames=192,kSubFrames=24,kSubBlocks=kFrames/kSubFrames,kMaxParams=kVirtualAnalogParameterCount,kMaxRefresh=6;
  // Written by the owner before publish(); immutable while queued/running.
  const void* key=nullptr;
  unsigned voice_key=0,track=0,instrument=0;

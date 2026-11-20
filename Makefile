@@ -2181,3 +2181,10 @@ build/test-daisy-drum-recovery: tests/daisy_drum_recovery_test.cpp build/test-co
 test-run-daisy-drum-recovery: build/test-daisy-drum-recovery
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-daisy-drum-recovery
 test-all: test-run-daisy-drum-recovery
+
+build/test-layer-tail: tests/layer_tail_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -fno-access-control $^ -o $@
+.PHONY: test-run-layer-tail
+test-run-layer-tail: build/test-layer-tail
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-layer-tail
+test-all: test-run-layer-tail

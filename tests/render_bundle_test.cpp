@@ -240,6 +240,9 @@ static void test_retirement_racing_completion(){
 static void setup_va_project(ProjectState& p){
  auto q=std::make_unique<ProjectState>();assert(make_future_factory_preset(*q,7));
  make_empty_project(p);p.tempo=120;p.random_seed=20261119u;
+ // Exercise the last VA parameter at its actual array index.
+ q->tracks[0].virtual_analog.values[23]=2;
+ q->tracks[0].virtual_analog.values[25]=0.73f;
  auto t0=track_at(p,0,0);t0.instrument=Instrument::VirtualAnalog;t0.virtual_analog=q->tracks[0].virtual_analog;
  t0.steps[0].enabled=true;t0.steps[0].note=48;t0.steps[0].velocity=100;t0.steps[0].gate=100;
  t0.steps[8].enabled=true;t0.steps[8].note=50;t0.steps[8].velocity=100;t0.steps[8].gate=100;

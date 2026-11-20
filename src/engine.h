@@ -310,8 +310,9 @@ private:
  unsigned module_route_=0,module_route_epoch_=0;bool multitimbral_=false;uint8_t module_bank_[16][16][2]{},module_reason_[16]{};uint16_t module_slot_[16]{};
  bool layer_launching_=false;uint8_t layer_failure_[16]{};
  enum class LayerGate:uint8_t {None,TrackCost,TotalCost,Slots,Shared};
- LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&,LayerGate* gate=nullptr)const;
- bool steal_layer_tail(unsigned t,bool same_track);
+ LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&,LayerGate&,uint32_t victims)const;
+ uint32_t oldest_layer_tail(unsigned t,bool same_track,uint32_t planned)const;
+ void steal_layer_tails(uint32_t victims,unsigned groups);
  // A stolen Layer note is cut at once; its last output decays over 64 samples
  // on the owning track so the cut is not a step (a click).
  struct Declick {float l=0,r=0;uint8_t remaining=0;};Declick declick_[16]{};
@@ -332,7 +333,7 @@ private:
  }
  bool release_poly_key(PolyVoice&,unsigned note,uint16_t channel,bool immediate=false);
  void present_chimera(AudioVisualFrame&);
- struct PolyVoice {Voice voice{};uint64_t age=0;uint8_t owner=255;bool sequenced=false,pending=false;};PolyVoice poly_voices_[kPolyVoiceCapacity]{};uint32_t poly_track_mask_[16]{};void set_poly_owner(PolyVoice& voice,unsigned owner){va_candidates_dirty_=true;unsigned index=unsigned(&voice-poly_voices_);uint32_t bit=uint32_t(1u)<<index;if(voice.owner<16)poly_track_mask_[voice.owner]&=~bit;voice.owner=uint8_t(owner);if(owner<16)poly_track_mask_[owner]|=bit;}uint8_t kit_round_robin_[16][16]{};
+ struct PolyVoice {Voice voice{};uint64_t age=0;uint8_t owner=255;bool sequenced=false,pending=false;};PolyVoice poly_voices_[kPolyVoiceCapacity]{};uint32_t poly_track_mask_[16]{};void set_poly_owner(PolyVoice& voice,unsigned owner);uint8_t kit_round_robin_[16][16]{};
  struct KitMidiGate {uint64_t due=0;uint8_t note=255,channel=0,hardware=255;};KitMidiGate kit_midi_[16][16]{};uint64_t kit_midi_due_=0;bool incoming_midi_=false;
  void kit_midi_on(unsigned track,unsigned pad,unsigned velocity,const KitStepState* step,ConstTrackView state);void kit_midi_tick();void kit_midi_release(unsigned hardware=255,unsigned track=255);
  struct KitRepeat {uint64_t due=0,period=0;uint8_t remaining=0,step=0,velocity=0;};KitRepeat kit_repeat_[16][16]{};uint16_t kit_repeat_pads_[16]{},kit_repeat_tracks_=0;
