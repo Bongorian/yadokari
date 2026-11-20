@@ -7,6 +7,7 @@
 #include "render_bundle_slot.h"
 #include "engine.h"
 #include "project.h"
+#include "future_factory_presets.h"
 #include <atomic>
 #include <cassert>
 #include <chrono>
@@ -234,6 +235,35 @@ static void test_retirement_racing_completion(){
  worker.join();
 }
 
+// VA voices, main and Layer children (a Jupiter-style two-VA pad), are bundled
+// too; the owner keeps Layer gain/pan/detune and the trigger-bank memo.
+static void setup_va_project(ProjectState& p){
+ auto q=std::make_unique<ProjectState>();assert(make_future_factory_preset(*q,7));
+ make_empty_project(p);p.tempo=120;p.random_seed=20261119u;
+ auto t0=track_at(p,0,0);t0.instrument=Instrument::VirtualAnalog;t0.virtual_analog=q->tracks[0].virtual_analog;
+ t0.steps[0].enabled=true;t0.steps[0].note=48;t0.steps[0].velocity=100;t0.steps[0].gate=100;
+ t0.steps[8].enabled=true;t0.steps[8].note=50;t0.steps[8].velocity=100;t0.steps[8].gate=100;
+ auto t1=track_at(p,0,1);t1.instrument=Instrument::Layer;t1.layer.count=2;
+ for(unsigned i=0;i<2;++i){auto& part=t1.layer.parts[i];part.sound.instrument=Instrument::VirtualAnalog;part.sound.virtual_analog=q->tracks[0].virtual_analog;part.level=.55f;part.pan=i?.4f:-.4f;part.detune=i?9:-9;}
+ t1.steps[0].enabled=true;t1.steps[0].note=60;t1.steps[0].velocity=100;t1.steps[0].gate=100;t1.steps[0].chord[0]=64;t1.steps[0].chord[1]=67;
+ t1.steps[8].enabled=true;t1.steps[8].note=62;t1.steps[8].velocity=100;t1.steps[8].gate=100;t1.steps[8].chord[0]=65;t1.steps[8].chord[1]=69;
+}
+static void test_va_layer(){
+ auto p=std::make_unique<ProjectState>();setup_va_project(*p);
+ auto serial=render_project(*p,192000,Pump::None);
+ auto instant=render_project(*p,192000,Pump::Instant);
+ auto dbl=render_project(*p,192000,Pump::Double);
+ auto threaded=render_project(*p,192000,Pump::Thread);
+ assert(any_sound(serial.pcm));
+ const uint64_t h=hash_pcm(serial.pcm);
+ assert(hash_pcm(instant.pcm)==h && hash_pcm(dbl.pcm)==h && hash_pcm(threaded.pcm)==h);
+ std::printf("va/layer: submitted %llu adopted-samples %llu late %llu invalidated %llu checked %llu mismatch %llu; serial %.1f ms threaded %.1f ms\n",
+  (unsigned long long)instant.counts.submitted,(unsigned long long)instant.counts.adopted_samples,(unsigned long long)instant.counts.late,
+  (unsigned long long)instant.counts.invalidated,(unsigned long long)instant.counts.checked,(unsigned long long)instant.counts.mismatch,serial.ms,threaded.ms);
+ assert(instant.counts.adopted_samples>100000 && instant.counts.checked>0 && instant.counts.mismatch==0 && threaded.counts.mismatch==0);
+ std::puts("va/layer: VA and Layer-child VA bundles are bit-identical to the serial render");
+}
+
 int main(){
  test_retirement_racing_completion();
  std::printf("sizeof RenderBundleJob %zu, slot %zu\n",sizeof(RenderBundleJob),sizeof(RenderBundleSlot));
@@ -242,5 +272,6 @@ int main(){
  test_dense_events();
  test_release_inside_adopted_subblock();
  test_heavy_timing();
+ test_va_layer();
  std::puts("Render Bundle: all W2 host checks passed");
 }

@@ -274,6 +274,7 @@ private:
   const ChimeraPhrase* voice_score=nullptr;
   uint64_t score_step=0;
   bool score_before_step=false;
+  float last_l=0,last_r=0; // last mixed output, for the steal declick
   Voice* layer_peer=nullptr;bool composite=false;uint8_t layer_cost=0;float layer_gain=1,layer_pan=0,layer_detune=0;
   CreativeState creative_state{};
   StepPitchSlide step_pitch{};bool step_mono=false,step_accent=false,tie_pending=false;uint16_t step_sound=kNoPreset;
@@ -308,7 +309,13 @@ private:
  struct PolyVoice;
  unsigned module_route_=0,module_route_epoch_=0;bool multitimbral_=false;uint8_t module_bank_[16][16][2]{},module_reason_[16]{};uint16_t module_slot_[16]{};
  bool layer_launching_=false;uint8_t layer_failure_[16]{};
- LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&)const;
+ enum class LayerGate:uint8_t {None,TrackCost,TotalCost,Slots,Shared};
+ LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&,LayerGate* gate=nullptr)const;
+ bool steal_layer_tail(unsigned t,bool same_track);
+ // A stolen Layer note is cut at once; its last output decays over 64 samples
+ // on the owning track so the cut is not a step (a click).
+ struct Declick {float l=0,r=0;uint8_t remaining=0;};Declick declick_[16]{};
+ public: bool declick_active(unsigned t)const{return t<16 && declick_[t].remaining;} private:
  unsigned oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect,uint32_t excluded)const;
  struct SharedVoicePlan {uint8_t indices[kPolyVoiceCapacity],count=0;};
  uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims)const;

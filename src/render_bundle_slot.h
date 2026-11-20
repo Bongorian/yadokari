@@ -4,6 +4,7 @@
 #include "spectral_voices.h"
 #include "formant_voice.h"
 #include "wavetable_voice.h"
+#include "virtual_analog_voice.h"
 namespace groove {
 // W2 render-ahead job bundles (DESIGN_MULTICORE_ARCH.md section 4).
 // The canonical DSP owner builds a bundle at the render control boundary
@@ -23,6 +24,7 @@ struct BundleVoiceState {
   PhaseDistVoice phase_dist;
   FormantVoice formant;
   WavetableVoice wavetable;
+  VirtualAnalogVoice virtual_analog; // trigger bank detached
  };
  BundleVoiceState(){}
  ~BundleVoiceState(){}

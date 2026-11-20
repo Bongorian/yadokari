@@ -28,6 +28,12 @@ class VirtualAnalogVoice {
  static unsigned waveform(float v){static const uint8_t shapes[]={daisysp::Oscillator::WAVE_POLYBLEP_SAW,daisysp::Oscillator::WAVE_POLYBLEP_SQUARE,daisysp::Oscillator::WAVE_POLYBLEP_TRI,daisysp::Oscillator::WAVE_SIN};unsigned i=unsigned(v+.5f);return shapes[i<4?i:0];}
  public:
  void init(unsigned rate,VirtualAnalogTriggerBank* bank=nullptr){rate_=float(rate);trigger_bank_=bank;reset_primitives();}
+ // The trigger bank memoises pure math for its single owner. A copy advanced on
+ // another core detaches it (identical results, no shared writes); adopting such
+ // a copy back keeps the owner's bank.
+ VirtualAnalogTriggerBank* trigger_bank()const{return trigger_bank_;}
+ void detach_trigger_bank(){trigger_bank_=nullptr;}
+ void adopt(const VirtualAnalogVoice& other){auto* bank=trigger_bank_;*this=other;trigger_bank_=bank;}
  private:
  void reset_primitives(){if(trigger_bank_ && trigger_bank_->rate==rate_){osc1_=trigger_bank_->osc1;osc2_=trigger_bank_->osc2;sub_=trigger_bank_->sub;envelope_=trigger_bank_->envelope;filter_=trigger_bank_->filter;svf_=trigger_bank_->svf;}else{osc1_.Init(rate_);osc2_.Init(rate_);sub_.Init(rate_);sub_.SetWaveform(daisysp::Oscillator::WAVE_SIN);osc1_.SetAmp(1);osc2_.SetAmp(1);sub_.SetAmp(1);envelope_.Init(rate_);filter_.Init(rate_);svf_.Init(rate_);}mod_.reset();active_=false;}
  public:

@@ -151,12 +151,25 @@ void Engine::release_midi_channel(unsigned t,uint16_t channel,bool immediate){
  auto& voice=voices_[t];
  if(voice.received_channel==channel){note_off_main(t);if(immediate){voice.sampler.stop();voice.env=0;}}
 }
-LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected)const{
+bool Engine::steal_layer_tail(unsigned t,bool same_track){
+ // A note group is the head voice plus its layer_peer chain; a head is a
+ // composite voice that no other voice links to. Oldest released head wins.
+ uint32_t linked=0;for(const auto& p:poly_voices_)if(p.owner<16 && p.voice.composite && p.voice.layer_peer)for(unsigned i=0;i<kPolyVoiceCapacity;++i)if(&poly_voices_[i].voice==p.voice.layer_peer)linked|=uint32_t(1u)<<i;
+ PolyVoice* victim=nullptr;for(unsigned i=0;i<kPolyVoiceCapacity;++i){auto& p=poly_voices_[i];if(p.owner>=16 || !p.voice.composite || !p.voice.released || p.pending || (linked&(uint32_t(1u)<<i)) || (same_track && p.owner!=t))continue;if(!victim || p.age<victim->age)victim=&p;}
+ if(!victim)return false;
+ Voice* chain[kPolyVoiceCapacity];unsigned n=0;for(Voice* v=&victim->voice;v && n<kPolyVoiceCapacity;v=v->layer_peer)chain[n++]=v;
+ auto& declick=declick_[victim->owner];for(unsigned k=0;k<n;++k){declick.l+=chain[k]->last_l;declick.r+=chain[k]->last_r;}declick.remaining=64;
+ for(unsigned k=0;k<n;++k)for(auto& p:poly_voices_)if(&p.voice==chain[k] && p.owner<16){release_poly(p,true);break;}
+ ++poly_steals_.triggered;++poly_steals_.released;__atomic_add_fetch(&probe_steals_triggered_,1,__ATOMIC_RELAXED);__atomic_add_fetch(&probe_steals_released_,1,__ATOMIC_RELAXED);
+ return true;
+}
+LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected,LayerGate* gate)const{
+ if(gate)*gate=LayerGate::None;
  auto reason=layer_status(layer);if(reason!=LayerReason::Ready)return reason;unsigned incoming=layer_note_cost(layer,key,velocity,&selected);if(!selected)return LayerReason::Ready;if(!leaf_runtime_)return LayerReason::Voices;
  unsigned free=0,total=0,local=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
  for(const auto& p:poly_voices_){if(p.owner==255){++free;continue;}if(p.voice.composite){total+=p.voice.layer_cost;if(p.owner==t)local+=p.voice.layer_cost;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){++shared[unsigned(resource)];shared_cost[unsigned(resource)]+=engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
- if(local+incoming>hardware::scaled(VoiceBudget::layer_track) || total+incoming>hardware::scaled(VoiceBudget::layer_total))return LayerReason::Cost; // Perf port (item 1): layer cost gate scales with the board factor
- if(free<unsigned(__builtin_popcount(unsigned(selected))))return LayerReason::Voices;
+ if(local+incoming>hardware::scaled(VoiceBudget::layer_track) || total+incoming>hardware::scaled(VoiceBudget::layer_total)){if(gate)*gate=local+incoming>hardware::scaled(VoiceBudget::layer_track)?LayerGate::TrackCost:LayerGate::TotalCost;return LayerReason::Cost;} // Perf port (item 1): layer cost gate scales with the board factor
+ if(free<unsigned(__builtin_popcount(unsigned(selected)))){if(gate)*gate=LayerGate::Slots;return LayerReason::Voices;}
  for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);++need_shared[r];need_shared_cost[r]+=engine_voice_cost(child.instrument,child.instrument==Instrument::Chimera?chimera_model(child.chimera):child.model);}}
  // Perf port (item 1, decision A 2026-11-15): layer admission uses the
  // scaled budgets. This deliberately gives up the option-(a) portability
@@ -166,7 +179,7 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  // with saturating fixtures the scaled gates convert silent refusals
  // into budget trims while the deadline record stays at baseline
  // (PI5_MAX_PERF_INVESTIGATION.md, 2026-11-15 verdicts).
- for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:resource==unsigned(VoiceResource::Granular)?granular_!=nullptr:chimera_slots_!=0;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:resource==unsigned(VoiceResource::Granular)?Instrument::Granular:Instrument::Chimera))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,resource==unsigned(VoiceResource::Chimera)?chimera_slots_:kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget))return LayerReason::Voices;}
+ for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:resource==unsigned(VoiceResource::Granular)?granular_!=nullptr:chimera_slots_!=0;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:resource==unsigned(VoiceResource::Granular)?Instrument::Granular:Instrument::Chimera))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,resource==unsigned(VoiceResource::Chimera)?chimera_slots_:kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget)){if(gate)*gate=LayerGate::Shared;return LayerReason::Voices;}}
  return LayerReason::Ready;
 }
 Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepState* step,const TrackView* source,int accumulator,bool degrees,bool live_poly,int slice_override,int kit_pad,const KitStepState* kit_step,int kit_layer,Voice* protected_voice,const LayerPart* layer_part,const float* layer_mix,bool chromatic,bool anticipatory) {
@@ -182,7 +195,12 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  unsigned kit_slot=255;if(kit){if(kit->muted || (state.kit.solo_mask && !(state.kit.solo_mask & (1u<<kit_pad))))return nullptr;if(kit_layer<0)kit_midi_on(t,unsigned(kit_pad),velocity,kit_step,state);unsigned layer=kit_layer>=0?unsigned(kit_layer):kit->layer_mode==1 && velocity>=kit->velocity_split?1:kit->layer_mode==2?kit_round_robin_[t][kit_pad]++%2:0;kit_slot=kit->sample[layer];if(kit_slot==255 && kit_layer<0)kit_slot=kit->sample[0];if(kit_slot==255 && kit_layer<0 && kit->layer_mode==3)kit_slot=kit->sample[1];if(kit_layer<0 && kit_step && kit_step->sample_lock<kSampleAssets)kit_slot=kit_step->sample_lock;if(kit_slot>=kSampleAssets)return nullptr;}
  Instrument actual=kit?Instrument::Sampler:step && step->sound<kPresetSlots?project_->sounds[step->sound].instrument:state.instrument;bool suppressed_external=actual==Instrument::ExternalMidi && (audio_muted(t) || (audio_has_solo() && !audio_solo_track(t)));bool poly=actual!=Instrument::Texture && actual!=Instrument::Resonator && (live_poly || kit) && !suppressed_external && (live_poly_capable(actual) || layer_part || actual==Instrument::ExternalMidi);Voice* chosen=&voices_[t];
  if(actual==Instrument::Layer){
-  uint8_t selected=0;LayerReason reason=layer_admission(t,state.layer,unsigned(note<0?state.root_note:note),velocity>127?127:velocity,selected);layer_failure_[t]=uint8_t(reason);if(reason!=LayerReason::Ready)return nullptr;
+  uint8_t selected=0;LayerGate gate=LayerGate::None;const unsigned layer_key=unsigned(note<0?state.root_note:note),layer_velocity=velocity>127?127:velocity;LayerReason reason=layer_admission(t,state.layer,layer_key,layer_velocity,selected,&gate);
+  // A full layer budget takes the oldest RELEASED layer note (its tail) rather
+  // than refusing the new note. Held notes are never taken, and shared-resource
+  // refusals are not retried. Each pass frees at least one whole note group.
+  for(unsigned pass=0;pass<kPolyVoiceCapacity && gate!=LayerGate::None && gate!=LayerGate::Shared;++pass){if(!steal_layer_tail(t,gate==LayerGate::TrackCost))break;reason=layer_admission(t,state.layer,layer_key,layer_velocity,selected,&gate);}
+  layer_failure_[t]=uint8_t(reason);if(reason!=LayerReason::Ready)return nullptr;
   Voice* first=nullptr;Voice* last=nullptr;StepState child_step;if(step){child_step=*step;child_step.sound=kNoPreset;}
   layer_launching_=true;
   for(unsigned i=0;i<state.layer.count;++i){if(!(selected&(1u<<i)))continue;float mix[3];const auto& part=state.layer.parts[i];const float bases[]={part.level,part.pan,part.detune};auto& rt=runtime_[t];for(unsigned j=0;j<3;++j)mix[j]=resolve_target_value(*project_,state,t,engine_target(Instrument::Layer,i*3+j),bases[j],step?step->locks:rt.active_locks,unsigned(rt.automation_cell),control_all_,control_all_id_,control_all_delta_,rt.automation_live,&gesture_overlay_,rt.pattern,nullptr,&mod).value;auto* child=trigger(t,velocity,note,step?&child_step:nullptr,source,accumulator,degrees,true,-1,-1,nullptr,-1,nullptr,&state.layer.parts[i],mix,chromatic);if(!child){for(auto& p:poly_voices_)for(auto* v=first;v;v=v->layer_peer)if(&p.voice==v)release_poly(p,true);layer_launching_=false;layer_failure_[t]=uint8_t(LayerReason::Voices);return nullptr;}child->sound_locked=true;if(last)last->layer_peer=child;else first=child;last=child;}

@@ -209,6 +209,11 @@ static float bundle_sample(WavetableVoice& dsp,const float* params,float frequen
  if(params)dsp.parameters(params);
  float x=dsp.next(frequency,gate);env=dsp.active()?__builtin_fmaxf(dsp.level(),0.0001f):0;return x;
 }
+static float bundle_sample(VirtualAnalogVoice& dsp,const float* params,float frequency,bool gate,float& env){
+ if(env<=0)return 0;
+ if(params)dsp.parameters(params);
+ float x=dsp.next(frequency,gate);env=dsp.active()?__builtin_fmaxf(dsp.level(),.0001f):0;return x;
+}
 static const float* bundle_params(const RenderBundleJob& job,unsigned offset){
  for(unsigned ri=0;ri<job.refresh_count;++ri)if(job.refresh_offset[ri]==offset)return job.values;
  return nullptr;
@@ -242,6 +247,7 @@ bool render_bundle_job(RenderBundleJob& job){
    case Instrument::PhaseDist: x=bundle_sample(job.live.phase_dist,params,job.frequency,!job.released,job.env_live);break;
    case Instrument::Formant: x=bundle_sample(job.live.formant,params,job.frequency,!job.released,job.env_live);break;
    case Instrument::Wavetable: x=bundle_sample(job.live.wavetable,params,job.frequency,!job.released,job.env_live);break;
+   case Instrument::VirtualAnalog: x=bundle_sample(job.live.virtual_analog,params,job.frequency,!job.released,job.env_live);break;
    default:break;
   }
   job.out[offset]=x;job.env[offset]=job.env_live;
@@ -251,6 +257,7 @@ bool render_bundle_job(RenderBundleJob& job){
   case Instrument::PhaseDist: new (&job.checkpoint[sub].phase_dist) PhaseDistVoice(job.live.phase_dist);break;
   case Instrument::Formant: new (&job.checkpoint[sub].formant) FormantVoice(job.live.formant);break;
   case Instrument::Wavetable: new (&job.checkpoint[sub].wavetable) WavetableVoice(job.live.wavetable);break;
+  case Instrument::VirtualAnalog: new (&job.checkpoint[sub].virtual_analog) VirtualAnalogVoice(job.live.virtual_analog);break;
   default:break;
  }
  job.next_sub=sub+1;
@@ -268,9 +275,12 @@ void Engine::build_render_bundles(){
  auto try_build=[&](unsigned t,Voice& v,unsigned key){
   if(bundle_job_[key]>=0)return;
   const unsigned instrument=v.instrument;
+  const bool va=instrument==unsigned(Instrument::VirtualAnalog);
   if(instrument!=unsigned(Instrument::Additive) && instrument!=unsigned(Instrument::PhaseDist) &&
-     instrument!=unsigned(Instrument::Formant) && instrument!=unsigned(Instrument::Wavetable))return;
-  if(v.composite || v.leaf || v.step_pitch.remaining || v.env<0.00001f)return;
+     instrument!=unsigned(Instrument::Formant) && instrument!=unsigned(Instrument::Wavetable) && !va)return;
+  // VA renders the raw voice only; Layer gain/pan/detune and leaf FX stay on the
+  // owner after the voice output, so Layer children (composite) may be bundled.
+  if((!va && (v.composite || v.leaf)) || v.step_pitch.remaining || v.env<0.00001f)return;
   auto& r=runtime_[t];const auto& state=track(t);
   const uint64_t window_end=sample_count_+RenderBundleJob::kFrames;
   // No control event for this voice may fall inside the window: a scheduled
@@ -286,6 +296,7 @@ void Engine::build_render_bundles(){
    case Instrument::PhaseDist: bases=(v.sound_locked || state.instrument!=Instrument::PhaseDist)?v.phase_dist_base.values:state.phase_dist.values;break;
    case Instrument::Formant: bases=(v.sound_locked || state.instrument!=Instrument::Formant)?v.formant_base.values:state.formant.values;break;
    case Instrument::Wavetable: bases=(v.sound_locked || state.instrument!=Instrument::Wavetable)?v.wavetable_base.values:state.wavetable.values;break;
+   case Instrument::VirtualAnalog: bases=(v.sound_locked || state.instrument!=Instrument::VirtualAnalog)?v.va_base.values:state.virtual_analog.values;break;
    default:return;
   }
   auto* job=bundle_helper_->claim();if(!job)return;
@@ -298,7 +309,7 @@ void Engine::build_render_bundles(){
   job->generation=generation_;job->epoch=v.voice_epoch;job->instance=v.voice_instance;
   job->frequency=v.frequency;job->released=v.released;job->env0=v.env;job->env_live=v.env;
   job->frames=RenderBundleJob::kFrames;job->param_count=0;job->refresh_count=0;
-  const unsigned mask=instrument==unsigned(Instrument::Wavetable)?31u:63u;
+  const unsigned mask=(instrument==unsigned(Instrument::Wavetable) || va)?31u:63u;
   for(unsigned off=0;off<RenderBundleJob::kFrames;++off)
    if(((sample_count_+off)&mask)==0 && job->refresh_count<RenderBundleJob::kMaxRefresh)
     job->refresh_offset[job->refresh_count++]=uint16_t(off);
@@ -307,6 +318,7 @@ void Engine::build_render_bundles(){
    case Instrument::PhaseDist: new (&job->live.phase_dist) PhaseDistVoice(v.phase_dist);job->param_count=9;break;
    case Instrument::Formant: new (&job->live.formant) FormantVoice(v.formant);job->param_count=9;break;
    case Instrument::Wavetable: new (&job->live.wavetable) WavetableVoice(v.wavetable);job->param_count=8;break;
+   case Instrument::VirtualAnalog: new (&job->live.virtual_analog) VirtualAnalogVoice(v.va);job->live.virtual_analog.detach_trigger_bank();job->param_count=uint8_t(kVirtualAnalogParameterCount);break;
    default:break;
   }
   bundle_helper_->publish(*job);
@@ -342,6 +354,7 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
    case Instrument::PhaseDist: v.phase_dist=job.checkpoint[done].phase_dist;break;
    case Instrument::Formant: v.formant=job.checkpoint[done].formant;break;
    case Instrument::Wavetable: v.wavetable=job.checkpoint[done].wavetable;break;
+   case Instrument::VirtualAnalog: v.va.adopt(job.checkpoint[done].virtual_analog);break;
    default:break;
   }
   ++bundle_adopted_subblocks_;slot->note_adopted(1,RenderBundleJob::kSubFrames);
@@ -367,6 +380,7 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
      case Instrument::PhaseDist: bundle_sample(v.phase_dist,params,job.frequency,!job.released,env);break;
      case Instrument::Formant: bundle_sample(v.formant,params,job.frequency,!job.released,env);break;
      case Instrument::Wavetable: bundle_sample(v.wavetable,params,job.frequency,!job.released,env);break;
+     case Instrument::VirtualAnalog: bundle_sample(v.va,params,job.frequency,!job.released,env);break;
      default:break;
     }
    }
@@ -385,6 +399,7 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
     case Instrument::PhaseDist: ok=bundle_cross_check(v.phase_dist,job.checkpoint[sub].phase_dist,job,offset);break;
     case Instrument::Formant: ok=bundle_cross_check(v.formant,job.checkpoint[sub].formant,job,offset);break;
     case Instrument::Wavetable: ok=bundle_cross_check(v.wavetable,job.checkpoint[sub].wavetable,job,offset);break;
+    case Instrument::VirtualAnalog: ok=bundle_cross_check(v.va,job.checkpoint[sub].virtual_analog,job,offset);break;
     default:break;
    }
    slot->note_checked();
@@ -401,6 +416,7 @@ bool Engine::bundle_take(unsigned t,Voice& v,unsigned voice_key,float& l,float& 
    case Instrument::PhaseDist: v.phase_dist=job.checkpoint[last].phase_dist;break;
    case Instrument::Formant: v.formant=job.checkpoint[last].formant;break;
    case Instrument::Wavetable: v.wavetable=job.checkpoint[last].wavetable;break;
+   case Instrument::VirtualAnalog: v.va.adopt(job.checkpoint[last].virtual_analog);break;
    default:break;
   }
   ++bundle_adopted_subblocks_;slot->note_adopted(1,RenderBundleJob::kSubFrames);
