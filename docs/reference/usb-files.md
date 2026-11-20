@@ -1,6 +1,8 @@
 # USB-Cファイル転送（MGF1 v1）
 
-有線の開発・検証用入口。日常の転送はWi‑Fi Webでも同じ検証・保護・上書き規則を使う。USB storageとしてmountせず、GBX1へファイル命令を追加しない。認証codeは不要。物理ケーブルを持つホストがOPENし、録音／ファイル処理／更新が動いていなければ演奏を停止して専用画面へ入る。CLOSE、画面のCLOSE／FILES、切断または30秒無通信で終了。通常操作と音声装置の再接続はその後に戻る。Wi‑FiとUSBの同時セッションは不可。
+USB-Cで物理接続したホストから、通常アプリのSongや素材を転送できます。DATA直下に `REMOTE.ON` を置いて起動し、有効な更新用A/B構成と起動スロットを認識していることが条件です。録音・ファイル処理・更新・診断中は開始できません。開始すると演奏が止まり、専用画面に入ります。USBホストは画面の接続コードを使わずにファイルを読み書きできます。Ethernetでの転送は従来どおり本体画面で開始し、表示されたコードで認証します。
+
+USBセッションはFILESSTOP、MGF1 CLOSE、画面のCLOSE／FILES、USB切断、または30秒の転送無通信で終了します。演奏操作と音声装置の再接続はその後に戻ります。
 
 ## CLI
 
@@ -15,7 +17,25 @@ python3 tools/files/usb_files.py get PROJECTS/Song.mgxs received.mgxs
 python3 tools/files/usb_files.py delete PROJECTS/Song.mgxs
 ```
 
-各呼出しはOPEN→操作→CLOSE。PUT／GETはbyte数・SHA256・時間をJSON表示し、エラーはstderrと非zero終了。GETはhostの`.part`へ書いて完了後に指定出力名へ置換し、中断した自分の`.part`だけ除去する。機器側のPUTも完全受信・保存済みhash・型検証を終えてから同名を置換する。現在Project／全宣言参照／標準素材の同一filesystem entryはPUT・DELETEとも拒否。許可棚はPROJECTS／PRESETS／KITS／ASSETSのSAMPLES・SOUNDFONTS・MIDI・SPEECH／RECORDINGS。PUTはContentKindやRIFF等の中身に従い自動配置し、任意pathは受け取らない。旧MGXCは拒否。拡張子とMGXC ContentKindの食い違いでは中身を正とする。
+上の各呼出しはMGF1 OPEN→操作→CLOSEです。REMOTE無効時、OPENはBUSYを返します。
+
+同じUSBセッションで複数の操作を実行する場合は、GBX1で開始し、データ操作に `--session` を付けます。次の例は、有効なWAVを送り、PUTの応答にある保存先から読み戻してバイト単位で照合します。
+
+```sh
+set -e
+usb_files() { python3 tools/files/usb_files.py "$@"; }
+usb_files start
+trap 'usb_files stop' EXIT
+usb_files status
+usb_files --session list samples
+target=$(usb_files --session put Sample.wav | python3 -c 'import sys,json; print(json.load(sys.stdin)["path"])')
+usb_files --session get "$target" received.wav
+cmp Sample.wav received.wav
+```
+
+`start` と `stop` はGBX1 FILESSTART（ID 40）とFILESSTOP（ID 41）を送り、`status` はGBX1 STATUSの `usb_files=0/1` を表示します。開始・停止の成功は `ok=1`、拒否は `ok=0` です。ENTERによる更新モードへの移行は不要です。STATUSの照会だけでは転送のタイムアウトは延長されません。
+
+PUT／GETはbyte数・SHA256・時間をJSON表示し、エラーはstderrと非zero終了。GETはhostの`.part`へ書いて完了後に指定出力名へ置換し、中断した自分の`.part`だけ除去する。機器側のPUTも完全受信・保存済みhash・型検証を終えてから同名を置換する。現在Project／全宣言参照／標準素材の同一filesystem entryはPUT・DELETEとも拒否。許可棚はPROJECTS／PRESETS／KITS／ASSETSのSAMPLES・SOUNDFONTS・MIDI・SPEECH／RECORDINGS。PUTはContentKindやRIFF等の中身に従い自動配置し、任意pathは受け取らない。旧MGXCは拒否。拡張子とMGXC ContentKindの食い違いでは中身を正とする。
 
 ## wire
 

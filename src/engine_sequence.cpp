@@ -58,7 +58,7 @@ bool Engine::seek_song(unsigned position,bool send_midi){
  pending_scene_=-1;pending_stop_=0;for(auto& pending:pending_pattern_)pending=-1;
  chain_bars_=chain_position_=0;chain_armed_=true;song_armed_=!arrangement;song_finished_=false;
  song_section_=song_bars_=0;song_transpose_=0;song_mute_mask_=0;
- arrangement_tick_=tick;arrangement_tick_phase_=0;
+ audio_clock_.reset();arrangement_tick_=tick;arrangement_tick_phase_=0;
  if(arrangement){
   apply_song_section(section,true);
   song_elapsed_ticks_=tick-section_start;

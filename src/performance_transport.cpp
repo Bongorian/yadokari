@@ -424,7 +424,7 @@ auto Performance::modal_accept() -> bool{
   if(browser_editing())return browser_edit_key(0);
   switch(modal_.owner){
    case ModalOwner::Project:return confirm_project();
-   case ModalOwner::MidiImport:if(modal_.value!=1 || file_action_!=FileAction::None)return false;modal_.value=2;file_action_=FileAction::MidiImport;dirty_=true;return true;
+   case ModalOwner::MidiImport:if(modal_.value!=1 || file_action_!=FileAction::None)return false;if(midi_import_ticket_){midi_loss_approval_=midi_import_ticket_;modal_.value=3;modal_.sync();dirty_=true;return true;}modal_.value=2;file_action_=FileAction::MidiImport;dirty_=true;return true;
    case ModalOwner::UiCommand:return accept_erase();
    case ModalOwner::Update:update_confirm_=false;if(playing_)return false;update_requested_=true;return true;
    case ModalOwner::Stretch:return stretch_modal()==1?request_file(FileAction::BeginStretch):false;

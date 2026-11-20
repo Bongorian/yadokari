@@ -4,7 +4,7 @@
 #include "browser_state.h"
 #include "sequence_commit.h"
 namespace groove {
-enum class MidiImportStage:uint8_t {Idle,Queued,Reading,WaitingCommit,Applied,Cancelled,Failed};
+enum class MidiImportStage:uint8_t {Idle,Queued,Reading,AwaitingLossDecision,WaitingCommit,Applied,Cancelled,Failed};
 struct MidiImportOutcome {uint32_t ticket=0;MidiImportStage stage=MidiImportStage::Idle;unsigned notes=0,skipped=0;char message[96]{};};
 // File-task owner. UI selection is not part of an accepted operation's identity.
 // Each call does one bounded phase; cancellation is drained before service().
@@ -19,7 +19,7 @@ public:
  MidiImportJob(IFileAccess& fs,Engine& engine,ProjectState& project):fs_(fs),engine_(engine),project_(project){}
  ~MidiImportJob(){delete parser_;}
  MidiImportJob(const MidiImportJob&)=delete;MidiImportJob& operator=(const MidiImportJob&)=delete;
- bool busy()const{return result_.stage==MidiImportStage::Queued || result_.stage==MidiImportStage::Reading || result_.stage==MidiImportStage::WaitingCommit;}
+ bool busy()const{return result_.stage==MidiImportStage::Queued || result_.stage==MidiImportStage::Reading || result_.stage==MidiImportStage::AwaitingLossDecision || result_.stage==MidiImportStage::WaitingCommit;}
  uint32_t ticket()const{return result_.ticket;}MidiImportStage stage()const{return result_.stage;}
  uint32_t accept(const MidiImportRequest& request){
   if(busy() || result_ready_)return 0;
@@ -31,13 +31,16 @@ public:
   if(!parser_->prepare_target(project_,request.pattern,request.track)){finish(MidiImportStage::Failed,"MIDI import target unavailable");return ticket();}
   result_.stage=MidiImportStage::Queued;return ticket();
  }
+ const char* loss_summary()const{return result_.stage==MidiImportStage::AwaitingLossDecision?parser_->message():nullptr;}
+ void approve_loss(uint32_t expected){if(expected==ticket() && loss_summary())result_.stage=MidiImportStage::WaitingCommit;}
  bool cancel(uint32_t expected){if(!busy() || !expected || expected!=ticket())return false;finish(MidiImportStage::Cancelled,"MIDI import cancelled / original kept");return true;}
  bool take_result(MidiImportOutcome& out){if(!result_ready_)return false;result_ready_=false;out=result_;return true;}
  template<class Publish> void service(Publish publish){
   if(!busy())return;
   if(request_.generation!=engine_.staged_generation() || !parser_->target_unchanged(project_)){finish(MidiImportStage::Cancelled,"MIDI import cancelled / target changed");return;}
   if(result_.stage==MidiImportStage::Queued){if(!parser_->open(request_.path)){finish(MidiImportStage::Failed,parser_->message());return;}result_.stage=MidiImportStage::Reading;return;}
-  if(parser_->busy()){parser_->service();if(!parser_->busy()){if(!parser_->done())finish(MidiImportStage::Failed,parser_->message());else result_.stage=MidiImportStage::WaitingCommit;}return;}
+  if(parser_->busy()){parser_->service();if(!parser_->busy()){if(!parser_->done())finish(MidiImportStage::Failed,parser_->message());else result_.stage=parser_->collisions()?MidiImportStage::AwaitingLossDecision:MidiImportStage::WaitingCommit;}return;}
+  if(result_.stage==MidiImportStage::AwaitingLossDecision)return;
   auto applied=invoke(publish,*parser_,0);
   switch(applied){
    case SequenceCommitResult::Busy:result_.stage=MidiImportStage::WaitingCommit;return;

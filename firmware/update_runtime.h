@@ -94,13 +94,13 @@ public:
  bool remote_ready()const{return m_Remote&&m_Ready&&m_Identity&&!m_DiagnosticBusy;}
  bool RemoteEnterActive(){if(!remote_ready()||!m_Active)return false;m_Autoboot=false;return true;}
  bool Remote(groove::update::SerialCommand command);
- void RemoteStatus(CString& out)const;
+ void RemoteStatus(CString& out,const groove::bulk::Service* files=nullptr)const;
  void TrialDiagnostics(CString& out)const;
  void RemoteLog(CString& out)const;
  void RemoteHardware(CString& out)const;
  // Both normal application and recovery call this from their main task.
  // Serial transfers exclusively own the CDC byte stream until completion.
- template<class Enter> void PollUsbControl(Enter enter,groove::bulk::Port* files=nullptr){
+ template<class Enter> void PollUsbControl(Enter enter,groove::bulk::Service* files=nullptr){
   using groove::update::SerialCommand;
   if(!m_GadgetReady || !m_Gadget)return;
 #if RASPPI >= 5
@@ -114,7 +114,7 @@ public:
   if(m_Gadget->UpdatePlugAndPlay()){if(files)files->disconnected();if(m_Channel==Serial)Disconnect();m_UsbPeer=nullptr;m_UsbControl={};m_UsbReplyUsed=m_UsbReplySent=0;}
   auto* serial=m_Gadget->GetSerialDevice();
   if(serial!=m_UsbPeer){if(files)files->disconnected();if(m_Channel==Serial)Disconnect();m_UsbPeer=serial;m_UsbControl={};m_UsbReplyUsed=m_UsbReplySent=0;}
-  if(files)files->tick(CTimer::GetClockTicks64());
+  if(files){files->remote_ready(remote_ready());files->tick(CTimer::GetClockTicks64());}
   if(!serial || m_Channel!=Idle)return;
   auto pump_files=[&](){StorageUiWait::Scope responsive;groove::bulk::pump(*serial,*files,[](){return CTimer::GetClockTicks64();});};
   if(files && files->framing()){pump_files();return;}
@@ -124,7 +124,12 @@ public:
   for(unsigned i=0;i<64;++i){unsigned char c=0;int n=serial->Read(&c,1);if(n<=0)return;
    auto input=m_UsbControl.feed(c,m_Active,files!=nullptr);if(input.kind==groove::update::UsbInputKind::FileStart){files->activity(CTimer::GetClockTicks64());files->feed(&c,1);pump_files();return;}if(input.kind==groove::update::UsbInputKind::BinaryStart){m_Autoboot=false;m_Channel=Serial;m_LastSerial=serial;m_Receiver.reset();m_LastActivity=CTimer::GetClockTicks();int result=m_Receiver.feed(&c,1);if(result)Reply(result);return;}
    if(input.kind==groove::update::UsbInputKind::None){continue;}SerialCommand command=input.command;
-   CString result;if(command==SerialCommand::Status)RemoteStatus(result);else if(command==SerialCommand::Log && remote_enabled())RemoteLog(result);else if(command==SerialCommand::Hardware && remote_enabled())RemoteHardware(result);else{bool ok=false;if(remote_ready())ok=command==SerialCommand::Enter?(m_Active?RemoteEnterActive():enter()):Remote(command);result.Format("GBX1 RESULT command=%u ok=%u\n",unsigned(command),unsigned(ok));}
+   CString result;
+   if(command==SerialCommand::Status)RemoteStatus(result,files);
+   else if(command==SerialCommand::FilesStart || command==SerialCommand::FilesStop){
+    bool ok=groove::update::control_usb_files(command,files,CTimer::GetClockTicks64());
+    result.Format("GBX1 RESULT command=%u ok=%u\n",unsigned(command),unsigned(ok));
+   }else if(command==SerialCommand::Log && remote_enabled())RemoteLog(result);else if(command==SerialCommand::Hardware && remote_enabled())RemoteHardware(result);else{bool ok=false;if(remote_ready())ok=command==SerialCommand::Enter?(m_Active?RemoteEnterActive():enter()):Remote(command);result.Format("GBX1 RESULT command=%u ok=%u\n",unsigned(command),unsigned(ok));}
    const char* text=result;unsigned size=strlen(text);if(size>=sizeof m_UsbReply)size=sizeof m_UsbReply-1;memcpy(m_UsbReply,text,size);m_UsbReplyUsed=size;return;
   }
  }

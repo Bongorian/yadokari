@@ -4,7 +4,7 @@ truth table.
 
 Gadget enumeration must follow the channel decision alone (the opt-in
 marker, or the Pi 5 default-on configuration), never update storage
-readiness -- the gadget also serves local file transfer and status on
+readiness -- the gadget also serves read-only status on
 boards whose update layout is not prepared. m_Remote, which gates every
 mutating and diagnostic command, is the production predicate
 remote_diagnostics_enabled: prepared storage AND the marker, on both
@@ -25,12 +25,17 @@ m=re.search(r'constexpr bool (remote_diagnostics_enabled\(bool prepared,bool mar
 assert m, 'remote_diagnostics_enabled predicate not found in update_runtime.cpp'
 predicate='bool '+m.group(1)
 assert 'if(cdc_channel && !StartGadget())' in s, 'gadget start must be gated on cdc_channel alone'
+runtime=(root/'firmware/update_runtime.h').read_text()
+usb_poll=runtime.split('void PollUsbControl(',1)[1].split('void PollNetworkControl(',1)[0]
+assert 'files->remote_ready(remote_ready())' in usb_poll
+ready=re.search(r'bool remote_ready\(\)const\{return ([^;]+);\}', runtime).group(1)
 source=r'''
 #include <cassert>
 bool storage_ready=false,cdc_marker=false,cdc_default_on=false;
 PREDICATE
 bool channel(){return CHANNEL_EXPR;}
 bool remote(){bool cdc_channel=channel();(void)cdc_channel;return REMOTE_EXPR;}
+bool file_ready(bool m_Remote,bool m_Ready,bool m_Identity,bool m_DiagnosticBusy){return READY_EXPR;}
 int main(){
  for(int i=0;i<8;++i){
   storage_ready=i&1;cdc_marker=i&2;cdc_default_on=i&4;
@@ -39,9 +44,14 @@ int main(){
   // Remote gate: prepared storage AND the marker, on both boards
   // (the default-on configuration alone never enables diagnostics).
   assert(remote()==(storage_ready&&cdc_marker));
+  for(int flags=0;flags<8;++flags){
+   bool prepared=flags&1,identity=flags&2,busy=flags&4;
+   assert(file_ready(remote(),prepared,identity,busy)==
+          (storage_ready && cdc_marker && prepared && identity && !busy));
+  }
  }
 }
-'''.replace('PREDICATE',predicate).replace('CHANNEL_EXPR',channel_expr).replace('REMOTE_EXPR',remote_expr)
+'''.replace('READY_EXPR',ready).replace('PREDICATE',predicate).replace('CHANNEL_EXPR',channel_expr).replace('REMOTE_EXPR',remote_expr)
 with tempfile.TemporaryDirectory() as d:
  cpp=Path(d)/'cdc_gate.cpp';exe=Path(d)/'cdc_gate';cpp.write_text(source)
  subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror',str(cpp),'-o',str(exe)],check=True)

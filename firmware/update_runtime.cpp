@@ -179,9 +179,9 @@ bool CUpdateRuntime::Initialize(bool recovery){
 }
 void CUpdateRuntime::Enter(uint16_t held_pads){m_PadLatch.preset(held_pads);m_Active=true;m_Manager.arm(m_Ready&&m_Identity);m_Start=CTimer::GetClockTicks();
 }
-void CUpdateRuntime::RemoteStatus(CString& out)const{
+void CUpdateRuntime::RemoteStatus(CString& out,const groove::bulk::Service* files)const{
  CString ip;if(m_Net&&m_Net->IsRunning())m_Net->GetConfig()->GetIPAddress()->Format(&ip);else ip.Format("none");
- const auto& state=m_Manager.state();out.Format("GBX1 STATUS remote=%u active=%u ready=%u armed=%u phase=%u version=%u highest=%u partition=%u trial=%u journal_trial=%u error=%u ip=%s diagnostic_busy=%u\n",unsigned(m_Remote),unsigned(m_Active),unsigned(m_Ready),unsigned(m_Manager.armed()),unsigned(state.phase),unsigned(GROOVE_FW_VERSION),unsigned(state.highest),m_Partition,unsigned(m_Tryboot),unsigned(m_JournalTrial),unsigned(m_Manager.error()),static_cast<const char*>(ip),unsigned(m_DiagnosticBusy));
+ const auto& state=m_Manager.state();out.Format("GBX1 STATUS remote=%u active=%u ready=%u armed=%u phase=%u version=%u highest=%u partition=%u trial=%u journal_trial=%u error=%u ip=%s diagnostic_busy=%u%s\n",unsigned(m_Remote),unsigned(m_Active),unsigned(m_Ready),unsigned(m_Manager.armed()),unsigned(state.phase),unsigned(GROOVE_FW_VERSION),unsigned(state.highest),m_Partition,unsigned(m_Tryboot),unsigned(m_JournalTrial),unsigned(m_Manager.error()),static_cast<const char*>(ip),unsigned(m_DiagnosticBusy),files?(files->active()?" usb_files=1":" usb_files=0"):"");
 }
 void CUpdateRuntime::TrialDiagnostics(CString& out)const{
  CBcmPropertyTags tags;alignas(16) u32 flags[4];reboot_flags_query_tag(flags);
@@ -206,6 +206,8 @@ void CUpdateRuntime::RemoteLog(CString& out)const{
  out.Format("GBX1 LOG %s\n",n?encoded:"-");
 }
 bool CUpdateRuntime::Remote(SerialCommand command){
+ // Only the USB dispatcher owns the local file service.
+ if(command==SerialCommand::FilesStart || command==SerialCommand::FilesStop)return false;
  if(m_DiagnosticBusy)return false;
  if(command==SerialCommand::Ethernet && m_Remote && m_Ready && m_Identity && !m_Active){if(m_NetworkWifi)return false;StartNetwork(false,true);return m_ControlListener!=nullptr;}
  if((command==SerialCommand::Efficiency || command==SerialCommand::EfficiencyTail || command==SerialCommand::EfficiencySampler)){if(!m_Remote || !m_Ready || !m_Identity || m_Active || m_NetworkWifi)return false;StartNetwork(false,true);return m_ControlListener && m_BenchmarkRequests.request(command==SerialCommand::Efficiency?22:command==SerialCommand::EfficiencyTail?23:24);}

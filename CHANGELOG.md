@@ -4,6 +4,27 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.0.2
+
+- Added Song stem export: on the PROJECT page, hold SHIFT and press
+  SONG STEMS to record one full Song pass into RECORDINGS/Stems-NNN as
+  eleven stereo WAV files (Group 1-8, Direct, Returns and Mix), all the
+  same length, ready to mix in a DAW.
+- Fixed Timeline audio clips jumping to a wrong position when a clip was
+  edited after a tempo change: playback position is now anchored to
+  performed time, and editing a clip that is not playing no longer
+  restarts the one that is.
+- MIDI import now counts drum-kit collisions honestly: notes landing on
+  the same pad and step are reported as merged instead of being silently
+  dropped, and an import that would lose notes asks for confirmation
+  before anything is discarded.
+- USB file transfer can now be started and stopped from the host over
+  the control channel (FILESSTART / FILESSTOP), so files can be moved
+  without the device screen or a connection code. USB file transfer now
+  requires REMOTE.ON, like the other remote facilities: with remote
+  control off, USB transfer stays off. The Ethernet transfer started
+  from the screen still uses its display code, unchanged.
+
 ## 1.0.0
 
 - CHIMERA is now a regular sound: it runs in the shared voice pool (up to

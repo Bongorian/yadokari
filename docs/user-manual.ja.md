@@ -581,9 +581,15 @@ FILESは一度に64件を表示します。4-D回転／K1 SELECT／4-D上下で�
 
 ### 音声として渡す
 
-本体に「Songを全Track別WAVへ一括Export」する専用操作はありません。内部busをREC SOURCEで録ってWAVにするか、<strong>MK3 LINE OUT → 外部レコーダー／PCのオーディオ入力</strong>で録音します。内部録音は録音先Trackへの割当を伴うため、空きTrackを使い、元の曲への影響を確認してください。長尺を録る場合はSDの空き容量を先に確認してください。
+Songを有効にして再生を停止し、内部クロックを選びます。PROJECT画面で **SHIFT＋Top6「SONG STEMS」** を押すと、Songを1周演奏して `RECORDINGS/Stems-001/`（以降は空き番号）に書き出します。11本のWAVはすべてステレオ16 bitで、エンジンのサンプルレート、開始位置、長さがそろいます。
 
-本機のPi USB-CをPCにつないでも、汎用のUSBオーディオ／MIDIデバイスやSDストレージになるとは限りません。USB-Cのファイル操作は専用のMGF1 CLI、ネットワーク経由ではWi-FiのFILE TRANSFERを使います。詳しくは後段の転送手順を参照してください。
+- **Group1.wav～Group8.wav** には各Groupのインサートとゲインを通った音が入ります。Cueに出したGroupも対象です。DAWで分けたいパートごとにTrackをGroupへ割り当てます。
+- **Direct.wav** はGroup未割り当てでMainに送ったTrack、**Returns.wav** はディレイとリバーブのウェット成分、**Mix.wav** はマスター処理を通った最終Main出力です。
+- ループ設定でも収録は最初のSong終端までです。残響を長く残すには最後のセクションを延ばします。収録中にSTOPで中止でき、**SHIFT＋Top6「CANCEL STEMS」** は演奏を続けたまま収録を中止します。11本を閉じてから完成フォルダーが現れます。電源断などで途中の `.tmp` フォルダーが残る場合があります。
+
+単独Trackや別の内部バスを録る場合はREC SOURCEで選択できます。外部レコーダーへはMK3 LINE OUTから録音できます。
+
+本機のPi USB-CをPCにつないでも、汎用のUSBオーディオ／MIDIデバイスやSDストレージになるとは限りません。USB-Cのファイル操作は専用のMGF1 CLI、ネットワーク経由ではEthernetのFILE TRANSFERを使います。詳しくは後段の転送手順を参照してください。
 
 
 ---
@@ -625,7 +631,7 @@ AUTO / MIDIのK8 `SLAVE CLOCK`を使うと外部Clockのテンポに追従しま
 |---|---|
 | 外部MIDI向けの演奏を書き出す | FILE → SHIFT+Top4で開始／停止。`RECORDINGS/MIDI00.MID`等に連番保存。Engineが出力queueへ受理したイベントで、物理送達の証明ではない |
 | 内部音源のノートを書き出す | FILE → SHIFT+Top5で開始／停止。Track1–16をMIDI ch1–16へ記録。外へノートを送る操作ではない |
-| .MIDを取り込む | FILESで.MID/.MIDIを選び、K2 TRACK、K3 MIDI CHを設定。<strong>SHIFT+Top4「IMPORT MIDI」→ 4-D押込みで確定</strong>。確定時のPattern／TrackのStepをまとめて置換。進行中も左で取消。失敗・取消は元データを保持し、成功はEVENTSでUndo可 |
+| .MIDを取り込む | FILESで.MID/.MIDIを選び、K2 TRACK、K3 MIDI CHを設定。<strong>SHIFT+Top4「IMPORT MIDI」→ 4-D押込みで確定</strong>。確定時のPattern／TrackのStepをまとめて置換。進行中も左で取消。失敗・取消は元データを保持し、成功はEVENTSでUndo可  GMの複数のヒットが同じセルに入る場合は元の件数・残る件数・衝突件数を表示します。再度4-Dを押すと各セルの最後のヒットを採用し、左で取り消せます。 |
 
 書出しはSMF0、1msのSMPTE時間。曲のtempo map、Clock、Transport、SysEx、すべての音色Modulationを完全保存するものではありません。取り込みはSMF0/1、最大256KiB・選択chの4096イベント、256Step、8音／Step、空きAutomation 2レーンの範囲です。<strong>Tempo mapは無視</strong>します。変換・省略メッセージを確認し、DAWで聞き比べてから採用します。音色自体を渡すにはWAVが必要です。
 
@@ -1091,7 +1097,9 @@ COLLECTの素材コピーは短いindex／CRC名になります。長い名前�
 
 ### USB-C転送とデバイステーマ
 
-日常のWi‑Fi Webに加え、開発ホストは[USBファイルCLI](reference/usb-files.md)からSong／素材を直接転送できます。PUTは良品だけ同名を置換し、開いている曲と宣言参照素材は保護します。録音／ファイル処理中はBUSY。USBセッションが閉じた後、FILE → PROJECTSで転送した.mgxsをOPENします。
+DATA直下に `REMOTE.ON` を置いて起動し、PCをPiのUSB-Cにつなぎます。リポジトリから `python3 tools/files/usb_files.py start` を実行し、同じツールの `status` で `usb_files=1` を確認します。続けて `--session list projects` で一覧、`--session put Song.mgxs` で送信、`--session get PROJECTS/Song.mgxs received.mgxs` で受信できます。最後に `stop` で終了します。USBでは本体画面の操作や接続コードの入力は不要です。画面を閉じる、USBを抜く、転送無通信が30秒続く場合も終了します。
+
+Ethernet経由のブラウザ転送に加え、開発ホストは[USBファイルCLI](reference/usb-files.md)からSong／素材を直接転送できます。PUTは良品だけ同名を置換し、開いている曲と宣言参照素材は保護します。録音／ファイル処理中はBUSY。USBセッションが閉じた後、FILE → PROJECTSで転送した.mgxsをOPENします。
 
 テーマはSETTINGS → DISPLAY → 4-DでTHEMEを選択 → K1。右LCDの3×3一覧に確定9名を表示します。CYBER 2が既定。選択は直ちに表示へ反映し、DEVICE.CFGへ保存され、曲のloadや保存では上書きしません。
 

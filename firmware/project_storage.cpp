@@ -69,6 +69,37 @@ bool CProjectStorage::begin_recording(const char* name,const void* header,unsign
 bool CProjectStorage::finish_recording(const char* name,const void* header,unsigned bytes,uint64_t length){
  if(!write(name,0,header,bytes,false))return false;m_RecordEnd=length;return CloseRecordingWrite();
 }
+bool CProjectStorage::append_audio(const char* name,uint64_t offset,const void* data,unsigned bytes,void*& cursor){
+ StorageUiWait::Scope responsive;
+ if(m_Watchdog)m_Watchdog->Start();
+ FIL* file=static_cast<FIL*>(cursor);
+ if(!file){
+  char path[208];
+  if(groove::factory_path(name) || !Absolute(name,path,sizeof path))return false;
+  file=groove::alloc_new<FIL>();
+  if(!file)return false;
+  if(f_open(file,path,FA_WRITE|FA_OPEN_EXISTING)!=FR_OK){delete file;return false;}
+  cursor=file;
+  if(f_lseek(file,offset)!=FR_OK)return false;
+ }
+ if(f_tell(file)!=offset)return false;
+#ifdef GROOVE_CPU_HEAP
+ if(CMemorySystem::IsCpuHeapPointer(data)){
+  if(bytes>65536)return false;
+  if(!m_CpuIo)m_CpuIo=groove::alloc_array<u8>(65536);
+  if(!m_CpuIo)return false;
+  memcpy(m_CpuIo,data,bytes);data=m_CpuIo;
+ }
+#endif
+ unsigned written=0;
+ return f_write(file,data,bytes,&written)==FR_OK && written==bytes;
+}
+bool CProjectStorage::close_audio_append(void*& cursor){
+ if(!cursor)return true;
+ auto* file=static_cast<FIL*>(cursor);
+ bool ok=f_close(file)==FR_OK;
+ delete file;cursor=nullptr;return ok;
+}
 bool CProjectStorage::write(const char* name,uint64_t offset,const void* data,unsigned count,bool truncate){
 #ifdef GROOVE_CPU_HEAP
  if(CMemorySystem::IsCpuHeapPointer(data)){

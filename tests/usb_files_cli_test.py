@@ -8,13 +8,17 @@ import subprocess
 import tempfile
 import sys
 import hashlib
+# Includes C++ fixture initialization under sanitizers on the first request.
+CONTROL_TIMEOUT = 120
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'.deps/python'))
 spec=importlib.util.spec_from_file_location('usb_files',ROOT/'tools/files/usb_files.py');cli=importlib.util.module_from_spec(spec);spec.loader.exec_module(cli)
-class Pipe:
-    def __init__(self):self.proc=None;self.device=self
+class Pipe(cli.RawUsbLink):
+    def __init__(self, remote=True):
+        super().__init__()
+        self.remote=remote;self.proc=None;self.device=self
     def open(self):
-        if self.proc is None:self.proc=subprocess.Popen([str(ROOT/'build/test-file-bulk'),'--server'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+        if self.proc is None:self.proc=subprocess.Popen([str(ROOT/'build/test-file-bulk'),'--server']+([] if self.remote else ['--remote-off']),stdin=subprocess.PIPE,stdout=subprocess.PIPE)
     def write(self,endpoint,data,timeout):self.proc.stdin.write(data);self.proc.stdin.flush();return len(data)
     def read(self,endpoint,size,timeout):
         if not select.select([self.proc.stdout],[],[],timeout/1000)[0]:raise TimeoutError('pipe')
@@ -28,7 +32,19 @@ with tempfile.TemporaryDirectory() as directory:
     with wave.open(str(path),'wb') as wav:
         wav.setparams((2,2,48000,0,'NONE','NONE'));wav.writeframes(bytes(32768*3))
     body=bytearray(path.read_bytes())
-    with cli.Client(Pipe()) as client:
+    off=Pipe(remote=False)
+    try:
+        for cmd in ('FILESSTART', 'FILESSTOP'):
+            try:off.command(cmd,CONTROL_TIMEOUT);raise AssertionError('REMOTE disabled request accepted')
+            except RuntimeError as exc:assert 'rejected' in str(exc)
+        assert 'usb_files=0' in off.command('STATUS',CONTROL_TIMEOUT)
+    finally:off.close()
+    link=Pipe()
+    assert 'usb_files=0' in link.command('STATUS',CONTROL_TIMEOUT)
+    assert link.command('FILESSTART',CONTROL_TIMEOUT)=='GBX1 RESULT command=40 ok=1'
+    assert 'usb_files=1' in link.command('STATUS',CONTROL_TIMEOUT)
+    with cli.Client(link,session=True) as client:
+        client.list(3)
         result=client.put(path);assert result['path']=='ASSETS/SAMPLES/Sample.wav'
         assert any(e['path']==result['path'] for e in client.list(3))
         output=Path(directory)/'back.wav';assert client.get(result['path'],output)['sha256']==result['sha256'];assert output.read_bytes()==body
@@ -41,7 +57,13 @@ with tempfile.TemporaryDirectory() as directory:
             try:client.request(op,data);raise AssertionError('unprotected')
             except cli.FileError as exc:assert exc.status in (3,5)
         client.delete(result['path']);assert not any(e['path']==result['path'] for e in client.list(3))
-print('PASS actual Python bulk client: split PUT, SHA GET, overwrite, invalid preservation, protection, list/delete and close')
+        assert link.command('FILESSTOP',CONTROL_TIMEOUT)=='GBX1 RESULT command=41 ok=1'
+        assert 'usb_files=0' in link.command('STATUS',CONTROL_TIMEOUT)
+        try:client.list(3);raise AssertionError('list accepted after stop')
+        except cli.FileError as exc:assert exc.status==1
+with cli.Client(Pipe()) as client:
+    assert isinstance(client.list(3),list)
+print('PASS GBX1 REMOTE off refusal, start/status/stop, MGF1 list/PUT/GET byte match, legacy OPEN/CLOSE')
 
 # Kernel ownership is a control/data pair on Linux; restore the exact old pair.
 from unittest.mock import patch

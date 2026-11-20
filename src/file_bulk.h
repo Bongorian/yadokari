@@ -1,7 +1,7 @@
 #pragma once
 #include "user_files.h"
 namespace groove {
-// MGF1 v1, little endian, 24-byte header. No GBX1 file commands.
+// MGF1 v1, little endian, 24-byte header. GBX1 can start or stop the same session.
 // FNV-1a checksums detect damaged framing; PUT integrity uses SHA-256 in UserFiles.
 namespace bulk {
 constexpr unsigned kHeader=24,kPayload=32776;
@@ -29,14 +29,14 @@ template<class Link,class Clock> void pump(Link& link,Port& port,Clock clock){
 class Service:public Port {
  UserFiles& files_;bool (*open_)(void*)=nullptr;void (*close_)(void*)=nullptr;void* owner_=nullptr;
  uint8_t input_[kHeader+kPayload]{},reply_[kHeader+kPayload]{};uint8_t staged_[32768]{};unsigned staged_bytes_=0;unsigned used_=0,need_=kHeader,out_=0,sent_=0;bool closing_=false;
- uint64_t activity_=0;bool active_=false;
+ uint64_t activity_=0;bool active_=false,remote_ready_=false;
  const char* text(unsigned offset,unsigned n)const{if(offset>=n || input_[kHeader+n-1])return nullptr;const char* p=reinterpret_cast<const char*>(input_+kHeader+offset);for(unsigned i=offset;i+1<n;++i)if(!input_[kHeader+i])return nullptr;return p;}
  void respond(uint16_t status,unsigned n=0){header(reply_,uint8_t(input_[5]|0x80),status,u32(input_+8),reply_+kHeader,n);out_=kHeader+n;sent_=0;used_=0;need_=kHeader;}
  void invalid(unsigned reason,uint32_t expected=0,uint32_t actual=0){auto* p=reply_+kHeader;put32(p,reason);put32(p+4,expected);put32(p+8,actual);put32(p+12,u32(input_+12));put64(p+16,files_.received()+staged_bytes_);respond(Invalid,24);}
  void execute(){auto* p=input_+kHeader;auto* out=reply_+kHeader;unsigned n=u32(input_+12),size=0;bool ok=false;uint8_t op=input_[5];
   if(input_[4]!=1){respond(Version);return;}
   if(input_[6] || input_[7]){invalid(4);return;}if(u32(input_+16)!=checksum(p,n)){invalid(2,u32(input_+16),checksum(p,n));if(active_)files_.cancel();staged_bytes_=0;return;}
-  if(op==Open){if(n){respond(Invalid);return;}if(active_){respond(0);return;}active_=open_ && open_(owner_);respond(active_?0:uint16_t(UserFileError::Busy));return;}
+  if(op==Open){if(n){respond(Invalid);return;}respond(start()?0:uint16_t(UserFileError::Busy));return;}
   if(!active_){respond(uint16_t(UserFileError::Closed));return;}
   switch(op){
   case Close:if(!n){files_.cancel();closing_=true;respond(0);return;}respond(Invalid);return;
@@ -54,6 +54,17 @@ class Service:public Port {
 public:
  explicit Service(UserFiles& files):files_(files){}
  void callbacks(bool (*open)(void*),void (*close)(void*),void* owner){open_=open;close_=close;owner_=owner;}
+ void remote_ready(bool ready){remote_ready_=ready;}
+ bool start(){
+  if(!remote_ready_)return false;
+  if(!active_)active_=open_ && open_(owner_);
+  return active_;
+ }
+ bool stop(){
+  if(!remote_ready_)return false;
+  if(active_)disconnected();
+  return true;
+ }
  bool active()const{return active_;}
  void tick(uint64_t now)override{if(expired(now))disconnected();}
  // Caller must call activity on actual I/O, not on every poll.

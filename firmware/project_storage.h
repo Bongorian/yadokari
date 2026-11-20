@@ -47,6 +47,8 @@ public:
  bool list_checked(const char*,groove::FileEntry*,unsigned,unsigned&)override;
  bool read(const char*,uint64_t,void*,unsigned,unsigned&)override;
  bool write(const char*,uint64_t,const void*,unsigned,bool)override;
+ bool append_audio(const char*,uint64_t,const void*,unsigned,void*&)override;
+ bool close_audio_append(void*&)override;
  bool begin_recording(const char*,const void*,unsigned,uint64_t)override;
  bool finish_recording(const char*,const void*,unsigned,uint64_t)override;
  bool random_bytes(uint8_t*,unsigned)override;

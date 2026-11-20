@@ -1,5 +1,6 @@
 #include "midi_import_job.h"
-#include "performance.h"
+#include "session_files.h"
+#include "../platform/desktop/sample_assets.h"
 #include "../platform/desktop/file_access.h"
 #include <cassert>
 #include <chrono>
@@ -68,6 +69,60 @@ int main(){
  assert(fs.write(path,0,midi,sizeof midi,true));assert(job.accept(request()));assert(e->stage_project(*p));
  auto generation=finish(publish);assert(generation.stage==MidiImportStage::Cancelled && !track_at(*p,0,0).steps[0].enabled);
  e->render(frame,0);
+ // Two GM kicks 12.5 ms apart land on the same pad and step.
+ const uint8_t flam[]={'M','T','h','d',0,0,0,6,0,0,0,1,3,192,'M','T','r','k',0,0,0,20,
+  0,0x90,36,43,12,0x80,36,0,12,0x90,36,109,12,0x80,36,0,0,0xff,0x2f,0};
+ p->tracks[0].instrument=Instrument::DrumKit;
+ // Distinct unmapped pitches receive separate spill tracks. The first
+ // note releases last; a second hit on its neighbour replaces that cell.
+ const uint8_t spill_notes[]={'M','T','h','d',0,0,0,6,0,0,0,1,3,192,'M','T','r','k',0,0,0,28,
+   0,0x90,60,43,12,0x90,61,55,12,0x80,61,0,12,0x90,61,109,48,0x80,61,0,24,0x80,60,0,0,0xff,0x2f,0};
+ auto parser=std::make_unique<MidiImport>(fs);
+ auto parse=[&](const uint8_t* bytes,unsigned length){
+  assert(fs.write(path,0,bytes,length,true));assert(parser->start(path,*p,0,0));
+  while(parser->busy())parser->service();
+ };
+ parse(spill_notes,sizeof spill_notes);
+ assert(parser->done() && parser->collisions()==1);
+ unsigned mask=parser->spill_mask();assert(__builtin_popcount(mask)==2);
+ unsigned first_track=unsigned(__builtin_ctz(mask)),second_track=unsigned(__builtin_ctz(mask&(mask-1)));
+ assert(parser->spill(first_track).steps[0].gate==43);
+ assert(parser->spill(second_track).steps[0].velocity==109 && parser->spill(second_track).steps[0].gate==19);
+ uint8_t overlap[sizeof spill_notes];std::memcpy(overlap,spill_notes,sizeof overlap);overlap[28]=60;
+ parse(overlap,sizeof overlap);
+ assert(!parser->done() && std::strstr(parser->message(),"Overlapping duplicate note"));
+ assert(fs.write(path,0,flam,sizeof flam,true));
+ for(bool accept:{false,true}){
+  auto ticket=job.accept(request());assert(ticket);
+  auto commit=[&](const MidiImport& imported){assert(accept && imported.collisions()==1);
+   assert(imported.result().kit.steps[0][0].velocity==109);return ui.publish_midi_import(imported);};
+  for(unsigned n=0;n<30 && !job.loss_summary();++n)job.service(commit);
+  assert(job.loss_summary() && std::strstr(job.loss_summary(),"GM hits 2 / kept 1 / collisions 1"));
+  job.approve_loss(ticket-1);job.service(commit);assert(job.loss_summary());
+  assert(!track_at(*p,0,0).kit.steps[0][0].enabled);
+  if(accept)job.approve_loss(ticket);else assert(job.cancel(ticket));
+  assert(finish(commit).stage==(accept?MidiImportStage::Applied:MidiImportStage::Cancelled));
+  assert(bool(track_at(*p,0,0).kit.steps[0][0].enabled)==accept);
+ }
+ // Exercise both decisions through the browser and the file service.
+ e->render(frame,0);ui.poll();assert(ui.undo());e->render(frame,0);ui.poll();
+ assert(ui.select_track(0) && ui.select_pattern(0));e->render(frame,0);ui.poll();
+ DesktopSampleAssets library;library.files(&fs);SessionFiles files(fs,library,*e,*p,ui,directory);
+ ui.set_mode(UiMode::Browser);files.service();
+ auto& browser=ui.browser();copy_text(browser.directory,sizeof browser.directory,directory);
+ browser.cursor=0;browser.count=1;browser.entries[0]={};
+ copy_text(browser.entries[0].name,sizeof browser.entries[0].name,"notes.mid");ui.set_shift(true);
+ for(bool accept:{false,true}){
+  assert(ui.soft_key(3) && ui.midi_import_confirmation() && !ui.midi_loss_decision());
+  assert(ui.modal_accept());files.service();
+  for(unsigned n=0;n<30 && !ui.midi_loss_decision();++n)files.service();
+  assert(ui.midi_loss_decision() && std::strstr(browser.status,"kept 1 / collisions 1"));
+  assert(!track_at(*p,0,0).kit.steps[0][0].enabled);
+  if(accept)assert(ui.modal_accept());else assert(ui.modal_cancel());
+  for(unsigned n=0;n<30 && files.recording_busy();++n)files.service();
+  assert(!files.recording_busy() && !ui.modal_active());
+  assert(bool(track_at(*p,0,0).kit.steps[0][0].enabled)==accept);
+ }
  std::puts("MIDI backend: fixed destination, atomic Undo, target/source/generation changes, Busy, cancellation and permanent failures passed");
  }
  std::filesystem::remove_all(directory);

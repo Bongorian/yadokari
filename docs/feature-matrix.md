@@ -139,8 +139,8 @@ What the instrument does, area by area. File formats are specified in
   with shelves, capacity display, add/download/delete, code
   authentication, length / SHA-256 / type verification, reference
   protection, and timeout/interruption cleanup; plus the wired
-  [MGF1 USB bulk / CLI](reference/usb-files.md) path. There is no GBX1
-  file command and no USB mass-storage mode.
+  [MGF1 USB bulk / CLI](reference/usb-files.md) path. A physical USB host can use GBX1 FILESSTART, STATUS and FILESSTOP
+  with REMOTE.ON to manage the session.
 - Firmware updates: Ed25519 signatures, updates applied to the inactive
   KERNEL slot with trial/confirm/recovery, over Ethernet or USB-C
   control. Recovery and DATA are protected.

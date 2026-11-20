@@ -12,6 +12,16 @@ struct AudioLane {
  uint8_t bars=1,source=1;bool enabled=true;float gain=0.8f,pan=0,feedback=1;
  AudioClip clips[kAudioClips]{};
 };
+// Later slots win placements sharing the same start tick.
+inline int audio_clip_at(const AudioLane& lane,uint32_t tick,uint32_t since=0,bool after=false){
+ int selected=-1;
+ for(unsigned i=0;i<kAudioClips;++i){
+  const auto& c=lane.clips[i];
+  if(c.asset<64 && c.tick<=tick && (!after || c.tick>since) &&
+     (selected<0 || c.tick>=lane.clips[selected].tick))selected=int(i);
+ }
+ return selected;
+}
 inline bool valid_audio_lane(const AudioLane& lane){
  if(unsigned(lane.kind)>2 || unsigned(lane.length)>2 || !lane.bars || lane.bars>kLoopMaxBars || lane.source>60 || !isfinite(lane.gain) || lane.gain<0 || lane.gain>2 || !isfinite(lane.pan) || fabsf(lane.pan)>1 || !isfinite(lane.feedback) || lane.feedback<0 || lane.feedback>1)return false;
  for(const auto& c:lane.clips)if((c.asset!=255 && (c.asset>=64 || !c.frames)) || c.tick>3932160 || c.first>0xffffffffu-c.frames || !isfinite(c.gain) || c.gain<0 || c.gain>2)return false;

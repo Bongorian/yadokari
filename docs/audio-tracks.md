@@ -10,6 +10,8 @@ Choose the type of the existing 16 slots from INSTRUMENT / LOOPER / AUDIO. In th
 
 AUDIO holds 8 clips per slot. Playback within a slot is monophonic: with overlapping placements, playback switches to the clip with the later start position. At the same start position, the clip with the later number is chosen. Placements are measured from the start of the Song at 960 PPQN, and the normal move knob steps in bars. Trim is in frames of the source WAV; on-screen operations step in 0.01 seconds. Speed is fixed at the real time of the source audio and does not stretch automatically with tempo changes. WAVs produced by the sampler's explicit Stretch process can also be assigned from the Browser.
 
+During Song playback, editing a future placement leaves the sounding WAV playing. If an edit trims, moves or replaces the sounding clip, or exposes an earlier clip, playback resumes at the source frame corresponding to the time actually played since that placement. When starting from a Song Position Pointer, the unplayed interval before the seek uses the tempo at entry.
+
 Audio slots are not driven by steps, notes, or Pattern changes. The instrument settings and steps from before the switch are retained, and SHIFT+Top1 INSTRUMENT returns to them. The common Track FX / output settings use the channel settings of the persistent Track. The audio slot's Level/Pan and the clip Gain are dedicated values. Song section Mute is applied, and audio spanning a section boundary is not retriggered midway. At the end of the Song, AUDIO stops; on a Song loop it restarts from the placements at the beginning. LOOPER continues across Scene/Pattern changes. STOP halts everything; PLAY restarts bar-synchronously from the beginning.
 
 ## Recording and overdubbing in Perform

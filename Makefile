@@ -1214,6 +1214,15 @@ test-run-audio-lane: build/test-audio-lane
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-audio-lane
 test-all: test-run-audio-lane
 
+build/test-song-stems.o: tests/song_stems_test.cpp $(DEMO_HEADERS)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs -c $< -o $@
+build/test-song-stems: build/test-song-stems.o build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@ $(UI_BASE_ARCHIVE)
+.PHONY: test-run-song-stems
+test-run-song-stems: build/test-song-stems
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-song-stems
+test-all: test-run-song-stems
+
 build/test-midi-transport-echo.o: tests/midi_transport_echo_test.cpp $(DEMO_HEADERS)
 	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs -c $< -o $@
 build/test-midi-transport-echo: build/test-midi-transport-echo.o build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)

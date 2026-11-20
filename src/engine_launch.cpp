@@ -182,12 +182,12 @@ void Engine::apply_song_section(unsigned index,bool force_restart){
 bool Engine::follow_song(bool boundary,bool tick){
  const auto& song=project_->song;if(!song.enabled || !song.length){song_snapshot_=false;song_transpose_=0;song_mute_mask_=0;return false;}
  if(song_finished_)return true;
- if(song_armed_){if(boundary){song_armed_=false;apply_song_section(0,true);}return true;}
+ if(song_armed_){if(boundary){audio_clock_.reset();song_armed_=false;apply_song_section(0,true);if(stem_start_pending_){stem_start_pending_=false;stems_.begin_audio();}}return true;}
  if(!tick)return true;
  ++song_elapsed_ticks_;song_bars_=uint16_t(song_elapsed_ticks_/kSongTicksPerBar);
  if(song_elapsed_ticks_<song_duration_ticks_)return true;
  unsigned next=song_section_+1;
- if(next>=song.length){if(!song.loop){bool captured=song_has_snapshots(song);song_finished_=true;song_snapshot_=false;song_transpose_=0;song_mute_mask_=0;if(captured)command({CommandType::Stop,0,0,0});return true;}next=0;}
+ if(next>=song.length){stems_.finish();if(!song.loop){bool captured=song_has_snapshots(song);song_finished_=true;song_snapshot_=false;song_transpose_=0;song_mute_mask_=0;if(captured)command({CommandType::Stop,0,0,0});return true;}audio_clock_.reset();next=0;}
  apply_song_section(next,next==0);return true;
 }
  void Engine::reset_clip_follow_seeds(){for(unsigned t=0;t<16;++t){clip_follow_seed_[t]=project_->random_seed^(0x85ebca6bu*(t+1));if(!clip_follow_seed_[t])clip_follow_seed_[t]=1;}}

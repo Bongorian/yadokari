@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""MGF1 v1 file CLI over Circle CDC bulk; no tty and no GBX1 file commands."""
+"""MGF1 v1 file CLI over Circle CDC bulk; GBX1 controls the USB session."""
 import argparse
 import hashlib
 import json
@@ -31,7 +31,8 @@ class FileError(RuntimeError):
         super().__init__(message)
 
 class Client:
-    def __init__(self, link=None, timeout=120):
+    def __init__(self, link=None, timeout=120, session=False):
+        self.session = session
         self.link = link or RawUsbLink()
         self.timeout = timeout
         self.sequence = 0
@@ -67,7 +68,9 @@ class Client:
         return body
     def __enter__(self):
         try:
-            self.request(1);self.opened=True
+            if not self.session:
+                self.request(1)
+                self.opened = True
             return self
         except BaseException:
             self.link.close();raise
@@ -117,14 +120,25 @@ class Client:
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--timeout',type=float,default=120)
+    parser.add_argument('--session', action='store_true', help='Use an existing USB session for data operations and leave it open')
     sub=parser.add_subparsers(dest='command',required=True)
+    control = {'start': 'FILESSTART', 'stop': 'FILESSTOP', 'status': 'STATUS'}
+    for name in control:
+        sub.add_parser(name)
     p=sub.add_parser('list');p.add_argument('shelf',choices=SHELVES)
     p=sub.add_parser('put');p.add_argument('file',type=Path);p.add_argument('--name')
     p=sub.add_parser('get');p.add_argument('path');p.add_argument('output',type=Path)
     p=sub.add_parser('delete');p.add_argument('path')
     args=parser.parse_args();started=time.monotonic()
     try:
-        with Client(timeout=args.timeout) as client:
+        if args.command in control:
+            link = RawUsbLink()
+            try:
+                print(link.command(control[args.command], args.timeout))
+            finally:
+                link.close()
+            return 0
+        with Client(timeout=args.timeout, session=args.session) as client:
             if args.command=='list':result={'files':client.list(SHELVES.index(args.shelf))}
             elif args.command=='put':result=client.put(args.file,args.name)
             elif args.command=='get':result=client.get(args.path,args.output)

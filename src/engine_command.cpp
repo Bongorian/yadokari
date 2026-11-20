@@ -12,6 +12,17 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
  for(auto& p:poly_voices_)++p.voice.voice_epoch;
  if(multitimbral_ && incoming.type==CommandType::MidiInput && incoming.value<0xf0 && incoming.parameter<16 && incoming.track!=(incoming.value&15)){CommandState routed=incoming;routed.track=uint8_t(incoming.value&15);command(routed,payload);return;}
  const CommandState& c=incoming;
+ if(c.type==CommandType::Start && c.value==kStartSongStems){
+  if(!stems_.accept_audio(c.frames))return;
+  if(playing_ || multitimbral_ || external_clock_ || !project_->song.enabled || !project_->song.length ||
+     scene_take_.active()){stems_.interrupt();return;}
+  stem_start_pending_=true;
+ }else if(c.type==CommandType::Start || c.type==CommandType::Stop || c.type==CommandType::ApplySnapshot ||
+          (c.type==CommandType::SceneTakeControl && c.step==0) ||
+          c.type==CommandType::SetMultitimbral || c.type==CommandType::SetExternalClock || c.type==CommandType::SeekSong || c.type==CommandType::Continue || c.type==CommandType::SetSong || c.type==CommandType::SetSongSection){
+  if(stem_start_pending_ || stems_.running())stems_.interrupt();
+  stem_start_pending_=false;
+ }
  if(multitimbral_ && (c.type==CommandType::Start || c.type==CommandType::Continue || c.type==CommandType::StartCountIn)){event(EngineEventType::Transport,0,0);return;}
 
  // Any edit/transport transaction restores the real instance first. Notes may
@@ -86,6 +97,18 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
    if(c.audio_lane.kind!=TrackKind::Instrument && count>=kAudioLanes)break;
    const auto old=project_->audio[c.track];bool restart=old.kind!=c.audio_lane.kind || old.enabled!=c.audio_lane.enabled;
    for(unsigned n=0;n<kAudioClips;++n){const auto& a=old.clips[n];const auto& b=c.audio_lane.clips[n];restart|=a.asset!=b.asset || a.tick!=b.tick || a.first!=b.first || a.frames!=b.frames;}
+   if((restart || c.value<kSampleAssets) && old.enabled && c.audio_lane.enabled && old.kind==TrackKind::Audio &&
+      c.audio_lane.kind==TrackKind::Audio && audio_last_tick_!=0xffffffffu){
+    // An edit to a future placement must not seek the sounding WAV with the
+    // current BPM: the original audio cursor has already crossed tempo changes.
+    int before=audio_clip_at(old,audio_last_tick_),after=audio_clip_at(c.audio_lane,audio_last_tick_);
+    if(before<0 && after<0)restart=false;
+    if(before>=0 && after>=0){
+      const auto& a=old.clips[before];const auto& b=c.audio_lane.clips[after];
+      restart=a.asset!=b.asset || a.tick!=b.tick || a.first!=b.first || a.frames!=b.frames || c.value==a.asset;
+      if(!restart && audio_clip_[c.track]==before)audio_clip_[c.track]=int8_t(after);
+    }
+   }
    if(c.value<kSampleAssets){bind_sample(c.value,c.sample);project_->assets[c.value].metadata=c.metadata;}
    project_->audio[c.track]=c.audio_lane;uint16_t bit=uint16_t(1u<<c.track);
    if(c.audio_lane.kind==TrackKind::Instrument)audio_lane_mask_&=uint16_t(~bit);else audio_lane_mask_|=bit;

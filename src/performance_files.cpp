@@ -155,6 +155,7 @@ auto Performance::browser_edit_key(unsigned index) -> bool{
   return true;
  }
 auto Performance::request_file(FileAction action) -> bool{
+  if(stems_active_ && action!=FileAction::SongStems)return composition_notice("Song stems recording / STOP cancels",true);
   if(action==FileAction::MidiImport)return begin_midi_import();
   if(action==FileAction::SaveKit || (action==FileAction::SavePreset && browser_.edit.operation!=BrowserOperation::SavePreset))return begin_preset_save();
   if(action==FileAction::AudioRecord || action==FileAction::AudioOverdub){if(live_recording_)return request_file(FileAction::RecordToggle);if(file_action_pending() || recording_file_busy_ || !playing_ || !audio_available_ || audio_lane().kind==TrackKind::Instrument)return false;queued_take_={current_recording_target(),audio_lane().source,true,RecordingOrigin::Source};queued_audio_revision_=audio_revision_[selected_];queued_audio_clip_=audio_clip_cursor_;file_action_=action;dirty_=true;return true;}

@@ -55,4 +55,4 @@ An existing file with the same name is replaced only after the new candidate has
 
 COLLECT's asset copies get short index/CRC names. Long EXPORT folder names become a shortened name plus an identification hash; the file names of the original song, preset and assets are preserved. Check the actual destination in the completion display.
 
-A wired development host can use the same core via list / get / put / delete in `tools/files/usb_files.py`. No authentication code is needed; during updates, recording or file processing the reply is BUSY, and the session ends with CLOSE / 30 s idle. See [USB procedure and wire](reference/usb-files.md) for details.
+A wired development host can use the same core via list / get / put / delete in `tools/files/usb_files.py`. The USB session requires DATA/REMOTE.ON and the remote-diagnostic readiness checks. It needs no display code; during updates, recording or file processing the reply is BUSY, and the session ends with CLOSE / 30 s idle. See [USB procedure and wire](reference/usb-files.md) for details.

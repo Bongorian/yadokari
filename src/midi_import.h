@@ -14,7 +14,7 @@ public:
  MidiImport(const MidiImport&)=delete;MidiImport& operator=(const MidiImport&)=delete;
  bool prepare_target(const ProjectState& project,unsigned pattern,unsigned track){
   if(busy_ || pattern>=kPatterns || track>=kTracks)return false;
-  delete kit_before_;delete kit_after_;kit_before_=kit_after_=nullptr;spill_mask_=folded_=unmapped_=dropped_=0;spare_mask_=0;
+  delete kit_before_;delete kit_after_;kit_before_=kit_after_=nullptr;spill_mask_=folded_=unmapped_=dropped_=collisions_=0;spare_mask_=0;
   if(project.tracks[track].instrument==Instrument::DrumKit){kit_before_=alloc_new<PatternState>(project,pattern);kit_after_=kit_before_?alloc_new<PatternState>(*kit_before_):nullptr;if(!kit_after_)return false;for(unsigned t=0;t<16;++t)if(t!=track && project.tracks[t].instrument==Instrument::Empty && project.audio[t].kind==TrackKind::Instrument){bool empty=true;for(unsigned p=0;p<kPatterns && empty;++p)empty=sequence_empty(track_at(project,p,t));if(empty)spare_mask_|=uint16_t(1u<<t);}}
   source_track_name_[0]=imported_track_name_[0]=0;source_track_has_channel_=false;baseline_=track_at(project,pattern,track);result_=baseline_;pattern_=pattern;track_=track;
   tempo_=project.tempo;channel_=baseline_.midi_channel;kind_=project.audio[track].kind;
@@ -31,7 +31,7 @@ public:
  }
  bool start(const char* path,const ProjectState& project,unsigned pattern,unsigned track){return prepare_target(project,pattern,track) && open(path);}
  bool busy()const{return busy_;}bool done()const{return done_;}const char* message()const{return error_;}unsigned skipped()const{return skipped_;}unsigned notes()const{return note_count_;}unsigned cc_lane_mask()const{return cc_lane_mask_;}unsigned nrpn_slot_mask()const{return nrpn_slot_mask_;}unsigned pattern()const{return pattern_;}unsigned track()const{return track_;}ConstTrackView result()const{return result_;}
- unsigned folded()const{return folded_;}unsigned unmapped()const{return unmapped_;}unsigned dropped()const{return dropped_;}unsigned spill_mask()const{return spill_mask_;}bool kit_import()const{return kit_after_!=nullptr;}ConstTrackView spill(unsigned t)const{return kit_after_->tracks[t];}
+ unsigned collisions()const{return collisions_;}unsigned folded()const{return folded_;}unsigned unmapped()const{return unmapped_;}unsigned dropped()const{return dropped_;}unsigned spill_mask()const{return spill_mask_;}bool kit_import()const{return kit_after_!=nullptr;}ConstTrackView spill(unsigned t)const{return kit_after_->tracks[t];}
  bool target_unchanged(const ProjectState& p)const{
   if(!prepared_ || p.audio[track_].kind!=kind_ || ((division_&0x8000) && p.tempo!=tempo_))return false;
   if(kit_before_){if(!same_track_snapshot(track_at(p,pattern_,track_),kit_before_->tracks[track_]))return false;for(unsigned t=0;t<16;++t)if((spare_mask_&(1u<<t)) && (p.audio[t].kind!=TrackKind::Instrument || !same_track_snapshot(track_at(p,pattern_,t),kit_before_->tracks[t])))return false;}
@@ -55,7 +55,7 @@ public:
   }
   if(!parsing_){if(!header()){fail("Unsupported MIDI header");return;}parsing_=true;}
   for(unsigned budget=0;budget<128 && tracks_left_;++budget){if(!track_open_ && !open_track()){fail("Invalid MIDI track");return;}if(!parse_event())return;}
-  if(!tracks_left_){if(position_!=size_){fail("Trailing MIDI data");return;}if(!finish())return;busy_=false;done_=true;if(kit_after_){unsigned at=0;const char* prefix="GM imported / folded ";while(*prefix)summary_[at++]=*prefix++;auto number=[&](unsigned n){char b[12];unsigned len=0;do{b[len++]=char('0'+n%10);n/=10;}while(n);while(len)summary_[at++]=b[--len];};number(folded_);auto text=[&](const char* p){while(*p && at<80)summary_[at++]=*p++;};text(" / unmapped ");number(unmapped_);text(" / dropped ");number(dropped_);summary_[at]=0;error_=summary_;}else error_=skipped_?"Imported / some details simplified":"MIDI events imported";}
+  if(!tracks_left_){if(position_!=size_){fail("Trailing MIDI data");return;}if(!finish())return;busy_=false;done_=true;if(kit_after_)describe_kit_import();else error_=skipped_?"Imported / some details simplified":"MIDI events imported";}
  }
 private:
  static bool same_automation(const AutomationLane& a,const AutomationLane& b){if(a.enabled!=b.enabled || a.parameter!=b.parameter || a.length!=b.length || a.mode!=b.mode)return false;for(unsigned i=0;i<kAutomationSteps;++i)if(a.values[i]!=b.values[i])return false;return true;}
@@ -78,9 +78,9 @@ private:
   uint8_t destinations[128],cells[128]{};bool held[128]{};uint64_t starts[128]{};for(auto& t:destinations)t=255;unsigned last=0;
   for(unsigned i=0;i<event_count_;++i){const auto& e=events_[i];if((e.status&0xf0)!=0x80 && (e.status&0xf0)!=0x90){++skipped_;continue;}uint64_t time;if(!units(e.tick,time)){fail("MIDI time out of range");return false;}bool on=(e.status&0xf0)==0x90 && e.velocity;int pad=kit_gm_pad(baseline_.kit,e.note);
    if(on){uint64_t index=(time+192)/384;if(index>=kSteps){fail("MIDI exceeds 256 steps");return false;}unsigned cell=unsigned(index);if(cell>last)last=cell;
-    if(pad>=0){auto& step=result_.kit.steps[pad][cell];step.enabled=1;step.velocity=e.velocity;step.microtiming=int8_t((int(time)-int(cell*384))/4);if(kit_gm_exact(baseline_.kit,e.note)<0)++folded_;++note_count_;continue;}
+    if(pad>=0){auto& step=result_.kit.steps[pad][cell];if(step.enabled){++collisions_;++skipped_;}step.enabled=1;step.velocity=e.velocity;step.microtiming=int8_t((int(time)-int(cell*384))/4);if(kit_gm_exact(baseline_.kit,e.note)<0)++folded_;++note_count_;continue;}
     ++unmapped_;unsigned t=destinations[e.note];if(t==255){uint16_t free=spare_mask_&~spill_mask_;if(!free){++dropped_;continue;}t=unsigned(__builtin_ctz(free));destinations[e.note]=uint8_t(t);spill_mask_|=uint16_t(1u<<t);for(auto& step:kit_after_->tracks[t].steps)step=StepState{};}
-    if(held[e.note]){fail("Overlapping duplicate note");return false;}auto& step=kit_after_->tracks[t].steps[cell];step.enabled=true;step.chromatic=true;step.native_drum=true;int note=60+int(e.note)-int(kit_after_->tracks[t].root_note);if(note<0 || note>127){fail("MIDI pitch outside track range");return false;}step.note=uint8_t(note);step.velocity=e.velocity;step.microtiming=int16_t(int(time)-int(cell*384));held[e.note]=true;starts[e.note]=time;cells[e.note]=uint8_t(cell);++note_count_;
+    if(held[e.note]){fail("Overlapping duplicate note");return false;}auto& step=kit_after_->tracks[t].steps[cell];if(step.enabled){++collisions_;++skipped_;}step.enabled=true;step.chromatic=true;step.native_drum=true;int note=60+int(e.note)-int(kit_after_->tracks[t].root_note);if(note<0 || note>127){fail("MIDI pitch outside track range");return false;}step.note=uint8_t(note);step.velocity=e.velocity;step.microtiming=int16_t(int(time)-int(cell*384));held[e.note]=true;starts[e.note]=time;cells[e.note]=uint8_t(cell);++note_count_;
    }else if(pad<0 && held[e.note]){uint64_t duration=time-starts[e.note];if(duration>1537){fail("MIDI note exceeds gate limit");return false;}unsigned gate=unsigned((duration+2)/4);kit_after_->tracks[destinations[e.note]].steps[cells[e.note]].gate=uint16_t(gate?gate:1);held[e.note]=false;}
   }
   for(bool h:held)if(h){fail("MIDI contains unclosed notes");return false;}
@@ -139,7 +139,22 @@ private:
   return true;
  }
  void fail(const char* reason){busy_=false;done_=false;error_=reason;}
- PatternState* kit_before_=nullptr;PatternState* kit_after_=nullptr;uint16_t spare_mask_=0,spill_mask_=0;unsigned folded_=0,unmapped_=0,dropped_=0;char summary_[96]{};
+ void describe_kit_import(){
+  unsigned at=0;
+  auto text=[&](const char* word){while(*word && at+1<sizeof summary_)summary_[at++]=*word++;};
+  auto number=[&](unsigned value){
+   char digits[12];unsigned length=0;
+   do{digits[length++]=char('0'+value%10);value/=10;}while(value);
+   while(length && at+1<sizeof summary_)summary_[at++]=digits[--length];
+  };
+  if(collisions_){
+   text("GM hits ");number(note_count_+dropped_);text(" / kept ");number(note_count_-collisions_);
+   text(" / collisions ");number(collisions_);text(" / folded ");
+  }else text("GM imported / folded ");
+  number(folded_);text(" / unmapped ");number(unmapped_);text(" / dropped ");number(dropped_);
+  summary_[at]=0;error_=summary_;
+ }
+ PatternState* kit_before_=nullptr;PatternState* kit_after_=nullptr;uint16_t spare_mask_=0,spill_mask_=0;unsigned folded_=0,unmapped_=0,dropped_=0,collisions_=0;char summary_[96]{};
  IFileAccess& fs_;uint8_t* data_=nullptr;Event* events_=nullptr;Event* scratch_=nullptr;TrackState baseline_{},result_{};char path_[160]{};const char* error_="";unsigned size_=0,read_=0,verify_=0,position_=0,end_=0,tracks_left_=0,event_count_=0,skipped_=0,note_count_=0,pattern_=0,track_=0,tempo_=120,channel_=0,cc_lane_mask_=0,nrpn_slot_mask_=0,nrpn_seen_mask_=0;uint16_t division_=0;uint8_t running_=0;uint64_t tick_=0;FileRevision revision_{};TrackKind kind_=TrackKind::Instrument;bool revision_known_=false,verified_=false,prepared_=false,busy_=false,done_=false,parsing_=false,track_open_=false;
 };
 }

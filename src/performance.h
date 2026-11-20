@@ -57,7 +57,7 @@ class Performance {
  ModalState modal_;
  ui::FileToast file_notice_;
  bool help_down_=false,help_shown_=false;UiMode help_mode_=UiMode::Pad;uint64_t help_since_=0;uint32_t help_seen_=0;
- MidiImportRequest midi_import_request_{};uint32_t midi_import_ticket_=0,midi_import_cancel_ticket_=0;
+ MidiImportRequest midi_import_request_{};uint32_t midi_loss_approval_=0;uint32_t midi_import_ticket_=0,midi_import_cancel_ticket_=0;
  ModalField<uint8_t> stretch_modal_{modal_,ModalOwner::Stretch};
  ModalField<uint8_t> composition_modal_{modal_,ModalOwner::Composition};
  ModalField<uint8_t> twin_modal_{modal_,ModalOwner::Twin};
@@ -146,6 +146,8 @@ public:
  bool playing() const { return playing_; }bool counting_in()const{return counting_in_;}unsigned count_beat()const{return count_beat_;}
  void audio_available(bool ready){audio_available_=ready;}bool audio_available()const{return audio_available_;}
  void live_recording(bool on,uint8_t source=255,const RecordingTarget* target=nullptr,bool quantized=false,RecordingOrigin origin=RecordingOrigin::None);bool live_recording()const{return live_recording_;}uint8_t live_record_source()const{return live_record_source_;}bool note_recording()const{return note_recording_;}unsigned note_record_track()const{return note_record_track_;}bool arm_note_record(bool on);void resampling(bool on,const ResampleRequest* request=nullptr);
+ void song_stems_active(bool active){if(stems_active_!=active){stems_active_=active;dirty_=true;}}
+ bool song_stems_active()const{return stems_active_;}
  void recording_file_busy(bool on){if(recording_file_busy_!=on){recording_file_busy_=on;dirty_=true;}}
  void recording_cancel_pending(bool on){if(resample_cancel_pending_!=on){resample_cancel_pending_=on;dirty_=true;}}
  bool recording_file_busy()const{return recording_file_busy_;}bool resample_cancel_pending()const{return resample_cancel_pending_;}
@@ -562,11 +564,17 @@ public:
  float knob_normalized(unsigned index)const ;
  template<class T> T snap_center(T previous,T next,T center=T{})const{return center_snap_ && previous!=center && (previous-center)*(next-center)<=0?center:next;}
  bool kit_knob(unsigned index,int change);
+ bool midi_loss_decision()const{return midi_import_confirmation() && midi_import_ticket_ && modal_.value==1;}
  bool midi_import_confirmation()const{return modal_.owner==ModalOwner::MidiImport;}
  bool begin_midi_import();
  bool take_midi_import_request(MidiImportRequest& out);
  void midi_import_started(uint32_t ticket){midi_import_ticket_=ticket;}
  uint32_t take_midi_import_cancel(){uint32_t ticket=midi_import_cancel_ticket_;midi_import_cancel_ticket_=0;return ticket;}
+ void review_midi_loss(uint32_t ticket,const char* summary){
+  if(modal_.owner!=ModalOwner::MidiImport || midi_import_ticket_!=ticket || modal_.value==1)return;
+  copy_text(browser_.status,sizeof browser_.status,summary);modal_.value=1;modal_.sync();dirty_=true;
+ }
+ uint32_t take_midi_loss_approval(){auto id=midi_loss_approval_;midi_loss_approval_=0;return id;}
  bool midi_import_finished(uint32_t ticket);
  bool modal_active()const{return browser_editing() || modal_.owner!=ModalOwner::None;}
  bool modal_accept();
@@ -751,7 +759,7 @@ private:
  uint8_t sn_ref_track_=0,sn_ref_pattern_=0,sn_ref_channel_=0;uint64_t sn_ref_armed_ms_=0;
  AudioLane audio_undo_[16]{};bool audio_undo_valid_[16]{};uint32_t audio_revision_[16]{},queued_audio_revision_=0;uint8_t audio_clip_cursor_=0,queued_audio_clip_=0;
  uint8_t loop_track_=0,loop_pattern_=0,loop_slot_=0;uint32_t loop_generation_=0;bool tracker_view_=false,step_overview_=false,counting_in_=false,note_recording_=false,note_finish_pending_=false,gesture_recording_=false,gesture_playing_=false,live_recording_=false,record_quantized_=false;uint8_t live_record_source_=255;uint8_t creative_lane_=0,creative_cell_=0,tuning_note_=0,note_record_track_=0,count_beat_=0;
- bool resampling_=false,resample_cancel_pending_=false,resample_cancel_request_=false,recording_file_busy_=false;uint8_t resample_bars_=1;ResampleRequest queued_resample_{},active_resample_{};LiveRecordRequest queued_record_{},queued_take_{};RecordingTarget active_record_target_{};RecordingOrigin active_record_origin_=RecordingOrigin::None;bool live_record_quantized_=false,record_stop_pending_=false,record_stop_request_=false;
+ bool stems_active_=false,resampling_=false,resample_cancel_pending_=false,resample_cancel_request_=false,recording_file_busy_=false;uint8_t resample_bars_=1;ResampleRequest queued_resample_{},active_resample_{};LiveRecordRequest queued_record_{},queued_take_{};RecordingTarget active_record_target_{};RecordingOrigin active_record_origin_=RecordingOrigin::None;bool live_record_quantized_=false,record_stop_pending_=false,record_stop_request_=false;
  bool clip_follow_page_=false;
  bool arrangement_ui_active_=false;uint16_t arrangement_ui_mute_=0,arrangement_ui_solo_=0;
  bool scene_take_requested_=false;char scene_take_message_[96]{};

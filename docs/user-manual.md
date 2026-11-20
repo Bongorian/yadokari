@@ -578,7 +578,13 @@ For a `.part` from an interrupted recording, select it in FILES and use <strong>
 
 ### Passing it on as audio
 
-There is no dedicated operation on the unit to bulk-export a Song into per-Track WAVs. Either record an internal bus with REC SOURCE into a WAV, or record via <strong>MK3 LINE OUT → an external recorder / a PC's audio input</strong>. Internal recording involves assignment to the destination Track, so use an empty Track and check the effect on the original song. When recording something long, check the SD's free space first.
+Enable Song, stop playback and select the internal clock. In PROJECT, hold SHIFT and press Top6 **SONG STEMS**. One playback pass creates `RECORDINGS/Stems-001/` (then the next free number). The eleven stereo 16-bit WAVs share the engine sample rate, start frame and length.
+
+- **Group1.wav–Group8.wav** contain each group after its inserts and gain, including groups routed to Cue. Assign tracks to groups to choose the parts you want to mix separately.
+- **Direct.wav** contains ungrouped tracks routed to Main. **Returns.wav** contains the wet delay and reverb returns. **Mix.wav** captures the final Main output, including master processing.
+- Capture ends at the first Song end, including in loop mode. Extend the last section to keep a longer effects tail. STOP cancels during recording. SHIFT + Top6 **CANCEL STEMS** cancels capture while playback continues. A completed folder appears after all eleven files close. An interruption can leave a folder ending in `.tmp`.
+
+For a single track or another internal bus, select it in REC SOURCE. An external recorder can also capture MK3 LINE OUT.
 
 Even if you connect this unit's Pi USB-C to a PC, it does not necessarily become a generic USB audio/MIDI device or SD storage. For USB-C file operations use the dedicated MGF1 CLI, and over the network use Ethernet FILE TRANSFER. See the transfer procedures later in this manual.
 
@@ -622,7 +628,7 @@ Using AUTO / MIDI's K8 `SLAVE CLOCK` makes it follow the tempo of an external Cl
 |---|---|
 | Export a performance for external MIDI | Start/stop with FILE → SHIFT+Top4. Saved with sequential numbers as `RECORDINGS/MIDI00.MID`, etc. These are events the Engine accepted into the output queue, not proof of physical delivery |
 | Export the notes of internal engines | Start/stop with FILE → SHIFT+Top5. Records Track 1–16 to MIDI ch 1–16. This is not an operation that sends notes out |
-| Import a .MID | Select a .MID/.MIDI in FILES, and set K2 TRACK and K3 MIDI CH. <strong>SHIFT+Top4 "IMPORT MIDI" → press the 4-D encoder to confirm</strong>. Replaces the Steps of the Pattern/Track at confirmation time in bulk. Can be cancelled on the left while in progress. Failure/cancellation retains the original data; success can be undone in EVENTS |
+| Import a .MID | Select a .MID/.MIDI in FILES, and set K2 TRACK and K3 MIDI CH. <strong>SHIFT+Top4 "IMPORT MIDI" → press the 4-D encoder to confirm</strong>. Replaces the Steps of the Pattern/Track at confirmation time in bulk. Can be cancelled on the left while in progress. Failure/cancellation retains the original data; success can be undone in EVENTS  If GM hits share a destination cell, the screen shows the hit, retained and collision counts. Press the 4-D encoder again to retain the last hit in each cell, or press left to cancel. |
 
 Export is SMF0, with 1ms SMPTE time. It does not completely preserve the song's tempo map, Clock, Transport, SysEx, or all sound Modulation. Import covers SMF0/1, up to 256KiB, 4096 events on the selected channel, 256 Steps, 8 notes/Step, and 2 free Automation lanes. <strong>The tempo map is ignored</strong>. Check the conversion/omission messages, compare by listening in your DAW, and then adopt it. To pass the sound itself, you need a WAV.
 
@@ -1087,6 +1093,8 @@ If, in that boot, you want to change to a different method after having chosen E
 COLLECT's material copies get short index / CRC names. A long-named EXPORT folder becomes an abbreviation + an identifying hash, while the original song, sound and material file names are kept. Check the actual destination in the completion display.
 
 ### USB-C transfer and the device theme
+
+With `DATA/REMOTE.ON` present at boot, connect the development host to Pi USB-C and run `python3 tools/files/usb_files.py start` from the repository. Run `status` with the same tool and check for `usb_files=1`. Use `--session list projects`, `--session put Song.mgxs` or `--session get PROJECTS/Song.mgxs received.mgxs` while it is open. Run `stop` to finish. USB needs no screen interaction or connection code. Closing the transfer screen, disconnecting USB or leaving the file session idle for 30 seconds also ends it.
 
 Alongside Ethernet file transfer, a development host can transfer Songs and materials directly from the [USB file CLI](reference/usb-files.md). A PUT replaces a same-name file only if it verifies, and the open song and declared referenced materials are protected. During recording or file processing the reply is BUSY. After the USB session closes, OPEN the transferred .mgxs under FILE → PROJECTS.
 

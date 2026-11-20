@@ -19,7 +19,7 @@ make update-test
 
 Give `prepare.py` an existing `--key-dir`, a `--version` greater than the current highest, and a new `--output-dir`. `--label` is a short ASCII identifier. The Circle/toolchain paths follow the [setup](pi4-development-setup.md). The app and recovery are built, but this does not mean the recovery is replaced over an online transfer.
 
-Release media are board-specific, four-partition images produced by `tools/update/provision.py`. Unzip the image for your board and flash it to a card. Back up songs before migrating an old single-volume card. New images include DATA/REMOTE.ON. Remove it and reboot to disable remote control and diagnostics. On Pi 5 the release USB CDC port still enumerates for local file transfer and status.
+Release media are board-specific, four-partition images produced by `tools/update/provision.py`. Unzip the image for your board and flash it to a card. Back up songs before migrating an old single-volume card. New images include DATA/REMOTE.ON. Remove it and reboot to disable remote control and diagnostics. On Pi 5 the release USB CDC port still enumerates for STATUS. Unattended USB file transfer requires the marker, including sessions opened with MGF1 OPEN.
 
 | Bootloader partition | Volume | Purpose |
 |---|---|---|
@@ -32,10 +32,15 @@ Recovery expands the provisioned DATA volume on first boot when the card has mor
 
 | Operation | Required conditions |
 |---|---|
-| Browser file transfer | Start FILE TRANSFER locally, Ethernet link and DHCP, then enter the displayed code. USB-C uses the file protocol. |
+| Browser file transfer | Start FILE TRANSFER locally, Ethernet link and DHCP, then enter the displayed code. |
+| USB file transfer | Physical USB-C connection to the normal app, DATA/REMOTE.ON, valid A/B layout, journal and boot identity. Recording, file jobs, diagnostics and update mode must be idle before the session starts. |
 | Remote diagnostics | Valid A/B layout and journal, DATA/REMOTE.ON and boot identity. The diagnostic request must be accepted in the current mode. |
 | Signed update | Prepared A/B layout, supported board/EEPROM, armed update mode, matching public key and higher version. USB-C and wired Ethernet use the same verifier. |
 | Offline update | Put UPDATE.GUP in DATA, enter Recovery, then verify and apply it. |
+
+On the USB CDC stream, send `!GBX1 FILESSTART\n` or `!GBX1 FILESSTOP\n`. Replies are `GBX1 RESULT command=40 ok=1` for start and `command=41 ok=1` for stop, with `ok=0` on rejection. Both operations are idempotent while permitted. USB STATUS in the normal app includes `usb_files=0` or `1`. ENTER is for firmware updates. Start the file session directly from normal operation.
+
+The physical USB host has the same admission requirements as a remote diagnostic and can read or modify supported user files without a display code. File data travels in MGF1 frames. Neither command opens a network listener. Ethernet and UART control cannot start this session. Screen-started browser transfer continues to require the displayed code. See the [USB CLI procedure](reference/usb-files.md).
 
 The optional early-board EEPROM acknowledgement requires physical verification. The public firmware is the reference implementation for Recovery, tryboot and signed updates.
 

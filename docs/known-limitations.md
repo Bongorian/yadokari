@@ -32,12 +32,10 @@ story, kept current per release.
   small and Recovery expands it to the end of the card on first
   boot; an interrupted expansion resumes in Recovery.
 - **Remote diagnostics are opt-in by marker.** On a prepared
-  (A/B) card, remote diagnostic and update commands require the
+  (A/B) card, USB file sessions, remote diagnostics and update commands require the
   DATA/REMOTE.ON marker; official images bundle the marker by
   default so open-source users can develop against the release
-  build. Delete the marker and reboot to opt out. Gadget
-  enumeration for local file transfer and status is a separate
-  gate and does not by itself enable diagnostics.
+  build. Delete the marker and reboot to opt out. USB STATUS remains available when the gadget enumerates.
 
 ## Content and formats
 
@@ -78,8 +76,7 @@ story, kept current per release.
   fits on a Pi 5 can be refused during playback on a Pi 4.
   See [hardware profiles](hardware-profiles.md).
 - **USB-C CDC is on by default on Pi 5**: the control/update
-  channel enumerates with no opt-in file, for local file
-  transfer and status. (On Pi 4 the channel enumerates when
+  channel enumerates with no opt-in file, for STATUS. (On Pi 4 the channel enumerates when
   the REMOTE.ON marker is present — official images bundle
   it — or from the update screen. Remote diagnostics on
   either board additionally require the prepared A/B layout

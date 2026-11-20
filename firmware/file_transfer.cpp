@@ -65,7 +65,7 @@ struct CFileTransfer::Impl {
 CFileTransfer::CFileTransfer(CProjectStorage& fs,const ProjectState& project,Performance& ui,CUpdateRuntime& updater):impl_(new Impl(fs,project,ui,updater)){}
 CFileTransfer::~CFileTransfer(){Close();delete impl_;}
 bool CFileTransfer::active()const{return impl_->view.active;}
-groove::bulk::Port* CFileTransfer::UsbPort(){return &impl_->usb;}
+groove::bulk::Service* CFileTransfer::UsbPort(){return &impl_->usb;}
 void CFileTransfer::UsbPrepare(bool (*open)(void*),void* owner){impl_->usb_open=open;impl_->usb_owner=owner;}
 bool CFileTransfer::Open(bool busy,bool station,bool usb){auto& x=*impl_;if(x.view.active || busy || x.updater.active())return false;x.net=nullptr;x.transport=nullptr;if(!x.ui.stop() || !x.ui.panic() || !x.ui.stop_audition())return false;x.view={};x.want_close=false;x.files.continuation(Impl::Continue,&x);x.mdns_attempts=0;x.mdns_due=0;x.leases=FileDhcp{};x.view.active=true;x.lifetime.open(CTimer::GetClockTicks64());if(usb){if(!x.files.open(x.ui.project_path())){x.view={};return false;}x.view.usb=x.view.started=true;copy_text(x.view.ssid,sizeof x.view.ssid,"USB-C / MGF1 v1");copy_text(x.view.status,sizeof x.view.status,"USB FILE SESSION");x.ui.transfer_view(x.view);return true;}CBcmRandomNumberGenerator rng;CString code;code.Format("%08x",rng.GetNumber());copy_text(x.view.code,sizeof x.view.code,code);CString ssid;ssid.Format("Groovebox-%08x",rng.GetNumber());copy_text(x.ap_ssid,sizeof x.ap_ssid,ssid);copy_text(x.view.ssid,sizeof x.view.ssid,ssid);copy_text(x.view.status,sizeof x.view.status,x.view.wired?"STARTING ETHERNET":"STARTING WI-FI");x.ui.transfer_view(x.view);
  copy_text(x.view.status,sizeof x.view.status,"READY TO START");x.view.station=station;x.view.wired=true;

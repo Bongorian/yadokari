@@ -1,4 +1,6 @@
 #pragma once
+#include "stem_capture.h"
+#include "audio_timeline_clock.h"
 #include "wavetable_voice.h"
 #include "fm6_voice.h"
 #include "soundfont.h"
@@ -86,6 +88,15 @@ public:
  float chimera_sing_time()const{float time=-1;for(unsigned i=0;i<chimera_slots_;++i){float next=chimeras_[i].sing_time();if(next>=0)time=next;}return time;}
 #endif
  bool stage_chimera_speech(unsigned track,const char* text,size_t bytes){return chimera_slots_ && !__atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE) && chimera_speech_.prepare(track,text,bytes);}
+ static constexpr unsigned kStartSongStems=2;
+ StemCapture& stems(){return stems_;}
+ bool start_stem_song(){
+  Command start{CommandType::Start,0,0,kStartSongStems};
+  start.frames=stems_.arm(); // Identifies this take in the transport queue.
+  if(!start.frames)return false;
+  if(submit(start))return true;
+  stems_.request_cancel();return false;
+ }
  bool stage_project(const ProjectState& project,const WavView* assets=nullptr); // producer context; one snapshot in flight
  bool stage_morph(unsigned side,const ParameterSnapshot snapshots[kTracks]); // producer context; one snapshot per side in flight
  bool morph_stage_ready(unsigned side)const{return side<2 && !__atomic_load_n(&morph_stage_pending_[side],__ATOMIC_ACQUIRE);}
@@ -215,6 +226,8 @@ public:
   if(c.type==CommandType::SetInputGain && (c.value>48 || c.step>2))return false;
   if((carries_sound(c.type) && !sound_commands_->free_space()) || (c.restore_morph && (!c.morph_payload() || !morph_commands_->free_space())))return false;
   auto* slot=commands_->push_begin();if(!slot)return false;
+  if(c.type==CommandType::SetSong && valid_song(c.song_state) && !audio_clock_.prepare(c.song_state))return false;
+  if(c.type==CommandType::SetSongSection && valid_song_section(c.song_section) && !audio_clock_.prepare_section(c.value,c.song_section))return false;
   if(carries_sound(c.type) && (!prepare_chimera_sound(c.sound().chimera_phrase,c.sound().layer) || !sound_commands_->push(c.sound())))return false;
   if(c.restore_morph && !morph_commands_->push(*c.morph_payload()))return false;
   *slot=static_cast<const CommandState&>(c);if(pattern!=255)slot->pattern=pattern;
@@ -379,6 +392,8 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  bool audio_has_solo()const{return song_snapshot_?snapshot_solo_!=0:project_->solo_tracks!=0;}
  bool audio_solo_track(unsigned t)const{return song_snapshot_?bool(snapshot_solo_&(1u<<t)):track_solo(*project_,t);}
  uint16_t captured_mute_mask()const;
+ StemCapture stems_;bool stem_start_pending_=false;
+ uint64_t audio_transport_frame_=0;
  uint16_t audio_lane_mask_=0,audio_pending_=0;uint32_t audio_last_tick_=0xffffffffu,live_record_tick_=0;int8_t audio_clip_[16]{};
  void reset_audio_lanes();void start_audio_clip(unsigned t,unsigned clip,uint32_t offset=0);void tick_audio_lanes(bool boundary);uint32_t audio_song_tick()const;
  uint64_t arrangement_tick_phase_=0,arrangement_tick_=0;uint32_t song_elapsed_ticks_=0,song_duration_ticks_=kSongTicksPerBar;
@@ -424,7 +439,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  // envelope per processor; the processor sleeps (and is reset on
  // wake, like PerformanceThrows) once its input is quiet and the
  // envelope has decayed below audibility.
- float delay_env_=0,reverb_env_=0;bool delay_sleep_=true,reverb_sleep_=true;uint32_t cc_generation_=0; StereoReverb reverb_; PerformanceThrows performance_throws_; StereoCompressor compressor_; StereoCompressor track_compressors_[16]; StereoSafetyLimiter main_limiter_,cue_limiter_; MasterCapture captures_[2],performance_history_; PerformanceFxBus performance_fx_; PerformanceFx performance_fx_applied_=PerformanceFx::Off,performance_fx_pending_mode_=PerformanceFx::Off,performance_fx_manual_mode_=PerformanceFx::Off,performance_fx_auto_mode_=PerformanceFx::Off; float performance_fx_pending_amount_=0,performance_fx_auto_amount_=0.5f,performance_fx_manual_amount_=0; uint8_t performance_fx_quantize_pending_=0; BeatRepeat beat_repeat_; unsigned capture_active_=0,capture_frozen_=1; uint32_t capture_state_=0;// Only the audio owner touches the runtime below.
+ float delay_env_=0,reverb_env_=0;bool delay_sleep_=true,reverb_sleep_=true;uint32_t cc_generation_=0; StereoReverb reverb_; PerformanceThrows performance_throws_; StereoCompressor compressor_; StereoCompressor track_compressors_[16]; StereoSafetyLimiter main_limiter_,cue_limiter_; MasterCapture captures_[2],performance_history_; AudioTimelineClock audio_clock_; PerformanceFxBus performance_fx_; PerformanceFx performance_fx_applied_=PerformanceFx::Off,performance_fx_pending_mode_=PerformanceFx::Off,performance_fx_manual_mode_=PerformanceFx::Off,performance_fx_auto_mode_=PerformanceFx::Off; float performance_fx_pending_amount_=0,performance_fx_auto_amount_=0.5f,performance_fx_manual_amount_=0; uint8_t performance_fx_quantize_pending_=0; BeatRepeat beat_repeat_; unsigned capture_active_=0,capture_frozen_=1; uint32_t capture_state_=0;// Only the audio owner touches the runtime below.
  uint8_t freeze_state_=0,freeze_track_=0,freeze_pattern_=0;int16_t* freeze_buffer_=nullptr;uint32_t freeze_capacity_=0,freeze_frames_=0,freeze_estimate_=1;bool freeze_write_=false,freeze_audio_active_=false;
  // Storage and request are task-owned while idle and immutable until an
  // audio completion/abort acknowledgement. Only status/cancel/progress cross

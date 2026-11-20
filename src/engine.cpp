@@ -10,7 +10,7 @@ namespace groove {
 uint32_t Engine::audio_song_tick()const{
  uint32_t tick=song_elapsed_ticks_;for(unsigned i=0;i<song_section_ && i<project_->song.length;++i)tick+=song_section_ticks(project_->song.sections[i]);return tick;
 }
-void Engine::reset_audio_lanes(){audio_lane_mask_=audio_pending_=0;audio_last_tick_=0xffffffffu;for(unsigned t=0;t<16;++t){audio_clip_[t]=-1;if(project_->audio[t].kind!=TrackKind::Instrument){audio_lane_mask_|=uint16_t(1u<<t);audio_pending_|=uint16_t(1u<<t);}}}
+void Engine::reset_audio_lanes(){audio_clock_.reset();audio_lane_mask_=audio_pending_=0;audio_last_tick_=0xffffffffu;for(unsigned t=0;t<16;++t){audio_clip_[t]=-1;if(project_->audio[t].kind!=TrackKind::Instrument){audio_lane_mask_|=uint16_t(1u<<t);audio_pending_|=uint16_t(1u<<t);}}}
 void Engine::start_audio_clip(unsigned t,unsigned index,uint32_t offset){
  const auto& a=project_->audio[t];const auto& clip=a.clips[index];auto& voice=voices_[t].sampler;voice.stop();voices_[t].off_at=0;voices_[t].instrument=unsigned(Instrument::Empty);voices_[t].env=0;audio_clip_[t]=-1;
  if(!a.enabled || clip.asset>=kSampleAssets || offset>=clip.frames)return;
@@ -18,19 +18,19 @@ void Engine::start_audio_clip(unsigned t,unsigned index,uint32_t offset){
 }
 void Engine::tick_audio_lanes(bool boundary){
  const uint32_t tick=audio_song_tick();const bool song=project_->song.enabled && project_->song.length && !song_finished_ && !song_armed_;
+ if(song)audio_clock_.observe(tick,audio_transport_frame_,tempo_q16_);else audio_clock_.reset();
  const bool restart=audio_last_tick_==0xffffffffu || tick<audio_last_tick_;
  for(uint32_t mask=audio_lane_mask_;mask;mask&=mask-1){unsigned t=unsigned(__builtin_ctz(mask));const auto& a=project_->audio[t];auto& voice=voices_[t].sampler;
   if(a.kind==TrackKind::Looper){if(boundary && (audio_pending_&(1u<<t))){start_audio_clip(t,0);audio_pending_&=uint16_t(~(1u<<t));}continue;}
   if(!song){voice.stop();audio_clip_[t]=-1;continue;}
   const bool lane_restart=restart || (audio_pending_&(1u<<t));audio_pending_&=uint16_t(~(1u<<t));
   if(lane_restart){voice.stop();audio_clip_[t]=-1;}
-  int selected=-1;uint32_t latest=0;
-  for(unsigned c=0;c<kAudioClips;++c){const auto& clip=a.clips[c];if(clip.asset<kSampleAssets && clip.tick<=tick && (lane_restart || clip.tick>audio_last_tick_) && (selected<0 || clip.tick>=latest)){selected=int(c);latest=clip.tick;}}
-  if(selected>=0){const auto& clip=a.clips[selected];uint64_t offset=uint64_t(tick-clip.tick)*samples_[clip.asset].rate*60/(uint64_t(bpm_)*960);start_audio_clip(t,unsigned(selected),offset<clip.frames?uint32_t(offset):clip.frames);}
+  const int selected=audio_clip_at(a,tick,audio_last_tick_,!lane_restart);
+  if(selected>=0){const auto& clip=a.clips[selected];uint64_t elapsed=audio_clock_.elapsed(clip.tick,rate_);uint64_t offset=elapsed/rate_*samples_[clip.asset].rate+(elapsed%rate_)*samples_[clip.asset].rate/rate_;start_audio_clip(t,unsigned(selected),offset<clip.frames?uint32_t(offset):clip.frames);}
  }
  audio_last_tick_=song?tick:0xffffffffu;
 }
-Engine::Engine(uint32_t sample_rate):pattern_staging_(new PatternState()),pattern_revisions_(new PatternRevisions()),creative_(new CreativeVoice[16]),rate_(sample_rate>=8000?sample_rate:48000),project_(new ProjectState()),staging_(new ProjectState()),track_views_(*project_),delay_(rate_),reverb_(rate_),performance_throws_(rate_),compressor_(rate_),main_limiter_(rate_),cue_limiter_(rate_),captures_{MasterCapture(rate_*4),MasterCapture(rate_*4)},performance_history_(rate_),performance_fx_(rate_) {
+Engine::Engine(uint32_t sample_rate):pattern_staging_(new PatternState()),pattern_revisions_(new PatternRevisions()),creative_(new CreativeVoice[16]),rate_(sample_rate>=8000?sample_rate:48000),project_(new ProjectState()),staging_(new ProjectState()),track_views_(*project_),delay_(rate_),reverb_(rate_),performance_throws_(rate_),compressor_(rate_),main_limiter_(rate_),cue_limiter_(rate_),captures_{MasterCapture(rate_*4),MasterCapture(rate_*4)},performance_history_(rate_),audio_clock_(rate_),performance_fx_(rate_) {
  insert_resources_ready_=prepare_wavetable_bank();
  va_triggers_.init(rate_);
  // Complete descriptor initialization before the real-time owner starts.
@@ -76,6 +76,7 @@ bool Engine::stage_project(const ProjectState& p,const WavView* assets) {
  if(!chimera_speech_.prepare_project(p.chimera_ipa))return false;
  for(const auto& track:p.tracks)if(!prepare_chimera_sound(track.chimera_phrase,track.layer,true))return false;
  for(const auto& sound:p.sounds)if(!prepare_chimera_sound(sound.chimera_phrase,sound.layer,true))return false;
+ if(!commands_->free_space() || !audio_clock_.prepare(p.song))return false;
  staged_assets_=assets!=nullptr; if(assets)for(unsigned i=0;i<kSampleAssets;++i)staged_samples_[i]=assets[i];
  snapshot_generation_=published_generation_+1;*staging_=p; __atomic_store_n(&snapshot_pending_,1,__ATOMIC_RELEASE);
  if(!commands_->push({CommandType::ApplySnapshot,0,0,0})) { __atomic_store_n(&snapshot_pending_,0,__ATOMIC_RELEASE); return false; }

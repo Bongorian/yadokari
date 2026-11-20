@@ -1,6 +1,14 @@
 #pragma once
 #include "serial_control.h"
 namespace groove { namespace update {
+// Only the physical CDC dispatcher supplies a file service. Recovery supplies none.
+template<class Service> bool control_usb_files(SerialCommand command,Service* files,uint64_t now){
+ if(!files)return false;
+ if(command==SerialCommand::FilesStop)return files->stop();
+ if(command!=SerialCommand::FilesStart || !files->start())return false;
+ files->activity(now);
+ return true;
+}
 enum class UsbInputKind:uint8_t { None, Command, BinaryStart, FileStart };
 struct UsbInput {UsbInputKind kind=UsbInputKind::None;SerialCommand command=SerialCommand::None;};
 // USB CDC shares a stream between exact control lines and existing GUP1 data.
