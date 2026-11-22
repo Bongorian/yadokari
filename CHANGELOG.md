@@ -4,6 +4,31 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.0.4
+
+- CHIMERA gains a TALK insert effect: any sound can be played through
+  the vocal tract, with optional note following (TALK TO TRACK). A new
+  PERFORM surface (LIVE TOOLS -> VOWELS) plays and locks vowel steps,
+  CHIMERA sounds gain UNISON (1-4 voices) with SPREAD detune, and an
+  optional SPEAK scene reading ducks the other tracks while a scene is
+  read aloud.
+- Layer sounds now steal the oldest released Layer chain when the voice
+  pool is full, instead of refusing new notes, and VA voices take part
+  in the render-ahead bundles.
+- Fixed a freeze on the SETTINGS -> SYSTEM page with large cards: the
+  free-space count published while the DATA volume grows is now valid,
+  so opening the page no longer triggers a full card scan.
+- Saving a Song no longer stalls input while moved assets are searched
+  for: the search is spread across file-service rounds, recordings
+  carry their content CRC from every capture flow, and temporary files
+  are never mistaken for assets.
+- Undo now shows UNDO LIMIT / OLDEST EDITS REMOVED once when the
+  64-entry history limit first drops the oldest edits, instead of
+  discarding them silently.
+- Hardened the DaisySP drum bank: out-of-range or non-finite control
+  values can no longer wedge a generator, and overlapping hits step a
+  shared generator once per sample instead of two or three times.
+
 ## 1.0.2
 
 - Added Song stem export: on the PROJECT page, hold SHIFT and press
