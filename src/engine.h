@@ -85,9 +85,14 @@ public:
  ~Engine();
  Engine(const Engine&)=delete; Engine& operator=(const Engine&)=delete;
 #ifdef TEST
+ float scene_duck_gain()const{return speech_duck_;}
+ bool talk_following(unsigned t)const{return t<kTracks && talk_pose_[t].until>sample_count_;}
  float chimera_sing_time()const{float time=-1;for(unsigned i=0;i<chimera_slots_;++i){float next=chimeras_[i].sing_time();if(next>=0)time=next;}return time;}
 #endif
  bool stage_chimera_speech(unsigned track,const char* text,size_t bytes){return chimera_slots_ && !__atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE) && chimera_speech_.prepare(track,text,bytes);}
+ unsigned active_tracts()const{
+  unsigned count=0;for(unsigned i=0;i<chimera_slots_;++i)count+=chimeras_[i].active();return count;
+ }
  static constexpr unsigned kStartSongStems=2;
  StemCapture& stems(){return stems_;}
  bool start_stem_song(){
@@ -270,7 +275,7 @@ private:
  LayerVoiceRuntime* leaf_runtime_=nullptr;
  struct Voice {
   LayerVoiceRuntime* leaf=nullptr;
-  uint8_t shared_slot=255;
+  uint8_t shared_slot=255,tract_count=1,tract_slots[4]{};bool scene_speech=false;float tract_pitch[4]={1,1,1,1};
   const ChimeraPhrase* voice_score=nullptr;
   uint64_t score_step=0;
   bool score_before_step=false;
@@ -318,8 +323,8 @@ private:
  struct Declick {float l=0,r=0;uint8_t remaining=0;};Declick declick_[16]{};
  public: bool declick_active(unsigned t)const{return t<16 && declick_[t].remaining;} private:
  unsigned oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect,uint32_t excluded)const;
- struct SharedVoicePlan {uint8_t indices[kPolyVoiceCapacity],count=0;};
- uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims)const;
+ struct SharedVoicePlan {uint8_t indices[kPolyVoiceCapacity],count=0,slots[4]{};};
+ uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims,unsigned units=1)const;
  void release_shared(const SharedVoicePlan& victims);
  GestureOverlay gesture_overlay_{};
  void gesture_capture(const CommandState& c);void gesture_tick();
@@ -389,6 +394,12 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  void play_step(unsigned t);
  void launch_clip(unsigned t,unsigned pattern,bool playing);
  void launch_scene(unsigned scene);
+ void announce_scene(unsigned scene);
+ const ChimeraPhrase* announcing_=nullptr;
+ Voice* speaker_=nullptr;
+ unsigned speaker_track_=kTracks;
+ float speech_duck_=1;
+ struct TalkPose {float xy[2]{};uint64_t until=0;} talk_pose_[kTracks]{};
  void apply_launches();
  uint64_t step_period(unsigned t) const;
  uint64_t step_due(unsigned t) const;

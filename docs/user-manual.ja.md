@@ -487,7 +487,7 @@ Stripの値は保存されるパラメータbaseやUndo履歴を書き換えな�
 
 #### シンセ編集とTop／ノブの使い分け
 
-左LCDは既存K1–K8の名前・値・形を2列に並べます。右LCDは宣言に応じた実PCM、FFT、倍音、scan位置、またはTONE／ADSRの模型を表示します。模型と実測の違いはcaptionで読みます。MIDI OUTはMIDIの経路と外部制御の編集を維持します。
+左LCDにはK1〜K4とK5〜K8を2列で表示します。ノブを1本タッチするか回すと、そのパラメータ名と値が大きく表示されます。横線上の縦の印が現在値です。DEFAULTが表示されている項目は、そのノブに触れたままERASEを押すと印の位置の初期値に戻ります。複数のノブを操作すると一覧で対象の行が点灯します。右LCDは宣言に応じた実PCM、FFT、倍音、scan位置、またはTONE／ADSRの模型を表示します。模型と実測の違いはcaptionで読みます。MIDI OUTはMIDIの経路と外部制御の編集を維持します。
 
 ![FM編集](manual/synth-fm.png)
 ![Tone編集](manual/synth-tone.png)
@@ -499,11 +499,13 @@ Stripの値は保存されるパラメータbaseやUndo履歴を書き換えな�
 | 1 | GENERATOR。MIDI OUTはMIDI OUT、Drum KitはKIT |
 | 2 | TONE。Filter／Drive／Sends／Level／Pan／LFOの共通編集 |
 | 3 | 編集可能ならENVELOPE／LPG／FOLD / LPG。固定カーブはFIXED ENV。対応のない音源は空欄・無効。Sampler／KitはTRIMへ直接移動 |
-| 4 | Creative音源はENGINE LAB、TEXTUREはINPUT / QUALITY。それ以外は空欄 |
+| 4 | VA DUAL／FM 6／ADDITIVEはDETAILS。Creative音源はENGINE LAB、TEXTUREはINPUT / QUALITY、CHIMERAはVOICE |
 | 5 | ENGINE選択。Family／Engine等の専用ノブに切替 |
 | 6 | MODULATION。全音源共通。Sampler編集は物理SAMPLINGから |
 | 7 | 空きslotではSTORE POOL。PROJECT K4 POOL SLOTで登録先を選ぶ |
 | 8 | 登録枠がある場合だけRECALL POOL。ENGINE選択中はBACK。SHIFT+Top4はMIDI OUTのWAVE PROFILE |
+
+**Top4 DETAILS** を繰り返し押すと、VA DUALはOSC / PWM → FILTER → PITCH / MOD、FM 6はOP LEVEL → OP DETUNE → ALGORITHM、ADDITIVEは倍音1〜8 → 9〜16の順に切り替わります。FM 6の各OPページではK1〜K6がOP 6〜1に対応します。WAVETABLEのGENERATOR K6〜K8はDECAY／SUSTAIN／BRIGHTNESS、GRANULARはJITTER／FREEZE／PITCH OFFSETです。SOUNDFONTのGENERATOR K5はVELOCITYです。FM 6のALGORITHM／FEEDBACKを最小にするとPATCHと表示され、音色に保存された値を使います。ACID BASSのK1 CUTOFFは音源内のフィルター、K6 TRACK CUTOFFはトラックのフィルターです。
 
 Layerでは左Top1 LAYER／Top2 TONE、LAYER面の左Top3 USE CHILD／Top4 REMOVE（ページ選択の無い左枠を使う例外）。削除はTop1確認／Top2取消。ENGINEのTop5 DEFAULT SOUNDで既定音色を装着し、4-D押下は音色一覧へ降ります。ノブ回転だけでは装着しません。
 
@@ -848,11 +850,13 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 
 ### CHIMERA の声道を演奏する
 
-**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で発音し、CHIMERA の各トラックと LAYER の子音色でボイスを共有します。上限は Pi 4 で2声、Pi 5 で3声です。同時に使える声数はモデルごとの DSP コストにもよります。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
+**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で発音し、CHIMERA の各トラックと LAYER の子音色でボイスを共有します。この版の共有プールは Pi 4 で2声道、Pi 5 で4声道です。Pi 5 の4声道は実機負荷の検証中です。同時に使える声数はモデルごとの DSP コストにもよります。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
 
 - **GENERATOR** の K1〜K5 は従来どおり TONGUE X、TONGUE Y、JAW、LIP ROUND、BREATH です。
 - **ARTICULATION**（Top3）は2ページです。同じボタンで切り替え、舌先の位置と反り、舌根、唇、唇と歯の接触、軟口蓋、喉頭、喉頭蓋側、仮声帯、舌の側面と背面を調整します。
 - **VOICE**（Top4）では BODY（成人男性・成人女性・子ども）、ビブラートの深さと速さ、グライド、圧力、息漏れ、MODE、SPECIES を設定します。圧力と息漏れは BREATH への追加調整です。ボディと詳細設定は音色に保存します。ボディ切替時はいったん消音し、声道を作り直します。
+
+GENERATOR の5つのノブは、鍵盤を押したままでも音に反映されます。MODE と BESTIARY の SPECIES の変更は次の発音から有効です。人声では VIBRATO RATE は DEPTH を上げると聞き取れます。LATERAL は舌先で口の中央を塞いだときの側面の通り道を調整します。SPREAD は UNISON が2以上のときに効きます。BESTIARY では種ごとの GENERATOR ノブを使います。人声用の舌・唇・喉頭の設定は、人間のモデルで発音するときに効きます。ゾウの TRUNK FINE と TRUNK MIX は同じ口・鼻の配分を調整し、可動幅はそれぞれ全体の25%と75%です。
 
 **VOICE → SHIFT+K8 VOICE MODE** で **POLY**（初期値）、**MONO**（最後に押したノートを優先）、**LEGATO**（最後のノートを優先し、ゲート継続中はグライド）を選びます。
 
@@ -900,6 +904,14 @@ LEVEL／PAN／CUTOFF等は音源を跨ぐ共通対象です。MODELもautomation
 画面の上段は入力音の解析、下段はキャリアへの16-band適用を示します。FX2、pad/group INSERTでも同じ選択名と経路の意味です。
 
 - **操作例** — 持続するVA等を鳴らし、Vocoderを上記で設定します。入力へ声や変化のある音を送り、MODULATORのL/R、内部／外部CARRIER、MIXを切り替えて聴き比べます。入力を止めるとwet音が減衰し、BYPASSで元の音へ戻ります。設定はSAVE／OPENで残ります。
+
+### TALK と母音パッド
+
+**PERFORM → SHIFT+Top8 LIVE TOOLS → Top4 VOWELS** を開きます。CHIMERA トラックでは声を直接操作できます。キットなどのトラックでは Top5 または Top6 で TALK を入れるインサートを選びます。そのスロットの既存 FX を置換します。TALK はトラックの音をひとつの声道に通します。
+
+16 パッドの左下がオ、右下がア、左上がウ、右上がイ、右辺の中央がエです。ノブ1・2で中間の位置も指定できます。圧力は CHIMERA の声圧、TALK ではトラックの PRESSURE で励起の強さを変えます。REC＋PLAY で動きを演奏中のステップへ記録します。各ステップが X・Y・圧力の3つのロックを使います。
+
+CHIMERA の **ARTICULATION** の2ページ目では、K7 が UNISON、K8 が SPREAD です。1音が UNISON 個の声道を使います。SHIFT+K6 の TALK TO TRACK を送り先のトラック番号に設定すると、発音中の舌の動きで送り先の TALK を操作できます。0 で解除します。SHIFT+K5 の SCENE SPEAK をオンにすると、シーン起動時にそのトラックの IPA を読み上げます。シーン1〜16は MIDI ノート60〜75の行を使い、対応行がなければ先頭のフレーズを使います。複数のトラックで有効なら、再生可能な先頭のトラックが読み上げ、ほかのトラックの音量が一時的に下がります。
 
 ### ライブ用VOCODERとFX MAP
 

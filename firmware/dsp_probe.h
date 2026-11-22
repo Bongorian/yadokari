@@ -12,6 +12,7 @@ class CDspProbe {
  groove::ProjectState* original_=nullptr;groove::ProjectState* candidate_=nullptr;
  groove::WavView original_views_[64]{},views_[64]{};
  uint8_t pcm_[512*2]{};bool optimization_=false;bool sf_ready_=false,aborted_=false,triggered_=false,measured_=false;unsigned bank_=0,program_=0,case_=0,window_=0,case_missing_=0,suite_missing_=0,last_missing_=0;
+ unsigned texture_before_stage_=0,texture_after_stage_=0,texture_before_trigger_=0;
  unsigned start_ms_=0,window_ms_=0,next_hit_ms_=0,next_tone_ms_=0,suite_ms_=0,restore_generation_=0,sat_round_=0;
  unsigned dump_position_=0,dump_due_=0,measured_ms_=0,window_missing_=0;bool dump_started_=false;
  groove::Engine::ProbeSteals steal_base_{},steal_end_{};
@@ -35,7 +36,7 @@ class CDspProbe {
  // immutable while draining; timing windows close BEFORE the drain begins.
  static bool dump(groove::Engine& engine,unsigned index,unsigned& position){
   auto& profile=engine.dsp_profile();const auto& s=profile.snapshot();
-  if(!position){position=1;CLogger::Get()->Write("dsp",LogNotice,"DSP profile case %u freq %u blocks %u sampled %u main-peak %u poly-peak %u control-calls %u control-ticks %lu control-max %u snapshot-max %u",index,Frequency(),s.blocks,s.sampled,s.main_peak,s.poly_peak,s.control_calls,(unsigned long)s.control_ticks,s.control_max,s.snapshot_control_max);CLogger::Get()->Write("dsp",LogNotice,"DSP VA case %u triggers %u ticks %lu max %u params %u ticks %lu max %u",index,s.va_trigger_calls,(unsigned long)s.va_trigger_ticks,s.va_trigger_max,s.va_parameter_calls,(unsigned long)s.va_parameter_ticks,s.va_parameter_max);CLogger::Get()->Write("dsp",LogNotice,"DSP peak case %u total %u visual %u trigger %u params %u visual-max %u visual-ticks %lu",index,s.all_block_max,s.peak_visual,s.peak_va_trigger,s.peak_va_parameters,s.visual_block_max,(unsigned long)s.visual_ticks);return false;}
+  if(!position){position=1;CLogger::Get()->Write("dsp",LogNotice,"DSP case %u active-tracts-peak %u",index,s.tract_peak);CLogger::Get()->Write("dsp",LogNotice,"DSP profile case %u freq %u blocks %u sampled %u main-peak %u poly-peak %u control-calls %u control-ticks %lu control-max %u snapshot-max %u",index,Frequency(),s.blocks,s.sampled,s.main_peak,s.poly_peak,s.control_calls,(unsigned long)s.control_ticks,s.control_max,s.snapshot_control_max);CLogger::Get()->Write("dsp",LogNotice,"DSP VA case %u triggers %u ticks %lu max %u params %u ticks %lu max %u",index,s.va_trigger_calls,(unsigned long)s.va_trigger_ticks,s.va_trigger_max,s.va_parameter_calls,(unsigned long)s.va_parameter_ticks,s.va_parameter_max);CLogger::Get()->Write("dsp",LogNotice,"DSP peak case %u total %u visual %u trigger %u params %u visual-max %u visual-ticks %lu",index,s.all_block_max,s.peak_visual,s.peak_va_trigger,s.peak_va_parameters,s.visual_block_max,(unsigned long)s.visual_ticks);return false;}
   while(position<=groove::DspProfile::bins){unsigned i=position++-1;const auto& c=profile.counter(i);if(c.calls){CLogger::Get()->Write("dsp",LogNotice,"DSP bin case %u id %u calls %lu frames %lu ticks %lu active %lu max-block %u max-voice-q16 %lu",index,i,(unsigned long)c.calls,(unsigned long)c.frames,(unsigned long)c.ticks,(unsigned long)c.active_ticks,c.max_block_ticks,(unsigned long)c.max_voice_q16);return false;}}
   while(position<=groove::DspProfile::bins+16){unsigned t=position++-groove::DspProfile::bins-1;if(s.layer_reasons[t]){CLogger::Get()->Write("dsp",LogNotice,"DSP layer case %u track %u reason %u",index,t,unsigned(s.layer_reasons[t]));return false;}}
   return true;
@@ -66,12 +67,18 @@ public:
    groove::copy_text(candidate_->assets[0].path,96,"GROOVE/DSP-RESIDENT.WAV");candidate_->assets[0].metadata.frames=512;candidate_->assets[0].metadata.rate=48000;candidate_->assets[0].metadata.channels=1;candidate_->assets[0].metadata.bits=16;
    if(condition.engine==groove::Instrument::SoundFont && !sf_ready_){uint32_t crc=0;const char* path="GROOVE/LOADTEST.SF2";sf_ready_=storage.load(path,views_[4]) && views_[4].soundfont && groove::soundfont_first(views_[4].soundfont,bank_,program_) && groove::file_checksum(storage,path,crc);CLogger::Get()->Write("dsp",LogNotice,"DSP SF2 available %u bytes %u crc %08x bank %u program %u",unsigned(sf_ready_),unsigned(storage.size(path)),crc,bank_,program_);}
    if(condition.engine==groove::Instrument::SoundFont){if(!sf_ready_){engine.dsp_profile().stop();phase_=Closing;window_=0;CLogger::Get()->Write("dsp",LogWarning,"DSP case %u SKIPPED missing valid SoundFont",case_);return;}for(auto& t:candidate_->tracks)if(t.instrument==groove::Instrument::SoundFont){t.soundfont.values[0]=float(bank_);t.soundfont.values[1]=float(program_);}groove::copy_text(candidate_->assets[4].path,96,"GROOVE/LOADTEST.SF2");}
-   bool ok=engine.stage_project(*candidate_,views_);if(!ok){engine.dsp_profile().stop();phase_=Closing;window_=0;CLogger::Get()->Write("dsp",LogWarning,"DSP case %u REJECTED invalid project/resource",case_);return;}
+   bool texture=condition.kind==groove::DspCondition::Native && condition.engine==groove::Instrument::Texture;
+   if(texture)texture_before_stage_=audio->worker_missing();
+   bool ok=engine.stage_project(*candidate_,views_);
+   if(texture)texture_after_stage_=audio->worker_missing();
+   if(!ok){engine.dsp_profile().stop();phase_=Closing;window_=0;CLogger::Get()->Write("dsp",LogWarning,"DSP case %u REJECTED invalid project/resource",case_);return;}
    project=*candidate_;files.set_bindings(views_);ui.project_loaded();if(condition.kind==groove::DspCondition::Chain)ui.play();
    start_ms_=Millis();next_hit_ms_=next_tone_ms_=start_ms_;triggered_=measured_=false;sat_round_=0;phase_=Warmup;window_=window_ms_=0;
    CLogger::Get()->Write("dsp",LogNotice,"DSP case %u start kind %u engine %u variant %u requested-tracks %u notes %u generation %u",case_,unsigned(condition.kind),unsigned(condition.engine),condition.variant,condition.tracks,condition.notes,engine.staged_generation());return;
   }
-  if(phase_==Warmup || phase_==Measure){const auto condition=this->condition();tone(engine,ms);trigger(engine,condition,ms);
+  if(phase_==Warmup || phase_==Measure){const auto condition=this->condition();
+   if(!triggered_ && condition.kind==groove::DspCondition::Native && condition.engine==groove::Instrument::Texture)texture_before_trigger_=audio->worker_missing();
+   tone(engine,ms);trigger(engine,condition,ms);
    if(phase_==Warmup && uint32_t(ms-start_ms_)>=2000){audio->BeginWorkerWindow();audio->BeginTimingWindow();engine.dsp_profile().begin_measurement();steal_base_=engine.probe_steals();window_ms_=ms;window_=last_missing_;measured_=true;phase_=Measure;CLogger::Get()->Write("dsp",LogNotice,"DSP case %u warmup-missing %u",case_,last_missing_-case_missing_);}
    if(phase_==Measure && uint32_t(ms-window_ms_)>=6000){engine.dsp_profile().stop();phase_=Closing;}
    return;
@@ -81,6 +88,9 @@ public:
    if(!dump_started_){dump_started_=true;dump_position_=0;dump_due_=ms;if(measured_){steal_end_=engine.probe_steals();worker_window_=audio->EndWorkerWindow();timing_window_=audio->EndTimingWindow();measured_ms_=ms-window_ms_;window_missing_=last_missing_-window_;}}
    if(int32_t(ms-dump_due_)<0)return;
    dump_due_=ms+100;if(!dump(engine,case_,dump_position_))return;
+   const auto c=condition();
+   if(measured_ && c.kind==groove::DspCondition::Native && c.engine==groove::Instrument::Texture)
+    CLogger::Get()->Write("dsp",LogNotice,"Texture case %u missing pre-stage %u staging %u before-trigger-submit %u trigger-to-window %u",case_,texture_before_stage_-case_missing_,texture_after_stage_-texture_before_stage_,texture_before_trigger_-texture_after_stage_,window_-texture_before_trigger_);
    if(measured_){auto w=worker_window_;auto a=timing_window_;CLogger::Get()->Write("dsp",LogNotice,"DSP result case %u window-ms %u blocks %u avg-us %u max-us %u over500 %u window-missing %u condition-missing %u native-active %u refused %u callbacks %u callback-max %u bad %u steals %u released %u held %u steal-refused %u budget-releases %u",case_,measured_ms_,w.blocks,w.blocks?unsigned(w.total_us/w.blocks):0,w.max_us,w.over500,window_missing_,last_missing_-case_missing_,engine.native_active_mask(),engine.native_refused_mask(),a.callbacks,a.max_us,a.bad_chunks,steal_end_.triggered-steal_base_.triggered,steal_end_.released-steal_base_.released,steal_end_.held-steal_base_.held,steal_end_.refused-steal_base_.refused,steal_end_.budget_releases-steal_base_.budget_releases);}
    ui.stop();engine.submit({groove::CommandType::Panic,0,0,0});++case_;window_=window_ms_=0;phase_=Prepare;return;
   }

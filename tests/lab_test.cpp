@@ -43,6 +43,10 @@ int main() {
   ui.set_shift(false);
   ui.set_mode(UiMode::Synth);
   ui.soft_key(0);
+  const float level=track.level,macro=track.engine_parameters[1];
+  assert(ui.knob_parameter(1)==engine_target(inst,1));
+  assert(ui.knob(1,macro>=1?-1000:1000));
+  assert(track.engine_parameters[1]!=macro && track.level==level);
   assert(ui.soft_key(3) && ui.instrument_view() == 3);
   // Cursor reset to lane 0 / cell 0.
   assert(ui.knob(0, -5000));
@@ -99,6 +103,12 @@ int main() {
    assert(ui.knob(7, 5000));
    assert(track_parameter(track, 32) > fold_before);
   }
+  ui.set_shift(true);
+  const float cents=project->tuning[ui.tuning_note()];
+  assert(!std::strcmp(ui.knob_label(7),"CENTS") && ui.knob_parameter(7)==0);
+  assert(ui.knob_value(7)==cents && ui.knob(7,1000));
+  assert(ui.knob_value(7)==cents+1 && ui.knob_normalized(7)==(cents+101)/200);
+  ui.set_shift(false);
   engine->render(out.data(), 256);
  }
  return 0;

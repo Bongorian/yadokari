@@ -161,11 +161,29 @@ void Engine::launch_clip(unsigned t,unsigned pattern,bool playing) {
  note_off(t); runtime_[t].pressure_from_pad=false;runtime_[t].pattern=uint8_t(pattern); runtime_[t].playing=playing; project_->clips[t]={uint8_t(pattern),playing}; reset_track(t,true);
  event(EngineEventType::ClipLaunched,uint8_t(t),uint8_t(pattern),uint8_t(playing));
 }
+void Engine::announce_scene(unsigned scene){
+ if(speaker_ && speaker_->scene_speech){
+  for(auto& slot:poly_voices_)if(&slot.voice==speaker_ && slot.owner<kTracks){release_poly(slot,true);break;}
+ }
+ speaker_=nullptr;
+ for(unsigned t=0;t<kTracks;++t){
+  const auto state=track(t);
+  if(!runtime_[t].playing || audio_muted(t) || (audio_has_solo() && !audio_solo_track(t)) || state.instrument!=Instrument::Chimera ||
+     !state.chimera.values[ChimeraSceneSpeak-kChimeraMacroCount])continue;
+  const auto* score=chimera_speech_.effective(t,state.chimera_phrase);
+  if(!score || !score->count)continue;
+  announcing_=chimera_speech_.phrase(t,60+scene,state.chimera_phrase);
+  if(!announcing_)announcing_=&score->phrases[0];
+  auto* voice=trigger(t,100,60+int(scene));
+  announcing_=nullptr;
+  if(voice){speaker_=voice;speaker_track_=t;return;}
+ }
+}
 void Engine::launch_scene(unsigned scene) {
  if(scene>=kScenes) return;
  const auto& state=project_->scenes[scene];
  for(unsigned t=0;t<16;++t) launch_clip(t,state.pattern_for_track[t],!(state.mute_mask&(1u<<t)));
- project_->active_scene=uint8_t(scene); event(EngineEventType::SceneLaunched,0,uint8_t(scene));
+ project_->active_scene=uint8_t(scene);announce_scene(scene); event(EngineEventType::SceneLaunched,0,uint8_t(scene));
 }
 uint16_t Engine::captured_mute_mask()const{uint16_t mask=0;for(unsigned t=0;t<kTracks;++t)if(audio_muted(t) || (audio_has_solo() && !audio_solo_track(t)))mask|=uint16_t(1u<<t);return mask;}
 void Engine::apply_song_section(unsigned index,bool force_restart){
@@ -177,6 +195,7 @@ void Engine::apply_song_section(unsigned index,bool force_restart){
   if(section.ticks && !(previous_mute&(1u<<t)) && (section.mute_mask&(1u<<t))){runtime_[t].retriggers=0;note_off(t);}
  }
  project_->active_scene=section.scene;song_section_=uint8_t(index);song_bars_=0;song_section_bars_=uint16_t((song_section_ticks(section)+kSongTicksPerBar-1)/kSongTicksPerBar);song_elapsed_ticks_=0;song_duration_ticks_=song_section_ticks(section);
+ announce_scene(section.scene);
  event(EngineEventType::SceneLaunched,0,section.scene,uint8_t(section.ticks!=0),section.mute_mask);
 }
 bool Engine::follow_song(bool boundary,bool tick){

@@ -4,6 +4,7 @@
 #include <cassert>
 #include <filesystem>
 #include <memory>
+#include <vector>
 #include <cstdio>
 #include <cstring>
 #include <unistd.h>
@@ -12,12 +13,23 @@ struct Files:DesktopFiles {bool fail_audio=false;bool write(const char* p,uint64
 int main(){
  auto previous=std::filesystem::current_path();char root[]="/tmp/mk3-resample-XXXXXX";assert(mkdtemp(root) && chdir(root)==0);
  Files fs;assert(fs.directory("RECORDINGS"));DesktopSampleAssets library;auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->muted_tracks=0xffff;p->routing.monitor=1;p->routing.monitor_bus=1;
- auto engine=std::make_unique<Engine>(8000);Performance ui(*engine,*p);SessionFiles files(fs,library,*engine,*p,ui,"RECORDINGS");float out[128]{},input[128];for(unsigned i=0;i<128;++i)input[i]=0.1f;
+ auto engine=std::make_unique<Engine>(8000);Performance ui(*engine,*p);ProjectEncodeSlot worker;SessionFiles files(fs,library,*engine,*p,ui,"RECORDINGS");float out[128]{},input[128];for(unsigned i=0;i<128;++i)input[i]=0.1f;
  assert(engine->stage_project(*p));ui.project_loaded();
  auto run=[&](unsigned frames){while(frames){unsigned n=frames>64?64:frames;engine->render_ports(out,nullptr,input,n);ui.poll();files.service();frames-=n;}};
  auto until=[&](auto done,unsigned limit=100000){for(unsigned i=0;i<limit;i+=64){if(done())return;run(64);}assert(false);};
  run(1);ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(!ui.soft_enabled(7) && !ui.soft_key(7));assert(ui.play());run(1);ui.set_mode(UiMode::Routing);ui.set_shift(false);assert(ui.soft_key(4));assert(ui.soft_key(2) && ui.resample_bars()==2);assert(ui.soft_key(7));assert(!ui.soft_enabled(2) && !ui.knob(0,1000) && !ui.select_capture_source(1));assert(ui.select_track(1));assert(files.service());assert(ui.resampling() && ui.resample_view().target.track==0 && ui.resample_view().bars==2 && ui.live_record_source()==0);assert(!ui.knob(0,1000) && !ui.soft_key(2));
+ // The saved project references a WAV that moved. Run the bounded search and
+ // keep encoding pending while the recorder drains and assigns the new take.
+ std::vector<uint8_t> moved(44+262144);assert(wav_header(moved.data(),65536));
+ assert(fs.write("relocated.wav",0,moved.data(),moved.size(),true));
+ auto& reference=p->assets[kSampleAssets-1];copy_text(reference.path,sizeof reference.path,"old-location.wav");
+ ProjectCrc sum;for(auto byte:moved)sum.add(byte);reference.metadata.content_crc=sum.value();
+ reference.metadata.frames=65536;reference.metadata.rate=48000;reference.metadata.channels=2;reference.metadata.bits=16;
+ files.set_project_save_worker(&worker);assert(files.start_project_save("concurrent.mgxs"));
  RecordingResult result;until([&]{return files.take_recording_result(result);});assert(result.saved && result.verified && result.assigned && result.frames==32000 && result.peak_l_u>90000);run(1);
+ assert(files.project_save_busy() && !result.dropped && !std::strcmp(reference.path,"relocated.wav"));
+ until([&]{worker.process_one();return !files.project_save_busy();});
+ bool saved=false,probe=false;assert(files.take_project_save_result(saved,probe) && saved && fs.exists("concurrent.mgxs"));
  assert(track_at(*p,0,0).sample_slot==result.slot);assert(ui.select_track(0));unsigned first_slot=result.slot;const char* first_path=p->assets[first_slot].path;assert(fs.exists(first_path));auto old=library.lookup(first_path);assert(old.data && wav_sample(old,0,0)>0.09f);
  // Cancellation before the next bar never replaces a destination or leaves a dummy take.
  assert(ui.knob(0,32000) && ui.knob(0,32000) && p->routing.capture_bus==60 && ui.knob_normalized(0)==1);assert(ui.knob(0,-32000) && ui.knob(0,-32000) && p->routing.capture_bus==0);run(1);
@@ -30,7 +42,7 @@ int main(){
  for(unsigned i=0;i<100000;i+=64){engine->render_ports(out,nullptr,input,64);ui.poll();if(engine->live_record_done()){complete=true;break;}files.service();}
  assert(complete && engine->live_record_bars_complete() && ui.resampling());assert(ui.soft_key(7) && files.service());assert(!ui.resampling());assert(files.take_recording_result(result) && !result.saved && !result.assigned);assert(track_at(*p,0,0).sample_slot==original && !fs.exists("RECORDINGS/Live-002.part"));
  // Occupancy published by a real save job disables new recording/configuration.
- ProjectEncodeSlot worker;files.set_project_save_worker(&worker);assert(files.start_project_save("Test.mgxs"));assert(ui.recording_file_busy() && !ui.soft_enabled(7) && !ui.knob(0,1000));assert(worker.process_one());until([&]{return !files.project_save_busy();});assert(!ui.recording_file_busy() && ui.soft_enabled(7));
+ assert(files.start_project_save("Test.mgxs"));assert(ui.recording_file_busy() && !ui.soft_enabled(7) && !ui.knob(0,1000));until([&]{worker.process_one();return !files.project_save_busy();});assert(!ui.recording_file_busy() && ui.soft_enabled(7));
  // A destination assignment changed between queueing and service is
  // rejected with its actual reason, before opening a new take.
  assert(ui.soft_key(7));track_at(*p,0,0).sample_slot=uint8_t((original+1)%kSampleAssets);assert(!files.service());assert(!ui.live_recording() && std::strstr(ui.browser().status,"target changed"));track_at(*p,0,0).sample_slot=original;

@@ -62,6 +62,22 @@ int main() {
  // Turning a knob while stopped must update the diagram as well as its value.
  perf.set_mode(UiMode::Routing);perf.soft_key(0);perf.soft_key(3);perf.animate(5000);renderer->draw(project,perf);perf.animate(5300);renderer->draw(project,perf);
  renderer->pixels[0][140*480+100]=kSentinel;assert(perf.knob(7,1000));perf.animate(5400);renderer->draw(project,perf);assert(renderer->pixels[0][140*480+100]!=kSentinel);
+ // A knob touch changes only the Synth overview. After the touch overlay
+ // expires, the left diagram must match its original idle pixels again.
+ perf.set_mode(UiMode::Synth);perf.set_instrument(Instrument::FM);perf.soft_key(0);
+ perf.animate(5000);perf.notify(UiNotice::None);renderer->invalidate();renderer->draw(project,perf);snap();
+ auto matches_body=[&](unsigned side){
+  const unsigned first=100*480, length=122*480;
+  return std::memcmp(copy.get()+side*480*272+first,renderer->pixels[side]+first,length*sizeof(uint32_t))==0;
+ };
+ perf.dispatch({ControllerInput::Type::KnobTouch,0,1});renderer->draw(project,perf);
+ assert(!matches_body(0) && matches_body(1));snap();
+ perf.dispatch({ControllerInput::Type::KnobTouch,1,1});renderer->draw(project,perf);
+ assert(!matches_body(0) && matches_body(1));
+ perf.dispatch({ControllerInput::Type::KnobTouch,0,0});perf.dispatch({ControllerInput::Type::KnobTouch,1,0});
+ perf.animate(8000);renderer->draw(project,perf);fresh->invalidate();fresh->draw(project,perf);
+ assert(!perf.knob_overlay_mask());
+ assert(std::memcmp(renderer->pixels[0]+100*480,fresh->pixels[0]+100*480,122*480*sizeof(uint32_t))==0);
  std::printf("partial redraw (band skip, pixel identity) passed\n");
  return 0;
 }

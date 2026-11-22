@@ -11,14 +11,15 @@ struct CUiProbe::State {
  ProjectState* original=nullptr;ProjectState* score=nullptr;WavView bindings[64]{},probe_views[64]{};
  NavigationLocation navigation{};CMk3Audio* audio=nullptr;unsigned stage=0,generation=0,missing=0;bool steady=false,restoring=false;
  uint64_t ready_after=0,window=0,until=0;
- ~State(){delete original;delete score;}
+ CProjectStorage* storage=nullptr;
+ ~State(){if(storage)storage->EndUiProbeSample();delete original;delete score;}
 };
 CUiProbe::~CUiProbe(){delete state_;}
 bool CUiProbe::start(Engine& engine,ProjectState& project,Performance& ui,SessionFiles& files,CProjectStorage& storage,CMk3Audio* audio){
  if(busy() || files.recording_busy() || !audio || !audio->operational() || ui.visual_settings().theme!=ui::Theme::kDefault)return false;
  completed_=false;auto* s=alloc_new<State>();if(!s)return false;s->original=alloc_new<ProjectState>(project);s->score=alloc_new<ProjectState>();
  if(!s->original || !s->score){delete s;return false;}
- uint32_t crc=0;bool ok=storage.load(kUiProbeSample,s->probe_views[0]) && file_checksum(storage,kUiProbeSample,crc) && crc==kUiProbeSampleCrc;
+ bool ok=storage.BeginUiProbeSample(s->probe_views[0]);if(ok)s->storage=&storage;
  if(!ok){delete s;return false;}make_ui_probe_project(*s->score);files.copy_bindings(s->bindings);s->navigation=ui.navigation();s->audio=audio;
  if(!ui.stop() || !engine.stage_project(*s->score,s->probe_views)){delete s;return false;}
  project=*s->score;files.set_bindings(s->probe_views);ui.project_loaded();

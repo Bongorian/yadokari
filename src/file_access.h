@@ -10,6 +10,12 @@
 #include <stddef.h>
 namespace groove {
 struct FileEntry {char name[96]{};bool directory=false;uint64_t bytes=0;uint8_t content_kind=0;uint16_t format_version=0;bool unsupported=false;};
+class DirectoryCursor {
+public:
+ virtual ~DirectoryCursor()=default;
+ // Return false at end/error. A skipped entry has an empty name.
+ virtual bool next(FileEntry&)=0;
+};
 struct FileRevision {uint64_t size=0,identity=0,modified=0,detail=0;};
 inline bool same_file_revision(const FileRevision& a,const FileRevision& b){return a.size==b.size && a.identity==b.identity && a.modified==b.modified && a.detail==b.detail;}
 class IFileAccess {public:
@@ -24,7 +30,20 @@ class IFileAccess {public:
  // The file task closes it before checking size, rewriting the header or unlinking.
  virtual bool append_audio(const char* path,uint64_t offset,const void* data,unsigned bytes,void*&){return write(path,offset,data,bytes,false);}
  virtual bool close_audio_append(void*&){return true;}
+virtual DirectoryCursor* open_directory_cursor(const char* path);
 virtual ~IFileAccess(){};virtual bool begin_read_session(const char*){return false;}virtual void end_read_session(){};virtual bool space(uint64_t& free,uint64_t& total){free=total=0;return false;}virtual unsigned list(const char* directory,FileEntry* entries,unsigned capacity)=0;virtual bool read(const char* path,uint64_t offset,void* data,unsigned wanted,unsigned& got)=0;virtual bool write(const char* path,uint64_t offset,const void* data,unsigned size,bool truncate)=0;virtual bool begin_recording(const char* path,const void* header,unsigned bytes,uint64_t reserve){(void)reserve;return write(path,0,header,bytes,true);}virtual bool finish_recording(const char* path,const void* header,unsigned bytes,uint64_t length){(void)length;return write(path,0,header,bytes,false);}virtual bool move(const char* from,const char* to)=0;virtual bool remove(const char* path)=0;virtual bool directory(const char* path)=0;virtual uint64_t size(const char* path)=0;virtual bool exists(const char* path)=0;virtual bool revision(const char*,FileRevision&){return false;}virtual bool browser_file_management_allowed()const{return false;}virtual bool list_checked(const char*,FileEntry*,unsigned,unsigned& count){count=0;return false;}virtual bool list_browser(const char* dir,FileEntry* out,unsigned cap,unsigned& count){return list_checked(dir,out,cap,count);}};
+inline DirectoryCursor* IFileAccess::open_directory_cursor(const char* path){
+ // Backends with only the bulk-list API keep their existing enumeration rules.
+ struct Buffered final:DirectoryCursor {
+  FileEntry* entries=alloc_array<FileEntry>(4096);unsigned count=0,index=0;
+  ~Buffered()override{delete[] entries;}
+  bool next(FileEntry& out)override{if(index>=count)return false;out=entries[index++];return true;}
+ };
+ auto* cursor=alloc_new<Buffered>();
+ if(!cursor || !cursor->entries){delete cursor;return nullptr;}
+ if(!list_checked(path,cursor->entries,4096,cursor->count) && !browser_file_management_allowed())cursor->count=list(path,cursor->entries,4096);
+ return cursor;
+}
 // Optional task-owned cursor reservation. Default backends keep ordinary reads;
 // a successful owner is closed on every success/failure/early-return path.
 class FileReadSession {

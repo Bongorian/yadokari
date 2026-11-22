@@ -277,6 +277,15 @@ fn copy_points(to: &mut [Point; GEOMETRY_POINTS], from: &[Vec2]) {
 }
 
 #[unsafe(no_mangle)]
+pub extern "C" fn yadokari_chimera_tongue(model: &Dsp, xy: &mut [f32; 2]) -> bool {
+    let Dsp::Human(voice) = model else { return false };
+    let pose = &voice.artic.x;
+    xy[0] = ((pose.tb_x - NEUTRAL.tb_x) * 0.25 + 0.5).clamp(0.0, 1.0) as f32;
+    xy[1] = ((pose.tb_y - NEUTRAL.tb_y) / 3.0 + 0.5).clamp(0.0, 1.0) as f32;
+    true
+}
+
+#[unsafe(no_mangle)]
 pub extern "C" fn yadokari_chimera_geometry(model: &Dsp, out: &mut Geometry) {
     let voice = match model {
         Dsp::Human(voice) => voice,

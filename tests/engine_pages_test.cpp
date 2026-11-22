@@ -93,6 +93,42 @@ int main() {
  assert(perf.soft_enabled(2)); // FIXED shape page
  perf.set_instrument(Instrument::WaveSequence);
  assert(!perf.soft_enabled(2));
+ // Traverse the actual buttons and knobs. Every native control in these
+ // engines must be editable in SYNTH, including the last bank and its blanks.
+ assert(perf.set_instrument(Instrument::Acid));assert(perf.soft_key(0));
+ assert(!std::strcmp(perf.knob_label(0),"CUTOFF") && !std::strcmp(perf.knob_label(5),"TRACK CUTOFF"));
+ const Instrument detailed[]={Instrument::Wavetable,Instrument::VirtualAnalog,Instrument::Fm6,
+  Instrument::SoundFont,Instrument::Additive,Instrument::PhaseDist,Instrument::Formant,Instrument::Granular};
+ for(auto inst:detailed){
+  assert(perf.set_instrument(inst));engine.render(scratch,0);
+  bool seen[32]{};
+  auto exercise=[&](){
+   for(unsigned k=0;k<8;++k){
+    auto id=perf.knob_parameter(k);
+    if(!*perf.knob_label(k)){assert(!perf.knob(k,1000));continue;}
+    if(!engine_target(id))continue;
+    assert(target_engine(id)==inst);
+    const auto* d=target_descriptor(id);
+    assert(d && !std::strcmp(perf.knob_label(k),d->name));
+    const float before=perf.knob_value(k);
+    assert(perf.knob(k,before+d->step<=d->maximum?1000:-1000));
+    engine.render(scratch,0);
+    assert(perf.knob_value(k)!=before && perf.knob_value(k)==engine_parameter_value(track_at(live,0,0),target_local(id)));
+    seen[target_local(id)]=true;
+   }
+  };
+  assert(perf.soft_key(0));exercise();
+  if(perf.soft_enabled(2)){assert(perf.soft_key(2));exercise();}
+  if(perf.soft_enabled(3)){
+   const unsigned count=inst==Instrument::Additive?2:3;
+   for(unsigned b=0;b<count;++b){assert(perf.soft_key(3));assert(perf.instrument_view()==kFirstSynthDetailView+b);exercise();}
+   assert(perf.soft_key(3) && perf.instrument_view()==kFirstSynthDetailView);
+   assert(perf.soft_key(0) && perf.instrument_view()==0);
+  }
+  for(unsigned i=0;i<engine_descriptor(unsigned(inst))->parameters.count;++i)assert(seen[i]);
+ }
+ assert(perf.set_instrument(Instrument::Fm6));assert(perf.soft_key(3));
+ assert(perf.select_track(1) && perf.instrument_view()==0);
  std::printf("engine pages (heroes, shape kinds, rank cores consumed) passed\n");
  return 0;
 }

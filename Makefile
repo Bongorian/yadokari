@@ -2157,6 +2157,14 @@ test-run-chimera-engine: build/test-chimera-engine
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-chimera-engine
 test-all: test-run-chimera-engine
 
+build/test-chimera-parameters: tests/chimera_parameter_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O1 $^ -o $@
+.PHONY: test-run-chimera-parameters
+test-run-chimera-parameters: build/test-chimera-parameters
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-chimera-parameters
+test-all: test-run-chimera-parameters
+
+
 # Independent oracle for the MIDI clock slave: judges the emitted note-on
 # stamps against the master's sixteenth grid, not the engine's own counters.
 build/test-midi-clock-slave-oracle: tests/midi_clock_slave_oracle_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)

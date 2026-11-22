@@ -48,7 +48,7 @@
 #include "ui/toast.h"
 #include "overlay_controls.h"
 namespace groove {
-enum class UiNotice:uint8_t { None, PartialApplied, Saved, SavedLocationFailed, SampleRecorded, MidiSaved, MidiImported, SaveFailed, HostUpdateTools, HostFileTools, FilesBusy, Loaded, KitLoaded, NewProject, Failed, Copied, LocksFull, GestureFull, GestureClear, LoopConfirm, LoopReady, LoopInvalid, OverdubDone, OverdubFailed, ChordFull, ChordMono, RecordLost, ChordRepeat, ChordLiveMono, GrooveClipped, ScaleRequired, LoopImported, LoopUnsupported, LoopPrecision, ProjectUnsynced, ProjectPending, SaveQueued, Saving, SnapshotSaved, Recovered, SnRefConfirm, SnRefQueued, StripUnavailable, StepCopied, StepPasted, StepRhythmPasted, ChopPhrase, KitPadSwapped, ExtendConfirm, Extended, SceneStored, SceneWait , MemoryFull, AssetReload, RestartQueued, HintAvailable, ChordVoiceLimit, ControllerReconnect, ModuleEntered, ModuleExited, ModuleTransport, LayerRefused, TwinChanged, TwinFailed, CompositionChanged, CompositionFailed};
+enum class UiNotice:uint8_t { None, PartialApplied, Saved, SavedLocationFailed, SampleRecorded, MidiSaved, MidiImported, SaveFailed, HostUpdateTools, HostFileTools, FilesBusy, Loaded, KitLoaded, NewProject, Failed, Copied, LocksFull, GestureFull, GestureClear, LoopConfirm, LoopReady, LoopInvalid, OverdubDone, OverdubFailed, ChordFull, ChordMono, RecordLost, ChordRepeat, ChordLiveMono, GrooveClipped, ScaleRequired, LoopImported, LoopUnsupported, LoopPrecision, ProjectUnsynced, ProjectPending, SaveQueued, Saving, SnapshotSaved, Recovered, SnRefConfirm, SnRefQueued, StripUnavailable, StepCopied, StepPasted, StepRhythmPasted, ChopPhrase, KitPadSwapped, ExtendConfirm, Extended, SceneStored, SceneWait , MemoryFull, AssetReload, RestartQueued, HintAvailable, ChordVoiceLimit, ControllerReconnect, ModuleEntered, ModuleExited, ModuleTransport, LayerRefused, TwinChanged, TwinFailed, CompositionChanged, CompositionFailed, HistoryTrimmed};
 enum class UiMode : uint8_t { Pad, Step, Clip, Scene, Mixer, Synth, Effects, Perform, Generate, Keyboard, Sampler, Project, Settings, Modulation, Browser, Routing, Diagnostics, Chord, Song, Library };
 inline const char* mode_name(UiMode mode) { static const char* names[]={"PAD","STEP","CLIP","SCENE","MIXER","SYNTH","FX","PERFORM","GENERATE","KEYBOARD","SAMPLER","PROJECT","SETTINGS","MODULATION","FILES","ROUTING","DIAGNOSTICS","CHORDS","SONG","PRESETS"}; return names[unsigned(mode)]; }
 // Single UI producer. Accepted commands and project edits move together.
@@ -188,6 +188,13 @@ public:
  bool recording_page()const{return on_perform_page(PerformRecording);}
  unsigned vocoder_slot()const{return vocoder_slot_;}
  bool vocoder_ready()const;
+ bool vowel_page()const{return on_perform_page(PerformVowel);}
+ bool vowel_voice()const{return vowel_voice_ && track_const(selected_).instrument==Instrument::Chimera;}
+ void select_vowel_target();
+ bool vowel_ready()const;
+ float vowel_value(unsigned field)const;
+ bool vowel_pad(unsigned pad,unsigned pressure,bool move);
+ uint16_t vowel_target(unsigned field)const;
  AudioControl audio_control(unsigned index)const;
  bool enter_audio_surface(PerformPage page);
  bool prepare_looper_track();
@@ -484,7 +491,7 @@ public:
  float snap_parameter(uint16_t id,float value)const;
  bool set_parameter(uint16_t id,float value) ;
  ParameterTarget lock_target(unsigned step,uint16_t id)const;
- bool set_lock(unsigned step,uint16_t id,float value,unsigned slot=kLocks) ;
+ bool set_lock(unsigned step,uint16_t id,float value,unsigned slot=kLocks,bool audition=false) ;
  float step_sample_lock_value(unsigned step,uint16_t id)const{if(step>=kSteps)return -1;for(const auto& lock:track_const(selected_).steps[step].locks)if(lock.enabled && lock.id==lock_target(selected_step_,id))return lock.value;return -1;}
  bool set_step_sample_lock(unsigned step,uint16_t id,int value);
 
@@ -726,7 +733,7 @@ private:
  bool set_step(unsigned step,bool enabled) ;
  bool edit(Command after,Command before) ;
  void dispose(History& h);
- void clear_history(){for(unsigned i=0;i<64;++i)dispose(history_[i]);history_size_=history_cursor_=0;}
+ void clear_history(){history_trim_notice_=HistoryTrimNotice::Unused;if(notice_==UiNotice::HistoryTrimmed)notice_=UiNotice::None;for(unsigned i=0;i<64;++i)dispose(history_[i]);history_size_=history_cursor_=0;}
  void note_assignment_changes(unsigned pattern,const PatternState& before,const PatternState& after,uint16_t mask);
  void note_assignment_changes(unsigned pattern,const PatternState& after,uint16_t mask);
  void push_history(Command before,Command after,PatternState* pbefore=nullptr,PatternState* pafter=nullptr,TrackHistory* tbefore=nullptr,TrackHistory* tafter=nullptr);
@@ -764,8 +771,10 @@ private:
  bool arrangement_ui_active_=false;uint16_t arrangement_ui_mute_=0,arrangement_ui_solo_=0;
  bool scene_take_requested_=false;char scene_take_message_[96]{};
  uint16_t song_position_=0;bool seek_ready_=false;
- uint8_t looper_track_=255,timeline_track_=255,vocoder_slot_=0;
+ uint8_t looper_track_=255,timeline_track_=255,vocoder_slot_=0;bool vowel_voice_=false;
  bool performance_fx_tail_=true;uint8_t fx_page_=0,fx_focus_slot_=0,performance_fx_quantize_=0,live_repeat_rate_=1,performance_fx_bank_=0;uint8_t repeat_mode_=0,repeat_rate_=2;bool repeat_release_pending_=false,repeat_latch_=false,repeat_ignore_release_=false;
+ enum class HistoryTrimNotice {Unused,Pending,Shown};
+ HistoryTrimNotice history_trim_notice_=HistoryTrimNotice::Unused;
  uint64_t edit_serial_=0;
  class EditGroup {
   Performance& ui_;uint32_t previous_;uint64_t serial_;bool finished_=false;

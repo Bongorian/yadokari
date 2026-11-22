@@ -107,13 +107,14 @@ public:
  AssetCatalog()=default;~AssetCatalog(){delete[] rows_;}AssetCatalog(const AssetCatalog&)=delete;AssetCatalog& operator=(const AssetCatalog&)=delete;
  void invalidate(){count_=0;}
  bool resolve(IFileAccess& fs,SampleAssetState& asset){if(!asset.path[0])return true;char canonical[192];uint32_t actual=0;
-  if(canonical_path(canonical,sizeof canonical,"",asset.path) && !__builtin_strcmp(canonical,asset.path) && file_checksum(fs,canonical,actual) && actual==asset.metadata.content_crc)return true;
+  if(canonical_path(canonical,sizeof canonical,"",asset.path) && !__builtin_strcmp(canonical,asset.path) && !data_unpublished_asset(canonical) && file_checksum(fs,canonical,actual) && actual==asset.metadata.content_crc)return true;
   for(unsigned i=0;i<count_;++i)if(rows_[i].crc==asset.metadata.content_crc && file_checksum(fs,rows_[i].path,actual) && actual==asset.metadata.content_crc)return copy_text(asset.path,sizeof asset.path,rows_[i].path);
   if(!rows_)rows_=alloc_array<Row>(capacity);
   if(!rows_)return false;
   complete_=true;bool found=false,skipped=false;char resolved[96]{};
   auto sweep=[&](bool fresh){ShelfScan scan;
    auto visit=[&](const char* path,const FileEntry&){
+    if(data_unpublished_asset(path))return;
     uint8_t header[12];unsigned got=0;if(!fs.read(path,0,header,12,got) || got!=12 || !wav_tag(header,"RIFF") || (!wav_tag(header+8,"WAVE") && !wav_tag(header+8,"sfbk")))return;
     unsigned row=count_;for(unsigned i=0;i<count_;++i)if(!__builtin_strcmp(path,rows_[i].path)){row=i;break;}
     // A cached non-match is only a first-pass hint. A failed search always
@@ -131,7 +132,8 @@ public:
   return found && copy_text(asset.path,sizeof asset.path,resolved);
  }
  bool complete()const{return complete_;}
- bool resolve_project(IFileAccess& fs,ProjectState& p,char* error,unsigned size){for(auto& asset:p.assets)if(asset.path[0] && !resolve(fs,asset)){char text[]="Missing CRC 00000000";const char* hex="0123456789abcdef";for(unsigned i=0;i<8;++i)text[12+i]=hex[(asset.metadata.content_crc>>(28-i*4))&15];copy_text(error,size,text);return false;}return true;}
+ bool resolve_project(IFileAccess& fs,ProjectState& p,char* error,unsigned size){return resolve_assets(fs,p.assets,error,size);}
+ bool resolve_assets(IFileAccess& fs,SampleAssetState* assets,char* error,unsigned size){for(unsigned slot=0;slot<kSampleAssets;++slot){auto& asset=assets[slot];if(asset.path[0] && !resolve(fs,asset)){char text[]="Missing CRC 00000000";const char* hex="0123456789abcdef";for(unsigned i=0;i<8;++i)text[12+i]=hex[(asset.metadata.content_crc>>(28-i*4))&15];copy_text(error,size,text);return false;}}return true;}
 };
 inline bool resolve_pinned_content(IFileAccess& fs,const PresetLibrary& library,AssetCatalog& assets,ProjectState& p,char* error,unsigned capacity,const PreservedStore* embedded_store=nullptr){
  PreservedOwner external_store;if(!external_store)return false;

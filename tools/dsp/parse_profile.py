@@ -4,16 +4,23 @@ import argparse,json,re,math,hashlib
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--log',type=Path,required=True);p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--allow-partial',action='store_true');a=p.parse_args()
 text=a.log.read_text(errors='replace');manifest=json.loads(a.manifest.read_text());cases={c['case']:dict(c,bins=[]) for c in manifest['cases']};started=set();skips=[];rejected=[]
-frequency_match=re.search(r'DSP suite revision [123] begin .* freq (\d+)',text)
+frequency_match=re.search(r'DSP suite revision [1-6] begin .* freq (\d+)',text)
 assert frequency_match,'missing architectural clock frequency'
 frequency=int(frequency_match[1])
-fx_count=22 if re.search(r'DSP suite revision [23] begin',text) else 20
+# Historical full-suite manifests list every insert in numeric order.
+# The four-case optimization probe can share a revision number with a full suite.
+insert_types=[c['variant'] for c in cases.values() if c['kind']==2]
+fx_count=manifest.get('fx_count') or (1+max(insert_types) if insert_types else None)
+if fx_count is None:
+ fx_count=23 if re.search(r'DSP suite revision 6 begin',text) else 20 if re.search(r'DSP suite revision 1 begin',text) else 22
 system_base=1024+5*fx_count
 stage_base=system_base+12
 for m in re.finditer(r'DSP case (\d+) start kind',text):started.add(int(m[1]))
 for m in re.finditer(r'DSP case (\d+) SKIPPED[^\n]*',text):skips.append({'case':int(m[1]),'line':m[0]})
 for m in re.finditer(r'DSP case (\d+) REJECTED[^\n]*',text):rejected.append({'case':int(m[1]),'line':m[0]})
 header=r'DSP profile case (\d+) freq (\d+) blocks (\d+) sampled (\d+) main-peak (\d+) poly-peak (\d+) control-calls (\d+) control-ticks (\d+) control-max (\d+) snapshot-max (\d+)'
+for m in re.finditer(r'DSP case (\d+) active-tracts-peak (\d+)',text):
+ cases[int(m[1])]['active_tracts_peak']=int(m[2])
 for m in re.finditer(header,text):
  v=list(map(int,m.groups()));c=cases[v[0]];c['profile']={'freq':v[1],'blocks':v[2],'sampled':v[3],'main_peak':v[4],'poly_peak':v[5],'control_calls':v[6],'control_ticks':v[7],'control_max_ticks':v[8],'snapshot_max_ticks':v[9]};c['profile']['control_avg_us']=v[7]*1e6/(v[1]*v[6]) if v[6] else None;c['profile']['control_max_us']=v[8]*1e6/v[1];c['profile']['snapshot_max_us']=v[9]*1e6/v[1]
 # v475 can overrun Circle's text ring when a complete case is dumped at once.
@@ -53,7 +60,7 @@ for c in completed:
   if c['native_avg_us']:entry.update(native_reference_avg=math.ceil(mean*1.25),native_reference_burst=math.ceil(row['max_block_us']*1.25))
   else:entry.update(reference_mean_cost=math.ceil(mean*1.25/6.25),reference_peak_cost=math.ceil(maximum*1.25/6.25),reference_safe_poly_slots=min(32,math.floor(300/(maximum*1.25))) if maximum and c['independent'] else None)
  table.append(entry)
-finish=re.search(r'DSP suite revision [123] completed aborted (\d+) elapsed-ms (\d+) total-missing (\d+) restored (\d+)',text)
+finish=re.search(r'DSP suite revision [1-6] completed aborted (\d+) elapsed-ms (\d+) total-missing (\d+) restored (\d+)',text)
 report={'log_sha256':hashlib.sha256(a.log.read_bytes()).hexdigest(),'manifest_sha256':hashlib.sha256(a.manifest.read_bytes()).hexdigest(),'scope':'six-second deadline window; voice/FX profile covers candidate generation incl warmup; coarse control/condition/suite include setup; no hypothetical quality/voice reduction','started':sorted(started),'completed':completed,'skipped':skips,'rejected':rejected,'cost_table':table,'suite':dict(zip(['aborted','elapsed_ms','total_missing','restored'],map(int,finish.groups()))) if finish else None}
 a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2)+'\n')
 if not a.allow_partial:

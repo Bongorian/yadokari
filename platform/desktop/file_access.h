@@ -21,6 +21,25 @@ public:
  // when it has selected a dedicated DATA root (e.g. a temporary test volume).
  explicit DesktopFiles(bool data_root=false):data_root_(data_root){}
 
+ DirectoryCursor* open_directory_cursor(const char* path)override{
+  struct Cursor final:DirectoryCursor{
+   DIR* dir=nullptr;char parent[192]{};
+   ~Cursor()override{if(dir)closedir(dir);}
+   bool next(FileEntry& out)override{
+    auto* entry=readdir(dir);if(!entry)return false;
+    char child[320];struct stat st{};out={};
+    if(entry->d_name[0]=='.' || !join_path(child,sizeof child,parent,entry->d_name) ||
+       lstat(child,&st) || (!S_ISDIR(st.st_mode) && !S_ISREG(st.st_mode)))return true;
+    if(!copy_text(out.name,sizeof out.name,entry->d_name)){out.name[0]=0;return true;}
+    out.directory=S_ISDIR(st.st_mode);out.bytes=st.st_size;return true;
+   }
+  };
+  char checked[192];if(!directory_path(path,checked))return nullptr;
+  auto* cursor=alloc_new<Cursor>();if(!cursor)return nullptr;
+  copy_text(cursor->parent,sizeof cursor->parent,checked);
+  cursor->dir=opendir(*checked?checked:".");if(!cursor->dir){delete cursor;return nullptr;}
+  return cursor;
+ }
  bool space(uint64_t& free,uint64_t& total)override{struct statvfs v{};if(statvfs(".",&v))return false;free=uint64_t(v.f_bavail)*v.f_frsize;total=uint64_t(v.f_blocks)*v.f_frsize;return true;}
  bool browser_file_management_allowed()const override{return data_root_;}
  unsigned list(const char* path,FileEntry* out,unsigned max)override{char checked[192];if(!directory_path(path,checked))return 0;DIR* dir=opendir(*checked?checked:".");if(!dir)return 0;unsigned n=0;while(n<max){auto* e=readdir(dir);if(!e)break;if(e->d_name[0]=='.')continue;char name[256];if(!join_path(name,sizeof name,checked,e->d_name))continue;struct stat s{};if(lstat(name,&s)!=0 || (!S_ISDIR(s.st_mode) && !S_ISREG(s.st_mode)))continue;if(!data_browser_entry(checked,e->d_name,S_ISDIR(s.st_mode)))continue;if(!copy_text(out[n].name,sizeof out[n].name,e->d_name))continue;out[n].directory=S_ISDIR(s.st_mode);out[n].bytes=s.st_size;++n;}closedir(dir);for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((out[j].directory && !out[i].directory) || (out[i].directory==out[j].directory && std::strcmp(out[j].name,out[i].name)<0)){auto tmp=out[i];out[i]=out[j];out[j]=tmp;}return n;}

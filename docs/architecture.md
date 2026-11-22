@@ -1,8 +1,10 @@
 # Architecture and ownership
 
-UITEST is UI-only; only an explicit OPTTEST runs UI/DSP/Fluid continuously. The main task's diagnostic_busy is determined from the executing owner and excludes update preparation, USB transfer, and other diagnostics. DEPLOYCHECK drives the normal UI/SessionFiles without calling render, inspects text output with a private renderer, and restores the original state. Update snapshots are kept separate under GROOVE.
+UITEST is UI-only; only an explicit OPTTEST runs UI/DSP/Fluid continuously. The main task's diagnostic_busy is determined from the executing owner and excludes update preparation, USB transfer, and other diagnostics. DEPLOYCHECK drives the normal UI/SessionFiles without calling render, inspects text output with a private renderer, and restores the original state. Update snapshots are kept separate under GROOVE. The fixed UI workload binds its checksum-verified waveform from firmware memory.
 
 New edits use the existing staging and the single DSP owner and do not change saved definitions. Only the Groove bulk operation uses a temporary PatternState scope to swap Groove atomically; it writes to no other engine, Track setting, or phrase. Template enumeration, validation, and loading run on the SessionFiles file owner, and after loading a template is sent to the first SAVE AS as Untitled.
+
+The project save worker receives an immutable score and its preserved extensions. The file task verifies referenced assets in 32 KiB reads before releasing the score to the encoder. One successful checksum covers all slots with that exact path and CRC in the same snapshot. Recording and recovery temporary files and unpublished stem directories are excluded from asset matching. When a path has moved, the task searches the content shelves by CRC and advances the directory cursor between service calls. A failed search leaves the previous song on disk. A repaired path is reflected in the open project only while the project generation and asset reference still match the request.
 
 ## Structure
 

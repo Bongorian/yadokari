@@ -37,9 +37,37 @@ inline float interpolate_target(ParameterTarget target,float a,float b,float mix
 inline bool valid_target_layer(ParameterTarget target,LayerMode mode,float value){const auto* d=target_descriptor(target);if(!valid_target_address(target) || unsigned(mode)>2)return false;return mode==LayerMode::Replace?valid_target(target,value):mode==LayerMode::Multiply?value>=0 && value<=2:value>=-(d->maximum-d->minimum) && value<=d->maximum-d->minimum;}
 inline bool valid_automation(const AutomationLane& lane){if(!lane.length || lane.length>kAutomationSteps || unsigned(lane.mode)>2 || !valid_target_address(lane.parameter))return false;for(float v:lane.values)if(!valid_target_layer(lane.parameter,lane.mode,v))return false;return true;}
 // All selectors use common declarations + the selected engine's local table.
-inline unsigned target_count(Instrument engine){const auto* d=engine_descriptor(unsigned(engine));return kCommonMorphParameters+(d?d->parameters.count-(engine==Instrument::Chimera?3:0):0);}
-inline ParameterTarget target_at(Instrument engine,unsigned index){return index<kCommonMorphParameters?morph_parameter_at(index):index<target_count(engine)?engine_target(engine,index-kCommonMorphParameters):kNoParameterTarget;}
-inline unsigned target_index(Instrument engine,ParameterTarget target){if(unavailable_target(target))return target_count(engine);if(engine_target(target))return target_engine(target)==engine?kCommonMorphParameters+target_local(target):target_count(engine);return morph_index(target);}
+struct ChimeraControlTargets {
+ uint8_t locals[kChimeraParameterCount]{},rows[kChimeraParameterCount]{},count=0;
+ constexpr ChimeraControlTargets(){
+  for(unsigned local=0;local<kChimeraParameterCount;++local){
+   if(chimera_sound_attribute(local)){rows[local]=255;continue;}
+   rows[local]=count;locals[count++]=uint8_t(local);
+  }
+ }
+};
+inline constexpr ChimeraControlTargets kChimeraControlTargets{};
+inline unsigned target_count(Instrument engine){
+ const auto* d=engine_descriptor(unsigned(engine));
+ return kCommonMorphParameters+(engine==Instrument::Chimera?kChimeraControlTargets.count:d?d->parameters.count:0);
+}
+inline ParameterTarget target_at(Instrument engine,unsigned index){
+ if(index<kCommonMorphParameters)return morph_parameter_at(index);
+ if(index>=target_count(engine))return kNoParameterTarget;
+ unsigned row=index-kCommonMorphParameters;
+ return engine_target(engine,engine==Instrument::Chimera?kChimeraControlTargets.locals[row]:row);
+}
+inline unsigned target_index(Instrument engine,ParameterTarget target){
+ if(unavailable_target(target))return target_count(engine);
+ if(!engine_target(target))return morph_index(target);
+ if(target_engine(target)!=engine)return target_count(engine);
+ unsigned row=target_local(target);
+ if(engine==Instrument::Chimera){
+  if(row>=kChimeraParameterCount || kChimeraControlTargets.rows[row]==255)return target_count(engine);
+  row=kChimeraControlTargets.rows[row];
+ }
+ return kCommonMorphParameters+row;
+}
 inline ParameterTarget next_target(Instrument engine,ParameterTarget current,int change){int index=int(target_index(engine,current));int limit=int(target_count(engine))-1;index+=change;if(index<0)index=0;if(index>limit)index=limit;return target_at(engine,unsigned(index));}
 inline uint16_t engine_ui_reference(Instrument engine,EngineParameterReference ref){if(ref.scope==EngineParameterScope::Track)return ref.index;if(ref.scope==EngineParameterScope::Engine){const auto* d=engine_parameter(engine,ref.index);return d?engine_target(engine,ref.index):0;}return 0;}
 inline const char* target_owner_name(ParameterTarget target,const UnavailableTargetOwners& owners){if(unavailable_target(target))return target_owner_present(target,owners)?owners.guid[unavailable_owner(target)]:"Unavailable engine";const auto* d=engine_descriptor(unsigned(target_engine(target)));return d?d->instrument.name:"Unavailable engine";}

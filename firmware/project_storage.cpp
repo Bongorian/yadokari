@@ -17,6 +17,8 @@ extern "C" void GrooveStorageUiWait(){StorageUiWait::poll();}
 #include "../src/factory_boot_gate.h"
 #include "update_runtime.h"
 #include "../build/embedded_demo_sample.h"
+#include "../src/ui_probe_workload.h"
+
 #include "../src/alloc_policy.h"
 #include "../src/sample_cache_promotion.h"
 #include <circle/memory.h>
@@ -29,10 +31,32 @@ extern "C" void GrooveStorageUiWait(){StorageUiWait::poll();}
 #include <circle/logger.h>
 #include <circle/timer.h>
 #include <circle/util.h>
+bool CProjectStorage::BeginUiProbeSample(groove::WavView& out){
+ if(!groove::bind_ui_probe_wave(kEmbeddedDemoSample,sizeof kEmbeddedDemoSample,out))return false;
+ m_UiProbeSample=out;return true;
+}
+
 CProjectStorage::~CProjectStorage(){delete[] m_CpuIo;end_read_session();CloseRecordingWrite();cancel_incremental_load();while(m_SoundFontWorker && m_SoundFontWorker->busy())ServiceSoundFont();CloseSoundFontRead();delete m_ChunkedLoad;for(auto& c:m_Cache){delete c.stream;if(c.high)CMemorySystem::HeapFree(c.bytes);else delete[] c.bytes;}}
 bool CProjectStorage::Mount(){m_Drive=CDeviceNameService::Get()->GetDevice("emmc1-4",TRUE)?"DATA:":"SD:";m_Mounted=f_mount(&m_Fs,m_Drive,1)==FR_OK;return m_Mounted;}
 bool CProjectStorage::Absolute(const char* path,char* out,unsigned capacity)const{char clean[192];if(!m_Mounted || *path=='/' || !groove::canonical_path(clean,sizeof clean,"",path))return false;return groove::join_path(out,capacity,m_Drive,clean);}
 unsigned CProjectStorage::list(const char* name,groove::FileEntry* result,unsigned capacity){char path[208];if(!Absolute(name,path,sizeof path))return 0;DIR dir;if(f_opendir(&dir,path)!=FR_OK)return 0;FILINFO info;unsigned n=0;while(n<capacity && f_readdir(&dir,&info)==FR_OK && info.fname[0]){if(info.fname[0]=='.' || (info.fattrib&AM_HID))continue;if(!groove::data_browser_entry(name,info.fname,(info.fattrib&AM_DIR)!=0))continue;auto& e=result[n];if(!groove::copy_text(e.name,sizeof e.name,info.fname))continue;e.directory=(info.fattrib&AM_DIR)!=0;e.bytes=info.fsize;++n;}f_closedir(&dir);for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((result[j].directory && !result[i].directory) || (result[i].directory==result[j].directory && strcmp(result[j].name,result[i].name)<0)){auto tmp=result[i];result[i]=result[j];result[j]=tmp;}return n;}
+groove::DirectoryCursor* CProjectStorage::open_directory_cursor(const char* name){
+ struct Cursor final:groove::DirectoryCursor {
+  DIR dir{};bool open=false;
+  ~Cursor()override{if(open)f_closedir(&dir);}
+  bool next(groove::FileEntry& out)override{
+   FILINFO info;if(f_readdir(&dir,&info)!=FR_OK || !info.fname[0])return false;
+   out={};
+   if(groove::copy_text(out.name,sizeof out.name,info.fname)){out.directory=(info.fattrib&AM_DIR)!=0;out.bytes=info.fsize;}
+   else out.name[0]=0;
+   return true;
+  }
+ };
+ char path[208];if(!Absolute(name,path,sizeof path))return nullptr;
+ auto* cursor=groove::alloc_new<Cursor>();if(!cursor)return nullptr;
+ if(f_opendir(&cursor->dir,path)!=FR_OK){delete cursor;return nullptr;}
+ cursor->open=true;return cursor;
+}
 bool CProjectStorage::list_checked(const char* name,groove::FileEntry* out,unsigned capacity,unsigned& count){
  count=0;char path[208];if(!Absolute(name,path,sizeof path))return false;DIR dir;if(f_opendir(&dir,path)!=FR_OK)return false;bool ok=true;FILINFO info;
  for(;;){if(f_readdir(&dir,&info)!=FR_OK){ok=false;break;}if(!info.fname[0])break;if(!strcmp(info.fname,".") || !strcmp(info.fname,".."))continue;
@@ -174,7 +198,9 @@ groove::SampleLoadProgress CProjectStorage::poll_incremental_load(groove::WavVie
  unsigned left=m_PendingLoad.size-m_PendingLoad.offset,count=left>groove::kFileScanBufferBytes?groove::kFileScanBufferBytes:left;__builtin_memcpy(m_PendingLoad.high+m_PendingLoad.offset,m_PendingLoad.low+m_PendingLoad.offset,count);m_PendingLoad.offset+=count;if(m_PendingLoad.offset<m_PendingLoad.size)return Progress::Working;
  groove::WavView promoted{};if(groove::parse_wav(m_PendingLoad.high,m_PendingLoad.size,promoted))m_PendingLoad.view=promoted;else{CMemorySystem::HeapFree(m_PendingLoad.high);m_PendingLoad.high=nullptr;}return FinishPendingLoad(out);
 }
-groove::WavView CProjectStorage::lookup(const char* name)const{auto sf=m_SoundFontWorker && m_SoundFontWorker->busy()?groove::WavView{}:m_SoundFonts.lookup(name);if(sf.soundfont)return sf;for(unsigned i=m_Count;i>0;--i)if(!strcmp(m_Cache[i-1].path,name))return m_Cache[i-1].view;return {};}
+groove::WavView CProjectStorage::lookup(const char* name)const{
+ if(m_UiProbeSample.data && !strcmp(name,groove::kUiProbeSample))return m_UiProbeSample;
+ auto sf=m_SoundFontWorker && m_SoundFontWorker->busy()?groove::WavView{}:m_SoundFonts.lookup(name);if(sf.soundfont)return sf;for(unsigned i=m_Count;i>0;--i)if(!strcmp(m_Cache[i-1].path,name))return m_Cache[i-1].view;return {};}
 bool CProjectStorage::prepare(const groove::ProjectState& project,groove::WavView* views){for(unsigned i=0;i<groove::kSampleAssets;++i){views[i]={};if(project.assets[i].path[0] && !(groove::twin_material(project,i)?load_twin(project.assets[i].path,views[i]):load(project.assets[i].path,views[i])))return false;}return true;}
 void CProjectStorage::CloseSoundFontRead(){if(m_SoundFontOpen){CLogger::Get()->Write("groove",LogNotice,"SF2 read cursor opens 1 reads %u seeks %u",m_SoundFontReads,m_SoundFontSeeks);f_close(&m_SoundFontFile);m_SoundFontOpen=false;m_SoundFontPath[0]=0;}}
 bool CProjectStorage::ReadSoundFont(const char* name,uint64_t offset,void* data,unsigned wanted,unsigned& got){

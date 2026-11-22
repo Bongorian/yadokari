@@ -2,18 +2,25 @@
 #include "benchmark_project.h"
 #include "future_factory_presets.h"
 namespace groove {
-inline constexpr unsigned kDspProbeRevision=5,kWave4ProbeRevision=3; // engine retirement changes coverage and the legacy mixed score.
+inline constexpr unsigned kDspProbeRevision=6,kWave4ProbeRevision=4; // TALK and choir extend the full and stress workload and the FX bin layout.
 struct DspCondition {
- enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate};
- Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1;
+ enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir};
+ Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1,second_inserts=0;
 };
 inline unsigned dsp_variants(Instrument i){return i==Instrument::PlaitsMacro?24:i==Instrument::Texture?16:i==Instrument::Resonator || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums?3:1;}
 inline bool dsp_leaf(Instrument i){return i!=Instrument::ExternalMidi && i!=Instrument::DrumKit && i!=Instrument::Empty && i!=Instrument::Layer;}
 inline unsigned dsp_leaf_cases(){unsigned count=1;for(unsigned i=0;i<instrument_count();++i)if(dsp_leaf(Instrument(i)))count+=dsp_variants(Instrument(i));return count;}
 inline unsigned dsp_legacy_stress_start(){return dsp_leaf_cases()+kFxCount;}
 inline unsigned dsp_stress_start(){return dsp_legacy_stress_start()+16+3+3+4+1;}
-inline unsigned dsp_case_count(){return dsp_stress_start()+16;}
+inline unsigned dsp_case_count(){return dsp_stress_start()+56;}
 inline DspCondition dsp_condition(unsigned index){
+ if(index>=dsp_stress_start()+16){
+  unsigned row=index-dsp_stress_start()-16;
+  if(row<16)return {DspCondition::Insert,Instrument::VirtualAnalog,kTalkFx,row+1,1};
+  row-=16;
+  if(row<8)return {DspCondition::Choir,Instrument::Chimera,row%4+1,1,row<4?1u:4u};
+  return {DspCondition::Insert,Instrument::VirtualAnalog,kTalkFx,16,1,row-7};
+ }
  if(index>=dsp_stress_start()){static const DspCondition cases[]={
  {DspCondition::Extension,Instrument::Formant,0,1,8},{DspCondition::Extension,Instrument::Formant,1,1,8},
  {DspCondition::Extension,Instrument::VirtualAnalog,2,1,8},{DspCondition::Extension,Instrument::VirtualAnalog,3,1,8},
@@ -73,6 +80,10 @@ inline void make_dsp_probe_project(ProjectState& p,const DspCondition& c){
   if(c.variant==8){t.insert_fx[4]=21;t.insert_fx[5]=.5f;t.insert_fx[6]=.4f;t.insert_fx[7]=.7f;t.delay_send=t.reverb_send=.3f;p.effects.delay_mix=p.effects.reverb_mix=.3f;}
  }
  p.random_seed=0x57313001;p.tempo=120;p.routing.main=.08f;p.routing.cue=0;
- if(c.kind==DspCondition::Insert){p.tracks[0].insert_fx[0]=float(c.variant);p.tracks[0].insert_fx[1]=.7f;p.tracks[0].insert_fx[2]=.4f;p.tracks[0].insert_fx[3]=.75f;}
+ if(c.kind==DspCondition::Insert)for(unsigned t=0;t<c.tracks;++t){
+  auto& fx=p.tracks[t].insert_fx;fx[0]=float(c.variant);fx[1]=.7f;fx[2]=.4f;fx[3]=.75f;
+  if(t<c.second_inserts){fx[4]=float(c.variant);fx[5]=.2f;fx[6]=.85f;fx[7]=.75f;}
+ }
+ if(c.kind==DspCondition::Choir)p.tracks[0].chimera.values[ChimeraUnison-kChimeraMacroCount]=float(c.variant);
 }
 }

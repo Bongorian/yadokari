@@ -58,7 +58,11 @@ class SessionFiles {
   for(unsigned t=0;t<kTracks;++t){const auto& id=project_.tracks[t].preset_identity;uint32_t latest=id.assigned()?preset_library_.latest(id.guid):0;ui_.newer_preset_revision[t]=latest>id.revision?latest:0;ui_.embedded_preset_fallback[t]=id.assigned() && preset_library_.exact(id)<0;}
  }
  bool heal_save_assets(){
-  auto* copy=alloc_new<ProjectState>(project_);if(!copy)return false;bool ok=resolve_assets(*copy);if(ok)for(unsigned i=0;i<kSampleAssets;++i)copy_text(project_.assets[i].path,96,copy->assets[i].path);delete copy;return ok;
+  auto* assets=alloc_array<SampleAssetState>(kSampleAssets);if(!assets)return false;
+  for(unsigned i=0;i<kSampleAssets;++i)assets[i]=project_.assets[i];
+  content_error_[0]=0;bool ok=asset_catalog_.resolve_assets(fs_,assets,content_error_,sizeof content_error_);
+  if(ok)for(unsigned i=0;i<kSampleAssets;++i)copy_text(project_.assets[i].path,sizeof project_.assets[i].path,assets[i].path);
+  delete[] assets;return ok;
  }
  // Service-owned PCM staging: aggregate 8192 frames (32 KiB) per SD write.
  // Reused across takes, never allocated or accessed by the DSP render owner.
@@ -451,12 +455,12 @@ public:
   if(!browser_name_valid(e.name) || !join_path(path,sizeof path,parent,name) || fs_.exists(path)){copy_text(ui_.browser().status,sizeof ui_.browser().status,"Name exists or invalid / choose another name");ui_.notify(UiNotice::SaveFailed);return false;}
   bool ok=project_save_available()?start_project_save(path):save(path);ui_.notify(ok?(project_save_available()?UiNotice::Saving:UiNotice::Saved):UiNotice::SaveFailed);return ok;
  }
- char project_save_path_[160]{};
+ char project_save_path_[160]{};uint32_t project_save_generation_=0;
  bool ensure_project_parent(const char* path){if(factory_path(path))return false;char parent[160];if(!copy_text(parent,sizeof parent,path))return false;parent_path(parent);return !parent[0] || fs_.directory(parent);}
- bool start_project_save(const char* path,bool probe=false){if(!ensure_project_parent(path) || !project_save_available() || project_save_busy() || kit_load_busy() || !ui_.require_project_save_safe())return false;ui_.sync_ui_settings();if(!ui_.prepare_preset_references() || !heal_save_assets() || !synchronize_definition_extensions())return false;if(!project_save_->start(project_,path,probe,&preserved_))return false;project_save_probe_=probe;copy_text(project_save_path_,sizeof project_save_path_,path);if(!probe)ui_.notify(UiNotice::Saving);sync_recording_controls();return true;}
+ bool start_project_save(const char* path,bool probe=false){if(!ensure_project_parent(path) || !project_save_available() || project_save_busy() || kit_load_busy() || !ui_.require_project_save_safe())return false;ui_.sync_ui_settings();if(!ui_.prepare_preset_references() || !synchronize_definition_extensions())return false;if(!project_save_->start(project_,path,probe,&preserved_,true))return false;project_save_generation_=engine_.staged_generation();project_save_probe_=probe;copy_text(project_save_path_,sizeof project_save_path_,path);if(!probe)ui_.notify(UiNotice::Saving);sync_recording_controls();return true;}
  bool take_project_save_result(bool& success,bool& probe){if(!project_save_report_)return false;success=project_save_report_==1;probe=project_save_report_probe_;project_save_report_=0;return true;}
  void set_project_save_observer(void (*fn)(void*,unsigned,bool),void* context){save_observer_=fn;save_observer_context_=context;}
- void service_project_save(){if(!project_save_ || !project_save_->busy())return;unsigned phase=project_save_->service_phase();if(save_observer_)save_observer_(save_observer_context_,phase,true);project_save_->service(engine_.project_snapshot_safe(),engine_.project_event_loss());if(save_observer_)save_observer_(save_observer_context_,phase,false);auto outcome=project_save_->take_outcome();if(outcome==AsyncProjectSave::Outcome::None)return;bool lost=engine_.project_event_loss();bool ok=outcome==AsyncProjectSave::Outcome::Saved && !lost;bool remembered=!ok || project_save_probe_ || remember_project(project_save_path_);project_save_report_=ok?1:2;project_save_report_probe_=project_save_probe_;if(!project_save_probe_)ui_.notify(lost?UiNotice::ProjectUnsynced:ok?(remembered?UiNotice::SnapshotSaved:UiNotice::SavedLocationFailed):UiNotice::SaveFailed);project_save_probe_=false;}
+ void service_project_save(){if(!project_save_ || !project_save_->busy())return;unsigned phase=project_save_->service_phase();if(save_observer_)save_observer_(save_observer_context_,phase,true);project_save_->service(engine_.project_snapshot_safe(),engine_.project_event_loss(),project_save_generation_==engine_.staged_generation()?project_.assets:nullptr);if(save_observer_)save_observer_(save_observer_context_,phase,false);auto outcome=project_save_->take_outcome();if(outcome==AsyncProjectSave::Outcome::None)return;bool lost=engine_.project_event_loss();bool ok=outcome==AsyncProjectSave::Outcome::Saved && !lost;bool remembered=!ok || project_save_probe_ || remember_project(project_save_path_);project_save_report_=ok?1:2;project_save_report_probe_=project_save_probe_;if(!project_save_probe_)ui_.notify(lost?UiNotice::ProjectUnsynced:ok?(remembered?UiNotice::SnapshotSaved:UiNotice::SavedLocationFailed):UiNotice::SaveFailed);project_save_probe_=false;}
 
  bool start_loopback_probe(){if(probe_recording_ || live_active_ || !begin_live(engine_.sample_rate(),1,false))return false;probe_result_=LoopbackRecordResult{};probe_input_dropped_=engine_.input_audio_dropped();probe_recording_=true;return true;}
  bool start_sample_workflow_probe(){return !live_active_ && begin_live(engine_.sample_rate(),1,false);}

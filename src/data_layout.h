@@ -6,6 +6,28 @@ inline char data_lower(char c){return c>='A' && c<='Z'?char(c+32):c;}
 inline bool data_equal(const char* a,const char* b){while(*a && *b)if(data_lower(*a++)!=data_lower(*b++))return false;return *a==*b;}
 inline bool data_under(const char* path,const char* root){while(*root)if(data_lower(*path++)!=data_lower(*root++))return false;return !*path || *path=='/';}
 inline bool data_suffix(const char* path,const char* suffix){unsigned a=0,b=0;while(path[a])++a;while(suffix[b])++b;return a>=b && data_equal(path+a-b,suffix);}
+// Match only producer-owned names. An arbitrary renamed RIFF is still an asset.
+inline bool data_numbered_name(const char* name,size_t length,const char* pattern){
+ if(length!=__builtin_strlen(pattern))return false;
+ for(size_t i=0;i<length;++i){
+  if(pattern[i]=='#'){if(name[i]<'0' || name[i]>'9')return false;}
+  else if(data_lower(name[i])!=pattern[i])return false;
+ }
+ return true;
+}
+inline bool data_stem_staging_name(const char* name,size_t length){
+ return data_numbered_name(name,length,"stems-###.tmp");
+}
+// Recorder output can already contain the final RIFF bytes before promotion.
+inline bool data_unpublished_asset(const char* path){
+ const char* component=path;
+ for(const char* p=path;*p;++p)if(*p=='/'){
+  if(data_stem_staging_name(component,size_t(p-component)))return true;
+  component=p+1;
+ }
+ return data_suffix(component,".part") || data_numbered_name(component,__builtin_strlen(component),"recovered-##.tmp") ||
+        data_equal(component,".MGX-TRANSFER.tmp");
+}
 // Suffixes are discovery/display hints only. TYPE remains authoritative.
 inline unsigned data_mgx_suffix_length(const char* path){
  if(data_suffix(path,".mgx"))return 4;

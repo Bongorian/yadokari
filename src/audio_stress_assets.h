@@ -2,11 +2,13 @@
 #include "file_access.h"
 #include "wav_writer.h"
 #include "native_stress_project.h"
+#include "project_codec.h"
 namespace groove {
 // Mixed workload v1: four independent 48-second streamed stereo files.
 // File generation is incremental on the service owner, before timing begins.
 class AudioStressAssets {
  char directory_[64]{};bool created_[4]{};IFileAccess& fs_;unsigned file_=0;uint32_t cursor_=0;bool ready_=false,failed_=false;uint8_t bytes_[16384]{};
+ ProjectCrc crc_;
 public:
  static constexpr uint32_t Frames=48000*48;
  WavView views[64]{};SampleAssetState assets[4]{};
@@ -16,11 +18,11 @@ public:
  bool service(ISampleLibrary& library){
   if(ready_ || failed_)return ready_;
   char path[96],name[]="STREAM0.WAV";name[6]=char('0'+file_);if(!join_path(path,sizeof path,directory_,name)){failed_=true;return false;}
-  if(!cursor_){created_[file_]=true;uint8_t header[44];if(!wav_header(header,Frames,48000) || !fs_.write(path,0,header,44,true)){failed_=true;return false;}}
+  if(!cursor_){created_[file_]=true;uint8_t header[44];if(!wav_header(header,Frames,48000) || !fs_.write(path,0,header,44,true)){failed_=true;return false;}crc_=ProjectCrc{};for(uint8_t b:header)crc_.add(b);}
   unsigned count=Frames-cursor_;if(count>4096)count=4096;
   for(unsigned n=0;n<count;++n){int16_t l=((cursor_+n+file_*17)%240)<120?1638:-1638,r=((cursor_+n+file_*31)%320)<160?819:-819;bytes_[4*n]=uint8_t(l);bytes_[4*n+1]=uint8_t(uint16_t(l)>>8);bytes_[4*n+2]=uint8_t(r);bytes_[4*n+3]=uint8_t(uint16_t(r)>>8);}
-  if(!fs_.write(path,44+uint64_t(cursor_)*4,bytes_,count*4,false)){failed_=true;return false;}cursor_+=count;
-  if(cursor_==Frames){if(!library.load(path,views[file_]) || !views[file_].reader){failed_=true;return false;}copy_text(assets[file_].path,sizeof assets[file_].path,path);assets[file_].metadata.frames=Frames;assets[file_].metadata.rate=48000;assets[file_].metadata.channels=2;assets[file_].metadata.bits=16;cursor_=0;if(++file_==4)ready_=true;}
+  if(!fs_.write(path,44+uint64_t(cursor_)*4,bytes_,count*4,false)){failed_=true;return false;}for(unsigned i=0;i<count*4;++i)crc_.add(bytes_[i]);cursor_+=count;
+  if(cursor_==Frames){if(!library.load(path,views[file_]) || !views[file_].reader){failed_=true;return false;}copy_text(assets[file_].path,sizeof assets[file_].path,path);assets[file_].metadata.content_crc=crc_.value();assets[file_].metadata.frames=Frames;assets[file_].metadata.rate=48000;assets[file_].metadata.channels=2;assets[file_].metadata.bits=16;cursor_=0;if(++file_==4)ready_=true;}
   return ready_;
  }
  bool failed()const{return failed_;}bool ready()const{return ready_;}

@@ -40,9 +40,10 @@ struct PadPalette {
  }
  static uint32_t rgb(LedState state,const Theme& theme,PadGround ground,uint64_t ms,Motion motion){return LedStateEngine::preview(encode(state,ms,motion,theme,ground),theme);}
 };
-enum class PadRole:uint8_t { Disabled, Tracks, TrackSelect, Kit, KitSelect, Notes, Chords, StepChord, Steps, Clips, Scenes, Slices, Files, Assets, Settings, Cells, Routes, Scale, Generate, LiveFx, Mute, KitMute, Solo, KitSolo, SongMute };
+enum class PadRole:uint8_t { Disabled, Tracks, TrackSelect, Kit, KitSelect, Notes, Chords, StepChord, Steps, Clips, Scenes, Slices, Files, Assets, Settings, Cells, Routes, Scale, Generate, LiveFx, Mute, KitMute, Solo, KitSolo, SongMute, Vowels };
 inline const char* pad_role_label(PadRole role){
  switch(role){
+  case PadRole::Vowels:return "PADS: SHAPE VOWEL";
   case PadRole::Disabled:return "PADS: INACTIVE";
   case PadRole::Tracks:return "PADS: PLAY TRACKS";
   case PadRole::TrackSelect:return "PADS: SELECT TRACK";

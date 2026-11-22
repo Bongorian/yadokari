@@ -57,13 +57,63 @@ auto UiRenderer::sampler_body(ConstTrackView t,const Performance& perf,WavView s
 auto UiRenderer::synth_signal(const ProjectState& p,ConstTrackView t,const Performance& perf) -> void{
   if(t.instrument==Instrument::Empty){label(0,24,88,"EMPTY TRACK",theme.secondary,Font::Heading,430);advice("TOP 5: ENGINE / choose an instrument");advice("BROWSE: Load a sample, kit or preset");return;}
   if(t.instrument==Instrument::ExternalMidi){label(0,24,86,"Notes / expression / clock",theme.text,Font::Heading,430);label(0,24,124,"SEQUENCER",theme.blue,Font::Small,126);line(0,142,145,288,145,theme.blue,2);line(0,280,140,288,145,theme.blue,2);line(0,280,150,288,145,theme.blue,2);label(0,308,124,"MIDI OUT",theme.teal,Font::Small,145);advice("TOP 4: MIDI / TOP 5: ENGINE");label(0,24,197,"External audio is not measured here",theme.secondary,Font::Small,430);return;}
-  const auto* descriptor=instrument_descriptor(unsigned(t.instrument));section(0,24,82,430,track_display_name(t));
-  for(unsigned i=0;i<8;++i){if(!perf.knob_label(i)[0])continue;auto shown=formatted_knob(p,perf,i);uint16_t id=perf.knob_parameter(i);const auto* d=id?target_descriptor(id):nullptr;ui::ValueShape shape=d && d->minimum<0?ui::ValueShape::Bipolar:d && d->interpolation==Interpolation::Discrete?ui::ValueShape::Segments:ui::ValueShape::Bar;
-   if(engine_target(id)){const auto* declaration=engine_parameter(target_engine(id),target_local(id));if(declaration && declaration->choice_count)shape=ui::ValueShape::Chip;}
-   value_row(0,24+int(i/4)*224,104+int(i%4)*25,206,23,{perf.knob_label(i),shown.text,perf.knob_display_normalized(i),shape,d && d->interpolation==Interpolation::Discrete?unsigned(d->maximum-d->minimum+1):0u,true,perf.knob_touched(i) || (perf.knob_overlay_mask()&(1u<<i))});}
-  if(t.instrument==Instrument::Chimera && (perf.instrument_view()==2 || perf.instrument_view()==4))
-   advice(perf.instrument_view()==2?"ARTICULATION 1/2 / TOP 3: NEXT":"ARTICULATION 2/2 / TOP 3: PREVIOUS");
-  else advice("TOP: PAGE / ACTION   KNOBS: CURRENT PARAMETERS");
+  const unsigned view=perf.instrument_view();
+  const bool articulation=t.instrument==Instrument::Chimera && (view==2 || view==4);
+  const auto* details=synth_detail_bank(t.instrument,view);
+  const char* page=details?details->name:articulation?(view==2?"ARTICULATION 1/2":"ARTICULATION 2/2"):view<4?perf.soft_label(view):"";
+  scrolling_label(0,24,82,track_display_name(t),theme.text,Font::Body,242);
+  aligned_band(0,270,80,184,16,page,theme.secondary,Font::Small,ui::TextAlign::Right);
+  line(0,24,98,454,98,theme.border);
+
+  const unsigned active=perf.knob_overlay_mask();
+  if(active && !(active&(active-1))){
+   unsigned i=unsigned(__builtin_ctz(active));
+   char key[]={'K',char('1'+i),0};
+   label(0,24,108,key,theme.accent,Font::Body,25);
+   scrolling_label(0,55,105,perf.knob_label(i),theme.text,Font::Heading,395);
+   auto shown=formatted_knob(p,perf,i);
+   scrolling_label(0,24,129,shown.text,theme.text,Font::Number,264);
+   const float position=ui::clamp01(perf.knob_display_normalized(i));
+   const auto id=perf.knob_parameter(i);
+   const auto* d=id?target_descriptor(id):nullptr;
+   const int x=24,w=430,rail=165,point=x+int(position*(w-1));
+   fill(0,x,rail,w,3,theme.border);
+   int start=x;
+   if(d && d->minimum<0 && d->maximum>0)
+    start+=int((-d->minimum)/(d->maximum-d->minimum)*(w-1));
+   fill(0,point<start?point:start,rail,1+__builtin_abs(point-start),3,theme.accent);
+   line(0,point,rail-3,point,rail+5,theme.text,2);
+   if(d && d->maximum>d->minimum && perf.knob_reset_available(i)){
+    const float initial=ui::clamp01((d->initial-d->minimum)/(d->maximum-d->minimum));
+    const int mark=x+int(initial*(w-1));
+    line(0,mark,rail+5,mark,rail+9,theme.secondary);
+    label(0,bounded(mark-21,x,x+w-52),rail+11,"DEFAULT",theme.secondary,Font::Small,52);
+    aligned_band(0,288,136,166,16,"TOUCH + ERASE: RESET",theme.secondary,Font::Small,ui::TextAlign::Right);
+   }
+   if(d && d->apply_timing==ApplyNextTrigger)
+    aligned_band(0,285,116,169,14,"NEXT TRIGGER",theme.secondary,Font::Small,ui::TextAlign::Right);
+   return;
+  }
+
+  for(unsigned i=0;i<8;++i){
+   const char* name=perf.knob_label(i);if(!*name)continue;
+   uint16_t id=perf.knob_parameter(i);const auto* d=id?target_descriptor(id):nullptr;
+   ui::ValueShape shape=d && d->minimum<0?ui::ValueShape::Bipolar:d && d->interpolation==Interpolation::Discrete?ui::ValueShape::Segments:ui::ValueShape::Bar;
+   if(engine_target(id)){
+    const auto* declaration=engine_parameter(target_engine(id),target_local(id));
+    if((declaration && declaration->choice_count) || id==engine_target(Instrument::Chimera,ChimeraSceneSpeak) ||
+       id==engine_target(Instrument::Chimera,ChimeraTalkOutput))shape=ui::ValueShape::Chip;
+   }
+   const bool selected=active&(1u<<i);
+   const int x=24+int(i/4)*224,y=102+int(i%4)*24;
+   char key[]={'K',char('1'+i),0};
+   label_band(0,x,y,21,17,key,selected?theme.accent:theme.secondary,Font::Small);
+   auto shown=formatted_knob(p,perf,i);
+   value_row(0,x+23,y,183,21,{name,shown.text,perf.knob_display_normalized(i),shape,
+    d && d->interpolation==Interpolation::Discrete?unsigned(d->maximum-d->minimum+1):0u,true,selected});
+  }
+  if(details)advice("TOP 4: NEXT DETAIL PAGE");
+  if(articulation)advice(view==2?"TOP 3: ARTICULATION 2/2":"TOP 3: ARTICULATION 1/2 / SHIFT: SCENE SPEAK & TALK TO TRACK");
  }
 auto UiRenderer::layer_picture(ConstTrackView t,const Performance& perf) -> void{
   label(0,24,82,"ONE NOTE / PARALLEL CHILD VOICES",theme.secondary,Font::Small,430);

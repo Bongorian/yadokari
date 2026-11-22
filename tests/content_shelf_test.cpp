@@ -1,4 +1,5 @@
 #include "content_shelf.h"
+#include "save_asset_resolver.h"
 #include "wav_writer.h"
 #include "../platform/desktop/file_access.h"
 #include <cassert>
@@ -7,6 +8,49 @@
 #include <memory>
 #include <unistd.h>
 using namespace groove;
+// A matching checksum can occur before a recorder publishes the final path.
+static void recording_references(){
+ struct Files final:DesktopFiles {
+  unsigned reads=0;const char* protected_path=nullptr;
+  bool read(const char* path,uint64_t off,void* dst,unsigned n,unsigned& got)override{
+   assert(!protected_path || std::strcmp(path,protected_path));
+   ++reads;return DesktopFiles::read(path,off,dst,n,got);
+  }
+ } fs;
+ assert(fs.directory("RECORDINGS") && fs.directory("RECORDINGS/sTeMs-019.TmP"));
+ const char* staged[]={"RECORDINGS/Live-001.PART","RECORDINGS/Recovered-01.tmp","RECORDINGS/sTeMs-019.TmP/Mix.wav"};
+ uint8_t wav[54]{};assert(wav_header_ch(wav,5,48000,1));
+ ProjectCrc crc;for(auto b:wav)crc.add(b);
+ SampleAssetState slots[kSampleAssets]{};slots[0].metadata.content_crc=crc.value();
+ auto& hint=slots[0].path;
+ AssetCatalog catalog;SaveAssetResolver save(fs);FileScanBuffer buffer;
+ auto resolve=[&](){
+  save.start(slots);auto result=SaveAssetResolver::Result::Working;
+  while(result==SaveAssetResolver::Result::Working)result=save.service(buffer.data());
+  return result==SaveAssetResolver::Result::Ready;
+ };
+ for(auto path:staged){
+  assert(fs.write(path,0,wav,sizeof wav,true));
+  fs.protected_path=path;
+  for(const char* source:{path,"lost.wav"}){
+   copy_text(hint,sizeof hint,source);
+   assert(!catalog.resolve(fs,slots[0]) && !resolve() && !std::strcmp(hint,source));
+  }
+  fs.protected_path=nullptr;
+  assert(fs.exists(path) && fs.remove(path));
+ }
+ assert(fs.directory("RECORDINGS/Library.tmp"));
+ const char* published="RECORDINGS/Library.tmp/User-renamed.tmp";
+ assert(fs.write(published,0,wav,sizeof wav,true));
+ copy_text(hint,sizeof hint,staged[0]);assert(resolve() && !std::strcmp(hint,published));
+ copy_text(hint,sizeof hint,staged[2]);assert(catalog.resolve(fs,slots[0]) && !std::strcmp(hint,published));
+
+ // Identity includes the checksum. Same-path stale CRCs must still be resolved.
+ for(auto& slot:slots)slot=slots[0];
+ fs.reads=0;assert(resolve() && fs.reads==1);
+ ++slots[kSampleAssets-1].metadata.content_crc;
+ assert(!resolve());
+}
 int main(){
  auto previous=std::filesystem::current_path();char root[]="/tmp/mgx12-shelf-XXXXXX";assert(mkdtemp(root) && !chdir(root));DesktopFiles fs;assert(fs.directory("PRESETS") && fs.directory("FACTORY") && fs.directory("FACTORY/PRESETS") && fs.directory("ASSETS") && fs.directory("ASSETS/SAMPLES") && fs.directory("ASSETS/SAMPLES/NESTED"));
  auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->content_kind=ContentKind::Preset;p->tracks[0].instrument=Instrument::VirtualAnalog;assert(parse_preset_guid("f0123456789abcde0123456789abcdef",p->tracks[0].preset_identity.guid));p->tracks[0].preset_identity.revision=1;p->tracks[0].preset_identity.origin=PresetOrigin::Factory;copy_text(p->tracks[0].preset_name,96,"Factory Bass");assert(save_recoverable(fs,"FACTORY/PRESETS/Bass.mgxp",*p));
@@ -22,5 +66,6 @@ int main(){
  ShelfScan stopped;unsigned visits=0;auto stop=[&](const char*,const FileEntry&){++visits;stopped.stop=true;};walk_content_shelf(fs,"",stop,stopped);assert(visits==1 && stopped.files==1);
 
  SoundState a,b;a.instrument=b.instrument=Instrument::Sampler;a.sample_slot=3;b.sample_slot=9;SampleAssetState aa[64]{},bb[64]{};aa[3].metadata.content_crc=bb[9].metadata.content_crc=123;copy_text(aa[3].path,96,"old.wav");copy_text(bb[9].path,96,"renamed.wav");copy_text(a.preset_name,96,"Old");copy_text(b.preset_name,96,"New");assert(same_preset_content(a,aa,b,bb));b.sample_edit.speed=2;assert(!same_preset_content(a,aa,b,bb));
+ recording_references();
  std::filesystem::current_path(previous);std::filesystem::remove_all(root);std::puts("Content shelf: exact revisions, user precedence/originals, new identity, CRC relocation/rename/missing and canonical content passed");
 }

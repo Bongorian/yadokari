@@ -10,7 +10,12 @@
 #include <vector>
 struct MemoryFiles final:groove::IFileAccess {
  std::map<std::string,std::vector<uint8_t>> files;unsigned reads=0,writes=0,fail_write=0;bool corrupt=false,fail_move=false;
- unsigned list(const char*,groove::FileEntry*,unsigned)override{return 0;}
+ unsigned list(const char* dir,groove::FileEntry* entries,unsigned capacity)override{
+  unsigned count=0;if(*dir)return 0;
+  for(const auto& file:files)if(file.first.find('/')==std::string::npos && count<capacity)
+   groove::copy_text(entries[count++].name,sizeof entries[0].name,file.first.c_str());
+  return count;
+ }
  bool read(const char* path,uint64_t offset,void* out,unsigned count,unsigned& got)override{++reads;auto it=files.find(path);if(it==files.end() || offset>it->second.size())return false;got=unsigned(std::min<uint64_t>(count,it->second.size()-offset));if(got)std::memcpy(out,it->second.data()+offset,got);if(got && corrupt)static_cast<uint8_t*>(out)[0]^=1;return true;}
  bool write(const char* path,uint64_t offset,const void* data,unsigned count,bool truncate)override{++writes;if(writes==fail_write)return false;auto& dest=files[path];if(truncate)dest.clear();if(offset!=dest.size())return false;auto* p=static_cast<const uint8_t*>(data);dest.insert(dest.end(),p,p+count);return true;}
  bool move(const char* from,const char* to)override{if(fail_move)return false;auto it=files.find(from);if(it==files.end() || files.count(to))return false;files[to]=std::move(it->second);files.erase(it);return true;}
@@ -77,4 +82,32 @@ int main(){using namespace groove;auto p=std::make_unique<ProjectState>();make_e
  foreign.chunks[0].payload.data[0]=0;assert(worker.process_one() && worker.collect(result) && result.ok);
  ChunkSource composite{result.bytes,result.size,0};PreservedStore roundtrip;assert(decode_project(composite,*restored,&roundtrip) && roundtrip.chunk_count==1 && roundtrip.chunks[0].flags==19 && roundtrip.chunks[0].payload.data[0]==0x6d);delete[] result.bytes;
  auto owned=std::make_unique<ProjectState>(*p);assert(worker.submit(owned.get(),"GROOVE/PACED.MGX",&foreign));owned.release();assert(batch.ok && batch.planned==payload.size() && batch.bytes==batch.planned && worker.process_one() && worker.collect(result) && result.ok);delete[] result.bytes;
+ // A moved source and a slow, unrelated bank cannot monopolize the file task.
+ worker.set_snapshot_copy(nullptr,nullptr);worker.set_buffer_copy(nullptr,nullptr);
+ std::vector<uint8_t> wav(3*kFileScanBufferBytes+1,7);std::memcpy(wav.data(),"RIFF",4);std::memcpy(wav.data()+8,"WAVE",4);
+ fs.files["asset.wav"]=wav;fs.files["another.sf2"]=wav;fs.files["another.sf2"][8]='s';fs.files["another.sf2"][9]='f';fs.files["another.sf2"][10]='b';fs.files["another.sf2"][11]='k';
+ auto& asset=p->assets[0];copy_text(asset.path,sizeof asset.path,"moved.wav");ProjectCrc crc;for(auto b:wav)crc.add(b);asset.metadata.content_crc=crc.value();
+ p->tempo=146;
+ auto drive_asset_save=[&](){
+  unsigned pumps=0;
+  while(!worker.process_one() && save.busy()){
+   unsigned reads=fs.reads;
+   save.service(true,false,p->assets);assert(fs.reads-reads<=1 && ++pumps<200);
+  }
+  return pumps;
+ };
+ assert(save.start(*p,"healed.mgxs",false,nullptr,true));p->tempo=177;
+ assert(drive_asset_save()>6 && !std::strcmp(asset.path,"asset.wav"));
+ while(save.busy())save.service(true,false);
+ assert(save.take_outcome()==AsyncProjectSave::Outcome::Saved);
+ Source healed{fs.files["healed.mgxs"]};assert(decode_project(healed,*restored) && restored->tempo==146 && std::strstr(restored->assets[0].path,"asset.wav"));
+ copy_text(asset.path,sizeof asset.path,"old.wav");assert(save.start(*p,"changed.mgxs",false,nullptr,true));
+ copy_text(asset.path,sizeof asset.path,"live-edit.wav");drive_asset_save();while(save.busy())save.service(true,false);
+ assert(save.take_outcome()==AsyncProjectSave::Outcome::Saved && !std::strcmp(asset.path,"live-edit.wav"));
+ ++asset.metadata.content_crc;auto good=fs.files["healed.mgxs"];assert(save.start(*p,"healed.mgxs",false,nullptr,true));
+ drive_asset_save();assert(!save.busy() && save.take_outcome()==AsyncProjectSave::Outcome::Failed && fs.files["healed.mgxs"]==good);
+ // A failed search or event loss releases the prepared snapshot for a retry.
+ asset.metadata.content_crc=crc.value();assert(save.start(*p,"retry.mgxs",false,nullptr,true));
+ save.service(false,true);assert(save.take_outcome()==AsyncProjectSave::Outcome::Failed);
+ assert(save.start(*p,"retry.mgxs",false,nullptr,true));drive_asset_save();while(save.busy())save.service(true,false);assert(save.take_outcome()==AsyncProjectSave::Outcome::Saved);
  puts("async save snapshot, bounded I/O, guard, failure, verification and cleanup passed");}

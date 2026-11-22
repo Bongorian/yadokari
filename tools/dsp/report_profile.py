@@ -42,19 +42,32 @@ for c in data['cost_table']:
                  f"{f(m.get('mean_active_24_us'))}/{f(m.get('max_block_us'))}|"
                  f"{c.get('native_reference_avg', '—')}/{c.get('native_reference_burst', '—')}|")
 lines += ['', '## Insert FX', '',
-          'Track Aの実呼出しを1条件ごとに集計（番号と名称は `src/fx_registry.h`）。', '',
-          '|Case|FX type|平均µs/block|最大µs/block|worker平均/最大µs|',
-          '|---:|---:|---:|---:|---:|']
+          'インサートスロットごとの実呼出しを1条件ごとに集計（番号と名称は `src/fx_registry.h`）。', '',
+          '|Case|FX type|スロット|要求FX数|平均µs/block|最大µs/block|worker平均/最大µs|',
+          '|---:|---:|---|---:|---:|---:|---:|']
 for c in data['completed']:
     if c['kind'] != 2:
         continue
-    m = next((b for b in c['bins'] if b['kind'] == 'insert' and b['path'] == 0 and b['type'] == c['variant']), None)
-    if m is None:
-        assert c['variant'] == 0, 'Missing measured FX bin'
-        m = {'all_us': 0, 'max_block_us': 0}  # BYPASS skips process entirely.
-    d = c['deadline']
-    lines.append(f"|{c['case']}|{c['variant']}|{f(m['all_us']/c['profile']['sampled'])}|"
-                 f"{f(m['max_block_us'])}|{d['avg_us']}/{d['max_us']}|")
+    slots = [(0, c['tracks'])]
+    if c.get('second_inserts'):
+        slots.append((1, c['second_inserts']))
+    for slot, count in slots:
+        m = next((b for b in c['bins'] if b['kind'] == 'insert' and b['path'] == slot and b['type'] == c['variant']), None)
+        if m is None:
+            assert c['variant'] == 0, 'Missing measured FX bin'
+            m = {'all_us': 0, 'max_block_us': 0}
+        d = c['deadline']
+        lines.append(f"|{c['case']}|{c['variant']}|{'AB'[slot]}|{count}|{f(m['all_us']/c['profile']['sampled'])}|"
+                     f"{f(m['max_block_us'])}|{d['avg_us']}/{d['max_us']}|")
+choir = [c for c in data['completed'] if c['kind'] == 9]
+if choir:
+    lines += ['', '## CHIMERA 合唱', '',
+              '|Case|UNISON|要求ノート数|実発音の最大声道数|申告cost/ノート|worker平均/最大µs|>500µs|窓内欠落frame|',
+              '|---:|---:|---:|---:|---:|---:|---:|---:|']
+    for c in choir:
+        d = c['deadline']
+        lines.append(f"|{c['case']}|{c['variant']}|{c['notes']}|{c.get('active_tracts_peak', '—')}|"
+                     f"{c['declared_cost']}|{d['avg_us']}/{d['max_us']}|{d['over500']}|{d['window_missing']}|")
 systems = ['Drive', 'Filter', 'Track compressor', 'Delay', 'Reverb', 'Throws',
            'Beat repeat', 'Performance', 'Master compressor', 'Limiter', 'Record/capture', 'Reserved']
 lines += ['', '## 全FX chainの段別内訳', '',

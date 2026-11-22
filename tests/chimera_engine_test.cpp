@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <memory>
+#include <vector>
 
 using namespace groove;
 
@@ -36,7 +37,103 @@ static uint64_t cutaway_pixels(const UiRenderer& display){
  return signature;
 }
 
+static void talking_kit(){
+ auto song=std::make_unique<ProjectState>();make_empty_project(*song);
+ auto kit=track_at(*song,0,0);kit.instrument=Instrument::DrumKit;kit.length=4;
+ kit.kit.pads[0].sample[0]=0;
+ for(unsigned s=0;s<4;++s){kit.kit.steps[0][s].enabled=true;kit.kit.steps[0][s].velocity=110;}
+ std::vector<int16_t> strike(4800);uint32_t noise=1;
+ for(unsigned i=0;i<strike.size();++i){noise=1664525*noise+1013904223;strike[i]=int16_t((int(noise>>16)-32768)*(1.f-float(i)/strike.size()));}
+ WavView samples[kSampleAssets]{};
+ samples[0]={reinterpret_cast<const uint8_t*>(strike.data()),unsigned(strike.size()),48000,1,16,1};
+ auto engine=std::make_unique<Engine>();assert(engine->stage_project(*song,samples));
+ float frame[48]{};engine->render(frame,0);auto ui=std::make_unique<Performance>(*engine,*song);
+ ui->set_mode(UiMode::Perform);ui->set_shift(true);assert(ui->soft_key(7));ui->set_shift(false);
+ assert(ui->soft_key(3) && ui->vowel_page() && ui->soft_key(4));
+ assert(ui->arm_note_record(true) && ui->play());
+ auto pump=[&](){engine->render(frame,24);ui->poll();};
+ const unsigned pads[]={12,3,0,15};
+ for(unsigned step=0;step<4;++step){
+  unsigned n=0;do{pump();assert(++n<1000);}while(!ui->playing() || ui->position(0)!=step);
+  assert(ui->pad(pads[step],0x10,3200) && ui->pad(pads[step],0x20,0));pump();
+  const auto& locks=kit.steps[step].locks;
+  assert(locks[0].enabled && locks[0].id==95 && locks[1].id==96 && locks[2].id==261);
+ }
+ assert(ui->stop());pump();ui.reset();engine.reset();
+ ChunkBuffer bytes;assert(encode_project_buffer(bytes,*song));
+ auto copy=std::make_unique<ProjectState>();ChunkSource packet{bytes.data,bytes.size};assert(decode_project(packet,*copy));
+ auto playback=[&](ProjectState& score){
+  auto player=std::make_unique<Engine>();assert(player->stage_project(score,samples));
+  player->render(frame,0);assert(player->submit({CommandType::Start,0,0,0}));
+  std::vector<float> pcm(48000);for(unsigned i=0;i<pcm.size();i+=48)player->render(&pcm[i],24);
+  return pcm;
+ };
+ auto recorded=playback(*song);assert(recorded==playback(*copy));
+ for(auto& step:copy->patterns[0].tracks[0].steps)for(auto& lock:step.locks)lock.enabled=false;
+ auto plain=playback(*copy);double delta=0;for(unsigned i=0;i<plain.size();++i){assert(std::isfinite(recorded[i]));delta+=std::fabs(plain[i]-recorded[i]);}
+ assert(delta>1);std::printf("TALK kit: four performed steps replayed bit-identically after save, lock/no-lock PCM difference %.3f\n",delta);
+}
+static void wave_two(){
+ const auto original_profile=hardware::active_profile;
+ auto song=std::make_unique<ProjectState>();make_empty_project(*song);
+ auto& source=song->tracks[0];source.instrument=Instrument::Chimera;
+ song->tracks[1].instrument=Instrument::DrumKit;
+ constexpr char phrase[]="60\ta\n61\ti\n";
+ source.chimera_phrase.size=sizeof phrase-1;
+ std::memcpy(source.chimera_phrase.data,phrase,sizeof phrase-1);
+ auto& ensemble=source.chimera.values[ChimeraUnison-kChimeraMacroCount];
+ source.chimera.values[ChimeraTalkOutput-kChimeraMacroCount]=2;
+ for(unsigned board:{0x11u,0x17u}){
+  hardware::set_active_profile(hardware::decode((1u<<23)|(board<<4)));
+  auto engine=std::make_unique<Engine>();AudioVisualFrame visual{};
+  ensemble=4;
+  assert(engine->stage_project(*song));render(*engine,24,visual);
+  note(*engine,0,60,true);
+  const float peak=render(*engine,4800,visual);
+  if(board==0x11){
+   assert(engine->active_tracts()==0 && peak==0);
+   auto& track=song->tracks[2];track.instrument=Instrument::Layer;track.layer.count=2;
+   for(unsigned i=0;i<2;++i)track.layer.parts[i].sound.instrument=Instrument::Chimera;
+   auto& part=track.layer.parts[0];
+   part.sound.chimera.values[ChimeraUnison-kChimeraMacroCount]=2;
+   part.fx.present=true;part.fx.inserts[0]=kTalkFx;part.fx.inserts[3]=1;
+   assert(layer_part_cost(part)==2*engine_voice_cost(Instrument::Chimera,0)+fx_descriptor(kTalkFx)->cost);
+   assert(engine->stage_project(*song));render(*engine,24,visual);
+   note(*engine,2,60,true);render(*engine,240,visual);assert(engine->active_tracts()==0);
+   part.sound.chimera.values[ChimeraUnison-kChimeraMacroCount]=1;
+   assert(engine->stage_project(*song));render(*engine,24,visual);
+   note(*engine,2,60,true);assert(render(*engine,2400,visual)>.001f && engine->active_tracts()==2);
+   track.instrument=Instrument::Empty;continue;
+  }
+  assert(engine->active_tracts()==4 && peak>.001f && engine->talk_following(1));
+  note(*engine,0,64,true);render(*engine,240,visual);
+  assert(engine->active_tracts()==4);
+  ensemble=1;
+  auto ui=std::make_unique<Performance>(*engine,*song);
+  ui->set_mode(UiMode::Perform);assert(ui->open_vocoder() && ui->soft_key(6) && ui->vowel_voice());
+  assert(ui->pad(0,0x10,4095) && ui->pad(0,0x20,0));
+  assert(source.engine_parameters[0]==0 && source.engine_parameters[1]==1);
+  ui->set_shift(true);assert(ui->pad(15,0x10,4095) && ui->pad(15,0x20,0));ui->set_shift(false);
+  auto& locks=song->patterns[0].tracks[0].steps[ui->selected_step()].locks;
+  assert(locks[0].enabled && locks[0].id==engine_target(Instrument::Chimera,0) && locks[0].value==1);
+  assert(locks[1].enabled && locks[1].value==0 && locks[2].enabled && locks[2].value==8);
+  assert(ui->select_track(1));assert(ui->soft_key(4) && ui->vowel_ready() && !ui->vowel_voice());
+  assert(ui->pad(3,0x10,4095) && ui->pad(3,0x20,0));
+  assert(song->tracks[1].insert_fx[0]==kTalkFx && song->tracks[1].insert_fx[1]==1 && song->tracks[1].insert_fx[2]==1);
+  assert(engine->stage_project(*song));render(*engine,48,visual);
+  assert(engine->submit({CommandType::LaunchScene,0,0,0}));render(*engine,240,visual);
+  assert(engine->active_tracts()==0 && engine->scene_duck_gain()==1);
+  source.chimera.values[ChimeraSceneSpeak-kChimeraMacroCount]=1;
+  assert(engine->stage_project(*song));render(*engine,48,visual);
+  assert(engine->submit({CommandType::LaunchScene,0,0,1}));assert(render(*engine,2400,visual)>.0001f);
+  assert(engine->active_tracts()==1 && engine->scene_duck_gain()<.8f && engine->talk_following(1));
+  render(*engine,48000,visual);assert(engine->active_tracts()==0 && engine->scene_duck_gain()==1);
+ }
+ hardware::set_active_profile(original_profile);
+ std::puts("Wave 2: physical vowel controls and locks, shared 4-tract admission, follow, scene speech and duck release passed");
+}
 int main(){
+ talking_kit();wave_two();
  auto project=std::make_unique<ProjectState>();
  make_empty_project(*project);
  project->tracks[0].instrument=project->tracks[1].instrument=Instrument::Chimera;

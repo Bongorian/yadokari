@@ -16,6 +16,9 @@ namespace groove { class Engine; }
 class CProjectStorage:public groove::IFileAccess,public groove::ISampleLibrary {
 public:
  ~CProjectStorage();bool Mount();
+ groove::DirectoryCursor* open_directory_cursor(const char*)override;
+ bool BeginUiProbeSample(groove::WavView& out);
+ void EndUiProbeSample(){m_UiProbeSample={};}
  bool begin_read_session(const char*)override;void end_read_session()override;
  bool space(uint64_t& free,uint64_t& total)override;
  // Transfer guard: FAT short names and OEM case variants can name one entry.
@@ -56,6 +59,7 @@ public:
  struct StreamCounters{unsigned readers=0;uint64_t reads=0,bytes=0,failures=0,misses=0;};
  StreamCounters stream_counters()const{StreamCounters out;for(const auto& c:m_Cache)if(c.stream){auto n=c.stream->counters();++out.readers;out.reads+=n.reads;out.bytes+=n.bytes;out.failures+=n.failures;out.misses+=n.misses;}return out;}
 private:
+ groove::WavView m_UiProbeSample{};
  groove::SoundFontCache m_SoundFonts;groove::SoundFontLoadSlot* m_SoundFontWorker=nullptr;
  void ServiceSoundFont();
  u8* m_CpuIo=nullptr; // LOW bounce for explicit CPU-only storage spans

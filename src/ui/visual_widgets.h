@@ -11,7 +11,8 @@
   unsigned count=d.count<128?d.count:128;if(!count || w<=0 || h<=0)return;
   if(count<=8 && d.names[0]){ // A control profile, not a substitute PCM trace.
    unsigned rows=(count+1)/2;int column=w/2,row_h=h/int(rows);
-   for(unsigned n=0;n<count;++n){int cx=x+int(n/rows)*column,cy=y+int(n%rows)*row_h;char value[24];format_value(value,d.parameters[n],2);
+   for(unsigned n=0;n<count;++n){int cx=x+int(n/rows)*column,cy=y+int(n%rows)*row_h;char value[24];format_value(value,clamp01(d.values[n])*100,0);
+    unsigned size=unsigned(__builtin_strlen(value));value[size]='%';value[size+1]=0;
     aligned_band(side,cx,cy,column-66,row_h-3,d.names[n],theme.secondary,FontRole::Small,TextAlign::Left,TextKind::ValueLabel);
     aligned_band(side,cx+column-62,cy,54,row_h-3,value,theme.text,FontRole::Small,TextAlign::Right,TextKind::ValueNumber,true,true);
     progress(side,cx,cy+row_h-3,column-10,2,d.values[n],color);

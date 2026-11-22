@@ -108,13 +108,13 @@ inline bool emit_chimera(const EngineStateSource& s,bool){return s.chimera!=null
 inline bool encode_chimera(ChunkBuffer& dst,const EngineStateSource& s){
  if(!s.chimera)return false;
  ChunkWriter<ChunkBuffer> w(dst);
- for(float v:s.chimera->values)if(!w.f32(v))return false;
+ for(unsigned i=0;i<ChimeraUnison-kChimeraMacroCount;++i)if(!w.f32(s.chimera->values[i]))return false;
  return true;
 }
 inline bool decode_chimera(ChunkSource& src,const EngineStateView& s){
  if(!s.chimera)return false;
  ChunkReader<ChunkSource> r(src);
- for(float& v:s.chimera->values)if(!r.f32(v))return false;
+ for(unsigned i=0;i<ChimeraUnison-kChimeraMacroCount;++i)if(!r.f32(s.chimera->values[i]))return false;
  return src.at_end() && valid_chimera(*s.chimera);
 }
 inline void defaults_chimera(const EngineStateView& s){if(s.chimera)*s.chimera=ChimeraState{};}
@@ -131,13 +131,33 @@ inline bool decode_chimera_phrase(ChunkSource& in,const EngineStateView& s){
  return in.read(reinterpret_cast<uint8_t*>(phrase.data),in.size) && valid_chimera_ipa(phrase);
 }
 inline void defaults_chimera_phrase(const EngineStateView& s){if(s.chimera_phrase)s.chimera_phrase->size=0;}
+inline bool emit_chimera_ensemble(const EngineStateSource& s,bool){
+ if(!s.chimera)return false;
+ for(unsigned i=ChimeraUnison-kChimeraMacroCount;i<kChimeraDetailCount;++i)if(s.chimera->values[i]!=kChimeraDetails[i].initial)return true;
+ return false;
+}
+inline bool encode_chimera_ensemble(ChunkBuffer& out,const EngineStateSource& s){
+ ChunkWriter<ChunkBuffer> w(out);
+ for(unsigned i=ChimeraUnison-kChimeraMacroCount;i<kChimeraDetailCount;++i)if(!w.f32(s.chimera->values[i]))return false;
+ return true;
+}
+inline bool decode_chimera_ensemble(ChunkSource& in,const EngineStateView& s){
+ if(!s.chimera)return false;
+ ChunkReader<ChunkSource> r(in);
+ for(unsigned i=ChimeraUnison-kChimeraMacroCount;i<kChimeraDetailCount;++i)if(!r.f32(s.chimera->values[i]))return false;
+ return in.at_end() && valid_chimera(*s.chimera);
+}
+inline void defaults_chimera_ensemble(const EngineStateView& s){
+ if(s.chimera)for(unsigned i=ChimeraUnison-kChimeraMacroCount;i<kChimeraDetailCount;++i)s.chimera->values[i]=kChimeraDetails[i].initial;
+}
 inline EngineStateContract chimera_state_contract(){
  static const EngineChunkDescriptor chunks[]={
   {kChunkParm,2,emit_parm,encode_parm,decode_parm,defaults_parm},
   {kChunkChimera,2,emit_chimera,encode_chimera,decode_chimera,defaults_chimera},
-  {0x41504943u,1,emit_chimera_phrase,encode_chimera_phrase,decode_chimera_phrase,defaults_chimera_phrase}
+  {0x41504943u,1,emit_chimera_phrase,encode_chimera_phrase,decode_chimera_phrase,defaults_chimera_phrase},
+  {0x324d4843u,1,emit_chimera_ensemble,encode_chimera_ensemble,decode_chimera_ensemble,defaults_chimera_ensemble}
  };
- return {chunks,3,3};
+ return {chunks,4,3};
 }
 inline bool emit_smpl(const EngineStateSource& s,bool required){return required || !same_sample_edit(*s.sample_edit,SampleEdit{}) || *s.sample_loop || *s.sample_reverse || *s.sample_slice || *s.sample_slices!=1;}
 inline bool encode_smpl(ChunkBuffer& out,const EngineStateSource& s){ChunkWriter<ChunkBuffer> w(out);return write_sample_edit(w,*s.sample_edit) && write_zones(w,*s.sample_edit) && write_warp(w,*s.sample_edit) && w.u8(*s.sample_slice) && w.u8(*s.sample_slices) && w.u8(*s.sample_loop) && w.u8(*s.sample_reverse);}

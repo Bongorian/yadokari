@@ -4,6 +4,7 @@
 #include "Effects/wavefolder.h"
 #include "daisy_track_drive.h"
 #include "vocoder.h"
+#include "talk_tract.h"
 #include "fx_registry.h"
 #include "pitch_shift.h"
 #include "rotary.h"
@@ -29,6 +30,7 @@ public:
  void init(unsigned rate){rate_=rate?rate:48000;inverse_rate_=1.0f/float(rate_);attack_=1-expf(-inverse_rate_/0.002f);vocoder_.init(rate_);pitch_.init(rate_);rotary_.init(rate_);reset();}
  void reset(){mode_=0;wet_=phase_=0;counter_=0;clear_extra();cached_a_=cached_b_=-1;for(auto& f:filter_)f.Init(float(rate_));folder_.Init();}
  float activity()const{return idle()?0:activity_;}
+ void talk_pressure(float pressure){talk_pressure_=pressure;}
  void vocoder_levels(float* out)const{if(mode_==19 && wet_>.00001f)vocoder_.levels(out);else for(unsigned i=0;i<16;++i)out[i]=0;}
  bool idle()const{return mode_==0 && wet_<0.0001f;}
  __attribute__((always_inline)) inline void process(float& left,float& right,unsigned requested,float a,float b,float mix,float input_l=0,float input_r=0){
@@ -57,6 +59,7 @@ public:
   else if(mode_==14){float mid=(safe_l+safe_r)*0.5f,side=(safe_l-safe_r)*a;out_l=(mid+side)*(b<=0.5f?1:2*(1-b));out_r=(mid-side)*(b>=0.5f?1:2*b);}
   else if(mode_==15){float limit=1-0.9f*b,gain=1+7*a;out_l=__builtin_fmaxf(-limit,__builtin_fminf(limit,safe_l*gain));out_r=__builtin_fmaxf(-limit,__builtin_fminf(limit,safe_r*gain));}
   else if(mode_==19){input_l=isfinite(input_l)?finite_insert_clip(input_l,4):0;input_r=isfinite(input_r)?finite_insert_clip(input_r,4):0;unsigned mod=fx_choice_index(a,3),carrier=fx_choice_index(b,4);float input_mod=mod==0?input_l:mod==1?input_r:(input_l+input_r)*.5f;if(carrier){out_l=carrier==1?input_l:carrier==2?input_r:input_l;out_r=carrier==1?input_l:carrier==2?input_r:input_r;}vocoder_.process(out_l,out_r,input_mod);}
+  else if(mode_==kTalkFx)out_l=out_r=talk_.process((safe_l+safe_r)*(.5f+.35f*talk_pressure_),a,b);
   else if(mode_==21)rotary_.process(mod_buffer_,out_l,out_r,fx_choice_index(a,3),b);
   else if(mode_==20)pitch_.process(out_l,out_r,int(fx_choice_index(a,25))-12);
   else process_modulation(safe_l,safe_r,out_l,out_r);
@@ -71,12 +74,12 @@ private:
   if(mode_<=17){if(!mod_buffer_)return;float q=phase_+0.25f;if(q>=1)q-=1;float tl=1-4*__builtin_fabsf(phase_-0.5f),tr=1-4*__builtin_fabsf(q-0.5f);float dl=mod_read(0,mod_base_+mod_depth_*tl),dr=mod_read(1,mod_base_+mod_depth_*tr);float feedback=mode_==16?0.12f:0.55f*mod_depth_parameter_;mod_buffer_[mod_write_*2]=l+dl*feedback;mod_buffer_[mod_write_*2+1]=r+dr*feedback;mod_write_=(mod_write_+1)&(kModFrames-1);if(mod_age_<kModFrames)++mod_age_;out_l=(l+dl)*0.5f;out_r=(r+dr)*0.5f;}
   else{float input[2]={l,r},out[2]{};for(unsigned ch=0;ch<2;++ch){mod_coefficient_[ch]+=(mod_target_[ch]-mod_coefficient_[ch])*0.02f;float x=input[ch]+mod_feedback_[ch]*0.35f*mod_depth_parameter_;for(unsigned stage=0;stage<4;++stage){float y=mod_state_[ch][stage]-mod_coefficient_[ch]*x;mod_state_[ch][stage]=x+mod_coefficient_[ch]*y;x=y;}mod_feedback_[ch]=x;out[ch]=(input[ch]+x)*0.5f;}out_l=out[0];out_r=out[1];}
  }
- void clear_extra(){pitch_.reset();rotary_.reset();vocoder_.reset();hold_count_=0;hold_period_=1;held_l_=held_r_=low_l_=low_r_=gate_=0;gate_open_=false;coefficient_=0;quant_=inverse_quant_=1;mod_write_=mod_age_=0;for(unsigned ch=0;ch<2;++ch){mod_target_[ch]=mod_coefficient_[ch]=0;mod_feedback_[ch]=0;for(float& v:mod_state_[ch])v=0;}}
+ void clear_extra(){talk_.reset();pitch_.reset();rotary_.reset();vocoder_.reset();hold_count_=0;hold_period_=1;held_l_=held_r_=low_l_=low_r_=gate_=0;gate_open_=false;coefficient_=0;quant_=inverse_quant_=1;mod_write_=mod_age_=0;for(unsigned ch=0;ch<2;++ch){mod_target_[ch]=mod_coefficient_[ch]=0;mod_feedback_[ch]=0;for(float& v:mod_state_[ch])v=0;}}
  float activity_=0;
  unsigned rate_=48000,mode_=0,counter_=0,hold_count_=0,hold_period_=1;float inverse_rate_=1.0f/48000,wet_=0,phase_=0,cached_a_=-1,cached_b_=-1;
  float held_l_=0,held_r_=0,low_l_=0,low_r_=0,gate_=0,coefficient_=0,quant_=1,inverse_quant_=1,attack_=0;bool gate_open_=false;
  float* mod_buffer_=nullptr;unsigned mod_write_=0,mod_age_=0;bool mod_needs_clip_=false;float mod_increment_=0,mod_base_=0,mod_depth_=0,mod_depth_parameter_=0;float mod_target_[2]{},mod_coefficient_[2]{},mod_feedback_[2]{},mod_state_[2][4]{};
- Rotary rotary_;PitchShiftStereo pitch_;Vocoder vocoder_;daisysp::Svf filter_[2];daisysp::Wavefolder folder_;DaisyTrackDrive drive_;
+ float talk_pressure_=0;TalkTract talk_;Rotary rotary_;PitchShiftStereo pitch_;Vocoder vocoder_;daisysp::Svf filter_[2];daisysp::Wavefolder folder_;DaisyTrackDrive drive_;
 };
 inline const char* track_insert_name(unsigned type){if(auto* d=fx_descriptor(type))return d->name;static const char* names[]={"BYPASS","LOW PASS","HIGH PASS","BAND PASS","NOTCH","OVERDRIVE","FOLDER","TREMOLO","AUTO PAN","RING MOD","DECIMATOR","SOFT CLIP","NOISE GATE","TILT EQ","STEREO WIDTH","HARD CLIP","CHORUS","FLANGER","PHASER"};return names[type<=18?type:0];}
 inline const char* track_insert_control_name(unsigned type,unsigned field){

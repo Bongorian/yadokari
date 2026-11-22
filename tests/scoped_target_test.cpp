@@ -12,6 +12,10 @@ int main(){
  auto fm=engine_target(Instrument::FM,0),plaits=engine_target(Instrument::PlaitsMacro,0),model=engine_target(Instrument::PlaitsMacro,5);
  assert(fm!=plaits && !valid_target_address(32) && !target_descriptor(0xffe0));
  for(unsigned e=0;e<instrument_count();++e)for(unsigned i=0;i<target_count(Instrument(e));++i){auto target=target_at(Instrument(e),i);assert(valid_target_address(target));assert(target_index(Instrument(e),target)==i);}
+ auto spread=engine_target(Instrument::Chimera,ChimeraSpread);
+ assert(target_at(Instrument::Chimera,target_count(Instrument::Chimera)-1)==spread);
+ for(unsigned local:{ChimeraProgram,ChimeraSpecies,ChimeraVoiceMode,ChimeraUnison,ChimeraSceneSpeak,ChimeraTalkOutput})
+  assert(target_index(Instrument::Chimera,engine_target(Instrument::Chimera,local))==target_count(Instrument::Chimera));
  auto& lane=t.automation[0];lane.enabled=true;lane.parameter=fm;lane.values[0]=.2f;
  GestureOverlay overlay;overlay.apply({0,fm,.3f,0,0,GestureTarget::Parameter});
  auto& macro=p->macros[0];macro.active=true;macro.value=1;macro.routes[0]={true,fm,1,.4f,.4f,LayerMode::Replace};

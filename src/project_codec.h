@@ -492,7 +492,7 @@ inline bool read_morph_snapshot(ChunkReader<ChunkSource>& r,ParameterSnapshot& s
  for(unsigned i=0;i<length;++i){uint8_t c;if(!r.u8(c))return false;guid[i]=char(c);}guid[length]=0;
  Instrument engine;bool known=engine_from_guid(guid,length,engine);if(!r.u16(count) || count>kEngineMorphParameters)return false;
  if(known){const auto* d=engine_descriptor(unsigned(engine));if(!d)return false;
-  if(engine==Instrument::Chimera && count==kChimeraMacroCount){
+  if(engine==Instrument::Chimera && (count==kChimeraMacroCount || count==ChimeraUnison)){
    for(unsigned i=count;i<d->parameters.count;++i)s.engine_values[i]=d->parameters.declarations[i].value.initial;
   }else if(d->parameters.count!=count)return false;
   s.engine=engine;}else{s.engine=Instrument::Unknown;__builtin_memcpy(s.unknown_guid,guid,length+1);s.unknown_count=count;}

@@ -1,11 +1,17 @@
 #pragma once
 #include "project.h"
 #include "file_access.h"
+#include "project_codec.h"
 namespace groove {
 // Diagnostic-only immutable score. Never replaces a user's file or factory.
 inline constexpr unsigned kUiProbeRevision=2,kUiProbeStages=22;
 inline constexpr uint32_t kUiProbeSeed=0x4f505432,kUiProbeSampleCrc=0x7c7e7b61;
 inline constexpr const char* kUiProbeSample="FACTORY/DEBUG/demo-slices.wav";
+inline bool bind_ui_probe_wave(const uint8_t* bytes,unsigned size,WavView& out){
+ if(!bytes || size!=96044)return false;
+ ProjectCrc crc;for(unsigned i=0;i<size;++i)crc.add(bytes[i]);
+ return crc.value()==kUiProbeSampleCrc && parse_wav(bytes,size,out);
+}
 inline const char* ui_probe_class(unsigned stage){static const char* names[]={"FM-GENERATOR","FM-TONE","SOURCE-SELECTOR","SETTINGS","ROUTING","SAVE-MODAL","STEP","TRACKER","MIXER","SAMPLER-WAVEFORM","PAD","CLIP","SCENE","EFFECTS","PERFORM","GENERATE","KEYBOARD","MODULATION","BROWSER","DIAGNOSTICS","CHORD","SONG"};return stage && stage<=kUiProbeStages?names[stage-1]:"NONE";}
 inline void make_ui_probe_project(ProjectState& p){
  make_empty_project(p);p.tempo=120;p.random_seed=kUiProbeSeed;p.routing.main=.25f;p.routing.cue=0;

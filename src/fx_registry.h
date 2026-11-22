@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "visual_model.h"
 namespace groove {
-inline constexpr unsigned kFxCount=22;
+inline constexpr unsigned kTalkFx=22,kFxCount=kTalkFx+1;
 // First descriptor-backed FX. Existing slots keep their type/A/B/wet storage.
 // Choices declare the adapter's normalized wire mapping, not continuous values.
 struct FxChoice {const char* name;const char* const* values;uint8_t count;};
@@ -35,10 +35,11 @@ inline const FxDescriptor* fx_descriptor(unsigned type){
   {19,"mk3.fx.19","VOCODER",{{"MODULATOR",modulators,3},{"CARRIER",carriers,4}},16,4,true,{VisualElement::Bars,VisualSource::Vocoder,VisualCadence::Audio,VisualFallback::Empty,ResponseModel::None,"VOCODER / 16 ACTUAL FOLLOWERS"}},
   {20,"mk3.fx.pitch-shift","PITCH SHIFT",{{"SHIFT",shifts,25},{"",nullptr,0}},0,2,false,{VisualElement::Response,VisualSource::Parameters,VisualCadence::Control,VisualFallback::Parameters,ResponseModel::None,"SEMITONE SHIFT / ACTIVITY"}},
   {21,"mk3.fx.rotary","ROTARY",{{"SPEED",speeds,3},{"DRIVE",nullptr,0}},0,2,false,{VisualElement::Response,VisualSource::Parameters,VisualCadence::Control,VisualFallback::Parameters,ResponseModel::None,"HORN + DRUM / RAMPED SPEED"}},
+  {kTalkFx,"mk3.fx.talk","TALK",{{"VOWEL X",nullptr,0},{"VOWEL Y",nullptr,0}},0,2,false,{VisualElement::Response,VisualSource::Parameters,VisualCadence::Control,VisualFallback::Parameters,ResponseModel::None,"VOCAL TRACT"}},
  };return type<kFxCount?&effects[type]:nullptr;
 }
 inline unsigned next_insert_type(unsigned type,int change){
- static constexpr uint8_t order[]={0,19,20,21,7,8,9,16,17,18,10,5,6,1,2,3,4,11,12,13,14,15};
+ static constexpr uint8_t order[]={0,19,20,21,7,8,9,16,17,18,10,5,6,1,2,3,4,11,12,13,14,15,kTalkFx};
  static_assert(sizeof order==kFxCount);
  unsigned row=0;while(row+1<kFxCount && order[row]!=type)++row;
  const int next=int(row)+change;

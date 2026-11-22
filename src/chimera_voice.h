@@ -15,6 +15,7 @@ extern "C" float yadokari_chimera_sample(ChimeraDsp*,float score_time);
 extern "C" void yadokari_chimera_reset(ChimeraDsp*);
 extern "C" void yadokari_chimera_geometry(const ChimeraDsp*,ChimeraGeometry*);
 
+extern "C" bool yadokari_chimera_tongue(const ChimeraDsp*,float*);
 class ChimeraVoice {
  static constexpr unsigned arena_size=512*1024;
  static constexpr unsigned release_frames=2400;
@@ -53,6 +54,7 @@ public:
  }
  bool ready()const{return dsp_!=nullptr;}
  bool active()const{return active_;}
+ unsigned model()const{return body_;}
  bool continuing(const ChimeraPhrase* phrase,unsigned note)const{return singing_ && note_==note && phrase && phrase==current_phrase_;}
  void remember(uint16_t channel,uint8_t input,uint8_t pitch,float frequency,float level){
   forget(channel,input);
@@ -92,6 +94,7 @@ public:
   dsp_=built;body_=fading_to_=selected;rendered_=false;
   attack_=true;score_frames_=0;singing_=false;phase_=0;previous_=current_=0;
  }
+ bool tongue(float* xy)const{return active_ && dsp_ && yadokari_chimera_tongue(dsp_,xy);}
  bool control_due()const{return control_==0;}
  float next(float hz,float velocity,bool gate,const float* values,const ChimeraState* detail=nullptr,const ChimeraPhrase* phrase=nullptr,
             float initial_sing_time=0,float sing_increment=0,float aligned_sing_time=-1){

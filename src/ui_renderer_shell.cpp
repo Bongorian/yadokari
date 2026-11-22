@@ -104,6 +104,20 @@ auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) 
   amount(1,20,226,"ATTACHED SNAPSHOT",fx.present?fmaxf(fmaxf(fx.delay,fx.reverb),fmaxf(fx.inserts[0] && !(fx.disabled&1)?fx.inserts[3]:0,fx.inserts[4] && !(fx.disabled&2)?fx.inserts[7]:0)):0);
   return;
  }
+ if(perf.vowel_page()){
+  label(0,24,83,perf.vowel_voice()?"CHIMERA":perf.vowel_ready()?"TALK":"CHOOSE A TALK INSERT",theme.text,Font::Bold,430);
+  label(0,24,123,"PADS: VOWEL   PRESSURE: INTENSITY",theme.secondary,Font::Small,430);
+  label(0,24,151,"REC + PLAY: WRITE STEP LOCKS",theme.secondary,Font::Small,430);
+  label(1,60,88,"U",theme.text,Font::Bold,32);label(1,370,88,"I",theme.text,Font::Bold,32);
+  label(1,85,181,"O",theme.text,Font::Bold,32);label(1,326,181,"A",theme.text,Font::Bold,32);
+  label(1,365,140,"E",theme.secondary,Font::Small,32);
+  line(1,82,111,360,111,theme.border,1);line(1,360,111,324,174,theme.border,1);
+  line(1,324,174,103,174,theme.border,1);line(1,103,174,82,111,theme.border,1);
+  if(perf.vowel_ready()){float x=ui::clamp01(perf.vowel_value(0)),y=ui::clamp01(perf.vowel_value(1));
+   int px=int(103-21*y+x*(221+57*y)),py=int(174-63*y);
+   rounded(1,px-5,py-5,10,10,5,theme.teal,255);}
+  return;
+ }
  if(perf.vocoder_page()){
   const bool ready=perf.vocoder_ready();
   label(0,24,83,ready?(perf.vocoder_slot()?"TRACK INSERT 2":"TRACK INSERT 1"):"CHOOSE WHICH INSERT TO REPLACE",theme.text,Font::Bold,432);
@@ -458,11 +472,30 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
   if(perf.step_attribute_knob(i)){out.append(raw>=.5f?"ON":"OFF");return out;}
   if(perf.input_values()){if(i==4 && !perf.step_chord_editor()){out.number(raw*100,0);out.append("%");return out;}if(i==1){char pitch[12];pitch_name(unsigned(raw),pitch);out.append(pitch);}else if(i==2)out.append(scale_name(unsigned(raw)));else if(i==6)out.append(chord_shape_definition(unsigned(raw)).name);else if(i==7){static const char* inversions[]={"ROOT","INV 1","INV 2","INV 3"};out.append(inversions[unsigned(raw)%4]);}else{out.number(raw,0);if(i==0)out.append("bpm");if(i==5)out.append("t");}return out;}
   if(perf.mode()==UiMode::Settings){out.append(perf.setting_text(perf.settings_cursor()));return out;}
+  if(perf.vowel_page() && i<3){
+   char value[24];const bool percent=i<2;
+   format_value(value,perf.knob_value(i)*(percent?100:1),i==2 && perf.vowel_voice()?1:0);
+   out.append(value);if(percent)out.append("%");return out;
+  }
   if(perf.vocoder_page() && i<2){if(const char* choice=fx_choice_name(19,i+1,perf.knob_value(i)))out.append(choice);return out;}
   if(perf.vocoder_page() && i==2){char mix[24];format_value(mix,perf.knob_value(i)*100,0);out.append(mix);out.append("%");return out;}
   if(perf.recording_page() && i==0){char name[32];out.append(audio_input_name(perf.capture_source(),name));return out;}
   if(perf.browser_editing()){if(perf.preset_fx_editing() && (i==2 || i==3)){out.append((i==2?perf.browser().edit.include_fx:perf.browser().edit.duplicate)?"ON":"OFF");return out;}const auto& edit=perf.browser().edit;if(!i)out.number(edit.cursor+1,0);else{char ch[2]={edit.name[edit.cursor],0};out.append(!ch[0]?"End":ch[0]==' '?"Space":ch);}return out;}
-   if(engine_target(parameter)){const auto* d=engine_parameter(target_engine(parameter),target_local(parameter));if(d && d->choice_count){out.append(d->choices[unsigned(raw)<d->choice_count?unsigned(raw):0]);return out;}}
+   if(parameter==engine_target(Instrument::Chimera,ChimeraSceneSpeak)){out.append(raw>=.5f?"ON":"OFF");return out;}
+   if(parameter==engine_target(Instrument::Chimera,ChimeraTalkOutput)){
+    if(raw<1)out.append("OFF");
+    else{char track[24];format_value(track,raw,0);out.append("TRACK");out.append(track);}
+    return out;
+   }
+   if(engine_target(parameter)){
+    const auto inst=target_engine(parameter);const auto local=target_local(parameter);
+    const auto* d=engine_parameter(inst,local);
+    if(d && d->choice_count){out.append(d->choices[unsigned(raw)<d->choice_count?unsigned(raw):0]);return out;}
+    if(d && d->ui.type==EngineParameterType::Boolean){out.append(raw>=.5f?"ON":"OFF");return out;}
+    if(inst==Instrument::Fm6 && raw<0 && (local==0 || local==17 || local==18)){
+     out.append(local==0?"EMBEDDED":"PATCH");return out;
+    }
+   }
    if(perf.native_synth_page() && parameter==engine_target(Instrument::Texture,0)){static const char* modes[]={"GRANULAR","STRETCH","LOOP DELAY","SPECTRAL"};out.append(modes[unsigned(raw)%4]);return out;}
    if(perf.native_synth_page() && parameter==engine_target(Instrument::Texture,11)){static const char* quality[]={"32k 16b ST","32k 16b MO","16k 8b ST","16k 8b MO"};out.append(quality[unsigned(raw)%4]);return out;}
    if(perf.native_synth_page() && parameter==632){unsigned source=unsigned(raw),track=capture_track(source);if(source>=53){char group[]={ 'G','r','o','u','p',' ',char('A'+source-53),0};out.append(group);}else{out.append(source==1?"Line In":capture_name(source));if(track<16)out.number(track+1,0);}return out;}
@@ -473,14 +506,31 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
    if(perf.mode()==UiMode::Clip && perf.clip_follow_page() && i==4 && raw==0){out.append("NONE");return out;}
    float displayed=raw;const char* unit="";unsigned precision=0;bool normalized=false;
    const bool kit=track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::DrumKit;
-   bool creative_lab=perf.mode()==UiMode::Synth && perf.instrument_view()==3 && (unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)>=12 && unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)<=16);
+   const auto inst=track_at(p,p.active_pattern,perf.selected_track()).instrument;
+   if(!perf.note_repeat_mode() && !perf.source_select() && perf.mode()==UiMode::Synth && perf.instrument_view()==3 &&
+      inst>=Instrument::WaveSequence && inst<=Instrument::SpectralFreeze){
+    const auto tail=engine_page_descriptor(unsigned(inst))->lab_tail;
+    static const char* lanes[]={"Sample","Pitch","Timing","Gate","Shape","Step mod"};
+    static const char* notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
+    if(i==0)out.append(lanes[unsigned(raw)%6]);
+    else if(i==5){if(raw==0)out.append("Master");else{out.append("Track");out.number(raw,0);}}
+    else if(i==7 && perf.shifted()){out.number(raw,0);out.append("ct");}
+    else if(i==7 && tail==LabTail::Tune)out.append(notes[unsigned(raw)%12]);
+    else if(i==7 && tail==LabTail::Fold){auto d=instrument_control_display(inst,0,raw);out.number(d.value,d.precision);out.append(d.unit);}
+    else {out.number(raw,0);if(i==4 || i==6)out.append("%");}
+    return out;
+   }
    if(perf.audio_page()){unit="";normalized=false;precision=(i>=3 && i<=6)?2:0;}
    else if(perf.native_synth_page()){const auto* d=target_descriptor(parameter);if(d){unit=d->unit;precision=d->precision;normalized=d->minimum==0 && d->maximum<=1;}}
    else if(perf.mode()==UiMode::Clip && perf.clip_follow_page()){unit=i==3?"%":"";}
    else if(perf.note_repeat_mode()){unit=i==2?"%":"";}
-   else if(creative_lab){bool wave=track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::WaveSequence;unit=(wave?i==7:i==4)?"ct":((wave?i==4:i==1) || (!wave && i>=5))?"%":"";normalized=!wave && (i>=5 || (i==2 && (track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::ChipClock || track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::WestCoast)));if(normalized)unit="%";precision=0;}
-   else if(perf.mode()==UiMode::Synth && perf.instrument_view()==0 && (unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)>=12 && unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)<=16) && i==1 && !perf.shifted()){displayed=raw*100;unit="%";}
-   else if(perf.mode()==UiMode::Synth && perf.instrument_view()==0 && (unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)>=12 && unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)<=16) && i>=2 && i<=6){auto d=instrument_control_display(track_at(p,p.active_pattern,perf.selected_track()).instrument,i-2,raw);displayed=d.value;unit=d.unit;precision=d.precision;}
+   else if(perf.mode()==UiMode::Synth && engine_target(parameter) &&
+           target_engine(parameter)>=Instrument::WaveSequence && target_engine(parameter)<=Instrument::SpectralFreeze){
+    const auto inst=target_engine(parameter);const unsigned local=target_local(parameter);
+    if(inst==Instrument::ChipClock && local==1){out.append(raw>=.5f?"Follow":"Raw");return out;}
+    if(inst==Instrument::SpectralFreeze && local==0){out.append(raw>=.5f?"Hold":"Track");return out;}
+    auto d=instrument_control_display(inst,local,raw);displayed=d.value;unit=d.unit;precision=d.precision;
+   }
    else if(perf.mode()==UiMode::Perform && perf.control_all() && perf.shifted() && i==0){unit="";}
    else if(kit && (perf.mode()==UiMode::Pad || perf.kit_edit_page())){normalized=i>=2 && i<=6;unit=normalized?"%":"";}
    else if(kit && perf.mode()==UiMode::Sampler && !perf.sampler_page()){normalized=i==2 || i==3;unit=normalized?"%":i==4?"x":"";precision=i==4?2:0;}
@@ -510,7 +560,6 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
    if(normalized)displayed*=100;
 
    bool target_name=!perf.note_repeat_mode() && perf.mode()==UiMode::Modulation && ((perf.modulation_page()==1 && i==1) || (perf.modulation_page()==2 && i==2));
-   bool lab=!perf.note_repeat_mode() && perf.mode()==UiMode::Synth && perf.instrument_view()==3 && (unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)>=12 && unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)<=16);
    if(!perf.note_repeat_mode() && perf.mode()==UiMode::Modulation && perf.modulation_page()==2 && i==2 && perf.shifted()){unsigned n=unsigned(raw);out.append(mod_source_name(ModSource(n<=unsigned(ModSource::Velocity)?n:0)));return out;}
    if(target_name){out.append(perf.parameter_name(uint16_t(raw)));return out;}
    if(!perf.note_repeat_mode() && perf.mode()==UiMode::Modulation && perf.modulation_page()==2 && i==5){static const char* modes[]={"Replace","Add","Multiply"};static const char* curves[]={"Linear","Slow","Fast","Smooth"};unsigned n=unsigned(raw);out.append(perf.shifted()?curves[n<4?n:0]:modes[n<3?n:0]);return out;}
@@ -520,9 +569,6 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
    if(perf.audio_page() && i==(perf.audio_lane().kind==TrackKind::Audio?7u:1u)){char input_name[32];out.append(audio_input_name(perf.audio_lane().source,input_name));return out;}
    if(!perf.note_repeat_mode() && perf.mode()==UiMode::Perform && perf.performance_page()==4 && i==2){static const char* rates[]={"1/8","1/16","1/32","1/64"};out.append(rates[perf.live_repeat_rate()%4]);return out;}
    if(!perf.note_repeat_mode() && perf.mode()==UiMode::Perform && perf.performance_page()==4 && i==3){static const char* names[]={"Off","Filter","Gate","Crush","Tape stop","Reverse","Tremolo","Isolator","Ring","Delay throw","Reverb throw","Freeze","Pitch dive","Pitch rise"};unsigned selected=unsigned(raw);out.append(names[selected<14?selected:0]);return out;}
-   if(lab && track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::WaveSequence && (i==0 || i==6)){static const char* lanes[]={"Sample","Pitch","Timing","Gate","Shape","Step mod"};static const char* notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};out.append(i==0?lanes[unsigned(raw)%6]:notes[unsigned(raw)%12]);return out;}
-   if(!perf.note_repeat_mode() && !lab && perf.mode()==UiMode::Synth && perf.instrument_view()==0 && ((track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::ChipClock && i==3) || (track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::SpectralFreeze && i==2))){out.append(raw>=0.5f?(i==3?"Follow":"Hold"):(i==3?"Raw":"Track"));return out;}
-   if(lab && unsigned(track_at(p,p.active_pattern,perf.selected_track()).instrument)>12 && (i==0 || i==3)){static const char* notes[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};char source[16];source[0]='T';format_value(source+1,raw,0);out.append(i==3?notes[unsigned(raw)%12]:raw?source:"Master");return out;}
    if(!perf.note_repeat_mode() && kit && perf.mode()==UiMode::Step && (i==1 || i==6 || i==7)){if(raw==0)out.append("Base");else if(i==7 && perf.shifted())out.append(raw==2?"Reverse":"Forward");else if(i==6 || i==7){out.number((raw-1)*100/(i==6?254:127),0);out.append("%");}else out.number(raw,0);return out;}
    if(!perf.note_repeat_mode() && !kit && perf.mode()==UiMode::Step && perf.shifted() && i==1 && (track_at(p,p.active_pattern,perf.selected_track()).instrument==Instrument::Sampler?raw==0:raw==255)){out.append("Base");return out;}
    {auto choice=perf.fx_knob_control(i);if(choice.count){out.append(choice.values[fx_choice_index(raw,choice.count)]);return out;}}

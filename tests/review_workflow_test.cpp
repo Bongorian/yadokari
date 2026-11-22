@@ -19,8 +19,23 @@ static void mapping(){
  // The base is an address anchor, not necessarily a referenced material slot.
  sound->layer.count=1;auto& leaf=sound->layer.parts[0].sound;leaf.sample_slot=63;leaf.creative.value[0][0]=1;leaf.creative.value[0][1]=4;assert(plan_material_mapping(*p,*sound,incoming,map));assert((map.slots[63]+1)%64==map.slots[0] && (map.slots[63]+4)%64==map.slots[3]);
 }
+static void history_limit(){
+ auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+ p->tracks[0].instrument=Instrument::DrumKit;auto engine=std::make_unique<Engine>();Performance ui(*engine,*p);float audio[128]{};
+ auto edit=[&](unsigned step,bool on){KitStepState hit{};hit.enabled=on;assert(ui.set_kit_step(0,step,hit));engine->render(audio,64);ui.poll();};
+ for(unsigned pass=0;pass<2;++pass){
+  ui.project_loaded();ui.notify(UiNotice::None);
+  for(unsigned i=0;i<64;++i)edit(i,!pass);
+  uint64_t now=10000+pass*10000;ui.animate(now);assert(ui.notice()!=UiNotice::HistoryTrimmed);
+  assert(ui.undo());engine->render(audio,64);ui.poll();edit(63,!pass);
+  ui.animate(++now);assert(ui.notice()!=UiNotice::HistoryTrimmed);
+  ui.notify(UiNotice::SaveFailed);edit(64,!pass);ui.animate(++now);assert(ui.notice()==UiNotice::SaveFailed);
+  ui.animate(now+2000);assert(ui.notice()==UiNotice::HistoryTrimmed);
+  edit(65,!pass);ui.animate(now+4100);assert(ui.notice()==UiNotice::None);
+ }
+}
 int main(){
- mapping();auto cwd=std::filesystem::current_path();char root[]="/tmp/review-workflows-XXXXXX";assert(mkdtemp(root) && !chdir(root));
+ history_limit();mapping();auto cwd=std::filesystem::current_path();char root[]="/tmp/review-workflows-XXXXXX";assert(mkdtemp(root) && !chdir(root));
  DesktopFiles fs;DesktopSampleAssets library;library.files(&fs);auto p=std::make_unique<ProjectState>();auto engine=std::make_unique<Engine>();auto ui=std::make_unique<Performance>(*engine,*p);SessionFiles files(fs,library,*engine,*p,*ui);float audio[128];
  auto settle=[&]{for(unsigned i=0;i<32;++i){engine->render(audio,64);ui->poll();}};
  auto reset=[&]{make_empty_project(*p);p->tracks[0].instrument=Instrument::DrumKit;assert(engine->stage_project(*p));ui->project_loaded();settle();assert(ui->select_kit_pad(3));};reset();

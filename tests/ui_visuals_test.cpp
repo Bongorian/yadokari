@@ -49,5 +49,22 @@ int main(){
  u->set_mode(UiMode::Synth);assert(u->toggle_source_select());u->browser().count=0;view->invalidate();view->draw(*p,*u);auto reading=roi(*view,1);u->take_file_action();view->draw(*p,*u);assert(reading!=roi(*view,1));
  // A declared waveform/recipe occupies a real area, including while idle.
  widgets->fill(0,0,0,480,272,widgets->theme.background);widgets->visual_element(0,24,82,430,118,engine_descriptor(unsigned(Instrument::Wavetable))->visual,table,widgets->theme.accent);unsigned area=0;auto brightness=[](uint32_t v){return int((v>>16)&255)+int((v>>8)&255)+int(v&255);};for(int y=108;y<184;++y)for(int x=24;x<454;++x)area+=brightness(widgets->pixels[0][y*480+x])>brightness(widgets->theme.surface)+30;assert(area>2000);
+ // Check text actually drawn on each LCD, including the idle relative-position display.
+ {
+  auto song=std::make_unique<ProjectState>();make_empty_project(*song);song->tracks[0].instrument=Instrument::ChipClock;
+  auto engine=std::make_unique<Engine>();auto ui=std::make_unique<Performance>(*engine,*song);ui->set_mode(UiMode::Synth);
+  struct Labels {bool mhz=false,divider=false,follow=false,relative=false,master=false,lane=false;} seen;
+  view->text_observer_context=&seen;
+  view->text_observer=[](const SoftwareCanvas::TextPlacement& item,void* context){
+   auto& out=*static_cast<Labels*>(context);
+   if(item.side==0){
+    out.mhz|=!std::strcmp(item.text,"2.00 MHz");out.divider|=!std::strcmp(item.text,"512 div");
+    out.follow|=!std::strcmp(item.text,"Follow");out.master|=!std::strcmp(item.text,"Master");out.lane|=!std::strcmp(item.text,"Sample");
+   }else out.relative|=!std::strcmp(item.text,"50%");
+  };
+  view->invalidate();view->draw(*song,*ui);assert(seen.mhz && seen.divider && seen.follow && seen.relative);
+  assert(ui->soft_key(3));view->invalidate();view->draw(*song,*ui);assert(seen.master && seen.lane);
+  view->text_observer=nullptr;view->text_observer_context=nullptr;
+ }
  std::puts("Wave8: descriptor coverage, endpoint interpolation, six themed primitives, live/idle hero ROI, stale selection/generation and Morph fallback passed");
 }

@@ -6,8 +6,8 @@ namespace groove {
 // live FX). The audio/looper face (page 5) stays with the audio provider.
 // SHIFT+Top2 owns GESTURE on each face; the historical CAP Q shortcut
 // remains outside this Top grammar. See docs/wave-five-layout.md.
-enum PerformPage:uint8_t {PerformMorph,PerformMacros,PerformGesture,PerformMutation,PerformLiveFx,PerformLooper,PerformTools,PerformVocoder,PerformRecording,PerformFxMap,PerformModule,PerformTimeline,PerformPageCount};
-enum class PerformAction:uint8_t {None,PageMorph,PageMacros,StoreA,StoreB,ResetLive,ControlAll,LiveFx,Undo,Redo,FxQuantize,FxTail,FxBank,GotoMutation,GotoGesture,MutationGenerate,MutationFreeze,MutationCommit,MutationRevert,Back,PagePrev,PageNext,CaptureRetro,GestureRecord,GesturePlay,GestureClear,Dice,Tools,Vocoder,Recording,FxMap,Module,Looper,ModuleConfirm,Insert1,Insert2,RecordBus,RecordInput,RecordCapture,RecordResample,RecordMode,RecordMonitor,RecordBars,MapTrack,MapGroup,MapMain,MapLive,MapPreset};
+enum PerformPage:uint8_t {PerformMorph,PerformMacros,PerformGesture,PerformMutation,PerformLiveFx,PerformLooper,PerformTools,PerformVocoder,PerformRecording,PerformFxMap,PerformModule,PerformTimeline,PerformVowel,PerformPageCount};
+enum class PerformAction:uint8_t {None,PageMorph,PageMacros,StoreA,StoreB,ResetLive,ControlAll,LiveFx,Undo,Redo,FxQuantize,FxTail,FxBank,GotoMutation,GotoGesture,MutationGenerate,MutationFreeze,MutationCommit,MutationRevert,Back,PagePrev,PageNext,CaptureRetro,GestureRecord,GesturePlay,GestureClear,Dice,Tools,Vocoder,Recording,FxMap,Module,Looper,ModuleConfirm,Insert1,Insert2,RecordBus,RecordInput,RecordCapture,RecordResample,RecordMode,RecordMonitor,RecordBars,MapTrack,MapGroup,MapMain,MapLive,MapPreset,Vowel};
 constexpr ui::TopWork top_work(PerformAction a){switch(a){case PerformAction::None:return ui::TopWork::Empty;case PerformAction::PageMorph:case PerformAction::PageMacros:case PerformAction::GotoGesture:case PerformAction::GotoMutation:case PerformAction::FxQuantize:case PerformAction::FxTail:return ui::TopWork::Selection;case PerformAction::Back:case PerformAction::LiveFx:case PerformAction::Tools:case PerformAction::Vocoder:case PerformAction::Recording:case PerformAction::FxMap:case PerformAction::Module:case PerformAction::MapGroup:case PerformAction::MapMain:case PerformAction::MapLive:case PerformAction::MapPreset:return ui::TopWork::Exit;case PerformAction::MapTrack:case PerformAction::Looper:case PerformAction::RecordMode:case PerformAction::RecordMonitor:case PerformAction::RecordBars:return ui::TopWork::Selection;default:return ui::TopWork::Execute;}}
 constexpr uint8_t icon_for(PerformAction action){switch(action){case PerformAction::StoreA:return ui::icons::Store;case PerformAction::StoreB:return ui::icons::Store;case PerformAction::Undo:return ui::icons::Undo;case PerformAction::Redo:return ui::icons::Redo;case PerformAction::Back:return ui::icons::Back;case PerformAction::PagePrev:return ui::icons::Back;case PerformAction::PageNext:return ui::icons::Forward;case PerformAction::CaptureRetro:return ui::icons::Record;case PerformAction::GestureRecord:return ui::icons::Record;case PerformAction::GesturePlay:return ui::icons::Play;case PerformAction::GestureClear:return ui::icons::Erase;default:return ui::icons::None;}}
 
@@ -21,13 +21,21 @@ struct PerformContext {
 inline PerformControl perform_button_control(unsigned index,const PerformContext& c){
  using A=PerformAction;
  if(c.page==PerformTools){
+  if(index==3)return {"VOWELS",A::Vowel,true};
   if(index==4)return {"RECORDING",A::Recording,true};
   if(index==5)return {"FX MAP",A::FxMap,true};
   if(index==6)return {"MIDI MODULE",A::Module,true};
   if(index==7)return {"BACK",A::Back,true};
   return {};
  }
+ if(c.page==PerformVowel){
+  if(index==4)return {"TALK INSERT 1",A::Insert1,true};
+  if(index==5)return {"TALK INSERT 2",A::Insert2,true};
+  if(index==7)return {"BACK",A::Back,true};
+  return {};
+ }
  if(c.page==PerformVocoder){
+  if(index==6)return {"VOWELS",A::Vowel,true};
   if(index==4)return {"USE INSERT 1",A::Insert1,true};
   if(index==5)return {"USE INSERT 2",A::Insert2,true};
   if(index==7)return {"BACK",A::Back,true};

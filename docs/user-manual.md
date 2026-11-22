@@ -484,7 +484,7 @@ The Strip's values do not rewrite saved parameter bases or the Undo history. NOT
 
 #### Synth editing and how to use Top / the knobs
 
-The left LCD arranges the existing K1–K8 names, values, and shapes in two columns. The right LCD displays actual PCM, FFT, harmonics, or a scan position according to the declaration, or a TONE/ADSR model. Read the difference between model and measurement from the caption. MIDI OUT maintains the MIDI routing and external control editing.
+The left LCD lists K1–K4 and K5–K8 in two columns. Touch or turn one knob to enlarge its name and value. A vertical marker shows the current setting and DEFAULT marks the reset position where available. To reset, hold the knob and press ERASE. When several knobs are active, their rows light up in the overview. The right LCD displays actual PCM, FFT, harmonics, or a scan position according to the declaration, or a TONE/ADSR model. Read the difference between model and measurement from the caption. MIDI OUT maintains the MIDI routing and external control editing.
 
 ![FM editing](manual/synth-fm.png)
 ![Tone editing](manual/synth-tone.png)
@@ -496,11 +496,13 @@ The left LCD arranges the existing K1–K8 names, values, and shapes in two colu
 | 1 | GENERATOR. For MIDI OUT it is MIDI OUT; for a Drum Kit it is KIT |
 | 2 | TONE. Common editing of Filter/Drive/Sends/Level/Pan/LFO |
 | 3 | ENVELOPE/LPG/FOLD / LPG if editable. FIXED ENV for fixed curves. Blank/disabled for engines without support. Sampler/Kit go directly to TRIM |
-| 4 | ENGINE LAB for Creative engines, INPUT / QUALITY for TEXTURE. Otherwise blank |
+| 4 | DETAILS for VA DUAL, FM 6 and ADDITIVE. ENGINE LAB for Creative engines, INPUT / QUALITY for TEXTURE, VOICE for CHIMERA |
 | 5 | ENGINE selection. Switches to dedicated knobs such as Family/Engine |
 | 6 | MODULATION. Common to all engines. Sampler editing is from the physical SAMPLING button |
 | 7 | STORE POOL when the slot is empty. Choose the registration destination with PROJECT K4 POOL SLOT |
 | 8 | RECALL POOL only when a registered slot exists. BACK while ENGINE is being selected. SHIFT+Top4 is the MIDI OUT WAVE PROFILE |
+
+Press **Top4 DETAILS** repeatedly to cycle through OSC / PWM, FILTER and PITCH / MOD on VA DUAL, OP LEVEL, OP DETUNE and ALGORITHM on FM 6, or harmonics 1–8 and 9–16 on ADDITIVE. On both FM operator pages, K1–K6 address operators 6–1. GENERATOR K6–K8 control DECAY, SUSTAIN and BRIGHTNESS on WAVETABLE, or JITTER, FREEZE and PITCH OFFSET on GRANULAR. SOUNDFONT has VELOCITY on GENERATOR K5. At minimum, FM 6 ALGORITHM and FEEDBACK show PATCH and use the setting stored in the patch. On ACID BASS, K1 CUTOFF controls the synth filter and K6 TRACK CUTOFF controls the track filter.
 
 For a Layer, the left side is Top1 LAYER / Top2 TONE, and on the LAYER page, left Top3 USE CHILD / Top4 REMOVE (an exception that uses the left frame, which has no page selection). Deletion is Top1 confirm / Top2 cancel. DEFAULT SOUND on ENGINE's Top5 loads the default sound, and pressing the 4-D encoder descends into the sound list. Turning a knob alone does not load anything.
 
@@ -845,11 +847,13 @@ The Factory Library holds 187 items in MGXC13 format (163 Presets + 24 Kits). Fi
 
 ### Play the CHIMERA vocal tract
 
-Choose CHIMERA under **SYNTH → ENGINE → PHYSICAL** and press **DEFAULT SOUND** (Top5). At 48 kHz, CHIMERA tracks and LAYER leaves share up to two voices on Pi 4 and three on Pi 5, within a DSP budget that depends on the active models. In PAD, press the pad assigned to the track. KEYBOARD, CHORD and STEP also play it. The right screen shows the tract and air pressure in these modes and on SYNTH.
+Choose CHIMERA under **SYNTH → ENGINE → PHYSICAL** and press **DEFAULT SOUND** (Top5). At 48 kHz, CHIMERA tracks and LAYER leaves share a pool of two tracts on Pi 4 and four on Pi 5, within a DSP budget that depends on the active models. The four-tract Pi 5 setting awaits on-board load testing. In PAD, press the pad assigned to the track. KEYBOARD, CHORD and STEP also play it. The right screen shows the tract and air pressure in these modes and on SYNTH.
 
 - **GENERATOR** keeps K1 TONGUE X, K2 TONGUE Y, K3 JAW, K4 LIP ROUND and K5 BREATH.
 - **ARTICULATION** (Top3) opens two pages. Press it again for the second page. The knobs cover tongue tip X/Y and curl, tongue root, lips, lip-to-teeth contact, velum, larynx, epilarynx, ventricular folds, lateral contact and dorsum.
 - **VOICE** (Top4) provides BODY (male, female, child), vibrato depth and rate, glide, pressure, breathiness, MODE and SPECIES. Pressure and breathiness trim the BREATH macro. Body and detail settings are saved with the sound. A body change silences and rebuilds the model.
+
+The five GENERATOR knobs respond while a note is held. MODE and BESTIARY SPECIES changes take effect on the next note. In a human voice, raise VIBRATO DEPTH to hear RATE. LATERAL opens a side passage when the raised tongue tip closes the central airway. SPREAD affects notes with UNISON set to two or more. BESTIARY uses the five species-specific GENERATOR controls. The human tongue, lip and larynx settings apply when playing a human model. On ELEPHANT, TRUNK FINE and TRUNK MIX adjust the same oral/trunk balance across 25% and 75% of its range respectively.
 
 Use **VOICE → SHIFT+K8 VOICE MODE** to select **POLY** (default), **MONO** (last held note), or **LEGATO** (last held note with glide while the gate stays open).
 
@@ -897,6 +901,12 @@ Play a sustained sound to serve as the carrier on a Track, then under FX → INS
 The screen's upper half shows the analysis of the input sound; the lower half shows the 16-band application to the carrier. FX2 and pad/group INSERTs use the same choice names and routing meanings.
 
 - **Worked example** — Play a sustained VA or similar sound and set the Vocoder up as above. Send a voice or a changing sound into the input, and switch MODULATOR L/R, internal/external CARRIER and MIX to compare. Stop the input and the wet sound decays; BYPASS returns the original sound. The settings survive SAVE / OPEN.
+
+### TALK and the vowel pads
+
+Open **PERFORM → SHIFT+Top8 LIVE TOOLS → Top4 VOWELS**. A CHIMERA track opens its voice controls. On a kit or another track, Top5 and Top6 replace the chosen insert with TALK. The track signal excites one vocal tract per insert. The four pad corners are O (lower left), A (lower right), U (upper left) and I (upper right), with E midway along the right edge. Knobs 1 and 2 reach intermediate positions. Pressure controls voice pressure on CHIMERA and excitation strength through track PRESSURE on TALK. REC + PLAY records X, Y and pressure as three normal step locks.
+
+On CHIMERA's second ARTICULATION page, K7 sets UNISON and K8 sets SPREAD. Each member uses one shared tract. SHIFT+K6 selects TALK TO TRACK (0 off, 1–16 destination). A sounding human voice drives the destination TALK inserts from its actual tongue motion. SHIFT+K5 enables SCENE SPEAK. Scene launches select IPA entries keyed to notes 60–75, falling back to the first phrase. The first eligible track announces the scene and the mixer lowers the other tracks during speech.
 
 ### Live VOCODER and FX MAP
 

@@ -302,6 +302,9 @@ An unrecognized engine GUID retains its opaque payload and is muted. For a recog
 
 The `mk3.chimera` engine uses the existing `PARM` revision 2 bank. Its five normalized controls, in order, are Tongue X, Tongue Y, Jaw, Lip Round, and Breath. The required `CHIM` revision 2 bank stores 23 detail values as little-endian float32 in engine parameter order, starting at BODY and ending at VOICE MODE (0 Poly, 1 Mono, 2 Legato). Files with an older CHIMERA bank are rejected. The simulated airway state is transient. Optional `CIPA` revision 1 carries up to 1024 bytes of UTF-8 IPA text for the Sound, including in a Layer leaf. The optional Song-only `IPAS` revision 1 frame stores an entry count (u8), then the track (u8), text byte length (u16), and UTF-8 IPA text for each track override. An override takes priority over the Sound phrase. Scores are compiled before the Song or Sound is applied.
 
+Optional `CHM2` revision 1 stores four little-endian float32 values in order: UNISON (integer 1–4), SPREAD (0–40 cents), SCENE SPEAK (0/1), TALK TO TRACK (0 off, 1–16 destination). Missing values default to 1, 12, 0 and 0. CHIMERA morph readers accept the original five-macro and 28-parameter banks and supply defaults for the appended parameters. TALK has insert type 22, with normalized vowel X and Y in fields A and B. Its track pressure uses existing expression target 261. Vowel performances use ordinary parameter targets and step locks.
+
+
 ## Unknown engines and unknown chunks (fallback)
 
 Decoding never rejects a whole project because of one engine:

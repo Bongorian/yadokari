@@ -72,20 +72,43 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
   const bool early=v.score_before_step && v.score_step==runtime.step_serial+1;
   const float lead=v.voice_score?v.voice_score->lead:0;
   const float aligned=early?__builtin_fmaxf(0,lead-float(int64_t(runtime.due)-int64_t(sample_count_))*increment):-1;
-  if(dsp->control_due()){
-   const auto state=track(t);
-   const auto mod=mod_runtime(t);
-   ChimeraState detail=v.sound_locked?v.chimera_base:state.chimera;
+  const bool update=dsp->control_due();
+  ChimeraState detail;
+  if(update){
+   const auto state=track(t);const auto mod=mod_runtime(t);
+   detail=v.sound_locked?v.chimera_base:state.chimera;
    for(unsigned i=0;i<kChimeraDetailCount;++i){
-    detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,kChimeraMacroCount+i),
+    const unsigned local=kChimeraMacroCount+i;
+    if(chimera_sound_attribute(local))continue;
+    detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,local),
       detail.values[i],runtime.active_locks,unsigned(runtime.automation_cell),control_all_,control_all_id_,
       control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&mod).value;
    }
+   // Keep the program and species that were admitted for this note. An
+   // active voice cannot switch to a differently priced creature in place.
+   constexpr unsigned program_index=ChimeraProgram-kChimeraMacroCount;
+   constexpr unsigned species_index=ChimeraSpecies-kChimeraMacroCount;
+   detail.values[program_index]=v.scene_speech?float(ChimeraSpeak):v.chimera_base.values[program_index];
+   detail.values[species_index]=v.chimera_base.values[species_index];
    if(chimera_voice_mode(detail)!=ChimeraLegato)detail.values[ChimeraGlide-kChimeraMacroCount]=0;
-   dsp->update_model(detail);
-   const float initial=early?aligned:(v.off_at?lead:0);
-   l=rr=dsp->next(v.frequency,v.a,!v.released,v.parameters,&detail,v.voice_score,initial,increment,aligned);
-  }else l=rr=dsp->next(v.frequency,v.a,!v.released,v.parameters,nullptr,nullptr,0,increment,aligned);
+   const unsigned route=unsigned(detail.values[ChimeraTalkOutput-kChimeraMacroCount]);
+   if(route && route<=kTracks && dsp->tongue(talk_pose_[route-1].xy))talk_pose_[route-1].until=sample_count_+96;
+  }
+  const float initial=early?aligned:(v.off_at?lead:0);
+  for(unsigned n=0;n<v.tract_count;++n){
+   auto& member=chimeras_[v.tract_slots[n]];
+   if(update){
+    member.update_model(detail);
+    if(v.tract_count>1){
+     const float offset=2.f*n/(v.tract_count-1)-1;
+     v.tract_pitch[n]=exp2f(offset*detail.values[ChimeraSpread-kChimeraMacroCount]/1200.f);
+    }else v.tract_pitch[n]=1;
+   }
+   l+=member.next(v.frequency*v.tract_pitch[n],v.a,!v.released,v.parameters,update?&detail:nullptr,
+                  update?v.voice_score:nullptr,initial,increment,aligned);
+  }
+  if(update)v.model=uint8_t(dsp->model());
+  rr=l=l/v.tract_count;
   if(!dsp->active())v.env=0;
   return;
  }
