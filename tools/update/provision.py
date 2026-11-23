@@ -8,7 +8,7 @@ import struct
 from pathlib import Path
 import subprocess
 import tempfile
-from update import identity
+from update import check_release_image, identity
 
 root = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser(description=__doc__)
@@ -21,6 +21,7 @@ parser.add_argument('--board', choices=('pi4', 'pi5'), default='pi4',
                     help='Board matching both kernel images; default: pi4')
 parser.add_argument('--data-mib', type=int, default=1024, help='Protected DATA capacity; 64..32768 MiB')
 parser.add_argument('--offline-package', type=Path)
+parser.add_argument('--development', action='store_true', help='Provision development-only firmware for bench use')
 parser.add_argument('--early-pi4-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi4 rev1.0/1.1; does not change EEPROM')
 parser.add_argument('--early-pi5-eeprom-writable', action='store_true', help='Acknowledge physical verification on Pi 5 PCB rev 1.0; does not change EEPROM')
 parser.add_argument('--remote-control', action=argparse.BooleanOptionalAction, default=True, help='Include DATA/REMOTE.ON')
@@ -35,8 +36,20 @@ if args.output.exists() or str(args.output.resolve()).startswith('/dev/'):
 for image in (args.factory, args.recovery):
     if not image.is_file() or not 0 < image.stat().st_size <= 8 * 1024 * 1024:
         parser.error('Missing or oversized kernel')
-factory_version, factory_key, factory_kind = identity(args.factory.read_bytes())
-_, recovery_key, recovery_kind = identity(args.recovery.read_bytes())
+factory = args.factory.read_bytes()
+recovery = args.recovery.read_bytes()
+if not args.development:
+    try:
+        check_release_image(factory)
+        check_release_image(recovery)
+        if args.offline_package:
+            with args.offline_package.open('rb') as package:
+                package.seek(192)  # GUP1 header and signature
+                check_release_image(package.read(8 * 1024 * 1024))
+    except ValueError as error:
+        parser.error(str(error))
+factory_version, factory_key, factory_kind = identity(factory)
+_, recovery_key, recovery_kind = identity(recovery)
 if factory_version != args.version or factory_kind != 1 or recovery_kind != 2 or factory_key != recovery_key or not any(factory_key):
     parser.error('Factory version, app/recovery identities, and nonzero trusted public keys must match')
 board_files = {

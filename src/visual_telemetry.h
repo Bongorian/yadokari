@@ -2,11 +2,13 @@
 #include <stdint.h>
 #include "chimera_geometry.h"
 #include "live_visual_analysis.h"
+#include "wavetable_warp.h"
 namespace groove {
 // Bounded audio-to-UI snapshots. Visual consumers may miss frames; audio never waits.
 struct AudioVisualFrame {
  ChimeraGeometry chimera{};bool chimera_available=false,chimera_live=false;
  uint32_t controls_target[8]{};float controls_value[8]{};
+ WavetablePhaseMap wavetable_map[16]{};
  float engine_envelope[16][4]{},wavetable_controls[16][3]{};uint32_t preview_ticket=0;
  float delay_input=0,performance_fx_phase=0,compressor_input=0,track_compressor_input[16]{},node_activity[16][6]{};uint8_t performance_fx_actual_mode=0;
  float preview_position=0;bool preview_active=false;VisualPcmFrame taps{};float voice_level[16]{},wavetable_position[16]{},wavetable_phase[16]{},harmonics[16][16]{},vocoder_bands[16][2][16]{},group_vocoder_bands[8][2][16]{},insert_activity[16][2]{},group_insert_activity[8][2]{};bool voice_level_valid[16]{};

@@ -89,11 +89,15 @@ class WavetableVoice {
    return sample;
   }
  };
+ float carrier_step(float hz)const{return fminf(.45f,fmaxf(0,hz/rate_));}
+ WavetablePhaseMap phase_map(float step)const{
+  return wavetable_phase_map(unsigned(target_[WavetableWarpMode]),values_[WavetableWarpAmount],
+                             values_[WavetablePmRatio],values_[WavetablePmAmount],step);
+ }
  float extended_sample(float position,float step){
-  unsigned mode=unsigned(target_[WavetableWarpMode]),a=unsigned(position),b=a<127?a+1:a;
-  float ratio=values_[WavetablePmRatio],mod_step=ratio*step;
-  float pm=wavetable_limited_pm(values_[WavetablePmAmount],mod_step);
-  float warp=wavetable_limited_warp(mode,values_[WavetableWarpAmount],step);
+  const auto map=phase_map(step);
+  unsigned mode=map.mode,a=unsigned(position),b=a<127?a+1:a;
+  float ratio=map.ratio,mod_step=ratio*step,pm=map.pm,warp=map.warp;
   // Reserve source bandwidth for both the phase warp and the PM sidebands.
   float slope=mode==1?1+4*fabsf(warp):1+fabsf(warp);
   auto l=select_levels(step*slope*(1+2.2f*pm*ratio),values_[7]);
@@ -134,6 +138,7 @@ class WavetableVoice {
  }
  bool active()const{return started_;}
  float level()const{return level_;}
+ WavetablePhaseMap visual_phase_map(float hz)const{return phase_map(carrier_step(hz));}
  void visual_controls(float* out)const{for(unsigned i=0;i<3;++i)out[i]=values_[i];}
  void visual_envelope(float* out)const{out[0]=values_[3];out[1]=values_[5];out[2]=values_[6];out[3]=values_[4];}
  float scan_phase()const{return scan_;}
@@ -141,7 +146,7 @@ class WavetableVoice {
  float next(float hz,bool gate){
   if(!started_)return 0;
   for(unsigned i=0;i<kWavetableLegacyParameterCount;++i)values_[i]+=(target_[i]-values_[i])*.002f;
-  float step=hz/rate_;if(step>.45f)step=.45f;if(step<0)step=0;
+  float step=carrier_step(hz);
   float pos=values_[0]+values_[1]*sinf(scan_*6.283185307f);if(pos<0)pos=0;if(pos>127)pos=127;
   bool extended=target_[WavetableWarpAmount]!=0 || target_[WavetablePmAmount]!=0;
   float x;

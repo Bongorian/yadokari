@@ -36,20 +36,18 @@ float reference(float position,float phase,float step){
  return hi+(read(std::min(6u,mip+1))-hi)*blend;
 }
 
-// Coherent FFT: stationary integer-ratio PM and sync can only generate
-// multiples of the fundamental below Nyquist. Count all remaining bin
-// power, including aliased harmonics that folded back into the passband.
-double alias_db(const Audio& samples,unsigned bin){
- std::array<std::complex<double>,N> fft{};
- for(unsigned i=0,j=0;i<N;++i){
+template<std::size_t Size,class Visit>
+void each_bin_power(const std::array<float,Size>& samples,Visit visit){
+ std::array<std::complex<double>,Size> fft{};
+ for(unsigned i=0,j=0;i<Size;++i){
   fft[j]=samples[i];
-  unsigned bit=N/2;
+  unsigned bit=Size/2;
   while(bit && (j&bit)){j^=bit;bit>>=1;}
   j^=bit;
  }
- for(unsigned width=2;width<=N;width*=2){
+ for(unsigned width=2;width<=Size;width*=2){
   const auto rotate=std::polar(1.,-2*pi/width);
-  for(unsigned first=0;first<N;first+=width){
+  for(unsigned first=0;first<Size;first+=width){
    std::complex<double> phase(1.,0.);
    for(unsigned i=first;i<first+width/2;++i){
     auto a=fft[i],b=phase*fft[i+width/2];
@@ -57,11 +55,15 @@ double alias_db(const Audio& samples,unsigned bin){
    }
   }
  }
+ for(unsigned i=1;i<=Size/2;++i)visit(i,std::norm(fft[i])*(i==Size/2?1:2));
+}
+
+// Coherent FFT: a stationary integer-ratio voice has only carrier harmonics.
+double alias_db(const Audio& samples,unsigned bin){
  double harmonic=0,other=0;
- for(unsigned i=1;i<=N/2;++i){
-  double p=std::norm(fft[i])*(i==N/2?1:2);
+ each_bin_power(samples,[&](unsigned i,double p){
   if(i%bin==0)harmonic+=p;else other+=p;
- }
+ });
  assert(harmonic+other>1e-8);
  return 10*std::log10(std::max(other/(harmonic+other),1e-30));
 }
@@ -91,6 +93,94 @@ Result measure(const Setting& s,float position,unsigned bin){
  }
  return {alias_db(old,bin),alias_db(extended,bin),alias_db(neutral,bin)};
 }
+// With periodic motion, each in-band harmonic k*f can have genuine sidebands
+// at k*f +/- n*m. Exclude the entire FFT residue class for both signs, however
+// wide those sidebands are. Power in the remaining classes is a foldback
+// witness; folds into excluded classes remain unmeasured.
+constexpr unsigned motion_size=65536;
+using MotionAudio=std::array<float,motion_size>;
+struct MotionPower {double witness,sidebands;};
+MotionPower motion_power(const MotionAudio& audio,unsigned fundamental,unsigned motion){
+ double total=0,witness=0,sidebands=0;
+ bool allowed[16]{};
+ assert(motion<=16 && motion_size%motion==0);
+ allowed[0]=true;
+ for(unsigned harmonic=fundamental;harmonic<=motion_size/2;harmonic+=fundamental){
+  allowed[harmonic%motion]=true;
+  allowed[(motion-harmonic%motion)%motion]=true;
+ }
+ each_bin_power(audio,[&](unsigned i,double power){
+  total+=power;
+  if(!allowed[i%motion])witness+=power;
+  else if(i%fundamental!=0)sidebands+=power;
+ });
+ assert(std::isfinite(total) && total>1);
+ return {10*std::log10(std::max(witness/total,1e-30)),sidebands/total};
+}
+
+void moving_controls(){
+ constexpr unsigned motion=16,period=motion_size/motion;
+ MotionAudio linear{},extended{};
+ // Calibrate the detector: pure AM sidebands are legal. A fifth harmonic
+ // sampled above Nyquist folds into a separate class with known power.
+ constexpr unsigned calibration_bin=12451;
+ for(unsigned n=0;n<motion_size;++n){
+  double phase=2*pi*((n*calibration_bin)%motion_size)/motion_size;
+  double am=1+.5*std::sin(2*pi*(n%period)/period);
+  extended[n]=am*std::sin(phase);
+  linear[n]=extended[n]+.05*std::sin(5*phase);
+ }
+ auto clean=motion_power(extended,calibration_bin,motion);
+ auto folded=motion_power(linear,calibration_bin,motion);
+ assert(clean.witness < -135 && clean.sidebands>.1);
+ assert(std::abs(folded.witness-10*std::log10(.0025/1.1275))<.01);
+
+ double worst=-300,maximum_linear=-300;
+ unsigned cases=0;
+ for(unsigned rate:{44100u,48000u})for(unsigned mode=0;mode<4;++mode)
+  for(unsigned carrier:{8105u,14606u})for(unsigned movement=0;movement<3;++movement){
+   // The second note uses 3:2 PM. Both the carrier and its modulator
+   // complete an integer number of cycles over each analysis window.
+   const float step=float(carrier)/motion_size,hz=rate*step;
+   assert(hz/float(rate)==step);
+   const float ratio=carrier%2?2.f:1.5f;
+   const unsigned fundamental=carrier%2?carrier:carrier/2;
+   const bool scan=movement!=1,amounts=movement!=0;
+   float values[]={63.5f,scan?36.f:0.f,float(rate)/period,.001f,.01f,.001f,1,1,float(mode),.65f,ratio,.55f};
+   WavetableVoice voice;voice.init(rate);voice.trigger(hz,1,values);
+   // Warm up the envelope, dezipper and filters with the same motion.
+   // Capture after a full FFT window so both oscillator phases start at zero.
+   for(unsigned n=0;n<2*motion_size;++n){
+    if(amounts && n%32==0){
+     const double angle=2*pi*(n%period)/period;
+     values[WavetableWarpAmount]=.92f*std::sin(angle);
+     values[WavetablePmAmount]=.5f+.48f*std::cos(angle);
+     voice.parameters(values);
+    }
+    float position=voice.position()*127;
+    float x=voice.next(hz,true);
+    if(n<motion_size)continue;
+    unsigned i=n-motion_size;
+    extended[i]=x;
+    float p=float((i*carrier)%motion_size)/motion_size;
+    float mod=float((i*unsigned(carrier*ratio))%motion_size)/motion_size;
+    const auto map=voice.visual_phase_map(hz);
+    const auto phases=wavetable_read_phases(p,mode,map.warp,mod,map.pm);
+    float a=reference(position,phases.first,step);
+    linear[i]=a+phases.blend*(reference(position,phases.second,step)-a);
+   }
+   const auto result=motion_power(extended,fundamental,motion);
+   const auto control=motion_power(linear,fundamental,motion);
+   std::printf("motion rate=%u mode=%u carrier=%u movement=%s witness=%.2f linear=%.2f dB sideband=%.5f\n",
+    rate,mode,carrier,movement==0?"scan":movement==1?"amounts":"both",result.witness,control.witness,result.sidebands);
+   // Budgets apply to these trajectories, normalized to non-DC output power.
+   const double ceiling=movement==0?-46.:movement==1?-70.:-50.;
+   assert(result.sidebands>.0001 && result.witness < ceiling && result.witness < control.witness-30.);
+   worst=std::max(worst,result.witness);maximum_linear=std::max(maximum_linear,control.witness);++cases;
+  }
+ std::printf("%u moving cases: worst foldback witness %.2f dB, matched linear %.2f dB\n",cases,worst,maximum_linear);
+}
+
 }
 
 // Optional deterministic sweep through low notes and the top octave. Keep
@@ -118,6 +208,7 @@ static void extended_sweep(){
 int main(int argc,char** argv){
  assert(prepare_wavetable_bank());
  if(argc>1){assert(argc==2 && std::strcmp(argv[1],"--sweep")==0);extended_sweep();return 0;}
+ moving_controls();
  constexpr Setting cases[]={{"Bend+",0,1,1,0},{"Bend-",0,-1,1,0},
   {"Sync+",1,.8f,1,0},{"Sync-",1,-.8f,1,0},{"PWM",2,1,1,0},
   {"Asym",3,-1,1,0},{"PM",0,0,2,.75f},{"Sync+PM",1,.7f,2,.75f}};

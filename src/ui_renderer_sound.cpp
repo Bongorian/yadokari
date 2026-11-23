@@ -353,13 +353,19 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
   if(t.instrument==Instrument::Wavetable && perf.instrument_view()==kFirstSynthDetailView){
    if(!wavetable_bank_ready()){label(1,24,140,"WAVETABLE BANK UNAVAILABLE",theme.secondary,Font::Body,430);return;}
    VisualData cycle;cycle.available=true;cycle.bipolar=true;cycle.count=128;
-   cycle.label="WARP / PM  /  BASE TABLE MODEL";
+   const unsigned track=perf.selected_track();
+   const auto& frame=perf.visual();
+   const bool sounding=perf.visual_fresh() && frame.instrument[track]==unsigned(Instrument::Wavetable)
+    && frame.pattern[track]==perf.editing_pattern() && frame.envelope[track]>=.00001f;
+   cycle.label=sounding?"BASE TABLE MODEL / PLAYED PITCH":"BASE TABLE MODEL / C4";
    const float position=ui::recipe_value(t,0,&perf);
    const unsigned a=unsigned(position),b=a<127?a+1:a;
    const unsigned mode=unsigned(ui::recipe_value(t,WavetableWarpMode,&perf));
    const float warp=ui::recipe_value(t,WavetableWarpAmount,&perf);
    const float ratio=ui::recipe_value(t,WavetablePmRatio,&perf);
    const float depth=ui::recipe_value(t,WavetablePmAmount,&perf);
+   const auto effective=sounding?frame.wavetable_map[track]:
+    wavetable_phase_map(mode,warp,ratio,depth,261.6256f/float(frame.rate?frame.rate:48000));
    auto sample=[&](float phase){
     const float at=wavetable_wrap(phase)*kWavetableSamples;
     const unsigned left=unsigned(at)%kWavetableSamples,right=(left+1)%kWavetableSamples;
@@ -371,7 +377,7 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    };
    for(unsigned i=0;i<cycle.count;++i){
     const float phase=float(i)/float(cycle.count-1);
-    const auto map=wavetable_read_phases(phase,mode,warp,phase*ratio,depth);
+    const auto map=wavetable_read_phases(phase,effective.mode,effective.warp,phase*effective.ratio,effective.pm);
     const float first=sample(map.first),mixed=first+(sample(map.second)-first)*map.blend;
     cycle.values[i]=ui::clamp01(.5f+.5f*mixed);
    }

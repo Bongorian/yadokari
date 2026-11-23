@@ -18,6 +18,15 @@ inline float wavetable_limited_pm(float amount,float mod_step){
  return amount*fmaxf(0,fminf(1,(.49f-mod_step)*3.4f));
 }
 
+struct WavetablePhaseMap {
+ unsigned mode;
+ float warp,ratio,pm;
+};
+
+inline WavetablePhaseMap wavetable_phase_map(unsigned mode,float warp,float ratio,float pm,float step){
+ return {mode,wavetable_limited_warp(mode,warp,step),ratio,wavetable_limited_pm(pm,ratio*step)};
+}
+
 // Odd quarter-wave polynomial. Reducing to [0, pi/2] keeps the error below
 // 4e-6; the same sine is used by the audio voice and its phase preview.
 inline float wavetable_sine(float phase){

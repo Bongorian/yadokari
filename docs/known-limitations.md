@@ -91,8 +91,9 @@ story, kept current per release.
   precisely for that.
 
 - WAVETABLE uses additional DSP when WARP AMT or PM AMT is nonzero.
-  The four-note limit comes from the original oscillator. Four extended
-  voices on a Pi 4 have not been qualified against the 500 µs deadline.
+  The product registry still charges two units per voice and admits four notes.
+  Pi 4 distribution of this tree (SD and GUP) is blocked until Wave B recalibrates
+  voice admission and verifies the admitted load against the 500 µs audio deadline.
 
 ## Hardware scope
 

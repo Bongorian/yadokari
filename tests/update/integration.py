@@ -9,6 +9,7 @@ import select
 import socket
 import subprocess
 import tempfile
+from unittest.mock import patch
 
 root = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('update_tool', root / 'tools/update/update.py')
@@ -52,6 +53,25 @@ def partition_hash(path, partition):
         return digest.digest()
 
 
+# CDC may report readability and then return EAGAIN, even mid-line.
+# Keep the partial reply and retry under the original deadline.
+read_fd, write_fd = os.pipe()
+try:
+    conn = tool.Connection.__new__(tool.Connection)
+    conn.fd, conn.timeout = read_fd, 1
+    os.write(write_fd, b'OK\n')
+    real_read = os.read
+    attempts = iter((True, False, True, False, False))
+    def read_reply(fd, size):
+        if next(attempts):
+            raise BlockingIOError()
+        return real_read(fd, size)
+    with patch.object(tool.os, 'read', side_effect=read_reply):
+        assert conn.line() == 'OK'
+finally:
+    os.close(read_fd)
+    os.close(write_fd)
+
 with tempfile.TemporaryDirectory(prefix='groove-update-') as temp:
     directory = Path(temp)
     private = directory / 'key.pem'
@@ -71,6 +91,23 @@ with tempfile.TemporaryDirectory(prefix='groove-update-') as temp:
     recovery = directory / 'recovery.img'
     app.write_bytes(compiled)
     recovery.write_bytes(compiled[:-4] + (2).to_bytes(4, 'little'))
+    held = compiled + b'GBX-DEV-ONLY-v1\0'
+    # Renaming the binary cannot change its release eligibility.
+    renamed = directory / 'kernel_2712.img'
+    renamed.write_bytes(held)
+    gup = directory / 'bench.gup'
+    pack_args = ['python3', root/'tools/update/update.py', 'pack', renamed,
+                 '--version', '2', '--key', private, '--out', gup]
+    rejected = subprocess.run(pack_args, capture_output=True)
+    assert rejected.returncode and b'Pi 4 release is blocked' in rejected.stderr and not gup.exists()
+    run(*pack_args, '--development')
+    bench = directory / 'bench.img'
+    provision_args = ['python3', root/'tools/update/provision.py', bench, '--recovery', recovery,
+                      '--boot-files', boot, '--version', '2', '--data-mib', '64']
+    for images in (['--factory', renamed], ['--factory', app, '--offline-package', gup]):
+        rejected = subprocess.run(provision_args+images, capture_output=True)
+        assert rejected.returncode and b'Pi 4 release is blocked' in rejected.stderr and not bench.exists()
+    run(*provision_args, '--factory', renamed, '--development')
     provisioned = directory / 'provisioned.img'
     run('python3', root / 'tools/update/provision.py', provisioned, '--factory', app, '--recovery', recovery, '--boot-files', boot, '--version', 2, '--data-mib', 64)
     for partition in range(3):

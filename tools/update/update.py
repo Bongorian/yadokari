@@ -20,8 +20,17 @@ def public_key(private):
     return der[len(prefix):]
 
 
+IDENTITY_MARKER = b'GBX-FW-ID-v1\0\0\0\0'
+
+
+def check_release_image(image):
+    start = image.find(IDENTITY_MARKER)
+    if start >= 0 and image.startswith(b'GBX-DEV-ONLY-v1\0', start + len(IDENTITY_MARKER) + 40):
+        raise ValueError('Development-only firmware: Pi 4 release is blocked pending Wave B voice admission')
+
+
 def identity(image):
-    marker = b'GBX-FW-ID-v1\0\0\0\0'
+    marker = IDENTITY_MARKER
     if image.count(marker) != 1:
         raise ValueError('Exactly one compiled firmware identity is required')
     offset = image.index(marker) + len(marker)
@@ -30,7 +39,9 @@ def identity(image):
     return struct.unpack_from('<I', image, offset)[0], image[offset+4:offset+36], struct.unpack_from('<I', image, offset+36)[0]
 
 
-def package(image, private, version, label='', require_identity=False):
+def package(image, private, version, label='', require_identity=False, *, development=False):
+    if not development:
+        check_release_image(image)
     if not 0 < len(image) <= 8 * 1024 * 1024 or not 0 < version < 2**32:
         raise ValueError('Invalid version or image size')
     key = public_key(private)
@@ -93,7 +104,10 @@ class Connection:
             wait = end - time.monotonic()
             if wait <= 0 or not select.select([self.fd], [], [], wait)[0]:
                 raise TimeoutError('Reply timed out; do not assume installation succeeded')
-            byte = os.read(self.fd, 1)
+            try:
+                byte = os.read(self.fd, 1)
+            except BlockingIOError:
+                continue
             if not byte:
                 raise ConnectionError('Disconnected')
             data += byte
@@ -141,6 +155,7 @@ def main():
     pack.add_argument('--key', required=True, type=Path)
     pack.add_argument('--version', required=True, type=int)
     pack.add_argument('--label', default='')
+    pack.add_argument('--development', action='store_true', help='Package a development-only build for bench use')
     pack.add_argument('--out', required=True, type=Path)
     upload = commands.add_parser('send')
     upload.add_argument('package', type=Path)
@@ -160,7 +175,7 @@ def main():
         (args.directory / 'public.bin').write_bytes(public_key(private))
         print('Public key SHA256:', hashlib.sha256(public_key(private)).hexdigest())
     elif args.command == 'pack':
-        data = package(args.image.read_bytes(), args.key, args.version, args.label, require_identity=True)
+        data = package(args.image.read_bytes(), args.key, args.version, args.label, require_identity=True, development=args.development)
         with args.out.open('xb') as out:
             out.write(data)
         print('Package SHA256:', hashlib.sha256(data).hexdigest())

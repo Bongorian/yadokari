@@ -49,10 +49,14 @@ text = '#pragma once\nstatic const unsigned char UpdatePublicKey[32]={' + ','.jo
 text += '#define GROOVE_FW_VERSION ' + str(version) + '\n'
 text += '#define GROOVE_UPDATE_WIFI_BUILD ' + ('1' if os.environ.get('ENABLE_UPDATE_WIFI', '1') == '1' else '0') + '\n'
 identity = b'GBX-FW-ID-v1\0\0\0\0' + version.to_bytes(4, 'little') + key
-text += '#ifdef GROOVE_RECOVERY\n'
-text += 'extern "C" const unsigned char GrooveUpdateIdentity[56] __attribute__((used))={' + ','.join(str(b) for b in identity + (2).to_bytes(4, 'little')) + '};\n'
-text += '#else\n'
-text += 'extern "C" const unsigned char GrooveUpdateIdentity[56] __attribute__((used))={' + ','.join(str(b) for b in identity + (1).to_bytes(4, 'little')) + '};\n#endif\n'
+# A suffix on the retained identity follows the actual binary, even if renamed.
+# Remove the Pi 4 hold when Wave B has qualified its admission limits.
+text += '#if defined(RASPPI) && RASPPI == 4\n'
+suffix = b'GBX-DEV-ONLY-v1\0'
+text += '#define GROOVE_RELEASE_SUFFIX ,' + ','.join(str(b) for b in suffix) + '\n'
+text += '#else\n#define GROOVE_RELEASE_SUFFIX\n#endif\n'
+text += '#ifdef GROOVE_RECOVERY\n#define GROOVE_IMAGE_KIND 2\n#else\n#define GROOVE_IMAGE_KIND 1\n#endif\n'
+text += 'extern "C" const unsigned char GrooveUpdateIdentity[] __attribute__((used))={' + ','.join(str(b) for b in identity) + ',GROOVE_IMAGE_KIND,0,0,0 GROOVE_RELEASE_SUFFIX};\n'
 if not target.exists() or target.read_text() != text:
     fd, temp = tempfile.mkstemp(prefix='.update-key-', dir=target.parent)
     try:

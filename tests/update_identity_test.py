@@ -19,8 +19,26 @@ with tempfile.TemporaryDirectory() as temp:
     # 'used' alone does not survive --gc-sections. The signed identity is a
     # loader contract, even though no C++ function reads this constant.
     source=p/'identity.cpp';source.write_text('#include "firmware/update_key.h"\nint main(){return 0;}\n')
-    binary=p/'identity';subprocess.run(['c++','-O3','-ffunction-sections','-fdata-sections','-Wl,--gc-sections','-Wl,--undefined=GrooveUpdateIdentity',str(source),'-o',str(binary)],check=True)
-    assert binary.read_bytes().count(b'GBX-FW-ID-v1\0\0\0\0')==1
+    sys.path.insert(0,str(root/'tools/update'))
+    from update import check_release_image, identity
+    for board in (4,5):
+        for recovery in (False,True):
+            binary=p/'identity'
+            defines=[f'-DRASPPI={board}'] + (['-DGROOVE_RECOVERY'] if recovery else [])
+            subprocess.run(['c++',*defines,'-O3','-ffunction-sections','-fdata-sections',
+                            '-Wl,--gc-sections','-Wl,--undefined=GrooveUpdateIdentity',str(source),'-o',str(binary)],check=True)
+            image=binary.read_bytes()
+            assert identity(image)==(125,key.read_bytes(),2 if recovery else 1)
+            try:
+                check_release_image(image)
+            except ValueError as error:
+                assert board==4 and 'Pi 4 release is blocked' in str(error)
+            else:
+                assert board==5
+    for selection in ([],['pi4'],['both']):
+        output=p/'unused'/'release'
+        result=subprocess.run([root/'scripts/release-sd.sh',output,*selection],capture_output=True)
+        assert result.returncode!=0 and b'Pi 4 release is blocked' in result.stderr and not output.parent.exists()
     first=header.read_bytes();env.pop('UPDATE_PUBLIC_KEY');env.pop('FIRMWARE_VERSION')
     subprocess.run([sys.executable,str(script)],env=env,check=True,capture_output=True);assert header.read_bytes()==first
     env['FIRMWARE_VERSION']='126';subprocess.run([sys.executable,str(script)],env=env,check=True,capture_output=True)

@@ -207,7 +207,11 @@ void Engine::publish_voice_visual(AudioVisualFrame& frame,unsigned t,Voice& v){
  case Instrument::Additive:level=v.additive.level();v.additive.visual_envelope(frame.engine_envelope[t]);break;
  case Instrument::PhaseDist:level=v.phase_dist.level();v.phase_dist.visual_envelope(frame.engine_envelope[t]);break;
  case Instrument::VirtualAnalog:level=v.va.level();v.va.visual_envelope(frame.engine_envelope[t]);break;
- case Instrument::Wavetable:level=v.wavetable.level();v.wavetable.visual_envelope(frame.engine_envelope[t]);break;
+ case Instrument::Wavetable:
+  level=v.wavetable.level();
+  v.wavetable.visual_envelope(frame.engine_envelope[t]);
+  frame.wavetable_map[t]=v.wavetable.visual_phase_map(v.frequency);
+  break;
  default:frame.voice_level_valid[t]=false;break;
  }
  frame.voice_level[t]=v.env<.00001f?0:level;

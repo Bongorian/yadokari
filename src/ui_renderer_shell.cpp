@@ -378,6 +378,14 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    live_sig=fnv(live_sig,current);
    if(current)for(float value:f.taps.pcm[1])hash_float(value);
   }
+  if(perf.mode()==UiMode::Synth && t.instrument==Instrument::Wavetable && perf.instrument_view()==kFirstSynthDetailView){
+   const unsigned track=perf.selected_track();
+   const auto& frame=perf.visual();
+   const auto& map=frame.wavetable_map[track];
+   live_sig=fnv(live_sig,perf.visual_fresh());live_sig=fnv(live_sig,frame.pattern[track]);
+   live_sig=fnv(live_sig,frame.instrument[track]);hash_float(frame.envelope[track]);
+   live_sig=fnv(live_sig,map.mode);hash_float(map.warp);hash_float(map.ratio);hash_float(map.pm);
+  }
   if(chimera_performance || (perf.mode()==UiMode::Synth && t.instrument==Instrument::Chimera)){
    const auto& frame=perf.visual();
    live_sig=fnv(live_sig,unsigned(perf.visual_fresh() && frame.taps.track==perf.selected_track()));

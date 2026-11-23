@@ -72,6 +72,36 @@ int main(){
   assert(ui->soft_key(3));view->invalidate();view->draw(*song,*ui);assert(seen.master && seen.lane);
   view->text_observer=nullptr;view->text_observer_context=nullptr;
  }
+ // Compare only the DETAILS plot pixels so a changing caption cannot pass this test.
+ {
+  auto song=std::make_unique<ProjectState>();make_empty_project(*song);
+  auto& track=song->tracks[0];track.instrument=Instrument::Wavetable;
+  auto& v=track.wavetable.values;v[0]=42.25f;v[WavetableWarpMode]=1;
+  v[WavetableWarpAmount]=.9f;v[WavetablePmRatio]=4;v[WavetablePmAmount]=1;
+  auto engine=std::make_unique<Engine>();assert(engine->stage_project(*song));
+  auto controls=std::make_unique<Performance>(*engine,*song);controls->project_loaded();
+  controls->set_mode(UiMode::Synth);assert(controls->soft_key(3));controls->notify(UiNotice::None);
+  unsigned elapsed=0;
+  auto settle=[&](){for(unsigned i=0;i<200;++i){
+   engine->render(block,48);controls->animate(++elapsed);controls->poll();
+  }};
+  auto plot=[&](){view->draw(*song,*controls);uint64_t hash=1469598103934665603ull;
+   for(int y=108;y<182;++y)for(int x=24;x<454;++x)hash=(hash^view->pixels[1][y*480+x])*1099511628211ull;
+   return hash;
+  };
+  settle();const auto idle=plot();
+  Command key{CommandType::MidiInput,0,60,0x90};key.scalar=110;
+  assert(engine->submit(key));settle();assert(controls->visual().note[0]==60 && plot()==idle);
+  key.step=127;assert(engine->submit(key));settle();
+  const auto& frame=controls->visual();const auto& map=frame.wavetable_map[0];
+  assert(frame.note[0]==127 && frame.envelope[0]>0 && map.pm==0 && map.warp>0 && map.warp<.5f);
+  const auto high=plot();assert(high!=idle);
+  // With a stale snapshot the unchanged knobs once again preview C4.
+  controls->animate(elapsed+350);assert(!controls->visual_fresh() && plot()==idle);
+  // A C4 preview with the effective high-note amounts must match every pixel.
+  v[WavetableWarpAmount]=map.warp;v[WavetablePmAmount]=0;
+  view->invalidate();assert(plot()==high);
+ }
  // Exercise every registered engine through the same 4-D push used on hardware.
  for(unsigned i=0;i<instrument_count();++i){
   mt.instrument=Instrument(i);
