@@ -1,11 +1,33 @@
 // Widgets member: the six bounded drawing primitives. Values are already resolved.
  void visual_scope(unsigned side,int x,int y,int w,int h,const VisualData& d,uint32_t color){
-  line(side,x,y+h/2,x+w,y+h/2,theme.border);unsigned count=d.count<128?d.count:128;if(!count || w<=0 || h<=0)return;
-  for(int i=0;i<w;++i){unsigned n=unsigned(i)*count/unsigned(w);float hi=clamp01(.5f-d.values[n]*.5f),lo=clamp01(.5f-d.low[n]*.5f);int top=y+int(hi*h),bottom=y+int(lo*h);if(bottom<top){int swap=top;top=bottom;bottom=swap;}int centre=y+h/2;if(top>centre)top=centre;if(bottom<centre)bottom=centre;fill(side,x+i,top,1,bottom-top+1,mix(theme.surface,color,190));}
+  if(w<=0 || h<=0)return;
+  line(side,x,y+h/2,x+w-1,y+h/2,theme.border);
+  const unsigned count=d.count<128?d.count:128;
+  int last_x=x,last_top=0,last_bottom=0;
+  for(unsigned i=0;i<count;++i){
+   const int px=x+int(i)*(w-1)/int(count>1?count-1:1);
+   const int top=y+int(clamp01(.5f-.5f*fmaxf(d.values[i],d.low[i]))*(h-1));
+   const int bottom=y+int(clamp01(.5f-.5f*fminf(d.values[i],d.low[i]))*(h-1));
+   line(side,px,top,px,bottom,color);
+   if(i){line(side,last_x,last_top,px,top,color);line(side,last_x,last_bottom,px,bottom,color);}
+   last_x=px;last_top=top;last_bottom=bottom;
+  }
   if(d.point)line(side,x+clamp01(d.position)*w,y,x+clamp01(d.position)*w,y+h,theme.text);
  }
  void visual_spectrum(unsigned side,int x,int y,int w,int h,const VisualData& d,uint32_t color){
-  unsigned count=d.count<128?d.count:128;if(!count || w<=0 || h<=0)return;for(int i=0;i<w;++i){unsigned n=unsigned(i)*count/unsigned(w);float magnitude=clamp01((20*log10f(fmaxf(d.values[n],.0001f))+80)/80);int height=int(magnitude*h);if(height)fill(side,x+i,y+h-height,1,height,mix(theme.surface,color,200));}line(side,x,y+h,x+w,y+h,theme.border);
+  const unsigned count=d.count<128?d.count:128;
+  if(!count || w<=0 || h<=0)return;
+  for(unsigned n=0;n<count;++n){
+   const int start=int(n)*w/int(count),end=int(n+1)*w/int(count);
+   if(start==end)continue;
+   const float magnitude=clamp01((20*log10f(fmaxf(d.values[n],.0001f))+80)/80);
+   const int height=int(magnitude*h),bar=end-start-(end-start>=4?1:0);
+   if(height){
+    fill(side,x+start,y+h-height,bar,height,mix(theme.surface,color,175));
+    fill(side,x+start,y+h-height,bar,1,color);
+   }
+  }
+  line(side,x,y+h,x+w-1,y+h,theme.border);
  }
  void visual_bars(unsigned side,int x,int y,int w,int h,const VisualData& d,uint32_t color){
   unsigned count=d.count<128?d.count:128;if(!count || w<=0 || h<=0)return;

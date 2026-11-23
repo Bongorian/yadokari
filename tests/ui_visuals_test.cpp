@@ -34,6 +34,12 @@ int main(){
  bool focus_seen=false,width_seen=false;struct Formatting {bool* focus;bool* width;} formatting{&focus_seen,&width_seen};view->text_observer=[](const SoftwareCanvas::TextPlacement& value,void* context){auto* flags=static_cast<Formatting*>(context);if(!std::strcmp(value.text,"1.0 harm"))*flags->focus=true;if(!std::strcmp(value.text,"16.0 harm"))*flags->width=true;assert(!std::strstr(value.text,"1600.0 harm"));};view->text_observer_context=&formatting;
  advance(7200);view->draw(*p,*u);assert(focus_seen && width_seen);auto idle=roi(*view,1);auto selected_pcm=ui::pcm_visual(*u,VisualSource::CapturePcm);assert(!std::strcmp(selected_pcm.label,"TRACK POST FADER / LIVE PCM"));auto relative=ui::engine_visual_data(engine_descriptor(unsigned(Instrument::Additive))->visual,track_at(*p,0,0),*u);float max_recipe=0;for(unsigned i=0;i<16;++i)max_recipe=fmaxf(max_recipe,relative.values[i]);assert(fabsf(max_recipe-1)<.0001f);advance(7200);view->draw(*p,*u);assert(idle==roi(*view,1));
  Command note{CommandType::MidiInput,0,60,0x90};note.scalar=100;assert(e->submit(note));advance(7200);auto data=ui::engine_visual_data(engine_descriptor(unsigned(Instrument::Additive))->visual,track_at(*p,0,0),*u);assert(data.live && data.count==16);view->draw(*p,*u);assert(idle!=roi(*view,1));
+ // A view change must repaint during the same held note and never retarget a knob.
+ const auto edit_target=u->knob_parameter(0);
+ assert(u->encoder_push());view->draw(*p,*u);const auto trace=roi(*view,1);
+ assert(trace!=idle && u->knob_parameter(0)==edit_target);
+ assert(u->encoder_push());view->draw(*p,*u);assert(roi(*view,1)!=trace && u->knob_parameter(0)==edit_target);
+ assert(u->encoder_push() && u->synth_monitor()==Performance::SynthMonitor::Engine);
  assert(e->submit({CommandType::Stop,0,0,0}));advance(9600);view->draw(*p,*u);auto silent=roi(*view,1);advance(7200);view->draw(*p,*u);assert(silent==roi(*view,1));
  assert(u->analysis());u->select_track(1);assert(!u->analysis());u->select_track(0);u->animate(samples/48+1000);assert(!u->analysis() && !u->visual_fresh());
  auto capture=ui::pcm_visual(*u,VisualSource::CapturePcm);assert(std::strcmp(capture.label,"GROUP CAPTURE / LIVE PCM"));
@@ -65,6 +71,31 @@ int main(){
   view->invalidate();view->draw(*song,*ui);assert(seen.mhz && seen.divider && seen.follow && seen.relative);
   assert(ui->soft_key(3));view->invalidate();view->draw(*song,*ui);assert(seen.master && seen.lane);
   view->text_observer=nullptr;view->text_observer_context=nullptr;
+ }
+ // Exercise every registered engine through the same 4-D push used on hardware.
+ for(unsigned i=0;i<instrument_count();++i){
+  mt.instrument=Instrument(i);
+  auto engine=std::make_unique<Engine>();auto controls=std::make_unique<Performance>(*engine,*models);
+  controls->set_mode(UiMode::Synth);
+  if(mt.instrument==Instrument::Empty || mt.instrument==Instrument::ExternalMidi){
+   assert(!controls->synth_monitor_available() && !controls->encoder_push());continue;
+  }
+  assert(controls->synth_monitor_available());
+  for(auto mode:{Performance::SynthMonitor::Scope,Performance::SynthMonitor::Spectrum,Performance::SynthMonitor::Engine}){
+   assert(controls->encoder_push() && controls->synth_monitor()==mode);
+   view->draw(*models,*controls);
+  }
+ }
+ {
+  mt.instrument=Instrument::Chimera;
+  auto engine=std::make_unique<Engine>();auto controls=std::make_unique<Performance>(*engine,*models);
+  controls->set_mode(UiMode::Synth);
+  const auto target=controls->synth_fine_target(0);assert(target==engine_target(Instrument::Chimera,ChimeraTongueX));
+  const float initial=controls->knob_value(0);
+  controls->control(10,0x80);assert(controls->encoder(1) && controls->selected_track()==0);
+  assert(fabsf(controls->knob_value(0)-initial-target_descriptor(target)->step*.1f)<.00001f);
+  controls->control(10,0xc0);assert(!controls->encoder(1) && controls->selected_track()==0);
+  controls->control(10,0x00);assert(controls->encoder(1) && controls->selected_track()==1);
  }
  std::puts("Wave8: descriptor coverage, endpoint interpolation, six themed primitives, live/idle hero ROI, stale selection/generation and Morph fallback passed");
 }

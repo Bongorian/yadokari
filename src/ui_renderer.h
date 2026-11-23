@@ -70,6 +70,7 @@ class UiRenderer:public ui::Widgets {
  void gesture_page(const ProjectState& p,const Performance& perf);
  void source_list(const ProjectState& p,const Performance& perf);
  void source_detail(const ProjectState& p,const Performance& perf);
+ void synth_monitor_picture(const Performance& perf);
  void synth_signal(const ProjectState& p,ConstTrackView t,const Performance& perf);
  void layer_picture(ConstTrackView t,const Performance& perf);
  void sample_picture(ConstTrackView t,const Performance& perf);

@@ -4,6 +4,19 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.0.5
+
+- Added Ethernet Network MIDI (RTP-MIDI / AppleMIDI). Enable NETWORK MIDI
+  in SETTINGS → MIDI and set NET LATENCY there. Network MIDI is off by
+  default. Network sessions use router cables 12–15.
+- On internal instruments, press the 4-D encoder in SYNTH to cycle between
+  the engine view, the post-fader waveform and the spectrum. Touch a
+  supported continuous control and turn 4-D for one-tenth increments.
+- Added operator level and detune views for FM6, base formant frequencies
+  for FORMANT and an oscillator cycle for PHASE DIST. FM 2 OP and VA DUAL
+  retain their oscillator models during playback. The CHIMERA cutaway
+  labels the vocal tract and marks where its walls meet.
+
 ## 1.0.4
 
 - CHIMERA gains a TALK insert effect: any sound can be played through

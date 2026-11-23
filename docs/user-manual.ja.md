@@ -857,6 +857,8 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 - **ARTICULATION**（Top3）は2ページです。同じボタンで切り替え、舌先の位置と反り、舌根、唇、唇と歯の接触、軟口蓋、喉頭、喉頭蓋側、仮声帯、舌の側面と背面を調整します。
 - **VOICE**（Top4）では BODY（成人男性・成人女性・子ども）、ビブラートの深さと速さ、グライド、圧力、息漏れ、MODE、SPECIES を設定します。圧力と息漏れは BREATH への追加調整です。ボディと詳細設定は音色に保存します。ボディ切替時はいったん消音し、声道を作り直します。
 
+右画面は右向きの頭部断面です。NASAL は鼻腔、TONGUE は舌、LIPS は唇、GLOTTIS は声門を指します。REST SHAPE はモデルの安静形状、LIVE は発音中の形状です。AIR PRESSURE は左から喉、右に向かって唇までの瞬時の圧力を示します。CONTACT の点は表示中の断面で壁同士がほぼ接した場所です。PLAY で舌を大きく上げると、鍵盤を押したままでも気道が閉じて音が小さくなることがあります。
+
 GENERATOR の5つのノブは、鍵盤を押したままでも音に反映されます。MODE と BESTIARY の SPECIES の変更は次の発音から有効です。人声では VIBRATO RATE は DEPTH を上げると聞き取れます。LATERAL は舌先で口の中央を塞いだときの側面の通り道を調整します。SPREAD は UNISON が2以上のときに効きます。BESTIARY では種ごとの GENERATOR ノブを使います。人声用の舌・唇・喉頭の設定は、人間のモデルで発音するときに効きます。ゾウの TRUNK FINE と TRUNK MIX は同じ口・鼻の配分を調整し、可動幅はそれぞれ全体の25%と75%です。
 
 **VOICE → SHIFT+K8 VOICE MODE** で **POLY**（初期値）、**MONO**（最後に押したノートを優先）、**LEGATO**（最後のノートを優先し、ゲート継続中はグライド）を選びます。
@@ -1012,6 +1014,8 @@ SHIFT+RESTARTは小節頭での再開を予約し、RESTART単独は即時に再
 GENERATEは物理VARIATIONから入り、RHYTHM／ACCUM／GROOVE／LANES・ARPでノートrecipeを生成します。Top4を再押下してLANES／ARPを往復します。PERFORMは左Top1 A/B MORPH、Top2 MACROS、Top3 GESTURE、Top4 MUTATION。Mutationは既存ノートの変異量・seedを扱い、右Top5 GENERATE／Top6 COMMIT、SHIFTでFREEZE／REVERT。Top6でVOCODER、Top7でLIVE FX、Top8でLOOPER、SHIFT+Top8でLIVE TOOLSを開きます。
 
 SETTINGSは左Topの3分類＋Top4 MORE、または4-D左右で7分類。上下で行を選び、K1だけでその値を編集します。4-D押下後の回転でも編集可能。SYSTEMのSPACE UNITはDATA容量表示のGiB／MiB切替です。AUDIO Top5 ROUTING、MIDI Top6 MIDI ROUTES、SYSTEM Top7 DIAGNOSTICS／Top8 UPDATEが関連出口です。DIAGNOSTICSはUSB／HID／AUDIO／MIDI／LOGが同時に見える単一監視画面です。
+
+SYNTH の内蔵音源では 4-D を押すたびに右画面が音源固有の表示、出力波形、スペクトラムの順に切り替わります。波形とスペクトラムは選択トラックのフェーダー後のモノ信号です。小さい波形は表示だけ最大16倍に拡大します。縦軸はフルスケールに対する振幅、PEAK は元信号の dBFS 値です。上向きのゼロ交差に合わせて256サンプル（48 kHz で約5.33 ms）を表示します。左画面で連続値のノブに触れ、微調整の案内が出たら、触れたまま 4-D を回すと通常の1/10刻みで編集できます。FM6 は各オペレーターの倍率とデチューン、PHASE DIST は基本波形の1周期、FORMANT は母音の基準周波数 F1・F2 を表示します。
 
 チャンネル構成はLEVEL／PAN／CUTOFF／DRIVE／DELAY SEND／CRUSH／LFO DEPTH／LFO HZの順で、MIXER・SYNTH TONE・Morph/Gestureに共通です。SYNTH GENERATORは音源の宣言値をK1から配置し、TEMPO等の文脈値を混ぜません。DrumKit COREは子Pad選択型でK1 PAD、楽器型のPAD MODEではK1 TEMPO、Pad選択はSELECT＋Padか4-Dです。ノブに触れたままERASEを押すと初期値へ戻ります。PANは低速で回すと中央へ吸着します。
 

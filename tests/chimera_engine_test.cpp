@@ -153,7 +153,7 @@ int main(){
  AudioVisualFrame visual{};
  engine->visual_focus(0);
  assert(render(*engine,4800,visual)==0);
- assert(visual.chimera_available && visual.chimera.gate==0);
+ assert(visual.chimera_available && !visual.chimera_live && visual.chimera.gate==0);
  const auto rest=visual.chimera;
  note(*engine,0,57,true);
  assert(render(*engine,9600,visual)>.001f);
@@ -163,29 +163,38 @@ int main(){
  auto ui=std::make_unique<Performance>(*engine,*restored);
  float pcm[48];
  for(unsigned i=0;i<120;++i){engine->render(pcm,24);ui->poll();}
- assert(ui->visual_fresh() && ui->visual().chimera.gate>.2f);
+ assert(ui->visual_fresh() && ui->visual().chimera_live && ui->visual().chimera.gate>.2f);
  auto display=std::make_unique<UiRenderer>();
- bool found_cutaway=false;
+ unsigned landmarks=0;
  display->text_observer=[](const SoftwareCanvas::TextPlacement& text,void* context){
-  if(text.side==1 && std::strcmp(text.text,"VOCAL TRACT")==0)*static_cast<bool*>(context)=true;
+  if(text.side!=1)return;
+  const char* names[]={"VOCAL TRACT","NASAL","TONGUE","LIPS","GLOTTIS","LIVE","REST SHAPE","CONTACT"};
+  for(unsigned i=0;i<sizeof names/sizeof *names;++i)if(!std::strcmp(text.text,names[i]))*static_cast<unsigned*>(context)|=1u<<i;
  };
- display->text_observer_context=&found_cutaway;
+ display->text_observer_context=&landmarks;
  constexpr UiMode views[]={UiMode::Synth,UiMode::Pad,UiMode::Keyboard,UiMode::Chord,UiMode::Step};
  uint64_t sounding[5]{};
- auto draw_cutaway=[&](UiMode mode){
+ auto draw_cutaway=[&](UiMode mode,bool contact=false){
   ui->set_mode(mode);
-  found_cutaway=false;
+  landmarks=0;
   display->draw(*restored,*ui);
-  assert(found_cutaway);
+  assert(landmarks==(31u|(ui->visual().chimera_live?32u:64u)|(contact?128u:0u)));
   return cutaway_pixels(*display);
  };
  for(unsigned i=0;i<5;++i)sounding[i]=draw_cutaway(views[i]);
  ui->set_mode(UiMode::Synth);
  assert(ui->knob_parameter(0)==engine_target(Instrument::Chimera,0));
+ // Move the tongue into contact and back while the same note is sounding.
+ for(float height:{.98f,.50f}){
+  assert(ui->set_parameter(engine_target(Instrument::Chimera,ChimeraTongueY),height));
+  for(unsigned i=0;i<800;++i){engine->render(pcm,24);ui->poll();}
+  assert(ui->visual().chimera_live);
+  draw_cutaway(UiMode::Synth,height>.50f);
+ }
 
  note(*engine,0,57,false);
  for(unsigned i=0;i<300;++i){engine->render(pcm,24);ui->poll();}
- assert(ui->visual_fresh() && ui->visual().chimera.gate==0);
+ assert(ui->visual_fresh() && !ui->visual().chimera_live && ui->visual().chimera.gate==0);
  for(unsigned i=0;i<5;++i)assert(draw_cutaway(views[i])!=sounding[i]);
 
  note(*engine,0,57,true);

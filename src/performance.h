@@ -483,6 +483,10 @@ public:
  const SoundState& layer_candidate()const{return project_.sounds[layer_pool_cursor_];}
  bool layer_use(bool remove=false);
  bool layer_knob(unsigned i,int change);
+ enum class SynthMonitor : uint8_t { Engine, Scope, Spectrum };
+ bool synth_monitor_available()const;
+ SynthMonitor synth_monitor()const{return synth_monitor_available()?synth_monitor_:SynthMonitor::Engine;}
+ uint16_t synth_fine_target(unsigned index)const;
  unsigned instrument_view()const{return instrument_view_;} bool source_select()const{return source_select_;} unsigned source_cursor()const{return source_cursor_;} bool source_arm_unknown()const{return source_arm_unknown_;}
  unsigned generate_page()const{return gen_page_;}unsigned fx_page()const{return fx_page_;} unsigned chain_node()const{return chain_node_;}unsigned song_cursor()const{return song_cursor_;} unsigned song_display_count()const{return project_.song.length?project_.song.length:project_.chain.length;} unsigned slice_cursor()const{return slice_cursor_;} bool zone_vel()const{return zone_vel_;} bool note_edit()const{return note_edit_;} bool follow_display()const{return follow_display_;} bool update_confirm_pending()const{return update_confirm_;} StripMode strip_mode()const{return axes_.strip_mode;}unsigned fx_focus_slot()const{return fx_focus_slot_;}
  unsigned generate_lane()const{return gen_lane_;}
@@ -763,6 +767,7 @@ private:
  uint64_t pad_press_context_[16]{},pad_press_ms_[16]{};
  char network_midi_status_[48]{};DeviceSettings device_{};uint32_t device_revision_=0;bool device_saved_=true,storage_valid_=false;uint64_t storage_free_=0,storage_total_=0,tuner_sample_=0;TunerReading tuner_{};mutable char device_text_[32]{};
  LiveVisualAnalysisSlot local_visual_analysis_{};LiveVisualAnalysisSlot* visual_analysis_worker_=&local_visual_analysis_;bool visual_analysis_inline_=true,analysis_valid_=false;VisualAnalysisFrame analysis_{};uint64_t analysis_received_ms_=0,analysis_due_ms_=0,analysis_requested_sample_=0;unsigned analysis_backoff_=0;
+ SynthMonitor synth_monitor_=SynthMonitor::Engine;
  char recovery_message_[64]{};UiNotice notice_=UiNotice::None;uint64_t notice_ms_=0;AudioVisualFrame visual_{};ui::VisualSettings settings_{};uint64_t knob_overlay_until_[8]{},knob_turn_until_[8]{};uint64_t now_ms_=0,launch_ms_=0,strip_interaction_until_ms_=0,visual_received_ms_=0,trigger_ms_[16]{};bool trigger_seen_[16]{},warning_=false,fill_active_=false,stutter_active_=false;uint8_t layer_cursor_=0,layer_edit_page_=0;uint16_t layer_pool_cursor_=0;uint8_t asset_cursor_=0,instrument_view_=0,settings_cursor_=0,settings_page_=0,source_cursor_=0,chain_node_=0,song_cursor_=0;bool source_select_=false;bool note_edit_=false,follow_display_=false;int8_t queued_scene_=-1;uint16_t queued_stops_=0;
  GrooveState groove_clipboard_{};int16_t groove_clip_timing_[16]{};bool groove_copied_=false,groove_clip_clipped_=false;
  History* history_=new History[64]{};RotationRevision* rotation_revisions_=new RotationRevision[128]{};unsigned rotation_cursor_=0;

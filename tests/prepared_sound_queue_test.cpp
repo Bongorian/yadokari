@@ -26,7 +26,15 @@ int main(){
  auto threaded=std::make_unique<PreparedSoundQueue>();constexpr unsigned N=1024;std::atomic<bool> started{false};
  std::thread consumer([&]{auto value=std::make_unique<SoundState>();started.store(true,std::memory_order_release);for(unsigned n=0;n<N;){if(!threaded->pop(*value)){std::this_thread::yield();continue;}assert(value->parameters[0]==n && value->layer.parts[0].raw[0]==uint8_t(n) && value->layer.parts[3].raw[4095]==uint8_t(n));++n;}});
  while(!started.load(std::memory_order_acquire))std::this_thread::yield();
- for(unsigned n=0;n<N;++n){unsigned slot=n%16;stamp(pool[slot],n);uint16_t target[]={uint16_t(slot)};threaded->request_prepare(target,1,10+n);for(unsigned i=0;i<copies;++i)threaded->prepare_one(pool.get(),10+n);while(!threaded->push(pool[slot],slot,10+n))std::this_thread::yield();}
+ for(unsigned n=0;n<N;++n){
+  unsigned slot=n%16;stamp(pool[slot],n);uint16_t target[]={uint16_t(slot)};
+  threaded->request_prepare(target,1,10+n);
+  // The consumer can still pin its last popped record while the queue is full.
+  // One free queue entry leaves room for this producer's warm snapshot.
+  while(!threaded->free_space())std::this_thread::yield();
+  for(unsigned i=0;i<copies;++i)assert(threaded->prepare_one(pool.get(),10+n));
+  assert(threaded->push(pool[slot],slot,10+n));
+ }
  consumer.join();auto c=threaded->counters();assert(c.max_chunk<=16384 && c.completed==N && c.warm==N && !c.cold);
  std::printf("Prepared sound queue: unaligned exact copies, bounded chunks, immutable old versions, full-queue refusal and threaded 1024 snapshots passed; bytes %llu chunks %llu\n",(unsigned long long)c.prepared_bytes,(unsigned long long)c.chunks);
 }

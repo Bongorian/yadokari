@@ -443,6 +443,23 @@ auto Performance::select_track(unsigned index)  -> bool{ if(index>=16) return fa
 auto Performance::select_capture_source(int delta,bool track_only) -> bool{if(!recording_source_control(recording_controls()).enabled){notify(UiNotice::Failed);return false;}Command after{CommandType::SetRouting,0,0,0},before=after;before.routing=project_.routing;after.routing=before.routing;unsigned source=before.routing.capture_bus,kind=capture_kind(source),track=capture_track(source);if(track_only){if(source>=53 && source<=60){after.routing.capture_bus=uint8_t(53+bounded(int(source-53)+delta,0,7));return edit(after,before);}if(track>=16)return false;track=unsigned(bounded(int(track)+delta,0,15));after.routing.capture_bus=uint8_t(3+16*(kind-3)+track);}else{kind=unsigned(bounded(int(kind)+delta,0,8));if(track>=16)track=selected_;after.routing.capture_bus=uint8_t(kind<3?kind:kind<6?3+16*(kind-3)+track:kind==6?51:kind==7?52:53+group_cursor_);}return after.routing.capture_bus==before.routing.capture_bus || edit(after,before);}
 auto Performance::select_pattern(unsigned index)  -> bool{ if(index>=kPatterns) return false;if(index!=project_.active_pattern){release_strip();sn_ref_armed_=false;extend_pending_=false;} project_.active_pattern=uint8_t(index);following_clip_=false;if(instrument_view_>=kFirstSynthDetailView && !synth_detail_bank(track_const(selected_).instrument,instrument_view_))instrument_view_=0; refresh_steps(); dirty_=true; return true; }
 auto Performance::other_preview_target()const -> bool{if(!browser_.previewing || browser_.cursor>=browser_.count || browser_.entries[browser_.cursor].directory || !is_wav_file(browser_.entries[browser_.cursor].name))return false;char path[160];return join_path(path,sizeof path,browser_.directory,browser_.entries[browser_.cursor].name) && __builtin_strcmp(path,browser_.audition_path)!=0;}
+bool Performance::synth_monitor_available()const{
+ if(mode_!=UiMode::Synth || source_select_ || repeat_mode_)return false;
+ const auto inst=track_const(selected_).instrument;
+ return inst!=Instrument::Empty && inst!=Instrument::ExternalMidi && unsigned(inst)<instrument_count();
+}
+uint16_t Performance::synth_fine_target(unsigned index)const{
+ if(!synth_monitor_available() || shifted() || main_encoder_mode_ || wave_profile() || kit_edit_page() || layer_page() || index>=8)return 0;
+ const uint16_t page_id=synth_parameter(index);
+ const uint16_t id=page_id?page_id:core_parameter(index);
+ if(!id || id!=knob_parameter(index) || unavailable_target(id))return 0;
+ if(engine_target(id)){
+  const auto* control=engine_parameter(target_engine(id),target_local(id));
+  if(!control || control->choice_count)return 0;
+ }
+ const auto* d=target_descriptor(id);
+ return d && d->interpolation!=Interpolation::Discrete && d->step>0?id:0;
+}
 auto Performance::encoder_hint()const -> const char*{if(browser_editing())return browser_confirmation()?"PUSH:OK LEFT:BACK":"PUSH:APPLY LEFT:CANCEL";if(modal_active())return modal_progress()?"LEFT:CANCEL":"PUSH:OK LEFT:BACK";if(mode_==UiMode::Clip && clip_follow_page_)return "TURN: FOLLOW ACTION   PUSH: DONE";
   if(main_encoder_mode_)return main_encoder_mode_==1?"HOLD VOLUME: TRACK LEVEL":main_encoder_mode_==2?"HOLD SWING: SWING":"HOLD TEMPO: BPM";
   if(shifted())return mode_==UiMode::Browser?"SHIFT + TURN: TRACK   PUSH: SAVE PRESET":"SHIFT + TURN: TRACK";
@@ -462,6 +479,7 @@ auto Performance::encoder_hint()const -> const char*{if(browser_editing())return
   if(mode_==UiMode::Diagnostics)return "TURN: SCROLL   L/R: PAGE";
   if(mode_==UiMode::Pad && track_const(selected_).instrument==Instrument::DrumKit)return "TURN: PAD   PUSH: SAMPLE";
   if(mode_==UiMode::Synth && source_select_)return "TURN: ENGINE   PUSH: SOUNDS / TOP 5: DEFAULT SOUND";
+  if(synth_monitor_available())return "4-D PUSH: ENGINE / SCOPE / FFT";
   if(mode_==UiMode::Mixer || mode_==UiMode::Routing)return "TURN / ARROWS: TRACK";
   return "TURN: TRACK   L/R: PAGE";
  }
@@ -469,6 +487,15 @@ auto Performance::encoder(int delta) -> bool{if(transfer_view_.active)return fal
   delta=bounded(delta,-16,16);if(!delta)return true;
   if(main_encoder_mode_){if(main_encoder_mode_==1)return set_parameter(1,ui::clamp01(track_const(selected_).level+delta*0.02f));Command after{main_encoder_mode_==2?CommandType::SetSwing:CommandType::SetTempo,0,0,uint16_t(main_encoder_mode_==2?bounded(int(project_.patterns[project_.active_pattern].swing)+delta,0,100):bounded(int(project_.tempo)+delta,20,300))},before=after;before.value=main_encoder_mode_==2?project_.patterns[project_.active_pattern].swing:project_.tempo;return edit(after,before);}
   if(shifted())return select_track(unsigned(bounded(int(selected_)+delta,0,15)));
+  if(synth_monitor_available() && !select_held() && controls_[9]){
+   const unsigned touches=controls_[9];
+   if(touches&(touches-1))return false;
+   const unsigned index=7u-unsigned(__builtin_ctz(touches));
+   const uint16_t id=synth_fine_target(index);
+   if(!id)return false;
+   const float value=clamp_target(id,editing_parameter(id)+delta*target_descriptor(id)->step*.1f);
+   return lock_path() && !sound_attribute_target(id)?set_lock(selected_step_,id,value):set_parameter(id,value);
+  }
   dirty_=true;const bool kit=track_const(selected_).instrument==Instrument::DrumKit;
   if(library_catalog_controls())return move_preset_library(delta);
   if(mode_==UiMode::Browser)return move_browser(delta);
@@ -506,6 +533,11 @@ auto Performance::encoder_push() -> bool{if(select_held() && mode_!=UiMode::Brow
   if(mode_==UiMode::Project && pending_project_!=ProjectAction::None)return confirm_project();
   if(mode_==UiMode::Project){if(project_list_cursor_==1)return store_sound(sound_slot_);if(project_list_cursor_==2)return recall_sound(sound_slot_);return open_project_browser();}
   if(source_select_)return open_preset_library();
+  if(synth_monitor_available()){
+   synth_monitor_=synth_monitor_==SynthMonitor::Engine?SynthMonitor::Scope:
+                  synth_monitor_==SynthMonitor::Scope?SynthMonitor::Spectrum:SynthMonitor::Engine;
+   return true;
+  }
   if(mode_==UiMode::Perform && performance_page_==0 && control_all_)return reset_control_all_offset();
   if(mode_==UiMode::Pad){set_mode(track_const(selected_).instrument==Instrument::DrumKit?UiMode::Sampler:UiMode::Synth);return true;}
   return false;

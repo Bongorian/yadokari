@@ -340,7 +340,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    WavView source=perf.mode()==UiMode::Browser?perf.browser().preview:sample;
    if(wave_cache_.update(source,perf.browser(),perf.visual().generation) || wave_cache_.pending())body_invalidated_=true;
   }
-  uint64_t context=unsigned(perf.mode());const unsigned contexts[]={unsigned(perf.tracker_view()),unsigned(perf.step_overview()),unsigned(perf.follow_display()),perf.selected_track(),perf.selected_kit_pad(),p.active_pattern,unsigned(t.instrument),perf.instrument_view(),perf.generate_page(),unsigned(perf.wave_profile()),unsigned(perf.wave_clock()),unsigned(perf.control_all()),perf.selected_step(),perf.generate_lane(),unsigned(perf.shifted()),unsigned(perf.select_held()),perf.modulation_page(),perf.performance_page(),perf.sampler_page(),perf.slice_cursor(),unsigned(perf.zone_vel()),perf.fx_page(),perf.settings_page(),perf.settings_cursor(),perf.group_cursor(),perf.fx_focus_slot(),perf.chain_node(),perf.song_cursor(),unsigned(perf.source_select()),perf.source_cursor(),unsigned(perf.source_arm_unknown()),unsigned(perf.routing_fx_page()),unsigned(perf.group_send_page()),perf.group_fx_slot(),perf.note_repeat_mode(),unsigned(perf.clip_follow_page()),unsigned(t.clip_follow.action),t.clip_follow.cycles,t.clip_follow.target,t.clip_follow.probability,unsigned(perf.scene_take_requested()),perf.visual().generation};for(unsigned key:contexts)context=(context^key)*1099511628211ull;if(perf.mode()==UiMode::Song){auto key=[&](uint32_t v){context=(context^v)*1099511628211ull;};key(p.song.length);key(p.song.enabled);key(p.song.loop);for(unsigned i=0;i<p.song.length;++i){const auto& sec=p.song.sections[i];key(sec.scene);key(sec.bars);key(sec.ticks);key(sec.mute_mask);key(sec.playing_mask);key(sec.restart_mask);key(uint8_t(sec.transpose));for(auto pattern:sec.patterns)key(pattern);}}
+  uint64_t context=unsigned(perf.mode());const unsigned contexts[]={unsigned(perf.tracker_view()),unsigned(perf.step_overview()),unsigned(perf.follow_display()),perf.selected_track(),perf.selected_kit_pad(),p.active_pattern,unsigned(t.instrument),perf.instrument_view(),unsigned(perf.synth_monitor()),perf.generate_page(),unsigned(perf.wave_profile()),unsigned(perf.wave_clock()),unsigned(perf.control_all()),perf.selected_step(),perf.generate_lane(),unsigned(perf.shifted()),unsigned(perf.select_held()),perf.modulation_page(),perf.performance_page(),perf.sampler_page(),perf.slice_cursor(),unsigned(perf.zone_vel()),perf.fx_page(),perf.settings_page(),perf.settings_cursor(),perf.group_cursor(),perf.fx_focus_slot(),perf.chain_node(),perf.song_cursor(),unsigned(perf.source_select()),perf.source_cursor(),unsigned(perf.source_arm_unknown()),unsigned(perf.routing_fx_page()),unsigned(perf.group_send_page()),perf.group_fx_slot(),perf.note_repeat_mode(),unsigned(perf.clip_follow_page()),unsigned(t.clip_follow.action),t.clip_follow.cycles,t.clip_follow.target,t.clip_follow.probability,unsigned(perf.scene_take_requested()),perf.visual().generation};for(unsigned key:contexts)context=(context^key)*1099511628211ull;if(perf.mode()==UiMode::Song){auto key=[&](uint32_t v){context=(context^v)*1099511628211ull;};key(p.song.length);key(p.song.enabled);key(p.song.loop);for(unsigned i=0;i<p.song.length;++i){const auto& sec=p.song.sections[i];key(sec.scene);key(sec.bars);key(sec.ticks);key(sec.mute_mask);key(sec.playing_mask);key(sec.restart_mask);key(uint8_t(sec.transpose));for(auto pattern:sec.patterns)key(pattern);}}
   if(perf.mode()==UiMode::Settings){auto key=[&](uint64_t value){context=(context^value)*1099511628211ull;};key(perf.device_saved());if(perf.settings_page()==4)key(perf.visual().sample);if(perf.settings_page()==5)for(const char* c=perf.network_midi_status();*c;++c)key(uint8_t(*c));if(perf.settings_page()==6){key(perf.storage_valid());key(perf.storage_free());key(perf.storage_total());}}
   for(unsigned n=0;n<16;++n)context=(context^unsigned(ui::track_engine_kind(p,n)))*1099511628211ull;
   for(const char* name=t.track_name;*name;++name)context=(context^uint8_t(*name))*1099511628211ull;
@@ -372,12 +372,18 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   const bool visual_page=(perf.mode()==UiMode::Synth && !perf.source_select()) || perf.mode()==UiMode::Sampler || perf.mode()==UiMode::Browser || perf.mode()==UiMode::Library || perf.mode()==UiMode::Mixer || perf.mode()==UiMode::Effects || perf.mode()==UiMode::Perform || (perf.mode()==UiMode::Routing && perf.routing_fx_page());
   uint64_t live_sig=1469598103934665603ull;auto hash_float=[&](float value){uint32_t bits;__builtin_memcpy(&bits,&value,sizeof bits);live_sig=fnv(live_sig,bits);};const auto* measured=perf.analysis();live_sig=fnv(live_sig,measured?1:0);
   if(visual_page)for(unsigned i=0;i<8;++i)hash_float(perf.knob_display_value(i));
+  if(perf.synth_monitor()==Performance::SynthMonitor::Scope){
+   const auto& f=perf.visual();
+   const bool current=perf.visual_fresh() && f.taps.track==perf.selected_track() && f.taps.source==255 && f.taps.generation==f.generation;
+   live_sig=fnv(live_sig,current);
+   if(current)for(float value:f.taps.pcm[1])hash_float(value);
+  }
   if(chimera_performance || (perf.mode()==UiMode::Synth && t.instrument==Instrument::Chimera)){
    const auto& frame=perf.visual();
    live_sig=fnv(live_sig,unsigned(perf.visual_fresh() && frame.taps.track==perf.selected_track()));
    live_sig=fnv(live_sig,unsigned(frame.chimera_available));
    live_sig=fnv(live_sig,frame.chimera.model);
-   if(frame.chimera.gate>0)live_sig=fnv(live_sig,frame.sample);
+   if(frame.chimera_live)live_sig=fnv(live_sig,frame.sample);
   }
    if(visual_page && measured)for(unsigned tap=0;tap<3;++tap){for(unsigned i=0;i<kVisualScope;++i){hash_float(measured->scope_low[tap][i]);hash_float(measured->scope_high[tap][i]);}for(unsigned i=0;i<kVisualBands;++i)hash_float(measured->spectrum[tap][i]);}
   unsigned selected=perf.selected_track();hash_float(perf.visual().voice_level[selected]);hash_float(perf.visual().wavetable_phase[selected]);hash_float(perf.visual().wavetable_position[selected]);hash_float(perf.visual().sample_position[selected]);hash_float(perf.visual().morph_position);for(unsigned slot=0;slot<2;++slot)for(unsigned i=0;i<16;++i)hash_float(perf.visual().vocoder_bands[selected][slot][i]);
@@ -402,7 +408,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
 
   repaint_knobs_=overlay && (repaint_body_ || scrolling_due(207,272) || !initialized_ || !context_matches_ || theme_changed || knobs_active(perf,now));
   // View indices are shared by signature and direction; no parallel index lists.
-  const unsigned sub[]={perf.instrument_view(),perf.generate_page(),unsigned(perf.wave_clock()),perf.modulation_page(),perf.performance_page(),perf.sampler_page(),perf.fx_page(),perf.settings_page(),unsigned(perf.source_select()),unsigned(perf.routing_fx_page()),unsigned(perf.group_send_page()),perf.group_fx_slot(),unsigned(perf.step_overview())+2*unsigned(perf.tracker_view())};
+  const unsigned sub[]={perf.instrument_view(),unsigned(perf.synth_monitor()),perf.generate_page(),unsigned(perf.wave_clock()),perf.modulation_page(),perf.performance_page(),perf.sampler_page(),perf.fx_page(),perf.settings_page(),unsigned(perf.source_select()),unsigned(perf.routing_fx_page()),unsigned(perf.group_send_page()),perf.group_fx_slot(),unsigned(perf.step_overview())+2*unsigned(perf.tracker_view())};
   uint64_t sub_sig=1469598103934665603ull;for(unsigned v:sub)sub_sig=fnv(sub_sig,v);
   uint64_t sel_sig=selection_signature(perf,t,p.active_pattern);
   if(dialog_up || perf.modal_active() || perf.help_visible() || theme_changed || perf.visual_settings().motion==ui::Motion::Off)transition_.cancel();
@@ -437,7 +443,15 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    case UiMode::Step:if(perf.tracker_view()){layout_reset();tracker(p,perf);break;}pattern(p,perf);if(t.instrument==Instrument::DrumKit)kit_panel(p,perf);else performance_visual();break;
    case UiMode::Chord:chords(p,perf);performance_visual();break;
    case UiMode::Keyboard:pads(p,perf);if(perf.step_chord_editor())step_chord_detail(p,perf);else performance_visual();break;
-   case UiMode::Synth:if(perf.source_select()){source_list(p,perf);source_detail(p,perf);}else if(perf.layer_page()){layer_picture(t,perf);}else if(perf.kit_edit_page()){pads(p,perf);kit_panel(p,perf);}else{synth_signal(p,t,perf);synth(t,perf);}break;
+   case UiMode::Synth:{
+    if(perf.source_select()){source_list(p,perf);source_detail(p,perf);break;}
+    const bool monitor=perf.synth_monitor()!=Performance::SynthMonitor::Engine;
+    if(perf.layer_page())layer_picture(t,perf);
+    else if(perf.kit_edit_page()){pads(p,perf);if(!monitor)kit_panel(p,perf);}
+    else{synth_signal(p,t,perf);if(!monitor)synth(t,perf);}
+    if(monitor)synth_monitor_picture(perf);
+    break;
+   }
    default:pads(p,perf);if(t.instrument==Instrument::DrumKit)kit_panel(p,perf);else performance_visual();break;
   }
   layout_reset();clip_y();
@@ -558,6 +572,7 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
    else if(perf.mode()==UiMode::Synth || perf.mode()==UiMode::Pad || perf.mode()==UiMode::Keyboard || perf.mode()==UiMode::Chord || perf.mode()==UiMode::Step){const auto t=track_at(p,p.active_pattern,perf.selected_track());if(i>=2 && i<=6 && !perf.wave_profile()){if(t.instrument==Instrument::FM){displayed=i==2?fm_ratio(raw):fm_index(raw);unit=i==2?"x":"rad";precision=2;}else{normalized=true;unit="%";}}}
    if(!perf.note_repeat_mode() && perf.control_all() && perf.mode()==UiMode::Perform && i+1==perf.control_all_parameter()){const auto* d=target_descriptor(uint16_t(i+1));displayed=raw*(d->maximum-d->minimum);}
    if(normalized)displayed*=100;
+   if(perf.knob_touched(i) && perf.synth_fine_target(i) && precision<6)++precision;
 
    bool target_name=!perf.note_repeat_mode() && perf.mode()==UiMode::Modulation && ((perf.modulation_page()==1 && i==1) || (perf.modulation_page()==2 && i==2));
    if(!perf.note_repeat_mode() && perf.mode()==UiMode::Modulation && perf.modulation_page()==2 && i==2 && perf.shifted()){unsigned n=unsigned(raw);out.append(mod_source_name(ModSource(n<=unsigned(ModSource::Velocity)?n:0)));return out;}

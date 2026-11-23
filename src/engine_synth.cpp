@@ -44,13 +44,17 @@ __attribute__((noinline)) void Engine::render_sampler_voice(Voice& v,float& l,fl
 }
 void Engine::present_chimera(AudioVisualFrame& frame){
  frame.chimera_available=chimera_slots_!=0;
+ frame.chimera_live=false;
  if(!chimera_slots_)return;
  const auto selected=frame.taps.track;
  const PolyVoice* newest=nullptr;
  for(const auto& poly:poly_voices_)if(poly.owner==selected && poly.voice.env>0 &&
      poly.voice.instrument==unsigned(Instrument::Chimera) && poly.voice.shared_slot<chimera_slots_ &&
      (!newest || poly.age>=newest->age))newest=&poly;
- if(newest)chimeras_[newest->voice.shared_slot].geometry(frame.chimera);
+ if(newest){
+  frame.chimera_live=true;
+  chimeras_[newest->voice.shared_slot].geometry(frame.chimera);
+ }
  else if(track(selected).instrument==Instrument::Chimera)
   chimeras_[0].geometry(frame.chimera,chimera_model(track(selected).chimera),false);
 }
