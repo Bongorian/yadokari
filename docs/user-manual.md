@@ -53,6 +53,7 @@ For features and limitations, see the [feature list](feature-matrix.md); for a l
   - [Brightness, pad sensitivity and settings retention](#brightness-pad-sensitivity-and-settings-retention)
   - [Input gain and tuner](#input-gain-and-tuner)
   - [MIDI Local Control](#midi-local-control)
+  - [Network MIDI](#network-midi)
 - [Files, connections and startup](#files-connections-and-startup)
   - [Organizing DATA and files](#organizing-data-and-files)
   - [File transfer over Ethernet](#file-transfer-over-ethernet)
@@ -1074,6 +1075,12 @@ Saving is the normal PROJECT → SAVE / SAVE AS operation. The attributes are ke
 1. Turn SETTINGS → MIDI's K1 LOCAL CONTROL Off. The body's Pads / Keyboard / Chords transmit on the Track's MIDI channel. A Kit's transmit notes are 36+pad (pad1=36).
 2. In a state with no OUT→IN loop or DAW echo, internal sounding stops, while external reception and the sequencer still sound. Even while OFF, notes that come back from outside sound.
 3. Switching while holding a Pad leaves no sound behind. Return it to On and you can play on the body. The setting is saved separately from the song.
+
+### Network MIDI
+
+1. Connect the Pi's Ethernet port to a network with DHCP. In SETTINGS → MIDI, select NETWORK MIDI with 4-D up/down and turn K1 to On. The right screen shows `Waiting for DHCP`, then the address and port, for example `192.168.1.20:5004 / 0 hosts`.
+2. On the computer, connect to `YADOKARI`: on macOS in Audio MIDI Setup → MIDI Network Setup, on Windows in rtpMIDI, on Linux with rtpmidid. On macOS, set the session's **Who may connect to me** to *Anyone*: then a session that macOS drops, for example while a large file is checked, comes back by itself. *Directory entries* also works, but after macOS has dropped a session it refuses YADOKARI's invitations for at least 7 minutes; with *No one*, notes from YADOKARI never reach applications. Up to four hosts can connect at once. YADOKARI remembers each host and invites it again after the Pi restarts or the connection times out; a host that you disconnect on the computer stays disconnected until you connect it again. Their notes and controllers play the tracks as DIN input does, AUTO / MIDI's K8 `SLAVE CLOCK` follows a host's Clock, and everything sent to MK3 MIDI OUT also goes to every connected host.
+3. NET LATENCY (0–50 ms, default 5) trades a little delay for steadier timing on a busy network. If a connection drops while notes sound, they are released within about 3 seconds, or at once when the Pi's own cable is pulled. Turning NETWORK MIDI Off ends the sessions and releases their notes; Ethernet stays up until restart. Both settings are saved separately from the song. For details, see [Hardware](hardware.md#network-midi).
 
 
 ---

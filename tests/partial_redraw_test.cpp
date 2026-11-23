@@ -78,6 +78,12 @@ int main() {
  perf.animate(8000);renderer->draw(project,perf);fresh->invalidate();fresh->draw(project,perf);
  assert(!perf.knob_overlay_mask());
  assert(std::memcmp(renderer->pixels[0]+100*480,fresh->pixels[0]+100*480,122*480*sizeof(uint32_t))==0);
+ // A new network MIDI status (DHCP done, a host joined) repaints the MIDI settings page by itself.
+ {DeviceSettings device=perf.device_settings();device.network_midi=true;perf.set_device_settings(device);}
+ perf.set_mode(UiMode::Settings);while(perf.settings_page()>5)perf.encoder_direction(0x20);while(perf.settings_page()<5)perf.encoder_direction(0x08);
+ perf.network_midi_status("Waiting for DHCP");perf.animate(9000);renderer->draw(project,perf);perf.animate(9300);renderer->draw(project,perf);
+ renderer->pixels[1][190*480+300]=kSentinel;perf.animate(9400);renderer->draw(project,perf);assert(renderer->pixels[1][190*480+300]==kSentinel);
+ perf.network_midi_status("192.168.1.20:5004 / 1 hosts");perf.animate(9500);renderer->draw(project,perf);assert(renderer->pixels[1][190*480+300]!=kSentinel);
  std::printf("partial redraw (band skip, pixel identity) passed\n");
  return 0;
 }

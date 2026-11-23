@@ -345,7 +345,9 @@ void CUpdateRuntime::Process(){
  unsigned now=CTimer::GetClockTicks();
  if((m_Channel==Serial||m_Channel==TCP)&&now-m_LastActivity>30000000){Disconnect();m_Status="RECEIVE TIMEOUT / RETRY PACKAGE";return;}
  if(m_Autoboot&&now-m_Start>=5000000){m_Autoboot=false;m_Manager.boot_active();}
- if(m_Net&&m_Net->IsRunning()){CString ip;m_Net->GetConfig()->GetIPAddress()->Format(&ip);m_Status.Format(m_TrialFallback?"TRIAL STATUS TCP %s:16701":"TCP %s:16700 / SIGNED PACKAGE ONLY",static_cast<const char*>(ip));}
+ // The address is shown once a listener exists: Ethernet may already run for
+ // network MIDI or a wired file transfer before pad 1 opens port 16700.
+ if(m_Net&&m_Net->IsRunning()&&(m_TrialFallback||m_Listener||m_ControlListener)){CString ip;m_Net->GetConfig()->GetIPAddress()->Format(&ip);m_Status.Format(m_TrialFallback?"TRIAL STATUS TCP %s:16701":"TCP %s:16700 / SIGNED PACKAGE ONLY",static_cast<const char*>(ip));}
  if(m_Channel==OfflineChannel){uint8_t buffer[4096];UINT n=0;unsigned wanted=m_Receiver.wanted();int result=-1;if(f_read(&m_Offline,buffer,wanted,&n)==FR_OK&&n==wanted)result=m_Receiver.feed(buffer,n);if(result<0||result==3){f_close(&m_Offline);m_OfflineOpen=false;m_Channel=Idle;if(result<0)m_Receiver.reset();m_Status=result==3?"VERIFIED / PAD 6 TO TRYBOOT":"OFFLINE UPDATE FAILED";}return;}
  auto* serial=m_Gadget?m_Gadget->GetSerialDevice():nullptr;
  if(m_Channel==Serial&&serial!=m_LastSerial){Disconnect();m_Status="USB-C DISCONNECTED / RETRY PACKAGE";return;}

@@ -21,6 +21,19 @@ components. Full license texts live with each component under
   implemented from our own hardware study, guided by encdr's published
   findings. This project would have taken far longer without it.
 
+## Network MIDI
+
+- **RTP-MIDI** — [RFC 6295](https://www.rfc-editor.org/rfc/rfc6295)
+  The session protocol and recovery journal are written from the RFC
+  and the AppleMIDI session conventions. No code from other
+  implementations is included. The packet layouts were cross-checked
+  against the [Wireshark](https://gitlab.com/wireshark/wireshark)
+  AppleMIDI dissector (GPL-2.0-or-later),
+  [rtpmidid](https://github.com/davidmoreno/rtpmidid) (GPL-3.0 /
+  LGPL-2.1), [Arduino-AppleMIDI-Library](https://github.com/lathoub/Arduino-AppleMIDI-Library)
+  (CC BY-SA 4.0), [pymidi](https://github.com/mik3y/pymidi) (MIT) and
+  [node-rtpmidi](https://github.com/jdachtera/node-rtpmidi) (MIT).
+
 ## Sound engines and DSP
 
 - **Chimera** — Jameson Hodge — MIT

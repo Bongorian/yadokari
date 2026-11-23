@@ -13,7 +13,9 @@ class MidiInputRouter {
  bool release(Engine& engine,unsigned idx){uint8_t value=notes_[idx];if(!value)return true;unsigned channel=(idx/128)%16,note=idx%128,cable=idx/(16*128);MidiPacket off{0,uint8_t(cable),3,{uint8_t(0x80|channel),uint8_t(note),0}};if(!engine.receive_midi(off,uint8_t((value&kOwnerMask)-1)))return false;if(value&kPending)--pending_;notes_[idx]=0;return true;}
 public:
  bool accept(Engine& engine,const ProjectState& project,const MidiPacket& packet){
-  sync(engine);if(packet.sample || packet.cable>=16)return false;
+  // Only system messages may carry an audio-sample time (network MIDI
+  // clock/transport, already timed by its source); channel messages act now.
+  sync(engine);if(packet.cable>=16 || (packet.sample && packet.bytes[0]<0xf0))return false;
   // A master's Active Sensing or a SysEx dump is not a fault: consume it, so
   // the caller neither reports nor logs every packet of it.
   if(ignored_midi_packet(packet))return true;
@@ -64,6 +66,9 @@ public:
  }
  void service(Engine& engine,unsigned budget=256){sync(engine);while(pending_ && budget--){unsigned idx=scan_++;if(scan_==kEntries)scan_=0;if((notes_[idx]&kPending) && !release(engine,idx)){scan_=idx;break;}}}
  void release_all(Engine& engine){sync(engine);for(auto& pedal:pedal_)pedal=0;for(auto& note:notes_)if(note && !(note&kPending)){note=(note&~kSustained)|kPending;++pending_;}scan_=0;service(engine);}
+ // Release only what one input port holds (e.g. a network session that ended),
+ // leaving notes from the other ports sounding.
+ void release_cable(Engine& engine,unsigned cable){if(cable>=16)return;sync(engine);for(unsigned c=0;c<16;++c)pedal_[cable*16+c]=0;for(unsigned i=index(cable,0,0),e=index(cable+1,0,0);i<e;++i){auto& note=notes_[i];if(note && !(note&kPending)){note=(note&~kSustained)|kPending;++pending_;}}scan_=index(cable,0,0);service(engine,16*128);}
  bool recover_dropped(Engine& engine,unsigned dropped,unsigned& observed){if(dropped==observed)return false;observed=dropped;release_all(engine);return true;}
 };
 }
