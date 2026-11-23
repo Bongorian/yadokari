@@ -53,6 +53,7 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
   - [明るさ・パッド感度・設定保持](#明るさパッド感度設定保持)
   - [入力ゲイン・チューナー](#入力ゲインチューナー)
   - [MIDI Local Control](#midi-local-control)
+  - [ネットワークMIDI](#ネットワークmidi)
 - [ファイル・接続・起動](#ファイル接続起動)
   - [DATAとファイルの整理](#dataとファイルの整理)
   - [Ethernetでファイルを追加・持ち出す](#ethernetでファイルを追加持ち出す)
@@ -1079,6 +1080,12 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 1. SETTINGS → MIDIのK1 LOCAL CONTROLをOff。本体Pad／Keyboard／ChordsはTrackのMIDI channelへ送信する。Kitの送信noteは36+pad（pad1=36）。
 2. OUT→INループやDAW echoがない状態では内部発音が止まり、外部受信とシーケンサーは鳴ります。OFF中でも外部から戻ったノートは発音します。
 3. Pad保持中に切り替えても音は残りません。Onに戻すと本体演奏ができます。設定は曲と別に保存されます。
+
+### ネットワークMIDI
+
+1. PiのEthernetをDHCPのあるネットワークに接続します。SETTINGS → MIDIで4-D上下でNETWORK MIDIを選び、K1でOnにします。右画面は`Waiting for DHCP`のあと、アドレスとポート（例：`192.168.1.20:5004 / 0 hosts`）を表示します。
+2. コンピューター側で`YADOKARI`に接続します。macOSはAudio MIDI設定 → MIDIネットワーク設定、WindowsはrtpMIDI、Linuxはrtpmididを使います。macOSではセッションの接続許可（**Who may connect to me**）を*Anyone*にします。こうすると、大きなファイルの検証中などにmacOSが切断したセッションも自動で戻ります。*Directory entries*でも接続できますが、macOSが自分でセッションを切断したあとは、少なくとも7分間YADOKARIからの招待を拒否します。*No one*のままでは、YADOKARIからのノートがアプリケーションに届きません。同時に4台まで接続できます。YADOKARIは接続したホストを記憶し、Piの再起動後や接続がタイムアウトしたあとに、そのホストを再び招待します。コンピューター側で切断したホストは、もう一度接続するまで切断されたままです。ホストからのノートやコントローラーはDIN入力と同じようにTrackを鳴らし、AUTO／MIDIのK8 `SLAVE CLOCK`はホストのClockに従います。MK3 MIDI OUTへ送る内容はすべて接続中のホストにも送られます。
+3. NET LATENCY（0–50 ms、既定5）は、混んだネットワークで少しの遅延と引き換えにタイミングを安定させます。演奏中に接続が切れると、鳴っているノートは約3秒以内に解放されます（Pi側のケーブルを抜いた場合はすぐに）。NETWORK MIDIをOffにするとセッションを終了し、そのノートを解放します。Ethernetは再起動まで有効のままです。どちらの設定も曲と別に保存されます。詳しくは[ハードウェア](hardware.md#network-midi)。
 
 
 ---

@@ -380,7 +380,10 @@ public:
  const ui::VisualSettings& visual_settings()const{return settings_;}
  unsigned settings_cursor()const{return settings_cursor_;}
  unsigned settings_page()const{return settings_page_;}
- unsigned settings_count()const{static const uint8_t counts[]={1,4,2,1,2,1,1};return counts[settings_page_];}
+ unsigned settings_count()const{static const uint8_t counts[]={1,4,2,1,2,3,1};return counts[settings_page_];}
+ // Network MIDI state as the firmware reports it (SETTINGS → MIDI shows it).
+ void network_midi_status(const char* text){if(!text)text="";if(__builtin_strcmp(text,network_midi_status_)){unsigned n=0;while(text[n] && n+1<sizeof network_midi_status_){network_midi_status_[n]=text[n];++n;}network_midi_status_[n]=0;dirty_=true;}}
+ const char* network_midi_status()const{return network_midi_status_;}
  float setting_raw_value(unsigned id)const;
  float setting_row_normalized(unsigned row)const;
  unsigned setting_knob_control(unsigned index)const{return index==0?setting_control(settings_cursor_):255;}
@@ -758,7 +761,7 @@ private:
  bool project_unnamed_=false;
  char project_path_[160]="PROJECTS/Untitled.mgxs";
  uint64_t pad_press_context_[16]{},pad_press_ms_[16]{};
- DeviceSettings device_{};uint32_t device_revision_=0;bool device_saved_=true,storage_valid_=false;uint64_t storage_free_=0,storage_total_=0,tuner_sample_=0;TunerReading tuner_{};mutable char device_text_[32]{};
+ char network_midi_status_[48]{};DeviceSettings device_{};uint32_t device_revision_=0;bool device_saved_=true,storage_valid_=false;uint64_t storage_free_=0,storage_total_=0,tuner_sample_=0;TunerReading tuner_{};mutable char device_text_[32]{};
  LiveVisualAnalysisSlot local_visual_analysis_{};LiveVisualAnalysisSlot* visual_analysis_worker_=&local_visual_analysis_;bool visual_analysis_inline_=true,analysis_valid_=false;VisualAnalysisFrame analysis_{};uint64_t analysis_received_ms_=0,analysis_due_ms_=0,analysis_requested_sample_=0;unsigned analysis_backoff_=0;
  char recovery_message_[64]{};UiNotice notice_=UiNotice::None;uint64_t notice_ms_=0;AudioVisualFrame visual_{};ui::VisualSettings settings_{};uint64_t knob_overlay_until_[8]{},knob_turn_until_[8]{};uint64_t now_ms_=0,launch_ms_=0,strip_interaction_until_ms_=0,visual_received_ms_=0,trigger_ms_[16]{};bool trigger_seen_[16]{},warning_=false,fill_active_=false,stutter_active_=false;uint8_t layer_cursor_=0,layer_edit_page_=0;uint16_t layer_pool_cursor_=0;uint8_t asset_cursor_=0,instrument_view_=0,settings_cursor_=0,settings_page_=0,source_cursor_=0,chain_node_=0,song_cursor_=0;bool source_select_=false;bool note_edit_=false,follow_display_=false;int8_t queued_scene_=-1;uint16_t queued_stops_=0;
  GrooveState groove_clipboard_{};int16_t groove_clip_timing_[16]{};bool groove_copied_=false,groove_clip_clipped_=false;

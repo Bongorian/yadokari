@@ -250,6 +250,8 @@ public:
  bool receive_audio(float l,float r){if(input_audio_.push({l,r}))return true;__atomic_add_fetch(&input_dropped_,1,__ATOMIC_RELAXED);return false;}
  unsigned input_audio_dropped()const{return __atomic_load_n(&input_dropped_,__ATOMIC_RELAXED);}
  uint64_t samples_rendered() const { return sample_count_; } // consumer thread only
+ // Any thread: a recent value of the rendered-sample counter (timing glue).
+ uint64_t samples_rendered_relaxed() const { return __atomic_load_n(&sample_count_,__ATOMIC_RELAXED); }
  unsigned active_sample_voices()const{unsigned count=0;for(const auto& v:voices_)if(v.instrument==unsigned(Instrument::Sampler) && v.sampler.active())++count;for(const auto& p:poly_voices_)if(p.owner<16 && p.voice.instrument==unsigned(Instrument::Sampler) && p.voice.sampler.active())++count;return count;} // consumer thread only
 #ifdef TEST
  unsigned poly_note_count(unsigned t)const{unsigned n=0;for(const auto& p:poly_voices_)if(p.owner==t)++n;return n;}

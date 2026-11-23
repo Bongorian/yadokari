@@ -20,6 +20,7 @@
 #include "mk3_midi.h"
 #include "update_runtime.h"
 #include "file_transfer.h"
+#include "net_midi.h"
 #include "serial_update_control.h"
 #include "circle_display.h"
 #include "display_calibration.h"
@@ -54,6 +55,14 @@ extern "C" unsigned GrooveXHCIIsoEvents(unsigned kind,unsigned endpoint);
 #include <circle/cputhrottle.h>
 static const char FromKernel[]="groove";
 static uint32_t AudioProfileClock(){return CTimer::GetClockTicks();}
+// The MIDI output pump's source: the engine's output queue, copied to the
+// network MIDI sessions as it is taken (whatever happens on MK3 MIDI OUT).
+struct MidiOutputSource {
+ groove::Engine& engine;CNetMidi* net;
+ bool pop_midi(groove::MidiEvent& e){if(!engine.pop_midi(e))return false;if(net)net->Queue(e.bytes,e.length,e.sample);return true;}
+ unsigned midi_boundary()const{return engine.midi_boundary();}
+ bool midi_at_boundary(unsigned boundary)const{return engine.midi_at_boundary(boundary);}
+};
 static bool FreshProbeSong(groove::IFileAccess& fs,char (&path)[96]){
  for(unsigned i=1;i<1000;++i){groove::copy_text(path,sizeof path,"GROOVE/CHECK-000.mgxs");path[13]=char('0'+i/100);path[14]=char('0'+i/10%10);path[15]=char('0'+i%10);
   bool used=fs.exists(path);const char* suffixes[]={".tmp",".new",".bak"};for(const char* suffix:suffixes){char other[112];groove::copy_text(other,sizeof other,path);unsigned n=0;while(other[n])++n;groove::copy_text(other+n,sizeof other-n,suffix);used|=fs.exists(other);}if(!used)return true;
@@ -193,6 +202,14 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
  if(m_BootConsole){m_Logger.Initialize(&m_Serial);m_BootConsole=false;}
 #endif
  updater->Initialize(false);
+ // Network MIDI (RTP-MIDI over Ethernet) follows SETTINGS -> MIDI -> NETWORK
+ // MIDI; the main loop starts Ethernet the first time it is on.
+ auto* net_midi=new CNetMidi();unsigned net_midi_rejected=0,net_midi_reject_log=0;
+ if(net_midi)net_midi->SetSampleRate(engine->sample_rate());
+ // Hosts to invite again (rtp_midi_session.h), replaced whole on each change.
+ if(net_midi){uint8_t hosts[groove::rtpmidi::kKnownBytes];unsigned got=0;
+  if((m_Storage.read("GROOVE/NETHOSTS.CFG",0,hosts,sizeof hosts,got) && got) || (m_Storage.read("GROOVE/NETHOSTS.TMP",0,hosts,sizeof hosts,got) && got))net_midi->LoadHosts(hosts,got);}
+ bool net_midi_tried=false;unsigned net_midi_try_us=0,net_midi_status_us=0;char net_midi_reason[48]="";
  auto* file_transfer=new CFileTransfer(m_Storage,*project,performance,*updater);if(!file_transfer){m_Logger.Write(FromKernel,LogError,"Boot allocation failed (file transfer)");return ShutdownHalt;}
  {uint32_t checkpoint=0;unsigned got=0;if(m_Storage.exists("GROOVE/WaveOneCheck.chk") && m_Storage.read("GROOVE/WaveOneCheck.chk",0,&checkpoint,sizeof checkpoint,got) && got==sizeof checkpoint && (checkpoint&0xffff0000u)==0x57430000u)m_Logger.Write(FromKernel,LogWarning,"Interrupted preset check checkpoint engine %u stage %u detail %u",unsigned(checkpoint&255u)/16,unsigned(checkpoint&15u),unsigned((checkpoint>>8)&255u));}
  groove::PresetFunctionalCheck preset_check(files,m_Storage,*engine,*project,performance);unsigned preset_check_progress=0,preset_heap_min=~0u;
@@ -552,7 +569,37 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
   groove::LoopbackRecordResult loopback;
   if(files.take_loopback_probe_result(loopback)){m_Logger.Write(FromKernel,loopback.verified && loopback.cleaned?LogNotice:LogWarning,"Loopback WAV saved %u verified %u cleaned %u frames %u rms-uv %u/%u peak-uv %u/%u tone-uv %u/%u input-drops %u",unsigned(loopback.saved),unsigned(loopback.verified),unsigned(loopback.cleaned),loopback.frames,loopback.rms_l_u,loopback.rms_r_u,loopback.peak_l_u,loopback.peak_r_u,loopback.tone_l_u,loopback.tone_r_u,loopback.dropped);if(audio){audio->EndProbeStats();auto probe=audio->GetProbeStats();m_Logger.Write(FromKernel,LogNotice,"Loopback USB peaks main %u phones %u input-right %u/%u uFS",probe.main_peak_u,probe.phones_peak_u,probe.input_right_peak_l_u,probe.input_right_peak_r_u);}}
   groove::ClockEvent clock_event; while(engine->pop_clock(clock_event)) {}
-  if(!midi_probe.owns_output() && midi_retry.ready(CTimer::GetClockTicks64()/1000)){unsigned failures=midi_output.flush_realtime(*engine,[&](unsigned cable,const uint8_t* bytes,unsigned length){bool ok=midi_connected && midi->Send(cable,bytes,length);groove::DiagnosticEvent diag;diag.timestamp=CTimer::GetClockTicks64();diag.kind=ok?groove::DiagnosticKind::MidiOut:groove::DiagnosticKind::TransferError;performance.diagnostics().accept(diag);return ok;});midi_output_failures+=failures;if(failures)midi_retry.failed(CTimer::GetClockTicks64()/1000);else midi_retry.reset();bool fence_drained=midi_output.take_resync_request();if(midi_output.take_recovered() || fence_drained){midi_resync_pending=true;midi_transport_resync_pending=true;}}
+  if(net_midi){
+   // Turning NETWORK MIDI on starts Ethernet (DHCP), which then stays up
+   // until restart; turning it off ends the sessions and closes the ports.
+   const auto& device=performance.device_settings();
+   const unsigned now_us=CTimer::GetClockTicks();
+   if(device.network_midi && !net_midi->attached() && !updater->active() && !file_transfer->active() && (!net_midi_tried || now_us-net_midi_try_us>=5000000)){
+    net_midi_tried=true;net_midi_try_us=now_us;
+    CNetSubSystem* net=updater->BeginFilesNetwork(nullptr,false,true);net_midi->Attach(net);
+    const char* reason=net?"":updater->NetworkStatus();
+    if(strcmp(reason,net_midi_reason)!=0){
+     strncpy(net_midi_reason,reason,sizeof net_midi_reason-1);net_midi_reason[sizeof net_midi_reason-1]=0;
+     if(net)m_Logger.Write(FromKernel,LogNotice,"Network MIDI on: Ethernet started; waiting for DHCP");
+     else m_Logger.Write(FromKernel,LogWarning,"Network MIDI on but Ethernet unavailable: %s",net_midi_reason);
+    }
+   }
+   net_midi->SetLatency(device.net_latency_ms);
+   if(!updater->active() && !file_transfer->active() && net_midi->TakeHostsChanged()){
+    uint8_t hosts[groove::rtpmidi::kKnownBytes];const unsigned n=net_midi->EncodeHosts(hosts,sizeof hosts);
+    const bool ok=n && m_Storage.directory("GROOVE") && m_Storage.write("GROOVE/NETHOSTS.TMP",0,hosts,n,true) && (!m_Storage.exists("GROOVE/NETHOSTS.CFG") || m_Storage.remove("GROOVE/NETHOSTS.CFG")) && m_Storage.move("GROOVE/NETHOSTS.TMP","GROOVE/NETHOSTS.CFG");
+    if(!ok)m_Logger.Write(FromKernel,LogWarning,"Network MIDI: cannot store the remembered hosts");
+   }
+   if(now_us-net_midi_status_us>=500000){
+    net_midi_status_us=now_us;char status[48]="";
+    if(device.network_midi){if(net_midi->attached())net_midi->Status(status,sizeof status);else strncpy(status,net_midi_reason,sizeof status-1);}
+    performance.network_midi_status(status);
+   }
+  }
+  CNetMidi* net_live=net_midi && net_midi->attached()?net_midi:nullptr;
+  if(net_live)net_live->ObserveAudio(engine->samples_rendered_relaxed());
+  if(!midi_probe.owns_output() && midi_retry.ready(CTimer::GetClockTicks64()/1000)){MidiOutputSource midi_source{*engine,net_live};unsigned failures=midi_output.flush_realtime(midi_source,[&](unsigned cable,const uint8_t* bytes,unsigned length){bool ok=midi_connected && midi->Send(cable,bytes,length);groove::DiagnosticEvent diag;diag.timestamp=CTimer::GetClockTicks64();diag.kind=ok?groove::DiagnosticKind::MidiOut:groove::DiagnosticKind::TransferError;performance.diagnostics().accept(diag);return ok;});midi_output_failures+=failures;if(failures)midi_retry.failed(CTimer::GetClockTicks64()/1000);else midi_retry.reset();bool fence_drained=midi_output.take_resync_request();if(midi_output.take_recovered() || fence_drained){midi_resync_pending=true;midi_transport_resync_pending=true;}}
+  if(net_live)net_live->FlushOutput();
   auto& midi_diag=performance.diagnostics();auto midi_status=groove::midi_diagnostic_status(hid!=nullptr,midi->Connected(),midi_connected,midi->output_blocked(),midi->binding_exhausted());unsigned midi_lost=midi->Dropped();if(midi_diag.midi_status!=midi_status || midi_diag.midi_dropped!=midi_lost){midi_diag.midi_status=midi_status;midi_diag.midi_dropped=midi_lost;performance.mark_dirty();}
   midi_input->service(*engine);
   auto midi_loss=[&](){unsigned dropped=midi->Dropped();if(!midi_input->recover_dropped(*engine,dropped,last_midi_drops))return false;m_Logger.Write(FromKernel,LogWarning,"MIDI input queue lost events total %u; releasing input notes",dropped);return true;};
@@ -573,6 +620,24 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
    if(updater->active() || file_transfer->active())continue;
    groove::MidiPacket packet{0,me.cable,me.length,{me.bytes[0],me.bytes[1],me.bytes[2]}};
    if(!midi_input->accept(*engine,*project,packet)) m_Logger.Write(FromKernel,LogWarning,"MIDI input rejected or audio command queue full");
+  }
+  if(net_live){
+   // Sessions keep answering clock sync even while input is suspended.
+   const bool net_input=!midi_probe.active() && !updater->active() && !file_transfer->active();
+   auto net_in=[&](unsigned cable,const uint8_t* bytes,unsigned length,uint64_t sample){
+    groove::DiagnosticEvent diag;diag.kind=groove::DiagnosticKind::MidiIn;diag.timestamp=CTimer::GetClockTicks64();diag.size=length;for(unsigned i=0;i<3;++i)diag.data[i]=i<length?bytes[i]:0;performance.diagnostics().accept(diag);
+    groove::MidiPacket packet{sample,uint8_t(cable),uint8_t(length),{bytes[0],length>1?bytes[1]:uint8_t(0),length>2?bytes[2]:uint8_t(0)}};
+    if(!groove::valid_midi_packet(packet))return; // MTC, song select, active sensing...
+    // The same router as DIN: channel messages get track mapping and held
+    // notes; clock, transport and song position keep their audio-sample
+    // time and reach the same clock estimator as DIN clock.
+    const bool ok=midi_input->accept(*engine,*project,packet);
+    if(!ok){++net_midi_rejected;unsigned now=CTimer::GetClockTicks();if(now-net_midi_reject_log>1000000){net_midi_reject_log=now;m_Logger.Write(FromKernel,LogWarning,"Network MIDI input rejected or audio command queue full (total %u)",net_midi_rejected);}}
+   };
+   net_live->Poll(performance.device_settings().network_midi,net_input,
+    [&](unsigned cable,const uint8_t* bytes,unsigned length){net_in(cable,bytes,length,0);},
+    [&](unsigned cable,const uint8_t* bytes,unsigned length,uint64_t sample){net_in(cable,bytes,length,sample);},
+    [&](unsigned cable){midi_input->release_cable(*engine,cable);});
   }
   midi_probe.service(CTimer::GetClockTicks64(),midi_connected && !updater->active() && !file_transfer->active(),midi->Dropped(),[&](const groove::MidiPacket& packet){
    bool ok=midi->Send(packet.cable,packet.bytes,packet.length);

@@ -380,6 +380,19 @@ int main(){
   assert(router->accept(*e,*p,{0,1,3,{0x90,61,100}}));e->render(audio,1);while(e->pop_midi(m)){}unsigned observed=0;assert(!router->recover_dropped(*e,0,observed));assert(router->recover_dropped(*e,1,observed) && observed==1);offs=0;for(unsigned i=0;i<16;++i){router->service(*e);e->render(audio,1);while(e->pop_midi(m))if(m.bytes[0]==0x80 && m.bytes[1]==61)++offs;}assert(offs==1 && !router->recover_dropped(*e,1,observed));
   auto timed=std::make_unique<Engine>();assert(timed->stage_project(*p));timed->render(audio,0);assert(timed->receive_midi({1,0,3,{0x90,62,100}},0));assert(timed->receive_midi({2,1,3,{0x90,62,100}},0));assert(timed->receive_midi({3,0,3,{0x80,62,0}},0));assert(timed->receive_midi({4,1,3,{0x80,62,0}},0));timed->render(audio,5);unsigned at3=0,at4=0;while(timed->pop_midi(m))if(m.bytes[0]==0x80){if(m.sample==3)++at3;if(m.sample==4)++at4;}assert(at3==1 && at4==1);
  }
+ // A network session that ends releases only its own cable: the DIN note and
+ // the other session's sustained note keep sounding.
+ {auto p=std::make_unique<ProjectState>();track_at(*p,0,0).instrument=Instrument::ExternalMidi;p->midi_input_route[0]=0;auto e=std::make_unique<Engine>();assert(e->stage_project(*p));auto router=std::make_unique<MidiInputRouter>();float audio[12]{};e->render(audio,0);MidiEvent m;
+  assert(router->accept(*e,*p,{0,0,3,{0x90,60,100}}));assert(router->accept(*e,*p,{0,12,3,{0xb0,64,127}}));assert(router->accept(*e,*p,{0,12,3,{0x90,62,100}}));assert(router->accept(*e,*p,{0,13,3,{0xb0,64,127}}));assert(router->accept(*e,*p,{0,13,3,{0x90,64,100}}));assert(router->accept(*e,*p,{0,13,3,{0x80,64,0}}));e->render(audio,1);while(e->pop_midi(m)){}
+  router->release_cable(*e,13);router->service(*e);e->render(audio,1);unsigned offs=0;while(e->pop_midi(m))if(m.bytes[0]==0x80){++offs;assert(m.bytes[1]==64);}assert(offs==1);
+  router->release_cable(*e,12);router->service(*e);e->render(audio,1);offs=0;while(e->pop_midi(m))if(m.bytes[0]==0x80){++offs;assert(m.bytes[1]==62);}assert(offs==1);
+  router->release_all(*e);router->service(*e);e->render(audio,1);offs=0;while(e->pop_midi(m))if(m.bytes[0]==0x80){++offs;assert(m.bytes[1]==60);}assert(offs==1);}
+ // Network clock and transport keep their audio-sample time through the
+ // router (the engine queue that DIN-style clock tests use); a timed
+ // channel message is refused.
+ {auto p=std::make_unique<ProjectState>();auto e=std::make_unique<Engine>();assert(e->stage_project(*p));auto router=std::make_unique<MidiInputRouter>();float audio[2]{};e->render(audio,0);
+  assert(router->accept(*e,*p,{5,12,1,{0xfa,0,0}}) && router->accept(*e,*p,{6,12,1,{0xf8,0,0}}));assert(!router->accept(*e,*p,{6,12,3,{0x90,60,100}}));
+  assert(!router->accept(*e,*p,{4,12,1,{0xf8,0,0}}));} // not back in time
  // MIDI cable identity must not collide with hardware pad identities, and
  // repeat must keep only the input that remains held.
  {auto p=std::make_unique<ProjectState>();track_at(*p,0,0).instrument=Instrument::ExternalMidi;auto e=std::make_unique<Engine>(8000);assert(e->stage_project(*p));float samples[2002]{};e->render(samples,0);Command pad{CommandType::Trigger,0,0,100};pad.parameter=2;pad.scalar=60;assert(e->submit(pad));assert(e->receive_midi({0,1,3,{0x90,60,100}},0));e->render(samples,1);MidiEvent m;while(e->pop_midi(m)){}assert(e->receive_midi({0,1,3,{0x80,60,0}},0));e->render(samples,0);unsigned offs=0;while(e->pop_midi(m))if(m.bytes[0]==0x80)++offs;assert(offs==1);Command up{CommandType::NoteOff,0,0,60};up.parameter=2;assert(e->submit(up));e->render(samples,0);offs=0;while(e->pop_midi(m))if(m.bytes[0]==0x80)++offs;assert(offs==1);

@@ -15,6 +15,37 @@ story, kept current per release.
   Wi-Fi, its access point is open and its file transfer is
   plaintext HTTP — use it only on networks you trust.
 
+- **Network MIDI is Ethernet-only, without SysEx.** RTP-MIDI
+  takes up to four hosts at once and ignores SysEx in both
+  directions. Received channel messages act at the start of the
+  next audio block after their due time (clock and transport act
+  on their exact sample). Output follows the MK3 MIDI OUT queue,
+  so it pauses while that output waits to retry. Once NETWORK MIDI
+  has started Ethernet it stays up until restart; in builds that
+  enable Wi-Fi, Wi-Fi file transfer then needs a restart with the
+  setting off. The session name
+  is always `YADOKARI`; with two units on one network, add each by
+  IP. Notes from a host that never answers YADOKARI's clock probe
+  (CK) are released only when its session times out after 60
+  seconds of silence, and such a host is not rechecked after a long
+  pause of the main loop.
+- **Network MIDI reconnects only to a remembered address.**
+  YADOKARI invites a host again at the address and control port it
+  last connected from; a host whose address changed (a new DHCP
+  lease) has to connect again from the computer. A host that ended
+  the session itself, or refused an invitation, is not invited
+  until it connects again, so a computer that says goodbye when it
+  shuts down is not invited after it starts. During FILE TRANSFER
+  and updates received network MIDI is not played, and while a
+  large file is checked the sessions are not served at all; they
+  are checked afterwards and invited again if they were lost. A
+  Disconnect pressed on the computer during that check counts as
+  such a loss, so the session has to be disconnected again after it.
+  A Mac whose connection policy is *Directory entries* drops the
+  session during a long check and then refuses YADOKARI's
+  invitations for at least 7 minutes, so the session comes back by
+  itself only with *Anyone*; otherwise connect again from the Mac.
+
 ## Updates and signing
 
 - **One baked-in update key, no rotation.** Official images trust
