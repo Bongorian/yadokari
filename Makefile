@@ -1351,7 +1351,12 @@ test-run-wavetable-engine: build/test-wavetable-engine
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-engine
 wavetable-bank:
 	python3 tools/content/generate-wavetable.py
-test-all: test-run-wavetable-engine
+build/test-wavetable-alias: tests/wavetable_alias_test.cpp src/wavetable_voice.h src/wavetable_warp.h src/wavetable_state.h build/host-support/src/wavetable_bank.o build/host-support/third_party/daisysp/Source/Control/adsr.o $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O2 -Wall -Wextra -Werror $< $(filter %.o,$^) -o $@ $(UI_BASE_ARCHIVE)
+.PHONY: test-run-wavetable-alias
+test-run-wavetable-alias: build/test-wavetable-alias
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-alias
+test-all: test-run-wavetable-engine test-run-wavetable-alias
 
 build/test-virtual-analog-engine: tests/virtual_analog_engine_test.cpp build/test-core-engine.o $(DEMO_HEADERS) $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
 	$(CXX) $(HOST_FLAGS) $(SAN) -O1 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs $< build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) -o $@ $(UI_BASE_ARCHIVE)
@@ -1942,6 +1947,8 @@ build/factory-catalog build/test-factory-content build/test-factory-boot-gate: s
 # Authored T1-T4 comparison data, independent of the synthetic DSP probe suite.
 build/efficiency-tracks: tools/dsp/efficiency_tracks.cpp $(wildcard src/*.h src/*.inc) $(UI_TOOL_ARCHIVE)
 	$(CXX) -std=c++17 -O1 -Isrc -Wall -Wextra -Werror $< -o $@ $(UI_TOOL_ARCHIVE)
+build/wavetable-profile: tools/dsp/wavetable_profile.cpp $(ENGINE_TOOL_OBJECTS) $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) -O2 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs $(SAN) $< $(ENGINE_TOOL_OBJECTS) $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) -o $@ $(UI_BASE_ARCHIVE)
 build/render-efficiency: tools/dsp/render_efficiency.cpp $(ENGINE_TOOL_OBJECTS) $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
 	$(CXX) $(HOST_FLAGS) -O2 -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-local-typedefs $(SAN) -pthread $< $(ENGINE_TOOL_OBJECTS) $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) -o $@ $(UI_BASE_ARCHIVE)
 build/render-efficiency-sanitized: tools/dsp/render_efficiency.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)

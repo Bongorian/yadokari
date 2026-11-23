@@ -120,7 +120,7 @@ int main() {
   assert(perf.soft_key(0));exercise();
   if(perf.soft_enabled(2)){assert(perf.soft_key(2));exercise();}
   if(perf.soft_enabled(3)){
-   const unsigned count=inst==Instrument::Additive?2:3;
+   const unsigned count=inst==Instrument::Wavetable?1:inst==Instrument::Additive?2:3;
    for(unsigned b=0;b<count;++b){assert(perf.soft_key(3));assert(perf.instrument_view()==kFirstSynthDetailView+b);exercise();}
    assert(perf.soft_key(3) && perf.instrument_view()==kFirstSynthDetailView);
    assert(perf.soft_key(0) && perf.instrument_view()==0);

@@ -1,5 +1,6 @@
 // Shared UI implementation: ordinary translation-unit boundaries, uniform -O3.
 #include "ui_renderer.h"
+#include "wavetable_warp.h"
 namespace groove {
 auto UiRenderer::sampler(ConstTrackView t,const Performance& perf,WavView sample,const char* name) -> void{
   sampler_body(t,perf,sample,name);
@@ -347,6 +348,34 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
     centered_label(1,x-3,168,58,14,number,theme.text,Font::Small);
     char name[]={'O','P',' ',char('6'-op),0};centered_label(1,x-3,184,58,14,name,ink,Font::Small);
    }
+   return;
+  }
+  if(t.instrument==Instrument::Wavetable && perf.instrument_view()==kFirstSynthDetailView){
+   if(!wavetable_bank_ready()){label(1,24,140,"WAVETABLE BANK UNAVAILABLE",theme.secondary,Font::Body,430);return;}
+   VisualData cycle;cycle.available=true;cycle.bipolar=true;cycle.count=128;
+   cycle.label="WARP / PM  /  BASE TABLE MODEL";
+   const float position=ui::recipe_value(t,0,&perf);
+   const unsigned a=unsigned(position),b=a<127?a+1:a;
+   const unsigned mode=unsigned(ui::recipe_value(t,WavetableWarpMode,&perf));
+   const float warp=ui::recipe_value(t,WavetableWarpAmount,&perf);
+   const float ratio=ui::recipe_value(t,WavetablePmRatio,&perf);
+   const float depth=ui::recipe_value(t,WavetablePmAmount,&perf);
+   auto sample=[&](float phase){
+    const float at=wavetable_wrap(phase)*kWavetableSamples;
+    const unsigned left=unsigned(at)%kWavetableSamples,right=(left+1)%kWavetableSamples;
+    auto read=[&](unsigned wave){
+     const auto* data=kWavetableData[wave][0];
+     return data[left]+(data[right]-data[left])*(at-float(left));
+    };
+    const float first=read(a);return (first+(read(b)-first)*(position-a))/32768.f;
+   };
+   for(unsigned i=0;i<cycle.count;++i){
+    const float phase=float(i)/float(cycle.count-1);
+    const auto map=wavetable_read_phases(phase,mode,warp,phase*ratio,depth);
+    const float first=sample(map.first),mixed=first+(sample(map.second)-first)*map.blend;
+    cycle.values[i]=ui::clamp01(.5f+.5f*mixed);
+   }
+   visual_element(1,24,82,430,118,{VisualElement::Curve},cycle,theme.teal);
    return;
   }
   if(t.instrument==Instrument::Formant && perf.instrument_view()==0){

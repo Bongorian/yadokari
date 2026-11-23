@@ -1864,7 +1864,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-18-page-0.png",
-      "sha256": "57197a1a29ae504adf79362e11d918207e2baab019ddb302bb5916c851075b7f"
+      "sha256": "faef48b0c935a502bab345f0544de98fea2dd091dcb0a99a2d28f3e46807406d"
     },
     {
       "page": "engine-18-page-1",
@@ -1874,7 +1874,17 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-18-page-1.png",
-      "sha256": "d86dd4052fefa1738dec3b26fff255eead7a7b01345806687e1785772c9a56ad"
+      "sha256": "b32b59566f1af7482c31c8c0f93388a2c50f95462a49982485442bcf9c53fba3"
+    },
+    {
+      "page": "engine-18-page-3",
+      "mode": "SYNTH",
+      "engine": 18,
+      "engine_page": 5,
+      "title": "SYNTH",
+      "theme": "cyber-2",
+      "file": "engine-18-page-3.png",
+      "sha256": "ccf1e9e1f0d4987b9779a4889fbc44c3dc8432f405c64a54da88ca8974fa73d3"
     },
     {
       "page": "engine-19-page-0",

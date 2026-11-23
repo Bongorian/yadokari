@@ -5925,39 +5925,39 @@ engine-18-page-0	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
 engine-18-page-0	SYNTH	0	knob	2	SCAN DEPTH	1	sound	value	1	0.000000	33345	71	0
 engine-18-page-0	SYNTH	0	button	3		0	sound	empty	2		0	0	0
 engine-18-page-0	SYNTH	0	knob	3	SCAN RATE	1	sound	value	2	1.000000	33346	63	0
-engine-18-page-0	SYNTH	0	button	4		0	sound	empty	3		0	0	0
+engine-18-page-0	SYNTH	0	button	4	DETAILS	1	sound	selection	3		0	47	0
 engine-18-page-0	SYNTH	0	knob	4	ATTACK	1	sound	value	3	0.005000	33347	43	0
 engine-18-page-0	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
 engine-18-page-0	SYNTH	0	knob	5	RELEASE	1	sound	value	4	0.300000	33348	51	0
 engine-18-page-0	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
-engine-18-page-0	SYNTH	0	knob	6		0	sound	value	5	0.000000	0	0	0
+engine-18-page-0	SYNTH	0	knob	6	DECAY	1	sound	value	5	0.200000	33349	37	0
 engine-18-page-0	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
-engine-18-page-0	SYNTH	0	knob	7		0	sound	value	6	0.000000	0	0	0
+engine-18-page-0	SYNTH	0	knob	7	SUSTAIN	1	sound	value	6	0.700000	33350	48	0
 engine-18-page-0	SYNTH	0	button	8		0	sound	empty	7		0	0	0
-engine-18-page-0	SYNTH	0	knob	8		0	sound	value	7	0.000000	0	0	0
+engine-18-page-0	SYNTH	0	knob	8	BRIGHTNESS	1	sound	value	7	1.000000	33351	71	0
 engine-18-page-0	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
 engine-18-page-0	SYNTH	1	knob	1	POSITION	1	sound	value	0	0.000000	33344	53	0
 engine-18-page-0	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
 engine-18-page-0	SYNTH	1	knob	2	SCAN DEPTH	1	sound	value	1	0.000000	33345	71	0
 engine-18-page-0	SYNTH	1	button	3		0	sound	empty	2		0	0	0
 engine-18-page-0	SYNTH	1	knob	3	SCAN RATE	1	sound	value	2	1.000000	33346	63	0
-engine-18-page-0	SYNTH	1	button	4		0	sound	empty	3		0	0	0
+engine-18-page-0	SYNTH	1	button	4	DETAILS	1	sound	selection	3		0	47	0
 engine-18-page-0	SYNTH	1	knob	4	ATTACK	1	sound	value	3	0.005000	33347	43	0
 engine-18-page-0	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
 engine-18-page-0	SYNTH	1	knob	5	RELEASE	1	sound	value	4	0.300000	33348	51	0
 engine-18-page-0	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
-engine-18-page-0	SYNTH	1	knob	6		0	sound	value	5	0.000000	0	0	0
+engine-18-page-0	SYNTH	1	knob	6	DECAY	1	sound	value	5	0.200000	33349	37	0
 engine-18-page-0	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
-engine-18-page-0	SYNTH	1	knob	7		0	sound	value	6	0.000000	0	0	0
+engine-18-page-0	SYNTH	1	knob	7	SUSTAIN	1	sound	value	6	0.700000	33350	48	0
 engine-18-page-0	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
-engine-18-page-0	SYNTH	1	knob	8		0	sound	value	7	0.000000	0	0	0
+engine-18-page-0	SYNTH	1	knob	8	BRIGHTNESS	1	sound	value	7	1.000000	33351	71	0
 engine-18-page-1	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
 engine-18-page-1	SYNTH	0	knob	1	LEVEL	1	sound	value	0	0.350000	1	36	0
 engine-18-page-1	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
 engine-18-page-1	SYNTH	0	knob	2	PAN	1	sound	value	1	0.000000	2	23	0
 engine-18-page-1	SYNTH	0	button	3		0	sound	empty	2		0	0	0
 engine-18-page-1	SYNTH	0	knob	3	CUTOFF	1	sound	value	2	1.000000	3	44	0
-engine-18-page-1	SYNTH	0	button	4		0	sound	empty	3		0	0	0
+engine-18-page-1	SYNTH	0	button	4	DETAILS	1	sound	selection	3		0	47	0
 engine-18-page-1	SYNTH	0	knob	4	DRIVE	1	sound	value	3	0.000000	4	34	0
 engine-18-page-1	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
 engine-18-page-1	SYNTH	0	knob	5	DELAY SEND	1	sound	value	4	0.000000	5	70	0
@@ -5973,7 +5973,7 @@ engine-18-page-1	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
 engine-18-page-1	SYNTH	1	knob	2	PAN	1	sound	value	1	0.000000	2	23	0
 engine-18-page-1	SYNTH	1	button	3		0	sound	empty	2		0	0	0
 engine-18-page-1	SYNTH	1	knob	3	CUTOFF	1	sound	value	2	1.000000	3	44	0
-engine-18-page-1	SYNTH	1	button	4		0	sound	empty	3		0	0	0
+engine-18-page-1	SYNTH	1	button	4	DETAILS	1	sound	selection	3		0	47	0
 engine-18-page-1	SYNTH	1	knob	4	DRIVE	1	sound	value	3	0.000000	4	34	0
 engine-18-page-1	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
 engine-18-page-1	SYNTH	1	knob	5	DELAY SEND	1	sound	value	4	0.000000	5	70	0
@@ -5983,6 +5983,38 @@ engine-18-page-1	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
 engine-18-page-1	SYNTH	1	knob	7	LFO DEPTH	1	sound	value	6	0.000000	7	62	0
 engine-18-page-1	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
 engine-18-page-1	SYNTH	1	knob	8	LFO HZ	1	sound	value	7	1.000000	8	40	0
+engine-18-page-3	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-18-page-3	SYNTH	0	knob	1	WARP MODE	1	sound	value	0	0.000000	33352	66	0
+engine-18-page-3	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0
+engine-18-page-3	SYNTH	0	knob	2	WARP AMT	1	sound	value	1	0.000000	33353	59	0
+engine-18-page-3	SYNTH	0	button	3		0	sound	empty	2		0	0	0
+engine-18-page-3	SYNTH	0	knob	3	PM RATIO	1	sound	value	2	1.000000	33354	53	0
+engine-18-page-3	SYNTH	0	button	4	DETAILS	1	sound	selection	3		0	47	0
+engine-18-page-3	SYNTH	0	knob	4	PM AMT	1	sound	value	3	0.000000	33355	43	0
+engine-18-page-3	SYNTH	0	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-18-page-3	SYNTH	0	knob	5		0	sound	value	4	0.000000	0	0	0
+engine-18-page-3	SYNTH	0	button	6	MODULATION	1	sound	exit	5		0	90	0
+engine-18-page-3	SYNTH	0	knob	6		0	sound	value	5	0.000000	0	0	0
+engine-18-page-3	SYNTH	0	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-18-page-3	SYNTH	0	knob	7		0	sound	value	6	0.000000	0	0	0
+engine-18-page-3	SYNTH	0	button	8		0	sound	empty	7		0	0	0
+engine-18-page-3	SYNTH	0	knob	8		0	sound	value	7	0.000000	0	0	0
+engine-18-page-3	SYNTH	1	button	1	GENERATOR	1	sound	selection	0		0	66	0
+engine-18-page-3	SYNTH	1	knob	1	WARP MODE	1	sound	value	0	0.000000	33352	66	0
+engine-18-page-3	SYNTH	1	button	2	TONE	1	sound	selection	1		0	30	0
+engine-18-page-3	SYNTH	1	knob	2	WARP AMT	1	sound	value	1	0.000000	33353	59	0
+engine-18-page-3	SYNTH	1	button	3		0	sound	empty	2		0	0	0
+engine-18-page-3	SYNTH	1	knob	3	PM RATIO	1	sound	value	2	1.000000	33354	53	0
+engine-18-page-3	SYNTH	1	button	4	DETAILS	1	sound	selection	3		0	47	0
+engine-18-page-3	SYNTH	1	knob	4	PM AMT	1	sound	value	3	0.000000	33355	43	0
+engine-18-page-3	SYNTH	1	button	5	ENGINE	1	sound	exit	4		0	60	0
+engine-18-page-3	SYNTH	1	knob	5		0	sound	value	4	0.000000	0	0	0
+engine-18-page-3	SYNTH	1	button	6	TRACK NAME	1	sound	execute	5		0	72	0
+engine-18-page-3	SYNTH	1	knob	6		0	sound	value	5	0.000000	0	0	0
+engine-18-page-3	SYNTH	1	button	7	STORE POOL	1	sound	execute	6		0	87	0
+engine-18-page-3	SYNTH	1	knob	7		0	sound	value	6	0.000000	0	0	0
+engine-18-page-3	SYNTH	1	button	8	BAKE PRESET	1	sound	execute	7		0	95	0
+engine-18-page-3	SYNTH	1	knob	8		0	sound	value	7	0.000000	0	0	0
 engine-19-page-0	SYNTH	0	button	1	GENERATOR	1	sound	selection	0		0	66	0
 engine-19-page-0	SYNTH	0	knob	1	OSC 1	1	sound	value	0	0.000000	33376	33	0
 engine-19-page-0	SYNTH	0	button	2	TONE	1	sound	selection	1		0	30	0

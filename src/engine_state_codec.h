@@ -198,10 +198,36 @@ inline constexpr EngineStateContract engine_state_contract(uint8_t required=0){r
 }
 
 namespace groove {
-inline bool encode_wavetable(ChunkBuffer& out,const EngineStateSource& s){if(!s.wavetable)return false;ChunkWriter<ChunkBuffer> w(out);for(float v:s.wavetable->values)if(!w.f32(v))return false;return true;}
-inline bool decode_wavetable(ChunkSource& src,const EngineStateView& s){if(!s.wavetable)return false;ChunkReader<ChunkSource> r(src);for(float& v:s.wavetable->values)if(!r.f32(v))return false;return src.at_end() && valid_wavetable(*s.wavetable);}
-inline void defaults_wavetable(const EngineStateView& s){if(s.wavetable)*s.wavetable=WavetableState{};}
-inline EngineStateContract wavetable_state_contract(){static const EngineChunkDescriptor chunk={0x42545657u,1,emit_parm,encode_wavetable,decode_wavetable,defaults_wavetable};return {&chunk,1,1};}
+// WVTB stays eight floats. WVT2 is an optional sibling frame with its own version.
+template<unsigned Begin,unsigned End>
+inline bool encode_wavetable_range(ChunkBuffer& out,const EngineStateSource& s){
+ if(!s.wavetable)return false;
+ ChunkWriter<ChunkBuffer> w(out);
+ for(unsigned i=Begin;i<End;++i)if(!w.f32(s.wavetable->values[i]))return false;
+ return true;
+}
+template<unsigned Begin,unsigned End>
+inline bool decode_wavetable_range(ChunkSource& src,const EngineStateView& s){
+ if(!s.wavetable)return false;
+ ChunkReader<ChunkSource> r(src);
+ for(unsigned i=Begin;i<End;++i)if(!r.f32(s.wavetable->values[i]))return false;
+ return src.at_end() && valid_wavetable(*s.wavetable);
+}
+template<unsigned Begin,unsigned End>
+inline void defaults_wavetable_range(const EngineStateView& s){
+ if(s.wavetable)for(unsigned i=Begin;i<End;++i)s.wavetable->values[i]=kWavetableParameters[i].initial;
+}
+inline bool emit_wavetable_extension(const EngineStateSource& s,bool){
+ return s.wavetable && !wavetable_extension_is_default(s.wavetable->values);
+}
+inline EngineStateContract wavetable_state_contract(){
+ constexpr unsigned base=kWavetableLegacyParameterCount,all=kWavetableParameterCount;
+ static const EngineChunkDescriptor chunks[]={
+  {0x42545657u,1,emit_parm,encode_wavetable_range<0,base>,decode_wavetable_range<0,base>,defaults_wavetable_range<0,base>},
+  {0x32545657u,1,emit_wavetable_extension,encode_wavetable_range<base,all>,decode_wavetable_range<base,all>,defaults_wavetable_range<base,all>}
+ };
+ return {chunks,2,1};
+}
 }
 
 namespace groove {

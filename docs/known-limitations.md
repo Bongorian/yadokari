@@ -90,6 +90,10 @@ story, kept current per release.
   to audio) and TWIN (sample a heavy track in advance) exist
   precisely for that.
 
+- WAVETABLE uses additional DSP when WARP AMT or PM AMT is nonzero.
+  The four-note limit comes from the original oscillator. Four extended
+  voices on a Pi 4 have not been qualified against the 500 µs deadline.
+
 ## Hardware scope
 
 - Raspberry Pi 4 (4 GB RAM or more) is the recommended and

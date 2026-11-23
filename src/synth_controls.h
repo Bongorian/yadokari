@@ -17,6 +17,7 @@ inline const SynthDetailBank* synth_detail_bank(Instrument inst,unsigned view){
  if(view<kFirstSynthDetailView)return nullptr;
  const unsigned bank=view-kFirstSynthDetailView;
  // Zero marks an empty knob. Local zero already lives on GENERATOR.
+ static constexpr SynthDetailBank wavetable={"WARP / PM",{WavetableWarpMode,WavetableWarpAmount,WavetablePmRatio,WavetablePmAmount}};
  static constexpr SynthDetailBank va[]={
   {"OSC / PWM 1/3",{6,7,22,16,8,9,10,18}},
   {"FILTER 2/3",{4,5,15,17,23,24,25}},
@@ -32,6 +33,7 @@ inline const SynthDetailBank* synth_detail_bank(Instrument inst,unsigned view){
   {"HARMONICS 9-16",{17,18,19,20,21,22,23,24}}
  };
  switch(inst){
+  case Instrument::Wavetable:return bank==0?&wavetable:nullptr;
   case Instrument::VirtualAnalog:return bank<3?&va[bank]:nullptr;
   case Instrument::Fm6:return bank<3?&fm[bank]:nullptr;
   case Instrument::Additive:return bank<2?&additive[bank]:nullptr;

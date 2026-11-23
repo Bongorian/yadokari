@@ -74,7 +74,7 @@ public:
  unsigned TakePlaitsStressRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;if(m_BenchmarkRequests.take(2,pending))return 2;if(m_BenchmarkRequests.take(3,pending))return 3;if(m_BenchmarkRequests.take(4,pending))return 4;if(m_BenchmarkRequests.take(7,pending))return 7;return 0;}
  bool TakeLoopbackRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(5,pending);}
  bool TakeSampleWorkflowRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(6,pending);}
- unsigned TakeDspRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;if(m_BenchmarkRequests.take(20,pending))return 20;if(m_BenchmarkRequests.take(21,pending))return 21;return 0;}
+ unsigned TakeDspRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;if(m_BenchmarkRequests.take(20,pending))return 20;if(m_BenchmarkRequests.take(21,pending))return 21;if(m_BenchmarkRequests.take(29,pending))return 29;return 0;}
  bool TakeClockStateRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(27,pending);}
  bool TakeRenderHashRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(28,pending);}
  bool TakeFinalTestRequest(){bool pending=m_ControlClient || m_UsbReplySent<m_UsbReplyUsed;return m_BenchmarkRequests.take(19,pending);}

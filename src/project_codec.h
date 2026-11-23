@@ -167,6 +167,7 @@ inline bool write_asst_section(ChunkWriter<ChunkBuffer>& w,const ProjectState& p
 inline bool write_morph_snapshot(ChunkWriter<ChunkBuffer>& w,const ParameterSnapshot& s){
  for(unsigned i=0;i<kCommonMorphParameters;++i)if(morph_common_parameter(morph_parameter_at(i)) && !w.f32(s.values[i]))return false;
  const char* guid=s.engine==Instrument::Unknown?s.unknown_guid:engine_guid(s.engine);unsigned length=0;while(guid[length])++length;const auto* d=engine_descriptor(unsigned(s.engine));unsigned count=s.engine==Instrument::Unknown?s.unknown_count:d?d->parameters.count:0;
+ if(s.engine==Instrument::Wavetable && wavetable_extension_is_default(s.engine_values))count=kWavetableLegacyParameterCount;
  if(count>kEngineMorphParameters || !w.u8(uint8_t(length)) || !w.block(reinterpret_cast<const uint8_t*>(guid),length) || !w.u16(uint16_t(count)))return false;
  for(unsigned i=0;i<count;++i)if(!w.f32(s.engine_values[i]))return false;
  return true;
@@ -492,7 +493,8 @@ inline bool read_morph_snapshot(ChunkReader<ChunkSource>& r,ParameterSnapshot& s
  for(unsigned i=0;i<length;++i){uint8_t c;if(!r.u8(c))return false;guid[i]=char(c);}guid[length]=0;
  Instrument engine;bool known=engine_from_guid(guid,length,engine);if(!r.u16(count) || count>kEngineMorphParameters)return false;
  if(known){const auto* d=engine_descriptor(unsigned(engine));if(!d)return false;
-  if(engine==Instrument::Chimera && (count==kChimeraMacroCount || count==ChimeraUnison)){
+  if((engine==Instrument::Chimera && (count==kChimeraMacroCount || count==ChimeraUnison)) ||
+     (engine==Instrument::Wavetable && count==kWavetableLegacyParameterCount)){
    for(unsigned i=count;i<d->parameters.count;++i)s.engine_values[i]=d->parameters.declarations[i].value.initial;
   }else if(d->parameters.count!=count)return false;
   s.engine=engine;}else{s.engine=Instrument::Unknown;__builtin_memcpy(s.unknown_guid,guid,length+1);s.unknown_count=count;}

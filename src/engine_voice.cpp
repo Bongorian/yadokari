@@ -385,7 +385,10 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::Formant){float values[9];resolve_voice_bank(t,actual,v.formant_base.values,values);v.formant.trigger(float(velocity)/127,values);}
  if(actual==Instrument::Fm6){auto state=v.fm6_base;resolve_voice_bank(t,actual,v.fm6_base.values,state.values);v.fm6.trigger(v.frequency,velocity,state);}
  if(actual==Instrument::VirtualAnalog){auto clock=dsp_profile_.control_clock();unsigned start=clock?clock():0;float values[kVirtualAnalogParameterCount];resolve_voice_bank(t,actual,v.va_base.values,values);v.va.trigger(float(velocity)/127,values,event_seed_for());if(clock)dsp_profile_.va_trigger(clock()-start);}
- if(actual==Instrument::Wavetable){float values[8];auto& r=runtime_[t];for(unsigned i=0;i<8;++i)values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Wavetable,i),v.wavetable_base.values[i],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;v.wavetable.trigger(v.frequency,float(velocity)/127,values);}
+ if(actual==Instrument::Wavetable){
+  float values[kWavetableParameterCount];resolve_voice_bank(t,actual,v.wavetable_base.values,values);
+  v.wavetable.trigger(v.frequency,float(velocity)/127,values);
+ }
  if(actual==Instrument::Texture){textures_suspended_=false;textures_[t].reseed(event_seed_for());textures_[t].trigger();}
  if(actual==Instrument::Resonator){resonators_[t].reseed(event_seed_for());if(!resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
  v.step_pitch.reset();v.tie_pending=false;v.step_accent=step && step->accent();v.step_sound=step?step->sound:kNoPreset;v.step_mono=step && !poly && !kit && !layer_part && !state.arp_mode && step_monophonic(*step);

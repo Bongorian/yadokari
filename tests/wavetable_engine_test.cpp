@@ -2,6 +2,7 @@
 #include "performance.h"
 #include "project_codec.h"
 #include <memory>
+#include <cstring>
 #include <cassert>
 #include <cstdio>
 using namespace groove;
@@ -17,6 +18,32 @@ int main(){
  for(unsigned b=0;b<40;++b){e->render(audio,128);for(float x:audio){assert(__builtin_isfinite(x));energy+=x*x;}}assert(energy>.001);
  note.value=0x80;note.scalar=0;assert(e->submit(note));for(unsigned b=0;b<20;++b)e->render(audio,128);
  auto ui=std::make_unique<Performance>(*e,*p);ui->set_mode(UiMode::Synth);assert(ui->knob_parameter(0)==engine_target(Instrument::Wavetable,0));assert(ui->knob(0,1000));e->render(audio,0);assert(t.wavetable.values[0]>42.5f);assert(ui->undo());e->render(audio,0);assert(t.wavetable.values[0]==42.5f);
+ // Edit through the hardware page, then check the amounts reach the sounding
+ // voice. Identical engines and notes isolate the edit from note-envelope motion.
+ assert(ui->soft_key(3) && ui->instrument_view()==kFirstSynthDetailView);
+ for(unsigned k=0;k<4;++k)assert(ui->knob_parameter(k)==engine_target(Instrument::Wavetable,WavetableWarpMode+k));
+ assert(ui->knob(0,1000) && ui->knob(2,3000));e->render(audio,0);
+ ui.reset();auto reference=std::make_unique<Engine>();e=std::make_unique<Engine>();
+ auto baseline=std::make_unique<ProjectState>(*p);
+ assert(reference->stage_project(*baseline) && e->stage_project(*p));
+ reference->render(audio,0);e->render(audio,0);
+ ui=std::make_unique<Performance>(*e,*p);ui->set_mode(UiMode::Synth);assert(ui->soft_key(3));
+ note.value=0x90;note.scalar=110;
+ assert(reference->submit(note) && e->submit(note));
+ float unchanged[256]{};
+ for(unsigned b=0;b<32;++b){
+  reference->render(unchanged,128);e->render(audio,128);assert(!std::memcmp(unchanged,audio,sizeof audio));
+ }
+ for(unsigned knob:{1u,3u}){
+  assert(ui->knob(knob,30000));
+  double difference=0;
+  for(unsigned b=0;b<40;++b){
+   reference->render(unchanged,128);e->render(audio,128);
+   for(unsigned i=0;i<256;++i)difference+=std::abs(audio[i]-unchanged[i]);
+  }
+  assert(difference>1);
+  assert(ui->undo());reference->render(unchanged,128);e->render(audio,128);
+ }
  // The complete bank and mip interpolation remain finite over note/scan extremes.
  WavetableVoice voice;voice.init(48000);WavetableState state;state.values[1]=63.5f;state.values[0]=127;state.values[4]=.005f;
  for(float hz:{20.f,440.f,12000.f,20000.f}){voice.trigger(hz,1,state.values);for(unsigned n=0;n<2000;++n)assert(__builtin_isfinite(voice.next(hz,n<500)));assert(!voice.active());}

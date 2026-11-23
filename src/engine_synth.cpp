@@ -142,8 +142,11 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
  }
  if(v.instrument==unsigned(Instrument::Wavetable)){
   if(v.env<=0)return;
-  if((sample_count_&31)==0){auto& r=runtime_[t];const auto& state=track(t);if(!v.sound_locked && state.instrument==Instrument::Wavetable)v.wavetable_base=state.wavetable;float values[8];
-   if(!resolve_unlayered_engine(*project_,state,t,Instrument::Wavetable,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,v.wavetable_base.values,values)){ModRuntime mod=mod_runtime(t);for(unsigned i=0;i<8;++i)values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Wavetable,i),v.wavetable_base.values[i],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;}v.wavetable.parameters(values);
+  if((sample_count_&31)==0){
+   const auto& state=track(t);
+   if(!v.sound_locked && state.instrument==Instrument::Wavetable)v.wavetable_base=state.wavetable;
+   float values[kWavetableParameterCount];resolve_voice_bank(t,Instrument::Wavetable,v.wavetable_base.values,values);
+   v.wavetable.parameters(values);
   }
   l=rr=v.wavetable.next(v.frequency,!v.released);v.env=v.wavetable.active()?__builtin_fmaxf(v.wavetable.level(),.0001f):0;return;
  }
@@ -344,7 +347,7 @@ void Engine::build_render_bundles(){
    case Instrument::Additive: new (&job->live.additive) AdditiveVoice(v.additive);job->param_count=25;break;
    case Instrument::PhaseDist: new (&job->live.phase_dist) PhaseDistVoice(v.phase_dist);job->param_count=9;break;
    case Instrument::Formant: new (&job->live.formant) FormantVoice(v.formant);job->param_count=9;break;
-   case Instrument::Wavetable: new (&job->live.wavetable) WavetableVoice(v.wavetable);job->param_count=8;break;
+   case Instrument::Wavetable: new (&job->live.wavetable) WavetableVoice(v.wavetable);job->param_count=kWavetableParameterCount;break;
    case Instrument::VirtualAnalog: new (&job->live.virtual_analog) VirtualAnalogVoice(v.va);job->live.virtual_analog.detach_trigger_bank();job->param_count=uint8_t(kVirtualAnalogParameterCount);break;
    default:break;
   }

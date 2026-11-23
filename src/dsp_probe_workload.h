@@ -2,9 +2,9 @@
 #include "benchmark_project.h"
 #include "future_factory_presets.h"
 namespace groove {
-inline constexpr unsigned kDspProbeRevision=6,kWave4ProbeRevision=4; // TALK and choir extend the full and stress workload and the FX bin layout.
+inline constexpr unsigned kDspProbeRevision=6,kWave4ProbeRevision=5; // Appended Wavetable cases preserve earlier case IDs.
 struct DspCondition {
- enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir};
+ enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir,Wavetable};
  Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1,second_inserts=0;
 };
 inline unsigned dsp_variants(Instrument i){return i==Instrument::PlaitsMacro?24:i==Instrument::Texture?16:i==Instrument::Resonator || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums?3:1;}
@@ -12,8 +12,16 @@ inline bool dsp_leaf(Instrument i){return i!=Instrument::ExternalMidi && i!=Inst
 inline unsigned dsp_leaf_cases(){unsigned count=1;for(unsigned i=0;i<instrument_count();++i)if(dsp_leaf(Instrument(i)))count+=dsp_variants(Instrument(i));return count;}
 inline unsigned dsp_legacy_stress_start(){return dsp_leaf_cases()+kFxCount;}
 inline unsigned dsp_stress_start(){return dsp_legacy_stress_start()+16+3+3+4+1;}
-inline unsigned dsp_case_count(){return dsp_stress_start()+56;}
+inline unsigned dsp_wavetable_start(){return dsp_stress_start()+56;}
+// Stock settings, moving table, PM alone, then each mode at both polarities
+// with and without PM. Each configuration runs at one and four held notes.
+constexpr unsigned kDspWavetableVariants=3+4*4;
+inline unsigned dsp_case_count(){return dsp_wavetable_start()+2*kDspWavetableVariants;}
 inline DspCondition dsp_condition(unsigned index){
+ if(index>=dsp_wavetable_start()){
+  const unsigned row=index-dsp_wavetable_start();
+  return {DspCondition::Wavetable,Instrument::Wavetable,row%kDspWavetableVariants,1,row<kDspWavetableVariants?1u:4u};
+ }
  if(index>=dsp_stress_start()+16){
   unsigned row=index-dsp_stress_start()-16;
   if(row<16)return {DspCondition::Insert,Instrument::VirtualAnalog,kTalkFx,row+1,1};
@@ -83,6 +91,20 @@ inline void make_dsp_probe_project(ProjectState& p,const DspCondition& c){
  if(c.kind==DspCondition::Insert)for(unsigned t=0;t<c.tracks;++t){
   auto& fx=p.tracks[t].insert_fx;fx[0]=float(c.variant);fx[1]=.7f;fx[2]=.4f;fx[3]=.75f;
   if(t<c.second_inserts){fx[4]=float(c.variant);fx[5]=.2f;fx[6]=.85f;fx[7]=.75f;}
+ }
+ if(c.kind==DspCondition::Wavetable){
+  auto& t=p.tracks[0];t.plaits_model=0;
+  if(c.variant>0){
+   auto& v=t.wavetable.values;v[0]=52.375f;v[1]=31.5f;v[2]=3.7f;
+   if(c.variant>=3){
+    const unsigned setting=c.variant-3;
+    v[WavetableWarpMode]=float(setting/4);
+    v[WavetableWarpAmount]=(setting&1)?-.91f:.91f;
+   }
+   if(c.variant==2 || (c.variant>=3 && ((c.variant-3)&2))){
+    v[WavetablePmRatio]=7.25f;v[WavetablePmAmount]=.89f;
+   }
+  }
  }
  if(c.kind==DspCondition::Choir)p.tracks[0].chimera.values[ChimeraUnison-kChimeraMacroCount]=float(c.variant);
 }

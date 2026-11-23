@@ -55,7 +55,77 @@ static std::vector<uint8_t> read_file_bytes(const char* path){
  FILE* f=std::fopen(path,"rb");assert(f);assert(std::fseek(f,0,SEEK_END)==0);std::vector<uint8_t> bytes(size_t(std::ftell(f)));std::rewind(f);assert(std::fread(bytes.data(),1,bytes.size(),f)==bytes.size());assert(std::fclose(f)==0);return bytes;
 }
 
+static void wavetable_files(){
+ using namespace groove;
+ auto project=std::make_unique<ProjectState>();
+ auto loaded=std::make_unique<ProjectState>();
+ make_empty_project(*project);
+ auto track=track_at(*project,0,0);
+ track.instrument=Instrument::Wavetable;
+ track.wavetable.values[0]=42.5f;
+ auto layer=track_at(*project,0,1);
+ layer.instrument=Instrument::Layer;
+ layer.layer.count=1;
+ auto& child=layer.layer.parts[0].sound;
+ child.instrument=Instrument::Wavetable;
+
+ for(bool extended:{false,true}){
+  if(extended){
+   const float settings[]={3,-.75f,2.5f,.375f};
+   std::memcpy(track.wavetable.values+8,settings,sizeof settings);
+   child.wavetable=track.wavetable;
+   child.wavetable.values[9]=.5f;
+  }
+  snapshot_sound(project->sounds[7],track);
+  snapshot_sound(project->sounds[8],layer);
+  capture_parameter_snapshot(project->morph_a[0],*project,0);
+
+  ChunkBuffer engine;
+  assert(write_track_engn(engine,track,nullptr));
+  const unsigned header=1+engine.data[0]+2;
+  auto frames=parse_chunks(engine.data+header,engine.size-header);
+  assert(frames.size()==(extended?2u:1u));
+  assert(frames[0].kind==kind4("WVTB") && frames[0].version==1 && frames[0].payload.size()==32);
+  if(extended)assert(frames[1].kind==kind4("WVT2") && frames[1].version==1 && frames[1].payload.size()==16);
+
+  ChunkBuffer bank;ChunkWriter<ChunkBuffer> writer(bank);
+  assert(write_morph_snapshot(writer,project->morph_a[0]));
+  // The count immediately precedes the engine values at the end of the bank.
+  unsigned values=extended?12:8;
+  unsigned offset=bank.size-4*values-2;
+  assert(bank.data[offset]==values && bank.data[offset+1]==0);
+
+  for(auto kind:{ContentKind::Song,ContentKind::Preset}){
+   project->content_kind=kind;
+   track.preset_identity=kind==ContentKind::Song?PresetIdentity{}:builtin_factory_identity(17);
+   ChunkBuffer bytes;assert(encode_project_buffer(bytes,*project));
+   ChunkSource src{bytes.data,bytes.size,0};assert(decode_project(src,*loaded));
+   auto same=[](const float* a,const float* b){return !std::memcmp(a,b,kWavetableParameterCount*sizeof(float));};
+   assert(same(loaded->tracks[0].wavetable.values,track.wavetable.values));
+   if(kind==ContentKind::Song){
+    assert(same(loaded->morph_a[0].engine_values,track.wavetable.values));
+    assert(same(loaded->sounds[7].wavetable.values,track.wavetable.values));
+    assert(same(loaded->tracks[1].layer.parts[0].sound.wavetable.values,child.wavetable.values));
+    assert(same(loaded->sounds[8].layer.parts[0].sound.wavetable.values,child.wavetable.values));
+   }
+   ChunkBuffer round;assert(encode_project_buffer(round,*loaded));
+   assert(round.size==bytes.size && !std::memcmp(round.data,bytes.data,bytes.size));
+  }
+  track.preset_identity=PresetIdentity{};
+ }
+ // Corrupt discrete input or a truncated optional frame cannot become a valid patch.
+ auto view=engine_state_view(track);const auto& extension=wavetable_state_contract().chunks[1];
+ for(float bad:{1.5f,4.f}){
+  ChunkBuffer fields;ChunkWriter<ChunkBuffer> w(fields);
+  for(float value:{bad,0.f,1.f,0.f})assert(w.f32(value));
+  ChunkSource src{fields.data,fields.size,0};assert(!extension.decode(src,view));
+  src={fields.data,fields.size-1,0};assert(!extension.decode(src,view));
+ }
+ std::puts("Wavetable WVTB and optional WVT2: song, preset, pool, Layer and morph roundtrips passed");
+}
+
 int main() {
+ wavetable_files();
  // The final save buffer is also a checked, borrowed decoder source.
  // Streaming and borrowed paths must reproduce bytes and reject identical
  // CRC damage/truncation; a failed slice must never fall back to reads.

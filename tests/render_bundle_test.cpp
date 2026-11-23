@@ -48,6 +48,8 @@ static void setup_project(ProjectState& p,bool dense){
   auto t5=track_at(p,0,5);t5.instrument=Instrument::Additive;
   for(unsigned s=0;s<16;s+=2){t5.steps[s].enabled=true;t5.steps[s].note=uint8_t(55+(s%5));t5.steps[s].velocity=100;t5.steps[s].gate=25;t5.steps[s].chord[0]=uint8_t(59+(s%5));}
   auto t6=track_at(p,0,6);t6.instrument=Instrument::Wavetable;
+  t6.wavetable.values[WavetableWarpMode]=1;t6.wavetable.values[WavetableWarpAmount]=.63f;
+  t6.wavetable.values[WavetablePmRatio]=1.5f;t6.wavetable.values[WavetablePmAmount]=.37f;
   for(unsigned s=0;s<16;s+=4){t6.steps[s].enabled=true;t6.steps[s].note=uint8_t(43+s/4);t6.steps[s].velocity=100;t6.steps[s].gate=40;}
  }
 }

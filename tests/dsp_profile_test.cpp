@@ -23,9 +23,12 @@ static void reset_identity(){
 int main(){
  reset_identity();
  groove::update::SerialControl serial;groove::update::SerialCommand command=groove::update::SerialCommand::None;for(char c: "!GBX1 DSPTEST\n")if(c)command=serial.feed(uint8_t(c));assert(command==groove::update::SerialCommand::DspTest);for(char c: "!GBX1 DSPSTRESS\n")if(c)command=serial.feed(uint8_t(c));assert(command==groove::update::SerialCommand::DspStress);
+ for(char c:"!GBX1 DSPWT\n")if(c)command=serial.feed(uint8_t(c));
+ assert(command==groove::update::SerialCommand::DspWavetable);
  auto profiler=std::make_unique<groove::DspProfile>();assert(profiler->quiescent());assert(!profiler->begin(nullptr));assert(profiler->begin(clock_now,4));assert(!profiler->begin(clock_now));profiler->block_begin();profiler->control_end(4,true);{groove::DspTimingScope timer(*profiler,groove::DspProfile::voice(2,0));}profiler->cut(groove::DspProfile::Control,24);profiler->block_end(24);profiler->stop();assert(!profiler->ready());profiler->block_begin();assert(profiler->ready());assert(profiler->snapshot().sampled==1 && profiler->snapshot().control_calls==1);assert(profiler->counter(64).frames==1 && profiler->counter(64).ticks==3 && profiler->counter(64).max_voice_q16==3*65536);
  assert(profiler->begin(clock_now,5));profiler->block_begin();profiler->control_end(4,false);{groove::DspTimingScope timer(*profiler,64);}profiler->block_end(24);profiler->stop();profiler->block_begin();assert(profiler->ready() && !profiler->counter(64).calls && profiler->snapshot().control_calls==1);
  auto project=std::make_unique<groove::ProjectState>();
+ bool wt_cases[2][groove::kDspWavetableVariants]{};
  bool talk_instances[33]{},choir[2][4]{};
  for(unsigned i=0;i<groove::dsp_case_count();++i){
   const auto c=groove::dsp_condition(i);
@@ -39,6 +42,13 @@ int main(){
    assert(count==c.tracks+c.second_inserts && count<=32);
    talk_instances[count]=true;
   }
+  if(c.kind==groove::DspCondition::Wavetable){
+   assert(c.tracks==1 && (c.notes==1 || c.notes==4) && c.variant<groove::kDspWavetableVariants);
+   const auto& v=project->tracks[0].wavetable.values;
+   assert((v[groove::WavetableWarpAmount]!=0)==(c.variant>=3));
+   assert((v[groove::WavetablePmAmount]!=0)==(c.variant==2 || (c.variant>=3 && ((c.variant-3)&2))));
+   wt_cases[c.notes==4][c.variant]=true;
+  }
   if(c.kind==groove::DspCondition::Choir){
    assert(c.variant>=1 && c.variant<=4 && (c.notes==1 || c.notes==4));
    assert(groove::chimera_unison(project->tracks[0].chimera)==c.variant);
@@ -46,6 +56,7 @@ int main(){
   }
  }
  for(unsigned count=1;count<=32;++count)assert(talk_instances[count]);
+ for(auto& notes:wt_cases)for(bool present:notes)assert(present);
  for(auto& notes:choir)for(bool present:notes)assert(present);
  auto a=std::make_unique<groove::Engine>(),b=std::make_unique<groove::Engine>();groove::make_dsp_probe_project(*project,{groove::DspCondition::Leaf,groove::Instrument::Additive,0,1,1});assert(a->stage_project(*project) && b->stage_project(*project));float x[48],y[48];a->render(x,24);b->render(y,24);assert(b->dsp_profile().begin(clock_now));b->dsp_profile().begin_measurement();groove::Command c{groove::CommandType::Trigger,0,0,100};c.parameter=1;c.scalar=60;assert(a->submit(c) && b->submit(c));for(unsigned n=0;n<300;++n){a->render(x,24);b->render(y,24);assert(!std::memcmp(x,y,sizeof x));}assert(b->dsp_profile().last_block().ticks>0);b->dsp_profile().stop();b->render(y,24);assert(!b->dsp_profile().last_block().ticks);assert(b->dsp_profile().ready());
  groove::make_empty_project(*project);auto& track=project->tracks[0];track.instrument=groove::Instrument::Layer;track.layer.count=2;track.layer.parts[0].sound.instrument=groove::Instrument::Additive;track.layer.parts[1].sound.instrument=groove::Instrument::Resonator;assert(groove::layer_status(track.layer)==groove::LayerReason::Unsupported);assert(a->stage_project(*project));a->render(x,24);assert(a->submit(c));a->render(x,24);assert(!a->poly_note_count(0) && a->layer_last_reason(0)==groove::LayerReason::Unsupported);

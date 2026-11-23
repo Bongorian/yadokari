@@ -51,7 +51,7 @@ for m in re.finditer(result,text):
  v=list(map(int,m.groups()));cases[v[0]]['deadline']=dict(zip(['window_ms','blocks','avg_us','max_us','over500','window_missing','condition_missing','native_active','refused','callbacks','callback_max','bad'],v[1:]));cases[v[0]]['deadline'].update(average_deadline_percent=v[3]/5,mean_headroom_us=500-v[3],max_headroom_us=500-v[4])
 completed=[cases[i] for i in sorted(started) if 'deadline' in cases[i]];table=[]
 for c in completed:
- if c['kind']!=1:continue
+ if c['kind'] not in (1,10):continue
  row=next((r for r in c['bins'] if r['kind']=='engine' and r['engine']==c['engine'] and r['variant']==c['variant']),None)
  if row is None:row=next((r for r in c['bins'] if r['kind']=='engine' and r['engine']==c['engine']),None)
  entry={k:c[k] for k in ('case','engine','name','variant','declared_cost','independent','native_avg_us','native_burst_us')};entry.update(deadline=c['deadline'],control=c.get('profile'),measurement=row,measurement_unit='track DSP' if c['native_avg_us'] else 'independent voice',calibrated=bool(row and row['active_frames']))

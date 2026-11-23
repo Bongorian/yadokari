@@ -429,7 +429,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
    optimization_fluid_pending=false;
    bool ok=audio && audio->operational() && !files.recording_busy() && !updater->active() && !file_transfer->active() && !fx_stress_running && !native_running && !(dsp_probe && dsp_probe->busy()) && !audio_stress_preparing && !wave4_original && !preset_check.busy();
    if(ok && !dsp_probe)dsp_probe=groove::alloc_new<CDspProbe>();
-   if(ok){native_stop_requested=false;ok=dsp_probe && dsp_probe->start(*engine,*project,performance,files,audio,request==21);}
+   if(ok){native_stop_requested=false;ok=dsp_probe && dsp_probe->start(*engine,*project,performance,files,audio,request==29?CDspProbe::Suite::Wavetable:request==21?CDspProbe::Suite::Stress:CDspProbe::Suite::Full);}
    m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"DSP request kind %u accepted %u",request,unsigned(ok));
   }
   if(updater->TakeClockStateRequest()){
@@ -444,7 +444,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
   }
   if(optimization_dsp_pending && !ui_probe.busy()){
    optimization_dsp_pending=false;native_stop_requested=false;if(!dsp_probe)dsp_probe=groove::alloc_new<CDspProbe>();
-   bool ok=dsp_probe && dsp_probe->start(*engine,*project,performance,files,audio,false,true);
+   bool ok=dsp_probe && dsp_probe->start(*engine,*project,performance,files,audio,CDspProbe::Suite::Optimization);
    optimization_fluid_pending=ok;m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"Optimization DSP four fixed conditions started %u",unsigned(ok));
   }
   if(dsp_probe && dsp_probe->busy()){unsigned begin=display.TaskBegin();dsp_probe->service(*engine,*project,performance,files,m_Storage,audio,native_stop_requested);display.TaskEnd(5,begin);if(!dsp_probe->busy() && audio){display.EndTrace();audio->SealAttribution();audio->TracePhases();if(optimization_fluid_pending){optimization_fluid_pending=false;fluid_probe.start(m_Storage,performance,display,audio);}}}

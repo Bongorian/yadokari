@@ -42,14 +42,16 @@ class CDspProbe {
   return true;
  }
 public:
+ enum class Suite {Full,Stress,Optimization,Wavetable};
  bool busy()const{return phase_!=Idle;}
- bool start(groove::Engine& engine,groove::ProjectState& project,groove::Performance& ui,groove::SessionFiles& files,CMk3Audio* audio,bool stress_only,bool optimization_only=false){
+ bool start(groove::Engine& engine,groove::ProjectState& project,groove::Performance& ui,groove::SessionFiles& files,CMk3Audio* audio,Suite suite){
   if(busy() || !audio || !audio->operational() || files.recording_busy())return false;
   audio_=audio;suite_missing_=last_missing_=audio->worker_missing();suite_ms_=Millis();
   original_=groove::alloc_new<groove::ProjectState>(project);candidate_=groove::alloc_new<groove::ProjectState>();
   if(!original_ || !candidate_){delete original_;delete candidate_;original_=candidate_=nullptr;return false;}
   files.copy_bindings(original_views_);for(auto& view:views_)view={};for(unsigned i=0;i<512;++i){int16_t value=(i%128)<64?8192:-8192;pcm_[2*i]=uint8_t(value);pcm_[2*i+1]=uint8_t(uint16_t(value)>>8);}views_[0]={pcm_,512,48000,1,16,1};
-  optimization_=optimization_only;original_mode_=ui.mode();case_=optimization_?0:stress_only?groove::dsp_stress_start():0;aborted_=sf_ready_=false;phase_=Prepare;
+  optimization_=suite==Suite::Optimization;original_mode_=ui.mode();
+  case_=suite==Suite::Wavetable?groove::dsp_wavetable_start():suite==Suite::Stress?groove::dsp_stress_start():0;aborted_=sf_ready_=false;phase_=Prepare;
   unsigned low=~0u,high=0;uint64_t sum=0;for(unsigned i=0;i<256;++i){unsigned a=Clock(),elapsed=Clock()-a;if(elapsed<low)low=elapsed;if(elapsed>high)high=elapsed;sum+=elapsed;}
   CLogger::Get()->Write("dsp",LogNotice,"DSP suite revision %u begin first %u end %u freq %u clock-pair-min %u avg %u max %u deadline-us 500 seed 0x57313001",optimization_?groove::kDspProbeRevision:groove::kWave4ProbeRevision,case_,end_case(),Frequency(),low,unsigned(sum/256),high);
   ui.panic();return true;
