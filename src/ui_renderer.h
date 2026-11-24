@@ -79,7 +79,7 @@ class UiRenderer:public ui::Widgets {
  void synth(ConstTrackView t,const Performance& perf);
  void draw_visual(unsigned side,const VisualDeclaration& declaration,const VisualData& data,const Performance& perf,uint64_t token,int x=24,int y=82,int w=430,int h=118);
  void toast(const char* text,uint32_t color);
- void hints(const Performance& perf);
+ void hints(const Performance& perf,const SoundModRoutes& routes);
  void knob_legend(const ProjectState& p,const Performance& perf);
 
 #include "ui/knob_value.h"

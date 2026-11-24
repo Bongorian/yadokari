@@ -499,6 +499,8 @@ The Strip's values do not rewrite saved parameter bases or the Undo history. NOT
 
 #### Synth editing and how to use Top / the knobs
 
+On the SYNTH page, hold PLUG-IN to inspect **SOUND MOD ROUTES**. A routed sound lists its route count and each source and destination in order. Saving the sound retains these assignments. Project MACR routes apply afterwards. Embedded LAYER children retain their assignments for direct use.
+
 The left LCD lists K1–K4 and K5–K8 in two columns. Touch or turn one knob to enlarge its name and value. A vertical marker shows the current setting and DEFAULT marks the reset position where available. To reset, hold the knob and press ERASE. When several knobs are active, their rows light up in the overview. The right LCD displays actual PCM, FFT, harmonics, or a scan position according to the declaration, or a TONE/ADSR model. Read the difference between model and measurement from the caption. MIDI OUT maintains the MIDI routing and external control editing.
 
 ![FM editing](manual/synth-fm.png)
