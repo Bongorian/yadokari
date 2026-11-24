@@ -15,7 +15,7 @@ struct PageGeometry {
  uint16_t dots_x0, dots_x1;     // fixed page-dot zone (4 dots, r=3, pitch 11)
  uint16_t status_x0, status_x1; // right-aligned status zone
 };
-inline constexpr PageGeometry kPageGeometry{24, 64, ui::Layout::body_h, 186, 52, 10, 190, 198, 237, 245, 470};
+inline constexpr PageGeometry kPageGeometry{24, 64, ui::Layout::body_h, ui::Layout::overlay_y, ui::Layout::overlay_h, 10, 190, 198, 237, 245, 470};
 
 enum class PageFamily:uint8_t {Play,Write,Arrange,Sound,Manage};
 struct PageDescriptor {

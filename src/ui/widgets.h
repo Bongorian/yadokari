@@ -18,6 +18,9 @@ public:
  void button(unsigned side,int x,int y,int w,const char* text,bool selected,bool enabled=true);
  void progress(unsigned side,int x,int y,int w,int h,float amount,uint32_t color){h=h>=6?6:h>=3?3:2;rounded(side,x,y,w,h,0,theme.raised);int filled=int(clamp01(amount)*w+0.5f);if(filled)rounded(side,x,y,filled,h,0,color);}
  void level_meter(unsigned side,int x,int y,int w,int h,float amount,uint32_t source){progress(side,x,y,w,h,amount,meter_level_color(theme,source,amount));}
+ void activity_strip(unsigned side,int x,int y,uint16_t mask,uint32_t color){
+  for(unsigned i=0;i<16;++i)fill(side,x+int(i)*4,y,3,2,(mask&(1u<<i))?color:theme.border);
+ }
  void pending_sweep(unsigned side,int x,int y,int w,int h,float phase,uint32_t color);
  void slider(unsigned side,int x,int y,int w,float amount,uint32_t color){progress(side,x,y,w,4,amount,color);int cursor=x+int(clamp01(amount)*(w-4));rounded(side,cursor,y-3,4,10,2,color);}
  void rotary(unsigned side,float x,float y,float r,float amount,uint32_t color);

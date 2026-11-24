@@ -19,7 +19,7 @@ int main() {
   assert(page_descriptor(d.id) == &d);
   // Geometry: the section 1.2 token frame, identical on every page.
   const PageGeometry& g = d.geometry;
-  assert(g.header_y == ui::Geometry::header_y && g.body_y == ui::Geometry::body_y && g.body_h == ui::Geometry::body_h && g.knob_y == ui::Geometry::knob_y && g.knob_h == 52);
+  assert(g.header_y == ui::Geometry::header_y && g.body_y == ui::Geometry::body_y && g.body_h == ui::Geometry::body_h && g.knob_y == ui::Geometry::knob_y && g.knob_h == ui::Layout::overlay_h && g.knob_y == ui::Layout::overlay_y);
   assert(g.body_y + g.body_h == ui::Layout::legend_y); // floating controls never change the body viewport
   // Title-row zones: ordered, disjoint, inside the 480-wide screen.
   assert(g.title_x0 == 10 && g.title_x1 == 190);

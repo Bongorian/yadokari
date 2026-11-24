@@ -6,8 +6,15 @@ auto UiRenderer::note_grid(const ProjectState& p,const Performance& perf,bool ch
   char root[12];pitch_name(t.root_note,root);label(0,12,80,root,theme.text,Font::Small,55);scrolling_label(0,75,80,scale_name(scale_index(t.scale_mask)),theme.secondary,Font::Small,150);
   if(chord){label(0,235,80,chord_shape_definition(perf.chord_shape()).name,theme.text,Font::Small,110);static const char* inversions[]={"ROOT","INV 1","INV 2","INV 3"};label(0,354,80,inversions[perf.chord_inversion()],theme.teal,Font::Small,78);}else{value(0,253,76,37,perf.keyboard_octave(),theme.teal,Font::Body,0);if(perf.step_chord_editor()){label(0,319,80,"STEP",theme.secondary,Font::Small,44);value(0,368,76,55,perf.selected_step()+1,theme.teal,Font::Body,0);}}
   for(unsigned n=0;n<16;++n){unsigned hardware=(3-n/4)*4+n%4;int x=10+int(n%4)*117,y=98+int(3-n/4)*26;int input=perf.keyboard_note(n);uint8_t notes[kStepNotes]{};unsigned count=input<0?0:chord?chord_inputs(input,t,notes,perf.chord_shape(),perf.chord_inversion()):1;if(!chord && count)notes[0]=uint8_t(input);bool held=(perf.held_pad_mask()&(1u<<hardware))!=0;bool member=!chord && perf.step_chord_editor() && leds.pad_state[hardware]==ui::LedState::Selected;uint32_t color=leds.pad_rgb[hardware];rounded(0,x,y,109,25,ui::Geometry::cell,held || member?theme.raised:theme.surface);if(held || member)outline(0,x,y,109,25,ui::Geometry::cell,color);if(!count)continue;fill(0,x+4,y+22,101,2,color);
-   if(!chord){char text[12];pitch_name(transform_note(notes[0],t),text);centered_label(0,x+4,y,101,25,text,held?theme.text:theme.secondary,Font::Body);continue;}
-   char name[24];pitch_name(unsigned(bounded(input+t.transpose,0,127)),name,false);const char* suffix=chord_shape_definition(perf.chord_shape()).suffix;if(!perf.chord_shape()){uint8_t base[4];unsigned c=chord_base(input,t,base);if(c==3){int third=transform_note(base[1],t)-transform_note(base[0],t),fifth=transform_note(base[2],t)-transform_note(base[0],t);suffix=third==4 && fifth==7?"":third==3 && fifth==7?"m":third==3 && fifth==6?"dim":third==4 && fifth==8?"aug":third==2 && fifth==7?"sus2":third==5 && fifth==7?"sus4":"scl";}}unsigned len=unsigned(__builtin_strlen(name));copy_text(name+len,sizeof name-len,suffix);label(0,x+5,y+1,name,theme.text,Font::Small,99);
+   if(!chord){char text[12];pitch_name(transform_note(notes[0],t),text);centered_label(0,x+4,y,101,16,text,held?theme.text:theme.secondary,Font::Body);
+    unsigned pitch=transform_note(notes[0],t)%12;
+    for(unsigned pc=0;pc<12;++pc)fill(0,x+8+int(pc)*8,y+17,6,2,pc==pitch?theme.text:theme.border);
+    continue;
+   }
+   char name[24];pitch_name(unsigned(bounded(input+t.transpose,0,127)),name,false);const char* suffix=chord_shape_definition(perf.chord_shape()).suffix;if(!perf.chord_shape()){uint8_t base[4];unsigned c=chord_base(input,t,base);if(c==3){int third=transform_note(base[1],t)-transform_note(base[0],t),fifth=transform_note(base[2],t)-transform_note(base[0],t);suffix=third==4 && fifth==7?"":third==3 && fifth==7?"m":third==3 && fifth==6?"dim":third==4 && fifth==8?"aug":third==2 && fifth==7?"sus2":third==5 && fifth==7?"sus4":"scl";}}unsigned len=unsigned(__builtin_strlen(name));copy_text(name+len,sizeof name-len,suffix);label(0,x+5,y+1,name,theme.text,Font::Small,53);
+   unsigned tones=0;
+   for(unsigned k=0;k<count;++k){unsigned pitch=perf.chord_shape()?unsigned(bounded(notes[k]+t.transpose,0,127)):transform_note(notes[k],t);tones|=1u<<(pitch%12);}
+   for(unsigned pc=0;pc<12;++pc)fill(0,x+59+int(pc)*4,y+6,3,3,tones&(1u<<pc)?color:theme.border);
    char pitches[64]{};unsigned at=0;for(unsigned i=0;i<count;++i){if(i)pitches[at++]=' ';char text[12];pitch_name(perf.chord_shape()?unsigned(bounded(notes[i]+t.transpose,0,127)):transform_note(notes[i],t),text);for(const char* c=text;*c && at<sizeof pitches-1;++c)pitches[at++]=*c;pitches[at]=0;}label(0,x+5,y+12,pitches,held?theme.text:theme.secondary,Font::Small,99);
   }
   if(!chord)advice(perf.step_chord_editor()?"PADS: STEP CHORD   TOP 6: RETURN":"PADS: PLAY   SHIFT + PAD: STEP CHORD");
@@ -20,11 +27,11 @@ auto UiRenderer::scenes(const ProjectState& p,const Performance& perf) -> void{
   label(0,110,80,"LIVE:",theme.secondary,Font::Small,45);value(0,158,76,30,p.active_scene+1,matches?theme.teal:theme.text,Font::Body,0);
   if(selected!=p.active_scene)label(0,205,80,"SELECTED IS NOT LIVE",theme.amber,Font::Small,220);
   for(unsigned i=0;i<16;++i){int x=10+int(i%4)*117,y=100+int(3-i/4)*26;bool active=matches && p.active_scene==i,queued=perf.pending_scene()==int(i),focus=selected==i;
-   unsigned on=0;for(unsigned t=0;t<16;++t)if(!(p.scenes[i].mute_mask&(1u<<t)))++on;
+   const uint16_t sounding=uint16_t(~p.scenes[i].mute_mask);
    rounded(0,x,y,109,23,ui::Geometry::cell,focus?theme.raised:theme.surface);if(focus)selected_mark(0,x,y,109,23);if(queued || (active && perf.playing()))fill(0,x+2,y,105,3,queued?theme.warn:theme.motion);if(queued)pending_sweep(0,x,y,109,23,perf.display_bar_phase(),theme.amber);
    value(0,x+7,y+1,25,i+1,active?theme.teal:theme.text,Font::Body,0);
    label(0,x+39,y+3,queued?"NEXT":active?(perf.playing()?"LIVE":"STOPPED"):focus?"SELECTED":"",queued?theme.amber:theme.secondary,Font::Small,63);
-   if(on)fill(0,x+39,y+17,on*63/16,2,active?theme.teal:theme.secondary);}
+   activity_strip(0,x+39,y+17,sounding,active?theme.teal:theme.secondary);}
   advice(perf.select_held()?"SELECT + PAD: STORE CURRENT":"PAD: LAUNCH   SELECT + PAD: STORE");
   panel(1,10,79,460,128);label(1,24,85,"SCENE",theme.secondary,Font::Small,55);value(1,80,80,30,selected+1,theme.teal,Font::Body,0);label(1,129,85,"PATTERN FOR EACH TRACK",theme.secondary,Font::Small,220);label(1,350,85,perf.launch_quantized()?"NEXT BAR":"IMMEDIATE",theme.teal,Font::Small,105);
   label(1,24,103,"CELL: TRACK No. -> PATTERN No.   -- = TRACK OFF",theme.secondary,Font::Small,430);
@@ -41,9 +48,9 @@ auto UiRenderer::song(const ProjectState& p,const Performance& perf) -> void{
   if(!s.length && count)badge(0,320,80,140,"CHAIN PREVIEW",theme.amber);
   if(perf.playing() && perf.visual().song_active)label(0,382,85,"PLAY",theme.teal,Font::Body,70);
   unsigned first=cur/8*8,last=first+8<count?first+8:count;uint32_t shown=0;for(unsigned i=first;i<last;++i)shown+=duration(i);
-  int x=16;for(unsigned i=first;i<last;++i){int w=32+int(float(448-32*(last-first))*float(duration(i))/float(shown?shown:1));bool sel=i==cur,playing=perf.visual().song_active && perf.visual().song_section==i;bool cap=s.length && s.sections[i].ticks;unsigned sc=s.length?s.sections[i].scene:(i<p.chain.length?p.chain.scenes[i]:0);rounded(0,x,111,w-4,54,4,sel?theme.raised:theme.inset);if(playing || sel)outline(0,x,111,w-4,54,4,playing?theme.teal:theme.amber);
+  int x=16;for(unsigned i=first;i<last;++i){int w=32+int(float(448-32*(last-first))*float(duration(i))/float(shown?shown:1));bool sel=i==cur,playing=perf.visual().song_active && perf.visual().song_section==i;bool cap=s.length && s.sections[i].ticks;unsigned sc=s.length?s.sections[i].scene:(i<p.chain.length?p.chain.scenes[i]:0);fill(0,x,111,w-4,54,sel?theme.raised:theme.surface);if(playing)fill(0,x+2,111,w-8,3,theme.motion);if(sel)selected_mark(0,x,111,w-4,54);
    value(0,x+6,112,w-16,i+1,theme.secondary,Font::Small,0);
-   if(cap)label(0,x+6,128,"SNAP",theme.amber,Font::Body,60);else {label(0,x+6,130,"SC",theme.secondary,Font::Small,22);value(0,x+26,126,w-30,sc+1,theme.text,Font::Body,0);}
+   if(cap)label_band(0,x+4,128,w-12,17,w>=58?"SNAP":"S",theme.amber,Font::Small);else if(w>=66){label(0,x+6,130,"SC",theme.secondary,Font::Small,22);value(0,x+26,126,w-34,sc+1,theme.text,Font::Body,0);}else value(0,x+3,128,w-10,sc+1,theme.text,Font::Small,0);
    value(0,x+6,146,w-16,float(duration(i))/kSongTicksPerBeat,theme.secondary,Font::Small,duration(i)%kSongTicksPerBeat?1:0);x+=w;}
   if(perf.playing() && perf.visual().song_active && perf.visual().song_ticks)progress(0,16,178,448,4,perf.display_song_tick()/float(perf.visual().song_ticks),theme.teal);
   advice(perf.song_controls().recording?"Top5: END TAKE   Top6: CANCEL TAKE":"Top5: REC ARRANGE   Top6: SKELETON");
@@ -72,11 +79,11 @@ auto UiRenderer::clips(const ProjectState& p,const Performance& perf) -> void{
   label(0,120,80,"PATTERNS OF THIS TRACK",theme.secondary,Font::Small,300);
   fill(0,440,83,16,8,kind);
   for(unsigned i=0;i<16;++i){int x=10+int(i%4)*117,y=100+int(3-i/4)*26;bool active=clip.pattern==i,queued=pending==int(i),editing=p.active_pattern==i;
-   const auto cell=track_at(p,i,sel);unsigned used=0;for(unsigned s=0;s<cell.length && s<kSteps;++s){bool hit=cell.steps[s].enabled;if(cell.instrument==Instrument::DrumKit){hit=false;for(unsigned pad=0;pad<16;++pad)hit|=cell.kit.steps[pad][s].enabled;}used+=hit;}
+   const auto cell=track_at(p,i,sel);uint16_t events=0;for(unsigned s=0;s<cell.length && s<kSteps;++s){bool hit=cell.steps[s].enabled || cell.steps[s].lock_only;if(cell.instrument==Instrument::DrumKit){hit=false;for(unsigned pad=0;pad<16;++pad)hit|=cell.kit.steps[pad][s].enabled;}if(hit)events|=uint16_t(1u<<(s*16/cell.length));}
    rounded(0,x,y,109,23,ui::Geometry::cell,editing?theme.raised:theme.surface);if(editing)selected_mark(0,x,y,109,23);if(queued || (active && perf.playing()))fill(0,x+2,y,105,3,queued?theme.warn:theme.motion);if(queued)pending_sweep(0,x,y,109,23,perf.display_bar_phase(),theme.amber);
    value(0,x+7,y+1,25,i+1,active?theme.text:theme.secondary,Font::Body,0);
-   label(0,x+39,y+3,queued?"NEXT":active?(clip.playing && perf.playing()?"LIVE":"STOPPED"):editing?"EDIT":used?"":"EMPTY",queued?theme.amber:theme.secondary,Font::Small,63);
-   if(used)fill(0,x+39,y+17,used*63/(cell.length?cell.length:1),2,active?kind:theme.secondary);}
+   label(0,x+39,y+3,queued?"NEXT":active?(clip.playing && perf.playing()?"LIVE":"STOPPED"):editing?"EDIT":events?"":"EMPTY",queued?theme.amber:theme.secondary,Font::Small,63);
+   activity_strip(0,x+39,y+17,events,active?kind:theme.secondary);}
   advice("PAD: LAUNCH PATTERN   SHIFT + PAD: STOP TRACK");
   panel(1,10,79,460,128);
   label(1,24,85,"PLAYING PATTERN",theme.secondary,Font::Small,170);value(1,371,80,70,clip.pattern+1,theme.teal,Font::Number,0);
@@ -111,11 +118,47 @@ auto UiRenderer::performance(const ProjectState& p,const Performance& perf) -> v
 
  }
 auto UiRenderer::performance_fx_page(const Performance& perf) -> void{
-  static const char* names[]={"FILTER","GATER","BIT CRUSH","TAPE STOP","REVERSE","TREMOLO","ISOLATOR","RING MOD","DELAY THROW","REVERB THROW","REVERB FREEZE","PITCH DIVE","PITCH RISE"};
-  panel(0,10,79,460,128);label(0,24,85,"Live FX / shared performance bus",theme.secondary,Font::Small,420);
-  for(unsigned i=0;i<(perf.performance_fx_bank()?2u:11u);++i){unsigned side=i/6,row=i%6;int x=24+int(side)*220,y=104+int(row)*14;unsigned effect=perf.performance_fx_bank()?i+12:i+1;bool active=perf.visual().performance_fx_mode==effect;value(0,x,y,23,i+3,active?theme.amber:theme.secondary,Font::Small,0);label(0,x+30,y,names[effect-1],active?theme.text:theme.secondary,Font::Small,180);}
-  static const char* repeats[]={"1/8","1/16","1/32","1/64"};label(0,24,192,"PAD 1: REPEAT",theme.secondary,Font::Small,118);label(0,144,192,repeats[perf.live_repeat_rate()],theme.teal,Font::Small,48);label(0,206,192,"PAD 2: FILL",theme.secondary,Font::Small,140);
-  unsigned mode=perf.visual().performance_fx_actual_mode;auto declaration=performance_visual(mode);VisualData data;if(declaration.element==VisualElement::Ring){data.available=perf.visual_fresh();data.live=data.available && perf.visual().master_peak>.00001f;data.phase=data.live?perf.visual().performance_fx_phase:0;data.point=data.live;data.recorded=perf.visual().performance_fx_amount;data.layers=1;data.label=declaration.caption;}else{data=ui::response_visual(declaration.model,perf.visual().performance_fx_amount,.7f);data.label=declaration.caption;}draw_visual(1,declaration,data,perf,perf.visual().sample);advice(perf.visual().performance_fx_pending?"ARMED / waiting for beat or bar":perf.performance_fx_latched()?"SHIFT + pad: release latch":"Hold pad: play / SHIFT + knobs 4-5: lock");
+  static const char* names[]={"FILTER","GATER","BIT CRUSH","TAPE STOP","REVERSE","TREMOLO","ISOLATOR","RING MOD","DLY THROW","VERB THROW","VERB FREEZE","PITCH DIVE","PITCH RISE"};
+  static const char* repeats[]={"1/8","1/16","1/32","1/64"};
+  static const char* morph[]={"MORPH A","A / B","MORPH B"};
+  const bool bank_b=perf.performance_fx_bank()!=0;
+  section(0,24,77,432,bank_b?"LIVE FX / BANK 2":"LIVE FX / BANK 1");
+  for(unsigned pad=0;pad<16;++pad){
+   const int x=12+int(pad%4)*115,y=102+int(3-pad/4)*26;
+   const unsigned effect=live_fx_pad_effect(pad,bank_b);
+   const char* name=pad==0?"REPEAT":pad==1?"FILL":effect?names[effect-1]:pad>=13?morph[pad-13]:"";
+   const auto state=perf.pad_feedback(pad);
+   const bool queued=state==ui::LedState::Queued;
+   const bool active=state==ui::LedState::PerformanceActive || state==ui::LedState::Selected;
+   const uint32_t ink=queued?theme.warn:active?theme.accent:theme.secondary;
+   fill(0,x,y,110,23,active || queued?theme.raised:theme.surface);
+   if(queued || active)fill(0,x,y,queued?2:4,23,ink);
+   value(0,x+3,y+3,17,pad+1,*name?ink:theme.dim,Font::Small,0);
+   label_band(0,x+24,y,85,23,name,active?theme.text:ink,Font::Small);
+  }
+  label_band(1,24,177,104,19,"REPEAT RATE",theme.secondary,Font::Small);
+  label_band(1,132,177,65,19,repeats[perf.live_repeat_rate()],theme.text,Font::Body);
+  label_band(1,214,177,242,19,perf.visual().performance_fx_pending?"QUEUED":perf.performance_fx_latched()?"LATCHED":"HOLD / SHIFT TO LATCH",perf.visual().performance_fx_pending?theme.warn:theme.secondary,Font::Small);
+  const bool fresh=perf.visual_fresh();
+  const unsigned mode=fresh?perf.visual().performance_fx_actual_mode:0;
+  const auto declaration=performance_visual(mode);
+  if(mode && declaration.element==VisualElement::Ring){
+   VisualData data;data.available=true;data.live=perf.visual().master_peak>.00001f;
+   data.phase=data.live?perf.visual().performance_fx_phase:0;data.point=data.live;
+   data.layers=1;data.label=declaration.caption;
+   draw_visual(1,declaration,data,perf,perf.visual().sample,24,79,432,103);
+  }else{
+   section(1,24,77,432,"PERFORMANCE BUS");
+   label_band(1,24,101,230,24,!fresh?"WAITING FOR AUDIO":mode && mode<=13?names[mode-1]:"LIVE FX OFF",theme.text,Font::Heading);
+   if(mode){
+    label_band(1,255,101,88,20,"AMOUNT",theme.secondary,Font::Small);
+    progress(1,343,109,110,4,perf.visual().performance_fx_amount,theme.accent);
+   }
+   label_band(1,24,143,100,19,"MAIN OUT",theme.secondary,Font::Small);
+   if(fresh)level_meter(1,130,150,323,5,meter_amount(perf.visual().master_peak),theme.accent);
+   else label_band(1,130,143,320,19,"--",theme.dim,Font::Small);
+  }
+  advice(perf.visual().performance_fx_pending?"ARMED / waiting for beat or bar":perf.performance_fx_latched()?"SHIFT + pad: release latch":"Hold pad: play / SHIFT + knobs 4-5: lock");
  }
 auto UiRenderer::generate(const ProjectState& p,const Performance& perf) -> void{
   for(unsigned i=0;i<8;++i){if(!*perf.knob_label(i))continue;auto shown=formatted_knob(p,perf,i);value_row(0,24+int(i/4)*224,104+int(i%4)*25,206,23,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar,0,true,perf.knob_touched(i)});}const auto t=track_at(p,p.active_pattern,perf.selected_track());panel(1,10,79,460,128);unsigned page=perf.generate_page();
@@ -124,7 +167,7 @@ auto UiRenderer::generate(const ProjectState& p,const Performance& perf) -> void
   else if(page==1){static const char* modes[]={"Wrap","Bounce","Clamp"};badge(1,367,83,86,modes[unsigned(t.accumulator.mode)],theme.blue);line(1,26,152,449,152,theme.border);float range=float(t.accumulator.maximum-t.accumulator.minimum);if(range<1)range=1;for(unsigned n=0;n<16;++n){int v=accumulated_pitch(t.accumulator,n);int y=117+int((t.accumulator.maximum-v)/range*61);rounded(1,27+int(n)*27,y,15,4,ui::Geometry::indicator,theme.teal);if(n<15){int next=accumulated_pitch(t.accumulator,n+1);line(1,42+float(n)*27,float(y+2),54+float(n)*27,119+(t.accumulator.maximum-next)/range*61,theme.teal,1,100);}}label(1,24,185,t.accumulator.scale_degrees?"Scale degrees / source preserved":"Semitones / source preserved",theme.secondary,Font::Small,430);}
   else if(page==2){static const char* presets[]={"Straight","Push-pull","Shuffle","Human","Custom"};badge(1,350,83,105,presets[t.groove.preset],theme.teal);line(1,24,149,454,149,theme.border);for(unsigned i=0;i<16;++i){int x=27+int(i)*27,time=groove_timing(t.groove,i)*t.groove.amount/100,vel=groove_velocity(t.groove,i)*t.groove.amount/100;rounded(1,x,147-time/3,15,4,ui::Geometry::indicator,i==perf.generate_cell()?theme.amber:theme.teal);progress(1,x,179,16,3,float(vel+64)/128,theme.blue);}label(1,24,189,"Teal: timing / Blue: velocity",theme.secondary,Font::Small,430);}
   else if(page==4){static const char* modes[]={"Off","Up","Down","Up/down","Random"};badge(1,350,83,105,modes[t.arp_mode],t.arp_mode?theme.teal:theme.secondary);label(1,24,119,"Step subdivisions",theme.secondary,Font::Body,190);value(1,224,111,48,1u<<t.arp_rate,theme.text,Font::Number,0);label(1,294,119,"Octaves",theme.secondary,Font::Body,80);value(1,394,111,48,t.arp_octaves,theme.text,Font::Number,0);label(1,24,157,"Ratchet multiplies subdivisions",theme.blue,Font::Body,420);label(1,24,182,"Step gate / locks / sound remain active",theme.secondary,Font::Small,430);}
-  else if(page==3){static const char* names[]={"Note","Velocity","Gate"};const auto& lane=t.lanes[perf.generate_lane()];badge(1,350,83,105,names[perf.generate_lane()],theme.blue);for(unsigned i=0;i<16;++i){int x=23+int(i)*27;rounded(1,x,116,23,58,ui::Geometry::cell,i==perf.generate_cell()?theme.raised:theme.raised);value(1,x+1,117,21,lane.values[i],i<lane.length?theme.text:theme.disabled,Font::Small,0);value(1,x+1,147,21,lane.duration[i],theme.blue,Font::Small,0);}label(1,24,185,t.lanes_enabled?"Active / lower row: duration in triggers":"Lanes bypassed / source steps active",theme.secondary,Font::Small,430);}
+  else if(page==3){static const char* names[]={"Note","Velocity","Gate"};const auto& lane=t.lanes[perf.generate_lane()];badge(1,350,83,105,names[perf.generate_lane()],theme.blue);for(unsigned i=0;i<16;++i){int x=23+int(i)*27;rounded(1,x,116,23,58,ui::Geometry::cell,i==perf.generate_cell()?theme.raised:theme.surface);value(1,x+1,117,21,lane.values[i],i<lane.length?theme.text:theme.disabled,Font::Small,0);value(1,x+1,147,21,lane.duration[i],theme.blue,Font::Small,0);}label(1,24,185,t.lanes_enabled?"Active / lower row: duration in triggers":"Lanes bypassed / source steps active",theme.secondary,Font::Small,430);}
   else{const auto& step=t.steps[perf.selected_step()];value(1,24,106,102,step.probability,theme.text,Font::Number,0);label(1,135,121,"% probability",theme.secondary,Font::Body,130);value(1,312,106,63,step.ratchet,theme.text,Font::Number,0);label(1,386,121,"retrigs",theme.secondary,Font::Body,70);progress(1,24,158,430,6,float(step.probability)/100,theme.teal);label(1,24,181,"Live edits / original event grid",theme.secondary,Font::Small,430);}
  }
 auto UiRenderer::modulation_editor(const ProjectState& p,const Performance& perf) -> void{
@@ -132,7 +175,7 @@ auto UiRenderer::modulation_editor(const ProjectState& p,const Performance& perf
   if(!page){modulation(p,perf);return;}
   panel(0,10,79,460,128);panel(1,10,79,460,128);
   static const char* modes[]={"Replace","Add","Multiply"};
-  if(page==1){const auto& a=t.automation[perf.automation_lane()];const auto* d=target_descriptor(a.parameter);label(0,24,85,engine_target(a.parameter)?target_owner_name(a.parameter,p.unavailable_targets):"Step automation / grid clock",theme.secondary,Font::Small,420);unsigned first=(perf.automation_cell()/16)*16;for(unsigned n=0;n<16;++n){unsigned cell=first+n;int x=24+int(n)*27;float lo=a.mode==LayerMode::Add?-(d->maximum-d->minimum):a.mode==LayerMode::Multiply?0:d->minimum,hi=a.mode==LayerMode::Multiply?2:a.mode==LayerMode::Add?d->maximum-d->minimum:d->maximum;float amount=(a.values[cell]-lo)/(hi-lo);rounded(0,x,115,21,60,ui::Geometry::cell,cell==perf.automation_cell()?theme.raised:theme.raised);progress(0,x+6,170-int(ui::clamp01(amount)*47),9,3,1,cell<a.length?theme.blue:theme.disabled);value(0,x,180,21,cell+1,theme.secondary,Font::Small,0);}label(1,24,85,perf.parameter_name(a.parameter),theme.text,Font::Heading,330);badge(1,350,84,105,unavailable_target(a.parameter)?"Unavailable":a.enabled?"Enabled":"Bypassed",a.enabled?theme.teal:theme.secondary);label(1,24,120,modes[unsigned(a.mode)],theme.blue,Font::Body,150);bool percent=a.mode!=LayerMode::Multiply && d->unit[0]=='%' && !d->unit[1];value(1,199,112,211,a.values[perf.automation_cell()]*(percent?100:1),theme.text,Font::Number,a.mode==LayerMode::Multiply?2:d->precision);label(1,423,128,a.mode==LayerMode::Multiply?"x":d->unit,theme.secondary,Font::Small,32);label(1,24,158,"Locks override automation",theme.secondary,Font::Body,430);label(1,24,183,"Every grid step / including silent steps",theme.secondary,Font::Small,430);}
+  if(page==1){const auto& a=t.automation[perf.automation_lane()];const auto* d=target_descriptor(a.parameter);label(0,24,85,engine_target(a.parameter)?target_owner_name(a.parameter,p.unavailable_targets):"Step automation / grid clock",theme.secondary,Font::Small,420);unsigned first=(perf.automation_cell()/16)*16;for(unsigned n=0;n<16;++n){unsigned cell=first+n;int x=24+int(n)*27;float lo=a.mode==LayerMode::Add?-(d->maximum-d->minimum):a.mode==LayerMode::Multiply?0:d->minimum,hi=a.mode==LayerMode::Multiply?2:a.mode==LayerMode::Add?d->maximum-d->minimum:d->maximum;float amount=(a.values[cell]-lo)/(hi-lo);rounded(0,x,115,21,60,ui::Geometry::cell,cell==perf.automation_cell()?theme.raised:theme.surface);progress(0,x+6,170-int(ui::clamp01(amount)*47),9,3,1,cell<a.length?theme.blue:theme.disabled);value(0,x,180,21,cell+1,theme.secondary,Font::Small,0);}label(1,24,85,perf.parameter_name(a.parameter),theme.text,Font::Heading,330);badge(1,350,84,105,unavailable_target(a.parameter)?"Unavailable":a.enabled?"Enabled":"Bypassed",a.enabled?theme.teal:theme.secondary);label(1,24,120,modes[unsigned(a.mode)],theme.blue,Font::Body,150);bool percent=a.mode!=LayerMode::Multiply && d->unit[0]=='%' && !d->unit[1];value(1,199,112,211,a.values[perf.automation_cell()]*(percent?100:1),theme.text,Font::Number,a.mode==LayerMode::Multiply?2:d->precision);label(1,423,128,a.mode==LayerMode::Multiply?"x":d->unit,theme.secondary,Font::Small,32);label(1,24,158,"Locks override automation",theme.secondary,Font::Body,430);label(1,24,183,"Every grid step / including silent steps",theme.secondary,Font::Small,430);}
   else if(page==2){const auto& r=p.macros[perf.macro_index()].routes[perf.macro_route()];static const char* curves[]={"LINEAR","SLOW","FAST","SMOOTH"};label(0,24,85,engine_target(r.parameter)?target_owner_name(r.parameter,p.unavailable_targets):"Macro / parameter route",theme.secondary,Font::Small,420);label(0,24,118,"Macro",theme.secondary,Font::Body,70);value(0,105,111,55,perf.macro_index()+1,theme.text,Font::Number,0);line(0,180,131,275,131,theme.blue,2);label(0,292,118,perf.parameter_name(r.parameter),theme.teal,Font::Body,161);for(unsigned n=0;n<16;++n){int x=24+int(n)*27;bool on=(r.tracks&(1u<<n))!=0;bool eligible=!engine_target(r.parameter) || p.tracks[n].instrument==target_engine(r.parameter);rounded(0,x,151,22,20,3,on?ui::mix(theme.surface,ui::track_color(p,n,theme),eligible?150:45):theme.raised);if(n==perf.selected_track())outline(0,x,151,22,20,3,theme.text);value(0,x+2,154,18,n+1,on?theme.text:theme.disabled,Font::Small,0);}advice("PADS: TARGETS / SHIFT: SELECT TRACK");advice("TURN: ROUTE   PUSH: TARGET   KNOB 1: MACRO");label(1,24,85,unavailable_target(r.parameter)?"Unavailable / retained":r.enabled?"Route enabled":"Route bypassed",r.enabled?theme.teal:theme.secondary,Font::Body,420);label(1,24,121,"Low",theme.secondary,Font::Body,55);value(1,82,112,135,r.low,theme.text,Font::Number,2);label(1,240,121,"High",theme.secondary,Font::Body,55);value(1,304,112,145,r.high,theme.text,Font::Number,2);badge(1,24,170,132,modes[unsigned(r.mode)],theme.blue);badge(1,176,170,160,curves[unsigned(r.curve)],theme.teal);badge(1,352,170,92,mod_source_name(r.source),theme.amber);}
   else if(page==4){const auto& n=t.nrpn[perf.nrpn_slot()];label(0,24,85,n.registered?"RPN / raw MIDI value":"NRPN / raw MIDI value",theme.secondary,Font::Small,420);label(0,24,120,"Parameter number",theme.secondary,Font::Body,170);value(0,210,110,140,n.number,theme.teal,Font::Number,0);badge(0,330,165,120,n.enabled?"Enabled":"Disabled",n.enabled?theme.teal:theme.secondary);label(1,24,85,"Value",theme.secondary,Font::Body,150);value(1,24,108,160,perf.knob_value(3),theme.text,Font::Number,0);label(1,24,160,"Sequence / automation / locks / macro",theme.secondary,Font::Small,420);advice("Shift: coarse / knob 5: fine lock");}
   else{label(0,24,85,"External MIDI / local values",theme.secondary,Font::Small,420);label(0,24,108,"Scale / notes",theme.secondary,Font::Body,300);static const char* names[]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};for(unsigned n=0;n<12;++n){int x=24+int(n)*35;bool active=t.scale_mask&(1u<<n);rounded(0,x,134,30,29,ui::Geometry::button,active?theme.raised:theme.surface);label(0,x+5,141,names[(t.scale_root+n)%12],active?theme.text:theme.disabled,Font::Small,23);}advice("Shift + pads: edit scale / pads: track");label(1,24,85,"Clock / note transform",theme.secondary,Font::Small,420);label(1,24,119,p.midi_clock_slave?"Slave tempo follower":"Clock master",theme.text,Font::Heading,420);label(1,24,159,"CC changes / locks / automation / macros",theme.secondary,Font::Small,420);advice("Shift: knobs 1-2 input routing / 8 locate");}

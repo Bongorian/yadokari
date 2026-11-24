@@ -331,7 +331,7 @@ auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigatio
   if(mode_==UiMode::Mixer && index==5)return select_pattern((project_.active_pattern+1)%kPatterns);
   if(mode_==UiMode::Mixer && mixer_button(index,track_const(selected_).frozen_asset<kSampleAssets,page_,history_cursor_,history_size_).action==MixerAction::Freeze){if(track_const(selected_).frozen_asset<kSampleAssets)return set_frozen_asset(selected_,project_.active_pattern,255);return request_file(FileAction::BeginFreeze);}if(mode_==UiMode::Perform){switch(perform_button_control(index,perform_controls()).action){
    case PerformAction::Tools:set_performance_page(PerformTools);return true;
-   case PerformAction::Vowel:{
+   case PerformAction::SelectVowel:case PerformAction::Vowel:{
     set_performance_page(PerformVowel);select_vowel_target();
     return true;
    }

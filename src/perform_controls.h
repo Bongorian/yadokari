@@ -7,8 +7,11 @@ namespace groove {
 // SHIFT+Top2 owns GESTURE on each face; the historical CAP Q shortcut
 // remains outside this Top grammar. See docs/wave-five-layout.md.
 enum PerformPage:uint8_t {PerformMorph,PerformMacros,PerformGesture,PerformMutation,PerformLiveFx,PerformLooper,PerformTools,PerformVocoder,PerformRecording,PerformFxMap,PerformModule,PerformTimeline,PerformVowel,PerformPageCount};
-enum class PerformAction:uint8_t {None,PageMorph,PageMacros,StoreA,StoreB,ResetLive,ControlAll,LiveFx,Undo,Redo,FxQuantize,FxTail,FxBank,GotoMutation,GotoGesture,MutationGenerate,MutationFreeze,MutationCommit,MutationRevert,Back,PagePrev,PageNext,CaptureRetro,GestureRecord,GesturePlay,GestureClear,Dice,Tools,Vocoder,Recording,FxMap,Module,Looper,ModuleConfirm,Insert1,Insert2,RecordBus,RecordInput,RecordCapture,RecordResample,RecordMode,RecordMonitor,RecordBars,MapTrack,MapGroup,MapMain,MapLive,MapPreset,Vowel};
-constexpr ui::TopWork top_work(PerformAction a){switch(a){case PerformAction::None:return ui::TopWork::Empty;case PerformAction::PageMorph:case PerformAction::PageMacros:case PerformAction::GotoGesture:case PerformAction::GotoMutation:case PerformAction::FxQuantize:case PerformAction::FxTail:return ui::TopWork::Selection;case PerformAction::Back:case PerformAction::LiveFx:case PerformAction::Tools:case PerformAction::Vocoder:case PerformAction::Recording:case PerformAction::FxMap:case PerformAction::Module:case PerformAction::MapGroup:case PerformAction::MapMain:case PerformAction::MapLive:case PerformAction::MapPreset:return ui::TopWork::Exit;case PerformAction::MapTrack:case PerformAction::Looper:case PerformAction::RecordMode:case PerformAction::RecordMonitor:case PerformAction::RecordBars:return ui::TopWork::Selection;default:return ui::TopWork::Execute;}}
+constexpr unsigned live_fx_pad_effect(unsigned pad,bool bank_b){
+ return pad>=2 && pad<=(bank_b?3u:12u)?(bank_b?pad+10:pad-1):0;
+}
+enum class PerformAction:uint8_t {None,PageMorph,PageMacros,StoreA,StoreB,ResetLive,ControlAll,LiveFx,Undo,Redo,FxQuantize,FxTail,FxBank,GotoMutation,GotoGesture,MutationGenerate,MutationFreeze,MutationCommit,MutationRevert,Back,PagePrev,PageNext,CaptureRetro,GestureRecord,GesturePlay,GestureClear,Dice,Tools,Vocoder,Recording,FxMap,Module,Looper,ModuleConfirm,Insert1,Insert2,RecordBus,RecordInput,RecordCapture,RecordResample,RecordMode,RecordMonitor,RecordBars,MapTrack,MapGroup,MapMain,MapLive,MapPreset,Vowel,SelectVowel};
+constexpr ui::TopWork top_work(PerformAction a){switch(a){case PerformAction::None:return ui::TopWork::Empty;case PerformAction::SelectVowel:case PerformAction::PageMorph:case PerformAction::PageMacros:case PerformAction::GotoGesture:case PerformAction::GotoMutation:case PerformAction::FxQuantize:case PerformAction::FxTail:return ui::TopWork::Selection;case PerformAction::Vowel:case PerformAction::Back:case PerformAction::LiveFx:case PerformAction::Tools:case PerformAction::Vocoder:case PerformAction::Recording:case PerformAction::FxMap:case PerformAction::Module:case PerformAction::MapGroup:case PerformAction::MapMain:case PerformAction::MapLive:case PerformAction::MapPreset:return ui::TopWork::Exit;case PerformAction::MapTrack:case PerformAction::Looper:case PerformAction::RecordMode:case PerformAction::RecordMonitor:case PerformAction::RecordBars:return ui::TopWork::Selection;default:return ui::TopWork::Execute;}}
 constexpr uint8_t icon_for(PerformAction action){switch(action){case PerformAction::StoreA:return ui::icons::Store;case PerformAction::StoreB:return ui::icons::Store;case PerformAction::Undo:return ui::icons::Undo;case PerformAction::Redo:return ui::icons::Redo;case PerformAction::Back:return ui::icons::Back;case PerformAction::PagePrev:return ui::icons::Back;case PerformAction::PageNext:return ui::icons::Forward;case PerformAction::CaptureRetro:return ui::icons::Record;case PerformAction::GestureRecord:return ui::icons::Record;case PerformAction::GesturePlay:return ui::icons::Play;case PerformAction::GestureClear:return ui::icons::Erase;default:return ui::icons::None;}}
 
 using PerformControl=ui::ControlDescriptor<PerformAction>;
@@ -21,7 +24,7 @@ struct PerformContext {
 inline PerformControl perform_button_control(unsigned index,const PerformContext& c){
  using A=PerformAction;
  if(c.page==PerformTools){
-  if(index==3)return {"VOWELS",A::Vowel,true};
+  if(index==3)return {"VOWELS",A::SelectVowel,true};
   if(index==4)return {"RECORDING",A::Recording,true};
   if(index==5)return {"FX MAP",A::FxMap,true};
   if(index==6)return {"MIDI MODULE",A::Module,true};

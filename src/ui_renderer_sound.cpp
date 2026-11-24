@@ -18,7 +18,7 @@ auto UiRenderer::sampler(ConstTrackView t,const Performance& perf,WavView sample
 auto UiRenderer::sample_wave(unsigned side,int x,int y,int w,int h,const Performance& perf,const SampleEdit& edit,bool point,float position,float first,float last,bool markers) -> void{
   const auto* peaks=wave_cache_.peaks();float span=fmaxf(.000001f,last-first);
   auto at=[&](float pos){return x+int(ui::clamp01((pos-first)/span)*(w-1));};
-  int start=at(edit.start),end=at(edit.end);fill(side,x,y,w,h,theme.inset);if(end>start)fill(side,start,y,end-start+1,h,theme.raised);line(side,x,y+h/2,x+w-1,y+h/2,theme.border);
+  int start=at(edit.start),end=at(edit.end);fill(side,x,y,w,h,theme.inset);if(end>start)fill(side,start,y,end-start+1,h,theme.raised);plot_axis(side,x,y,w,h,true);
   if(peaks)for(int px=0;px<w;++px){float a=first+span*float(px)/w,b=first+span*float(px+1)/w;unsigned lo=unsigned(ui::clamp01(a)*kSampleWaveBins),hi=unsigned(ceilf(ui::clamp01(b)*kSampleWaveBins));if(lo>=kSampleWaveBins)lo=kSampleWaveBins-1;if(hi>kSampleWaveBins)hi=kSampleWaveBins;if(hi<=lo)hi=lo+1;float low=1,high=-1;for(unsigned n=lo;n<hi;++n){low=fminf(low,peaks->low[n]);high=fmaxf(high,peaks->high[n]);}int top=y+int(ui::clamp01(.5f-high*.5f)*(h-1)),bottom=y+int(ui::clamp01(.5f-low*.5f)*(h-1));fill(side,x+px,top,1,bottom-top+1,x+px>=start && x+px<=end?theme.accent:ui::mix(theme.inset,theme.accent,70));}
   else label(side,x+6,y+h/2-6,perf.browser().analysis_pending || wave_cache_.pending()?"ANALYZING WAVEFORM":"WAVEFORM NOT AVAILABLE",theme.secondary,Font::Small,w-12);
   if(markers){bool start_edit=false,end_edit=false;for(unsigned i=0;i<8;++i)if(perf.knob_touched(i) || (perf.knob_overlay_mask()&(1u<<i))){uint16_t active=perf.knob_parameter(i);
@@ -28,7 +28,7 @@ auto UiRenderer::sample_wave(unsigned side,int x,int y,int w,int h,const Perform
    line(side,start,y-3,start,y+h,start_ink,start_edit?2:1);line(side,end,y-3,end,y+h,end_ink,end_edit?2:1);
    int sx=bounded(start, x,x+w-90),ex=bounded(end-32,sx+48,x+w-36);label(side,sx,y-15,"START",start_ink,Font::Small,44);label(side,ex,y-15,"END",end_ink,Font::Small,36);
   }
-  if(point)line(side,at(position),y,at(position),y+h,theme.text,2);
+  if(point && position>=first && position<=last)fill(side,at(position),y,1,h,theme.text);
  }
 auto UiRenderer::sampler_body(ConstTrackView t,const Performance& perf,WavView sample,const char* name) -> void{
   bool kit=t.instrument==Instrument::DrumKit;const auto& pad=t.kit.pads[perf.selected_kit_pad()];const auto& edit=kit?pad.edit:t.sample_edit;unsigned sample_slice=kit?0:t.sample_slice;unsigned sample_slices=kit?(edit.slice_count?edit.slice_count:1):t.sample_slices;bool sample_loop=kit?edit.mode==SampleMode::Loop:t.sample_loop;bool sample_reverse=kit?pad.reverse:t.sample_reverse;unsigned sample_slot=kit?pad.sample[0]:t.sample_slot;unsigned root_note=kit?60:t.root_note;

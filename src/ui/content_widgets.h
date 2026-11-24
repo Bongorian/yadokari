@@ -6,9 +6,9 @@
   uint32_t ink=item.enabled?theme.text:theme.dim,accent=item.enabled?(item.selected?theme.value_edit:theme.accent):theme.dim;int field=w>300?190:w/2;
   if(item.selected){fill(side,x,y,w,h,theme.raised);selected_mark(side,x,y,w,h);}
   aligned_band(side,x,y,w-field-8,h-6,item.name,item.enabled?theme.secondary:theme.dim,FontRole::Body,TextAlign::Left,TextKind::ValueLabel,false,true);
-  int tw=text_width(item.text,FontRole::Body);if(tw>field)tw=field;int tx=x+w-tw;
+  int tw=text_width(item.text,FontRole::Body);if(tw>field-10)tw=field-10;int tx=x+w-tw-5;
   if(item.shape==ValueShape::Chip){rounded(side,tx-5,y+1,tw+10,h-8,3,theme.surface);}
-  aligned_band(side,x+w-field,y,field,h-6,item.text,ink,FontRole::Body,TextAlign::Right,TextKind::ValueNumber,false,true);
+  aligned_band(side,x+w-field,y,field-(item.shape==ValueShape::Chip?5:0),h-6,item.text,ink,FontRole::Body,TextAlign::Right,TextKind::ValueNumber,false,true);
   int rail=y+h-4;float n=clamp01(item.normalized);
   if(item.shape==ValueShape::Bar)progress(side,x,rail,w,2,n,accent);
   else if(item.shape==ValueShape::Bipolar){fill(side,x,rail,w,2,theme.border);int a=x+w/2,b=x+int(n*w);fill(side,a<b?a:b,rail,a<b?b-a:a-b,2,accent);fill(side,x+w/2,rail-2,1,6,theme.secondary);}
@@ -17,18 +17,22 @@
  void list_row(unsigned side,int x,int y,int w,int h,const ContentRow& row){
   fill(side,x,y,w,h,row.selected?theme.raised:theme.surface);if(row.selected)selected_mark(side,x,y,w,h);
   int inset=row.icon?22:8;if(row.icon)icon(side,x+5,y+3,row.icon,row.enabled?theme.secondary:theme.dim);
-  int state_width=*row.state?40:0,available=w-inset-state_width-8;
+  int state_width=*row.state?text_width(row.state,FontRole::Small)+12:0;
+  if(state_width>w/2)state_width=w/2;
+  int available=w-inset-state_width-8;
   aligned_band(side,x+inset,y,available,*row.secondary?h/2:h,row.primary,row.enabled?theme.text:theme.dim,FontRole::Body,TextAlign::Left,TextKind::Cell,false,true);
   if(*row.secondary)label_band(side,x+inset,y+h/2,available,h/2,row.secondary,theme.secondary,FontRole::Small);
-  if(state_width)label_band(side,x+w-state_width,y,state_width-3,h,row.state,theme.secondary,FontRole::Small);
+  if(state_width)aligned_band(side,x+w-state_width,y,state_width-7,h,row.state,theme.secondary,FontRole::Small,TextAlign::Right,TextKind::Cell);
  }
  void mixer_strip(unsigned side,int x,int y,int w,int h,const char* name,float level,float pan,float peak,const char* state,bool selected,uint32_t color,float held=-1){
   fill(side,x,y,w,h,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x,y,w,h);label_band(side,x+4,y+3,w-8,18,name,selected?theme.text:theme.secondary,FontRole::Small);
-  int mx=x+w/2-3,my=y+24,mh=h-54;
+  int mx=x+w/2-3,my=y+24,mh=h-65;
   meter(side,mx,my,6,mh,peak,color);
   line(side,mx-5,my,mx-2,my,theme.secondary);line(side,mx+8,my,mx+11,my,theme.secondary); // 0 dBFS
   if(held>0){unsigned segment=unsigned(ceilf(clamp01(held)*12));if(!segment)segment=1;int py=my+mh-int(segment)*mh/12;fill(side,mx-2,py,10,2,meter_peak_color(theme,held));}
-  progress(side,x+5,y+h-25,w-10,3,level,color);
+  progress(side,x+5,y+h-35,w-10,3,level,color);
+  fill(side,x+5,y+h-23,w-10,1,theme.border);
+  fill(side,x+w/2,y+h-25,1,5,theme.dim);
   fill(side,x+5+int(clamp01((pan+1)*.5f)*(w-12)),y+h-28,2,8,theme.secondary);label_band(side,x+3,y+h-18,w-6,16,state,theme.secondary,FontRole::Small);
  }
 

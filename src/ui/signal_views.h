@@ -66,7 +66,7 @@
    unsigned node=chain?perf.chain_node():perf.fx_focus_slot()+1;
    if(node==0)tone_picture(1,t,rate,&perf);
    else if(node<3){unsigned slot=(node-1)*4;insert_picture(1,unsigned(fx[slot]),fx[slot+1],fx[slot+2],fx[slot+3],(t.insert_disabled>>(node-1))&1,rate,perf.visual().vocoder_bands[perf.selected_track()][node-1],perf.visual().insert_activity[perf.selected_track()][node-1],perf.visual_fresh(),&perf,ui::track_color(p,perf.selected_track(),theme));}
-   else compressor_picture(1,live?perf.visual().track_compressor[perf.selected_track()]:t.compressor,live?perf.visual().track_compressor_reduction[perf.selected_track()]:0,perf.visual_fresh()?perf.visual().track_compressor_input[perf.selected_track()]:-1);
+   else compressor_picture(1,live?perf.visual().track_compressor[perf.selected_track()]:t.compressor,live?perf.visual().track_compressor_reduction[perf.selected_track()]:0,live && perf.visual_fresh()?perf.visual().track_compressor_input[perf.selected_track()]:-1);
    return;
   }
   if(perf.fx_page()==4){
@@ -77,14 +77,34 @@
    wire(0,24,119,303,theme.teal);junction(0,84,119,theme.teal);outline(0,304,107,24,24,12,theme.teal);wire(0,310,119,322,theme.teal);wire(0,330,119,451,theme.teal);label(0,346,95,"AUDIO OUT",theme.secondary,Font::Small,105);
    if(c[6]>0){label(0,24,169,"KEY T",theme.blue,Font::Small,48);value(0,70,164,32,c[6],theme.blue,Font::Small,0);}else line(0,84,119,84,176,theme.blue);
    wire(0,102,176,183,theme.blue);outline(0,184,164,24,24,12,theme.blue);label(0,145,144,"DETECTOR",theme.secondary,Font::Small,100);wire(0,210,176,316,theme.blue);line(0,316,176,316,132,theme.blue);label(0,331,163,"GAIN CONTROL",theme.blue,Font::Small,120);
-   label(0,24,194,"Audio path above / sidechain below",theme.secondary,Font::Small,430);compressor_picture(1,c,track?(live?perf.visual().track_compressor_reduction[perf.selected_track()]:0):perf.visual().compressor_reduction,perf.visual_fresh()?(track?perf.visual().track_compressor_input[perf.selected_track()]:perf.visual().compressor_input):-1);return;
+   label(0,24,194,"Audio path above / sidechain below",theme.secondary,Font::Small,430);compressor_picture(1,c,track?(live?perf.visual().track_compressor_reduction[perf.selected_track()]:0):perf.visual().compressor_reduction,perf.visual_fresh() && (!track || live)?(track?perf.visual().track_compressor_input[perf.selected_track()]:perf.visual().compressor_input):-1);return;
   }
   float time=perf.visual().sample?perf.visual().effects[2]:p.effects.delay_ms,feedback=perf.visual().sample?perf.visual().effects[1]:p.effects.delay_feedback;
   const auto& delay=system_fx_visual(SystemFx::Delay).visual;VisualData repeats;repeats.available=true;repeats.count=128;repeats.label=delay.caption;repeats.live=perf.visual_fresh() && perf.visual().delay_input>.00001f;repeats.point=repeats.live;repeats.phase=0;repeats.position=ui::clamp01(perf.visual().delay_input);for(unsigned i=0;i<128;++i){float ms=2000*float(i)/127;unsigned echo=unsigned(ms/fmaxf(1,time));float local=ms-echo*time;repeats.values[i]=local<32?powf(feedback,float(echo))*(1-local/32):0;}visual_element(0,24,82,430,118,delay,repeats,theme.accent);
   const auto& reverb=system_fx_visual(SystemFx::Reverb).visual;auto tail=ui::response_visual(ResponseModel::Decay,perf.visual().sample?perf.visual().effects[4]:p.effects.reverb_decay,0);tail.label=reverb.caption;visual_element(1,24,82,430,118,reverb,tail,theme.mod);
 
  }
- void compressor_picture(unsigned side,const float* c,float reduction,float detector=-1){const auto& declaration=system_fx_visual(SystemFx::Compressor).visual;auto data=ui::response_visual(ResponseModel::Compressor,c[0],c[1]);data.live=detector>=0;data.amount=reduction;data.level=detector>=0?meter_amount(detector):0;data.point=detector>.000001f;data.phase=data.level;data.position=ui::clamp01((20*log10f(fmaxf(.00000001f,detector))+20*log10f(fmaxf(.0001f,1-reduction))+60)/60);data.label=declaration.caption;visual_element(side,24,82,430,118,declaration,data,theme.accent);}
+ void compressor_picture(unsigned side,const float* c,float reduction,float detector=-1){
+  const auto& declaration=system_fx_visual(SystemFx::Compressor).visual;
+  auto data=ui::response_visual(ResponseModel::Compressor,c[0],c[1]);
+  int x=24,y=109,w=260,h=77;
+  label_band(side,x,82,430,18,declaration.caption,theme.secondary,Font::Small);
+  float gain_db=20*log10f(fmaxf(.0001f,1-reduction));
+  data.point=detector>.000001f;
+  data.phase=meter_amount(detector>0?detector:0);
+  data.position=meter_amount(detector>0?detector*(1-reduction):0);
+  line(side,x,y+h-1,x+w-1,y,theme.border,1);
+  int knee=x+int(meter_amount(c[0])*(w-1));
+  fill(side,knee,y,1,h,theme.border);
+  visual_curve(side,x,y,w,h,data,theme.accent);
+  label_band(side,x,188,w,15,"INPUT   -60 TO 0 dB",theme.secondary,Font::Small);
+  label_band(side,308,108,148,16,"THRESHOLD  dB",theme.secondary,Font::Small);
+  value(side,309,125,143,20*log10f(fmaxf(.0001f,c[0])),theme.text,Font::Body,1);
+  label_band(side,308,150,148,16,"REDUCTION  dB",theme.secondary,Font::Small);
+  if(detector>=0)value(side,309,168,143,-gain_db,theme.text,Font::Body,1);
+  else label_band(side,308,168,145,19,"--",theme.dim,Font::Body);
+ }
+
 
  VisualData filter_spectrum(const Performance& perf,unsigned rate){auto source=ui::pcm_visual(perf,VisualSource::TrackSpectrum);VisualData projected;projected.available=source.available;projected.live=source.live;projected.count=128;for(unsigned i=0;i<128;++i){float hz=20*powf(fminf(rate*.45f,20000)/20,float(i)/127),bin=hz*512/rate;unsigned at=bin>=1?unsigned(logf(bin)/logf(256.f)*64):0;if(at>63)at=63;projected.values[i]=bin>=1?source.values[at]:0;}return projected;}
  void tone_picture(unsigned side,ConstTrackView t,unsigned rate,const Performance* perf=nullptr){const auto& declaration=system_fx_visual(SystemFx::Filter).visual;auto data=ui::response_visual(ResponseModel::LowPass,t.cutoff,0,rate);data.label=declaration.caption;

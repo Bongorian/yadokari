@@ -25,6 +25,30 @@ int main(){
  motion.update(2,1,80,d,true,true);d.phase=.1f;motion.update(2,2,90,d,true,true);middle=motion.update(2,2,115,d,true,true);assert(middle.phase<.001f || middle.phase>.999f);
  auto widgets=std::make_unique<ui::Widgets>();for(unsigned theme=0;theme<ui::Theme::kCount;++theme){widgets->theme=ui::Theme::by_index(theme);for(unsigned kind=1;kind<=6;++kind){VisualDeclaration decl;decl.element=VisualElement(kind);VisualData value;value.available=true;value.count=128;value.recorded=.6f;value.layers=2;value.point=true;value.phase=value.position=.25f;value.label="REAL DATA";for(unsigned i=0;i<128;++i){value.values[i]=.4f*sinf(float(i)*.12f);value.low[i]=-value.values[i];}widgets->fill(0,0,0,480,272,widgets->theme.background);widgets->visual_element(0,24,82,430,118,decl,value,widgets->theme.accent);auto first=roi(*widgets,0);widgets->fill(0,0,0,480,272,widgets->theme.background);widgets->visual_element(0,24,82,430,118,decl,value,widgets->theme.accent);assert(first==roi(*widgets,0));}}
 
+ // A full-scale endpoint and a dense 128-bin profile must stay in their field.
+ for(unsigned kind=0;kind<4;++kind){
+  constexpr int x=17,y=21,w=48,h=30;
+  auto& canvas=*widgets;
+  canvas.fill(0,0,0,480,272,canvas.theme.background);
+  const auto untouched=canvas.pixels[0][0];
+  VisualData signal;signal.count=128;signal.point=true;signal.position=signal.phase=1;
+  for(unsigned n=0;n<128;++n){signal.values[n]=n%2?1:0;signal.low[n]=-1;}
+  if(kind==0)canvas.visual_scope(0,x,y,w,h,signal,canvas.theme.text);
+  if(kind==1)canvas.visual_curve(0,x,y,w,h,signal,canvas.theme.text);
+  if(kind==2)canvas.visual_bars(0,x,y,w,h,signal,canvas.theme.text);
+  if(kind==3)canvas.visual_spectrum(0,x,y,w,h,signal,canvas.theme.text);
+  unsigned ink=0;
+  for(int row=y-2;row<=y+h+2;++row)for(int col=x-2;col<=x+w+2;++col){
+   if(canvas.pixels[0][row*480+col]==untouched)continue;
+   assert(row>=y && row<y+h && col>=x && col<x+w);
+   ++ink;
+  }
+  assert(ink>=w);
+ }
+ for(unsigned pad=0;pad<16;++pad){
+  assert(live_fx_pad_effect(pad,false)==(pad>=2 && pad<=12?pad-1:0));
+  assert(live_fx_pad_effect(pad,true)==(pad==2?12u:pad==3?13u:0u));
+ }
  // Geometry contracts are measured on the final native pixel placements.
  unsigned observed=0;widgets->layout_band(76,131,64,194);widgets->text_observer=[](const SoftwareCanvas::TextPlacement& p,void* ctx){assert(!ui::alignment_errors(p));++*static_cast<unsigned*>(ctx);};widgets->text_observer_context=&observed;
  widgets->value_row(0,24,104,206,23,{"FOCUS","1.0 harm",0});widgets->value_row(0,248,104,206,23,{"WIDTH","16.0 harm",1});widgets->list_row(0,24,130,430,28,{"Sample name","PCM / 48K","READY"});widgets->centered_label(0,24,170,430,18,"CELL",widgets->theme.text);widgets->section(0,24,82,430,"HEADING");assert(observed>=8);widgets->text_observer=nullptr;widgets->layout_reset();
