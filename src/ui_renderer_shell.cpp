@@ -247,7 +247,7 @@ auto UiRenderer::draw_visual(unsigned side,const VisualDeclaration& declaration,
 auto UiRenderer::toast(const char* text,uint32_t color) -> void{rounded(1,14,74,452,34,ui::Geometry::button,theme.background,250);outline(1,14,74,452,34,ui::Geometry::button,theme.border);fill(1,19,81,3,20,color);label(1,30,ui::centered_text_y(Font::Small,74,34),text,color,Font::Small,424);}
 auto UiRenderer::hints(const Performance& perf,const SoundModRoutes& routes) -> void{
   ui::PageAdvice lines;lines.add(perf.encoder_hint());
-  if(perf.mode()==UiMode::Synth && !perf.source_select() && routes.count){
+  if(perf.mode()==UiMode::Synth && routes.count){
    KnobValue heading;heading.append("SOUND MOD ROUTES");heading.number(routes.count,0);lines.add(heading.text);
    for(unsigned i=0;i<routes.count;++i){
     const auto& row=routes.rows[i];const auto* target=target_descriptor(row.parameter);
