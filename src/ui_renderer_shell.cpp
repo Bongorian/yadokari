@@ -319,13 +319,19 @@ auto UiRenderer::knob_legend(const ProjectState& p,const Performance& perf) -> v
    for(unsigned col=0;col<4;++col){unsigned i=side*4+col;int x=int(col)*120+4;
     // An unchanged open cell owns its whole rectangle; the static legend must
     // not paint over its lower half on a frame that skips the ARC redraw.
-    if(perf.knob_overlay_mask()&(1u<<i)){fill(side,x-4,ui::Layout::legend_y,4,30,theme.surface);fill(side,x+112,ui::Layout::legend_y,4,30,theme.surface);fill(side,x,270,112,2,theme.surface);continue;}
-    fill(side,x-4,ui::Layout::legend_y,120,ui::Layout::legend_h,theme.surface);const char* name=perf.knob_label(i);if(!*name)continue;
+    const bool open=(perf.knob_overlay_mask()&(1u<<i))!=0;
+    if(open){
+     fill(side,x-4,ui::Layout::legend_y,4,30,theme.surface);
+     fill(side,x+112,ui::Layout::legend_y,4,30,theme.surface);
+     fill(side,x,270,112,2,theme.surface);
+    }else fill(side,x-4,ui::Layout::legend_y,120,ui::Layout::legend_h,theme.surface);
+    const char* name=perf.knob_label(i);if(!*name)continue;
     fill(side,x-3,ui::Layout::legend_y+4,1,22,theme.border);
+    if(open)continue;
     if(ui::text_width(name,Font::Small)<=112)centered_label(side,x,ui::Layout::legend_y,112,14,name,theme.secondary,Font::Small);else scrolling_label(side,x,ui::centered_text_y(Font::Small,ui::Layout::legend_y,14),name,theme.secondary,Font::Small,112);
     auto shown=formatted_knob(p,perf,i);int width=ui::text_width(shown.text,Font::Small);int left=width<108?x+(112-width)/2:x+2;
     scrolling_label(side,left,ui::centered_text_y(Font::Small,ui::Layout::legend_y+14,14),shown.text,theme.text,Font::Small,108);
-    if(!(perf.knob_overlay_mask()&(1u<<i)))progress(side,x+4,270,104,2,perf.knob_display_normalized(i),theme.accent);
+    progress(side,x+4,270,104,2,perf.knob_display_normalized(i),theme.accent);
    }
   }
  }
