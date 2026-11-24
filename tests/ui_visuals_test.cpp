@@ -93,14 +93,32 @@ int main(){
   Command key{CommandType::MidiInput,0,60,0x90};key.scalar=110;
   assert(engine->submit(key));settle();assert(controls->visual().note[0]==60 && plot()==idle);
   key.step=127;assert(engine->submit(key));settle();
-  const auto& frame=controls->visual();const auto& map=frame.wavetable_map[0];
+  const auto& frame=controls->visual();const auto map=frame.wavetable_map[0];
   assert(frame.note[0]==127 && frame.envelope[0]>0 && map.pm==0 && map.warp>0 && map.warp<.5f);
   const auto high=plot();assert(high!=idle);
+  // At note 127 the second sync harmonic is above Nyquist. The expected
+  // curve has just the fundamental, weighted by the fractional sync mix.
+  assert(map.spectral && map.step>.25f && map.mode==1 && 3*map.warp<1);
+  const auto* a=kWavetableData[42][6];const auto* b=kWavetableData[43][6];
+  const float c=a[0]+.25f*(b[0]-a[0]),sine=a[64]+.25f*(b[64]-a[64]);
+  const auto levels=wavetable_extended_levels(map);
+  for(unsigned i=0;i<128;++i){
+   const float phase=float(i)/127,angle=6.283185307f*phase;
+   const float expected=(1-3*map.warp)*(c*cosf(angle)+sine*sinf(angle))/32767.f;
+   const float actual=wavetable_spectral_sample(map,map.step,phase,phase*map.ratio,v[0],levels.mip,levels.blend);
+   assert(fabsf(expected-actual)<.0001f);
+  }
+  // High-note PM is already bandwidth-limited to zero. Removing its knob
+  // amount must leave the complete played-pitch curve pixel-identical.
+  Command dry_pm{CommandType::SetEngineParameter,0,0,0};dry_pm.parameter=WavetablePmAmount;dry_pm.scalar=0;
+  v[WavetablePmAmount]=0;assert(engine->submit(dry_pm));settle();assert(plot()==high);
+  // Restore the original control for the idle C4 reference.
+  v[WavetablePmAmount]=1;
   // With a stale snapshot the unchanged knobs once again preview C4.
   controls->animate(elapsed+350);assert(!controls->visual_fresh() && plot()==idle);
-  // A C4 preview with the effective high-note amounts must match every pixel.
+  // At C4 the same effective controls admit more source harmonics.
   v[WavetableWarpAmount]=map.warp;v[WavetablePmAmount]=0;
-  view->invalidate();assert(plot()==high);
+  view->invalidate();assert(plot()!=high);
  }
  // Exercise every registered engine through the same 4-D push used on hardware.
  for(unsigned i=0;i<instrument_count();++i){
