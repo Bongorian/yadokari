@@ -182,7 +182,26 @@ auto UiRenderer::project(const ProjectState& p,const Performance& perf) -> void{
   for(unsigned i=0;i<3;++i)list_row(0,16,91+int(i)*29,448,26,{names[i],"","",perf.project_list_cursor()==i,true,0});
   advice("TURN: ACTION / PUSH: APPLY / K4: POOL SLOT");
   scrolling_label(1,24,85,perf.bake_collect_path()?filename(perf.bake_collect_path()):perf.project_name(),theme.text,Font::Body,430);if(perf.bake_collect_path())advice("TOP 5: COLLECT PRESET + SAMPLE");
-  if(perf.project_list_cursor()){const auto& sound=p.sounds[perf.sound_slot()];scrolling_label(1,24,116,sound.preset_name[0]?sound.preset_name:instrument_descriptor(unsigned(sound.instrument))->name,theme.secondary,Font::Heading,430);label(1,24,154,"POOL SLOT",theme.secondary,Font::Small,150);value(1,190,149,80,perf.sound_slot()+1,theme.text,Font::Body,0);}
+  if(perf.project_list_cursor()){
+   const auto& sound=p.sounds[perf.sound_slot()];
+   const char* name=sound.preset_name[0]?sound.preset_name:instrument_descriptor(unsigned(sound.instrument))->name;
+   if(sound.mod_routes.count){
+    scrolling_label(1,24,107,name,theme.text,Font::Body,254);
+    KnobValue slot;slot.append("POOL SLOT");slot.number(perf.sound_slot()+1,0);
+    aligned_band(1,286,107,168,16,slot.text,theme.secondary,Font::Small,ui::TextAlign::Right);
+    KnobValue heading;heading.append("SOUND MOD ROUTES");heading.number(sound.mod_routes.count,0);
+    label(1,24,127,heading.text,theme.secondary,Font::Small,430);
+    for(unsigned i=0;i<sound.mod_routes.count;++i){
+     const auto& route=sound.mod_routes.rows[i];const int y=144+int(i)*15;
+     label(1,24,y,mod_source_name(route.source),theme.secondary,Font::Small,112);
+     const auto* target=target_descriptor(route.parameter);
+     label(1,150,y,target?target->name:"?",theme.text,Font::Small,304);
+    }
+   }else{
+    scrolling_label(1,24,116,name,theme.secondary,Font::Heading,430);
+    label(1,24,154,"POOL SLOT",theme.secondary,Font::Small,150);value(1,190,149,80,perf.sound_slot()+1,theme.text,Font::Body,0);
+   }
+  }
   else {unsigned start=perf.asset_cursor()>1?perf.asset_cursor()-1:0;if(start>61)start=61;for(unsigned i=0;i<3;++i){unsigned n=start+i;int y=116+int(i)*23;value(1,24,y,28,n+1,theme.secondary,Font::Small,0);scrolling_label(1,67,y,p.assets[n].path[0]?p.assets[n].path:"Empty asset",p.assets[n].path[0]?theme.text:theme.dim,Font::Body,385);}}
  }
 auto UiRenderer::settings(const Performance& perf) -> void{

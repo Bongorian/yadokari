@@ -151,6 +151,17 @@ static void verify_ui(ProjectState& p,Performance& ui){
   if(strstr(t.text,"Envelope") && strstr(t.text,"PM"))found[2]=true;
  };
  view->draw(p,ui);assert(seen[0] && seen[1] && seen[2]);ui.control(button->report_byte,0);
+ ui.set_mode(UiMode::Project);assert(ui.encoder(2) && ui.project_list_cursor()==2);
+ auto& slot=p.sounds[ui.sound_slot()];const auto prior=std::make_unique<SoundState>(slot);
+ snapshot_sound(slot,track_at(p,0,0));slot.mod_routes.count=4;
+ slot.mod_routes.rows[2]=row(WavetableDetune,ModSource::Pressure);
+ slot.mod_routes.rows[3]=row(WavetableSpread,ModSource::Velocity);
+ unsigned mask=0;view->text_observer_context=&mask;
+ view->text_observer=[](const SoftwareCanvas::TextPlacement& text,void* context){
+  const char* labels[]={"SOUND MOD ROUTES 4","LFO","Envelope","Pressure","Velocity","WARP AMT","PM AMT","DETUNE","SPREAD"};
+  if(text.side==1)for(unsigned i=0;i<9;++i)if(!strcmp(labels[i],text.text))*static_cast<unsigned*>(context)|=1u<<i;
+ };
+ view->invalidate();view->draw(p,ui);assert(mask==511);slot=*prior;
 }
 static void preset_and_leaf(){
  char dir[]="build/sound-mod-XXXXXX";assert(mkdtemp(dir) && chdir(dir)==0);

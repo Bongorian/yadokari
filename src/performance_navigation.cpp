@@ -482,7 +482,6 @@ auto Performance::encoder_hint()const -> const char*{if(browser_editing())return
   if(mode_==UiMode::Diagnostics)return "TURN: SCROLL   L/R: PAGE";
   if(mode_==UiMode::Pad && track_const(selected_).instrument==Instrument::DrumKit)return "TURN: PAD   PUSH: SAMPLE";
   if(mode_==UiMode::Synth && source_select_)return "TURN: ENGINE   PUSH: SOUNDS / TOP 5: DEFAULT SOUND";
-  if(mode_==UiMode::Synth && track_const(selected_).mod_routes.count)return "HOLD PLUG-IN: SOUND MOD ROUTES";
   if(synth_monitor_available())return "4-D PUSH: ENGINE / SCOPE / FFT";
   if(mode_==UiMode::Mixer || mode_==UiMode::Routing)return "TURN / ARROWS: TRACK";
   return "TURN: TRACK   L/R: PAGE";
