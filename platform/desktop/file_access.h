@@ -42,7 +42,7 @@ public:
  }
  bool space(uint64_t& free,uint64_t& total)override{struct statvfs v{};if(statvfs(".",&v))return false;free=uint64_t(v.f_bavail)*v.f_frsize;total=uint64_t(v.f_blocks)*v.f_frsize;return true;}
  bool browser_file_management_allowed()const override{return data_root_;}
- unsigned list(const char* path,FileEntry* out,unsigned max)override{char checked[192];if(!directory_path(path,checked))return 0;DIR* dir=opendir(*checked?checked:".");if(!dir)return 0;unsigned n=0;while(n<max){auto* e=readdir(dir);if(!e)break;if(e->d_name[0]=='.')continue;char name[256];if(!join_path(name,sizeof name,checked,e->d_name))continue;struct stat s{};if(lstat(name,&s)!=0 || (!S_ISDIR(s.st_mode) && !S_ISREG(s.st_mode)))continue;if(!data_browser_entry(checked,e->d_name,S_ISDIR(s.st_mode)))continue;if(!copy_text(out[n].name,sizeof out[n].name,e->d_name))continue;out[n].directory=S_ISDIR(s.st_mode);out[n].bytes=s.st_size;++n;}closedir(dir);for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((out[j].directory && !out[i].directory) || (out[i].directory==out[j].directory && std::strcmp(out[j].name,out[i].name)<0)){auto tmp=out[i];out[i]=out[j];out[j]=tmp;}return n;}
+ unsigned list(const char* path,FileEntry* out,unsigned max)override{char checked[192];if(!directory_path(path,checked))return 0;DIR* dir=opendir(*checked?checked:".");if(!dir)return 0;unsigned n=0;while(n<max){auto* e=readdir(dir);if(!e)break;if(e->d_name[0]=='.')continue;char name[256];if(!join_path(name,sizeof name,checked,e->d_name))continue;struct stat s{};if(lstat(name,&s)!=0 || (!S_ISDIR(s.st_mode) && !S_ISREG(s.st_mode)))continue;if(!data_browser_candidate(checked,e->d_name,S_ISDIR(s.st_mode),true))continue;if(!copy_text(out[n].name,sizeof out[n].name,e->d_name))continue;out[n].directory=S_ISDIR(s.st_mode);out[n].bytes=s.st_size;++n;}closedir(dir);for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((out[j].directory && !out[i].directory) || (out[i].directory==out[j].directory && std::strcmp(out[j].name,out[i].name)<0)){auto tmp=out[i];out[i]=out[j];out[j]=tmp;}return n;}
  bool list_checked(const char* path,FileEntry* out,unsigned capacity,unsigned& count)override{
   count=0;char checked[192];if(!directory_path(path,checked))return false;
   DIR* dir=opendir(*checked?checked:".");if(!dir)return false;bool ok=true;
@@ -57,10 +57,7 @@ public:
   DIR* dir=opendir(*checked?checked:".");if(!dir)return false;bool ok=true;
   for(;;){errno=0;auto* e=readdir(dir);if(!e){ok=errno==0;break;}if(e->d_name[0]=='.')continue;
    char full[256];struct stat info{};if(!join_path(full,sizeof full,checked,e->d_name) || lstat(full,&info)!=0){ok=false;break;}
-   // A case-sensitive host must expose the exact staging suffix that its writer uses.
-   bool staged_song=S_ISREG(info.st_mode) && data_suffix(e->d_name,".mgxs.tmp") &&
-                    !std::strcmp(e->d_name+std::strlen(e->d_name)-4,".tmp");
-   if((!S_ISREG(info.st_mode) && !S_ISDIR(info.st_mode)) || (!data_browser_entry(checked,e->d_name,S_ISDIR(info.st_mode)) && !staged_song))continue;
+   if((!S_ISREG(info.st_mode) && !S_ISDIR(info.st_mode)) || !data_browser_candidate(checked,e->d_name,S_ISDIR(info.st_mode),true))continue;
    if(count==capacity){ok=false;break;}if(!copy_text(out[count].name,sizeof out[count].name,e->d_name)){ok=false;break;}
    out[count].directory=S_ISDIR(info.st_mode);out[count++].bytes=uint64_t(info.st_size);
   }

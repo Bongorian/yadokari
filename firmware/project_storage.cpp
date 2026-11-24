@@ -25,6 +25,7 @@ extern "C" void GrooveStorageUiWait(){StorageUiWait::poll();}
 #include "../src/session_files.h"
 #include "../src/benchmark_cleanup_policy.h"
 #include "../src/data_directories.h"
+#include "fat_browser.h"
 #include "../src/file_replace.h"
 #include "../src/benchmark_project.h"
 #include <circle/devicenameservice.h>
@@ -39,7 +40,15 @@ bool CProjectStorage::BeginUiProbeSample(groove::WavView& out){
 CProjectStorage::~CProjectStorage(){delete[] m_CpuIo;end_read_session();CloseRecordingWrite();cancel_incremental_load();while(m_SoundFontWorker && m_SoundFontWorker->busy())ServiceSoundFont();CloseSoundFontRead();delete m_ChunkedLoad;for(auto& c:m_Cache){delete c.stream;if(c.high)CMemorySystem::HeapFree(c.bytes);else delete[] c.bytes;}}
 bool CProjectStorage::Mount(){m_Drive=CDeviceNameService::Get()->GetDevice("emmc1-4",TRUE)?"DATA:":"SD:";m_Mounted=f_mount(&m_Fs,m_Drive,1)==FR_OK;return m_Mounted;}
 bool CProjectStorage::Absolute(const char* path,char* out,unsigned capacity)const{char clean[192];if(!m_Mounted || *path=='/' || !groove::canonical_path(clean,sizeof clean,"",path))return false;return groove::join_path(out,capacity,m_Drive,clean);}
-unsigned CProjectStorage::list(const char* name,groove::FileEntry* result,unsigned capacity){char path[208];if(!Absolute(name,path,sizeof path))return 0;DIR dir;if(f_opendir(&dir,path)!=FR_OK)return 0;FILINFO info;unsigned n=0;while(n<capacity && f_readdir(&dir,&info)==FR_OK && info.fname[0]){if(info.fname[0]=='.' || (info.fattrib&AM_HID))continue;if(!groove::data_browser_entry(name,info.fname,(info.fattrib&AM_DIR)!=0))continue;auto& e=result[n];if(!groove::copy_text(e.name,sizeof e.name,info.fname))continue;e.directory=(info.fattrib&AM_DIR)!=0;e.bytes=info.fsize;++n;}f_closedir(&dir);for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((result[j].directory && !result[i].directory) || (result[i].directory==result[j].directory && strcmp(result[j].name,result[i].name)<0)){auto tmp=result[i];result[i]=result[j];result[j]=tmp;}return n;}
+bool CProjectStorage::list_browser(const char* name,groove::FileEntry* out,unsigned capacity,unsigned& count){
+ char path[208];count=0;
+ return Absolute(name,path,sizeof path) && groove::fat_browser_entries(path,name,out,capacity,count);
+}
+unsigned CProjectStorage::list(const char* name,groove::FileEntry* result,unsigned capacity){
+ unsigned n=0;list_browser(name,result,capacity,n);
+ for(unsigned i=0;i<n;++i)for(unsigned j=i+1;j<n;++j)if((result[j].directory && !result[i].directory) || (result[i].directory==result[j].directory && strcmp(result[j].name,result[i].name)<0)){auto tmp=result[i];result[i]=result[j];result[j]=tmp;}
+ return n;
+}
 groove::DirectoryCursor* CProjectStorage::open_directory_cursor(const char* name){
  struct Cursor final:groove::DirectoryCursor {
   DIR dir{};bool open=false;

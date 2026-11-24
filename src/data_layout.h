@@ -52,6 +52,17 @@ inline bool data_browser_entry(const char* directory,const char* name,bool folde
  if(data_under(path,"FACTORY/DEBUG") || data_under(path,"GROOVE") || data_under(path,"firmware") || (data_equal(path,"BENCH.MGXS") || data_equal(path,"BENCH.MGX")))return false;
  return folder || data_playable_file(name);
 }
+// The browser resolves and validates staged Songs after enumeration. POSIX
+// must match the writer's final ".tmp" exactly; FatFs resolves it without case.
+inline bool data_browser_candidate(const char* directory,const char* name,bool folder,bool case_sensitive){
+ if(folder || !data_suffix(name,".mgxs.tmp"))return data_browser_entry(directory,name,folder);
+ const size_t length=__builtin_strlen(name)-4;
+ if(case_sensitive && __builtin_strcmp(name+length,".tmp"))return false;
+ char canonical[sizeof(FileEntry::name)];
+ if(length>=sizeof canonical)return false;
+ __builtin_memcpy(canonical,name,length);canonical[length]=0;
+ return data_browser_entry(directory,canonical,false);
+}
 inline constexpr const char* kRetiredFactoryDemos[]={"01-Neon-House.mgx","02-Foundry.mgx","03-Paper-Moon.mgx","04-Night-Transit.mgx","05-Saltwater.mgx","06-Glass-Orbit.mgx","07-Afterimage.mgx","08-Ion-Relay.mgx","09-Sun-Circuit.mgx","10-Seven-Lanterns.mgx","01-Velvet-Platform.mgx","02-Pressure-Lock.mgx","03-Last-Train-Home.mgx","04-Broken-Signal.mgx","05-Tidal-Dub.mgx","06-Floating-Gardens.mgx","07-Chrome-Sunset.mgx","08-Vector-Funk.mgx","09-Terracotta.mgx","10-Sevenfold.mgx"};
 inline bool retired_factory_demo(const char* path){
  for(const char* file:kRetiredFactoryDemos){char full[160];if(join_path(full,sizeof full,"FACTORY/DEMOS",file) && data_equal(path,full))return true;}return false;

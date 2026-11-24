@@ -47,6 +47,7 @@ public:
  void TraceStreams();
  unsigned list(const char*,groove::FileEntry*,unsigned)override;
  bool browser_file_management_allowed()const override{return m_Mounted && !strcmp(m_Drive,"DATA:");}
+ bool list_browser(const char*,groove::FileEntry*,unsigned,unsigned&)override;
  bool list_checked(const char*,groove::FileEntry*,unsigned,unsigned&)override;
  bool read(const char*,uint64_t,void*,unsigned,unsigned&)override;
  bool write(const char*,uint64_t,const void*,unsigned,bool)override;

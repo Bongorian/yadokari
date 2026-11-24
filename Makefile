@@ -2213,3 +2213,10 @@ build/test-layer-tail: tests/layer_tail_test.cpp build/test-core-engine.o $(HOST
 test-run-layer-tail: build/test-layer-tail
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-layer-tail
 test-all: test-run-layer-tail
+
+build/test-fat-browser: tests/fat_browser_test.cpp firmware/fat_browser.h src/data_layout.h build/update/fatfs.o build/update/ascii.o
+	$(CXX) $(UPDATE_FLAGS) $< build/update/fatfs.o build/update/ascii.o -o $@
+.PHONY: test-run-fat-browser
+test-run-fat-browser: build/test-fat-browser
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-fat-browser
+test-all: test-run-fat-browser
