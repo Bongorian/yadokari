@@ -13,6 +13,7 @@ using TrackField_phase_dist=PhaseDistState;
 using TrackField_formant=FormantState;
 using TrackField_granular=GranularState;
 using TrackField_chimera=ChimeraState;
+using TrackField_mod_routes=SoundModRoutes;
 using TrackField_chimera_phrase=ChimeraIpaText;
 using TrackField_soundfont=SoundFontState;
 using TrackField_virtual_analog=VirtualAnalogState;
@@ -87,6 +88,7 @@ using TrackField_sound_override=uint16_t;
  X(TrackField_formant,formant,{}) \
  X(TrackField_granular,granular,{}) \
  X(TrackField_chimera,chimera,{}) \
+ X(TrackField_mod_routes,mod_routes,{}) \
  X(TrackField_chimera_phrase,chimera_phrase,{}) \
  X(TrackField_soundfont,soundfont,{}) \
  X(TrackField_fm6,fm6,{}) \
@@ -198,7 +200,7 @@ template<bool C> struct BasicTrackView {
  BasicTrackView(const BasicTrackView& v,Q<SoundState>& s):BasicTrackView(v,static_cast<Q<SoundLeaf>&>(s),s.layer){}
  BasicTrackView(const BasicTrackView& v,Q<SoundLeaf>& s):BasicTrackView(v,s,v.layer){}
  BasicTrackView(const BasicTrackView& v,Q<SoundLeaf>& s,Q<LayerState>& layers):
- definition_cookie(s.definition_cookie),preset_name(s.preset_name),layer(layers),additive(s.additive),phase_dist(s.phase_dist),formant(s.formant),granular(s.granular),chimera(s.chimera),chimera_phrase(s.chimera_phrase),soundfont(s.soundfont),fm6(s.fm6),virtual_analog(s.virtual_analog),wavetable(s.wavetable),texture(s.texture),resonator(s.resonator),sample_edit(s.sample_edit),creative(s.creative),instrument(s.instrument),plaits_model(s.model),engine_parameters(s.parameters),daisy_adsr(s.daisy_adsr),sample_loop(s.sample_loop),sample_reverse(s.sample_reverse),sample_slice(s.sample_slice),sample_slices(s.sample_slices),sample_slot(s.sample_slot),
+ definition_cookie(s.definition_cookie),preset_name(s.preset_name),layer(layers),additive(s.additive),phase_dist(s.phase_dist),formant(s.formant),granular(s.granular),chimera(s.chimera),mod_routes(s.mod_routes),chimera_phrase(s.chimera_phrase),soundfont(s.soundfont),fm6(s.fm6),virtual_analog(s.virtual_analog),wavetable(s.wavetable),texture(s.texture),resonator(s.resonator),sample_edit(s.sample_edit),creative(s.creative),instrument(s.instrument),plaits_model(s.model),engine_parameters(s.parameters),daisy_adsr(s.daisy_adsr),sample_loop(s.sample_loop),sample_reverse(s.sample_reverse),sample_slice(s.sample_slice),sample_slices(s.sample_slices),sample_slot(s.sample_slot),
 #define INIT_SHARED_FIELD(T,N,...) N(v.N),
  TRACK_COMMON_FIELDS(INIT_SHARED_FIELD)
 #define INIT_MIDI_FIELD(T,N,...) N(s.instrument==Instrument::ExternalMidi?s.N:v.N),

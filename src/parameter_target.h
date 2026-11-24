@@ -106,3 +106,6 @@ template<class R> bool read_parameter_target(R& r,ParameterTarget& target,Unavai
  target=ParameterTarget(0xc000|(unsigned(owner)<<5)|local);return true;
 }
 }
+
+#include "sound_route_codec.h"
+#include "layer_codec.h"

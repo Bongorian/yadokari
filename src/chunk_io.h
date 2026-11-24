@@ -44,6 +44,8 @@ struct ChunkSource {
  const uint8_t* data=nullptr;
  uint32_t size=0;
  uint32_t pos=0;
+ const char** error=nullptr;
+ bool invalid_sound_routes(){if(error)*error="Invalid SMOD sound modulation route";return false;}
  bool read(uint8_t* p,size_t n){
   if(n>size-pos)return false;
   if(n)__builtin_memcpy(p,data+pos,n);
@@ -54,7 +56,7 @@ struct ChunkSource {
  // Zero-copy sub-view over the next n bytes; advances this source.
  bool slice(uint32_t n,ChunkSource& out){
   if(n>remaining())return false;
-  out.data=data+pos;out.size=n;out.pos=0;pos+=n;return true;
+  out.data=data+pos;out.size=n;out.pos=0;out.error=error;pos+=n;return true;
  }
 };
 // Plain (no CRC) field writer/reader for inside chunk payloads. The field

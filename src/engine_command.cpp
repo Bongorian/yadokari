@@ -80,7 +80,7 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
   case CommandType::SetSolo:arrangement_dirty_=true;if(song_snapshot_)set_track_mixer_flag(snapshot_solo_,c.track,c.value!=0); set_track_mixer_flag(project_->solo_tracks,c.track,c.value!=0);{bool solo=audio_has_solo();if(solo)for(unsigned i=0;i<16;++i)if(!audio_solo_track(i)){runtime_[i].retriggers=0;note_off(i);}}break;
   case CommandType::SetInstrument:
    if(c.value<unsigned(Instrument::Unknown) && engine_rate_supported(Instrument(c.value),rate_) && (c.value!=unsigned(Instrument::Resonator) || resonators_) && (c.value!=unsigned(Instrument::Texture) || textures_)){
-    Instrument previous=state.instrument;if(previous!=Instrument(c.value)){retire_sampler_source(c.track);state.definition_cookie=0;state.preset_name[0]=0;state.preset_identity={};state.preset_slot=kNoPreset;state.preset_fx={};state.output_trim=1;}state.instrument=Instrument(c.value);
+    Instrument previous=state.instrument;if(previous!=Instrument(c.value)){retire_sampler_source(c.track);state.mod_routes.count=0;state.definition_cookie=0;state.preset_name[0]=0;state.preset_identity={};state.preset_slot=kNoPreset;state.preset_fx={};state.output_trim=1;}state.instrument=Instrument(c.value);
     {
      textures_suspended_=false;
      if(state.instrument==Instrument::Empty){note_off(c.track);clear_poly(c.track);voices_[c.track].sampler.stop();voices_[c.track].env=0;voices_[c.track].instrument=unsigned(Instrument::Empty);runtime_[c.track].retriggers=0;}
@@ -125,7 +125,7 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
    // Rebinding material is not replacement of the attached Sampler instance.
    // Existing voices retain their WavView/rate/root and follow its live speed.
    if(state.instrument!=Instrument::Sampler){retire_sampler_source(c.track);voices_[c.track].sampler.stop();}
-   bind_sample(c.value,c.sample);if(c.parameter==1)project_->assets[c.value].metadata=c.metadata;state.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(state.instrument!=next){state.definition_cookie=0;state.preset_name[0]=0;state.preset_identity={};state.preset_slot=kNoPreset;state.preset_fx={};state.output_trim=1;}state.instrument=next;}}break;
+   bind_sample(c.value,c.sample);if(c.parameter==1)project_->assets[c.value].metadata=c.metadata;state.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(state.instrument!=next){state.mod_routes.count=0;state.definition_cookie=0;state.preset_name[0]=0;state.preset_identity={};state.preset_slot=kNoPreset;state.preset_fx={};state.output_trim=1;}state.instrument=next;}}break;
   case CommandType::RestoreSampleAssignment:if(c.value<kSampleAssets && c.step<unsigned(Instrument::Unknown) && engine_rate_supported(Instrument(c.step),rate_)){retire_sampler_source(c.track);state.sample_slot=uint8_t(c.value);state.instrument=Instrument(c.step);}break;
   case CommandType::SetNote: if(c.value<128) state.root_note=uint8_t(c.value); break;
   case CommandType::SetEngineParameter:if(edit_engine_parameter(*project_,state,c.track,c.parameter,c.scalar,c.step,c.scalar2,c.scalar3))refresh_parameters(c.track);break;

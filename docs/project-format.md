@@ -300,6 +300,24 @@ requiring another disk-format change.
 
 An unrecognized engine GUID retains its opaque payload and is muted. For a recognized engine, an absent required state chunk rejects the container, including a Layer child, track or pool sound.
 
+Every registered engine accepts one optional `SMOD` revision 1 subchunk inside
+`ENGN`, including embedded LAYER children. Zero routes omit the entire frame.
+The payload starts with an unsigned byte count (1–4). Each row contains the
+portable engine target (u8 GUID length, ASCII GUID, little-endian u16 local
+index), little-endian f32 low and high, and one MACR-compatible flags byte.
+Bits 0–1 select the layer mode, bits 2–3 the curve, and bits 4–7 the source
+(1 LFO, 2 Pressure, 3 Envelope, 4 Velocity). Rows have no track mask.
+An invalid row, Macro source, foreign or common target, forbidden destination,
+invalid range, duplicate chunk or unsupported SMOD revision rejects the file.
+WAVETABLE UNISON is a forbidden destination. Four WAVETABLE rows occupy 113
+bytes including the frame header. With a 64-byte GUID the bound is 317 bytes.
+
+On a directly mounted sound the resolver applies rows in file order after
+automation and gestures. Project MACR rows then apply their Replace, Multiply
+or Add modes, followed by locks and Control All. LAYER child rows survive
+serialization and remain dormant while embedded. The wavetable voice applies
+the same bandwidth limits and held-note admission check to both route sources.
+
 The `mk3.chimera` engine uses the existing `PARM` revision 2 bank. Its five normalized controls, in order, are Tongue X, Tongue Y, Jaw, Lip Round, and Breath. The required `CHIM` revision 2 bank stores 23 detail values as little-endian float32 in engine parameter order, starting at BODY and ending at VOICE MODE (0 Poly, 1 Mono, 2 Legato). Files with an older CHIMERA bank are rejected. The simulated airway state is transient. Optional `CIPA` revision 1 carries up to 1024 bytes of UTF-8 IPA text for the Sound, including in a Layer leaf. The optional Song-only `IPAS` revision 1 frame stores an entry count (u8), then the track (u8), text byte length (u16), and UTF-8 IPA text for each track override. An override takes priority over the Sound phrase. Scores are compiled before the Song or Sound is applied.
 
 Wavetable tracks, pool sounds and Layer children use the same oscillator frames. `WVTB` keeps POSITION, SCAN DEPTH, SCAN RATE, ATTACK, RELEASE, DECAY, SUSTAIN and BRIGHTNESS in their original order. Optional `WVT2` revision 1 carries four little-endian float32 values in order: WARP MODE (integer 0 Bend ±, 1 Sync, 2 PWM, 3 Asym), WARP AMT (−1 to 1), PM RATIO (0.25 to 8) and PM AMT (0 to 1). A missing frame supplies 0, 0, 1 and 0 respectively; the writer omits the frame when all four equal those defaults. Optional `WVT3` revision 1 stores unison count (integer 1–7), detune (0–100 cents) and spread (0–1) as three little-endian float32 values. Missing values default to 1, 12 and 0.75. The writer omits each optional frame independently at its defaults. Optional `WVT4` revision 1 stores the table selection as one integral float32. Zero selects AKWF, 1 selects Reed, 2 selects Prism and 3–66 reference project asset slots 0–63. The table selection belongs to the Sound. Morph snapshots accept and emit 8, 12, 15 or 16 values, using the shortest count that preserves the settings.

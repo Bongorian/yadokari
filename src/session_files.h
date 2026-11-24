@@ -507,7 +507,7 @@ public:
  void service_kit_load(){
   if(!project_read_)return;
   if(kit_audition_ && ui_.pending_file_action()==FileAction::StopPreview)kit_audition_cancel_=true;
-  if(project_read_->busy()){if(kit_audition_cancel_ || !kit_target_unchanged() || (kit_audition_ && !audition_selection(kit_path_,kit_track_,kit_generation_)))project_read_->cancel();project_read_->service();if(project_read_->decoding() && !kit_decoding_seen_){kit_decoding_seen_=true;kit_probe_phase(0);}if(project_read_->busy())return;ProjectState* ready=nullptr;unsigned version=0;auto outcome=project_read_->take(ready,version,&kit_store_);if(outcome==AsyncProjectRead::Outcome::Ready){kit_ready_=ready;kit_version_=version;kit_probe_phase(1);}else{delete ready;finish_kit_load(false,outcome==AsyncProjectRead::Outcome::Cancelled?"Kit load cancelled / previous kit kept":"Kit read failed / previous kit kept");return;}}
+  if(project_read_->busy()){if(kit_audition_cancel_ || !kit_target_unchanged() || (kit_audition_ && !audition_selection(kit_path_,kit_track_,kit_generation_)))project_read_->cancel();project_read_->service();if(project_read_->decoding() && !kit_decoding_seen_){kit_decoding_seen_=true;kit_probe_phase(0);}if(project_read_->busy())return;ProjectState* ready=nullptr;unsigned version=0;auto outcome=project_read_->take(ready,version,&kit_store_);if(outcome==AsyncProjectRead::Outcome::Ready){kit_ready_=ready;kit_version_=version;kit_probe_phase(1);}else{delete ready;finish_kit_load(false,outcome==AsyncProjectRead::Outcome::Cancelled?"Kit load cancelled / previous kit kept":project_read_->error()?project_read_->error():"Kit read failed / previous kit kept");return;}}
   if(!kit_ready_)return;
   if(kit_audition_cancel_ || !kit_target_unchanged() || (kit_audition_ && !audition_selection(kit_path_,kit_track_,kit_generation_))){finish_kit_load(false,"Kit target changed / load cancelled");return;}
   if(engine_.project_event_loss()){finish_kit_load(false,"State lost / reload before loading kit");return;}
@@ -533,9 +533,9 @@ public:
  bool restore_probe_snapshot(ProjectState& snapshot,const WavView* prepared,const PreservedStore& original){PreservedOwner imported;DefinitionExtensions replacement;if(!imported || !imported->copy_from(original) || !adopt_definition_extensions(snapshot,*imported,&replacement) || !engine_.stage_project(snapshot,prepared))return false;for(unsigned i=0;i<kSampleAssets;++i)bindings_[i]=prepared[i];project_=snapshot;preserved_.steal_from(*imported);definitions_.steal_from(replacement);ui_.project_loaded();update_preset_status();return true;}
  bool load(const char* path,bool kit=false,bool remember=true){content_error_[0]=0;if(kit || data_content_kind(fs_,path)==2 || data_content_kind(fs_,path)==3)return load_preset(path);if(!supported_container(path))return false;ProjectState* candidate=nullptr;unsigned version=0;RecoverySource source;
  auto validate=[&](ProjectState& attempt,unsigned,const PreservedStore& store){return validate_loaded_candidate(attempt,path,true,&store);};
- PreservedOwner loaded_owner;if(!loaded_owner)return false;auto& loaded_store=*loaded_owner;WavView prepared[kSampleAssets]{};bool ok=load_recoverable_candidate_checked(fs_,path,candidate,&version,&source,validate,&loaded_store);
+ PreservedOwner loaded_owner;if(!loaded_owner)return false;auto& loaded_store=*loaded_owner;WavView prepared[kSampleAssets]{};const char* decode_error=nullptr;bool ok=load_recoverable_candidate_checked(fs_,path,candidate,&version,&source,validate,&loaded_store,&decode_error);
  if(ok)ok=library_.prepare(*candidate,prepared);
- if(!ok){ui_.browser().missing=true;copy_text(ui_.browser().status,sizeof ui_.browser().status,content_error_[0]?content_error_:"Project invalid or sample missing; previous session kept");}
+ if(!ok){ui_.browser().missing=true;copy_text(ui_.browser().status,sizeof ui_.browser().status,decode_error?decode_error:content_error_[0]?content_error_:"Project invalid or sample missing; previous session kept");}
  DefinitionExtensions replacement;
  if(ok)ok=adopt_definition_extensions(*candidate,loaded_store,&replacement);
  if(ok)ok=engine_.stage_project(*candidate,prepared);
@@ -603,8 +603,9 @@ public:
   if(!supported_container(path) || !allocation_admitted(sizeof(ProjectState),3))return false;
   auto* preset=alloc_new<ProjectState>();auto* plan=alloc_new<PresetAuditionPlan>();auto* views=alloc_array<WavView>(kSampleAssets);RecoverySource source;unsigned version=0;uint64_t mask=0;PreservedOwner imported;
   auto validate=[&](ProjectState& p,unsigned){return validate_audition(p,path) && resolve_assets(p) && verify_project_assets(fs_,p);};
-  bool ok=preset && plan && views && imported && load_recoverable_checked(fs_,path,*preset,&version,&source,validate,imported.get()) && library_.prepare(*preset,views) && plan_preset_assets(*plan,*preset,views,mask) && commit_prepared_preset(*preset,*plan,path,*imported);
-  if(ok)ui_.notify_recovery(source);else{copy_text(ui_.browser().status,96,content_error_[0]?content_error_:"Preset unavailable / sound kept");ui_.notify(UiNotice::Failed);}delete[] views;delete plan;delete preset;return ok;
+  const char* decode_error=nullptr;
+  bool ok=preset && plan && views && imported && load_recoverable_checked(fs_,path,*preset,&version,&source,validate,imported.get(),&decode_error) && library_.prepare(*preset,views) && plan_preset_assets(*plan,*preset,views,mask) && commit_prepared_preset(*preset,*plan,path,*imported);
+  if(ok)ui_.notify_recovery(source);else{copy_text(ui_.browser().status,96,decode_error?decode_error:content_error_[0]?content_error_:"Preset unavailable / sound kept");ui_.notify(UiNotice::Failed);}delete[] views;delete plan;delete preset;return ok;
  }
 
  bool save_preset(const char* requested,unsigned track=kTracks,bool include_fx=false,bool duplicate=false){

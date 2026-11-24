@@ -29,7 +29,7 @@ public:
  bool at_end(){return buffer_ && pos_==used_ && offset_==fs_.size(path_);}
 };
 // Validators use 100 for the current chunk format. Older files are rejected.
-inline bool read_project_candidate(IFileAccess& fs,const char* name,ProjectState& candidate,unsigned* version=nullptr,PreservedStore* store=nullptr){uint8_t magic[4]{};unsigned got=0;if(version){*version=0;if(fs.read(name,0,magic,4,got) && got==4)*version=magic[0]=='M' && magic[1]=='G' && magic[2]=='X' && magic[3]=='C'?100:0;}FileReader reader(fs,name);return decode_project(reader,candidate,store);}
+inline bool read_project_candidate(IFileAccess& fs,const char* name,ProjectState& candidate,unsigned* version=nullptr,PreservedStore* store=nullptr,const char** error=nullptr){uint8_t magic[4]{};unsigned got=0;if(version){*version=0;if(fs.read(name,0,magic,4,got) && got==4)*version=magic[0]=='M' && magic[1]=='G' && magic[2]=='X' && magic[3]=='C'?100:0;}FileReader reader(fs,name);return decode_project_impl(reader,&candidate,store,nullptr,error);}
 inline bool read_project_file(IFileAccess& fs,const char* name,ProjectState& destination,unsigned* version=nullptr,PreservedStore* store=nullptr){auto* candidate=alloc_new<ProjectState>();bool ok=candidate && read_project_candidate(fs,name,*candidate,version,store);if(ok)destination=*candidate;delete candidate;return ok;}
 // A candidate validator may inspect the sidecar from this exact decode. Never
 // consult the previously mounted project's sidecar while validating a new file.
@@ -37,15 +37,15 @@ template<class V> auto validate_file_candidate(V& validate,ProjectState& p,unsig
 template<class V> bool validate_file_candidate(V& validate,ProjectState& p,unsigned version,const PreservedStore&,long){return validate(p,version);}
 // Validate a complete candidate before committing it; rejected generations
 // must not modify the caller's current project or recovery source.
-template<class Validator> bool load_recoverable_candidate_checked(IFileAccess& fs,const char* name,ProjectState*& candidate,unsigned* version,RecoverySource* source,Validator validate,PreservedStore* accepted_store=nullptr){
+template<class Validator> bool load_recoverable_candidate_checked(IFileAccess& fs,const char* name,ProjectState*& candidate,unsigned* version,RecoverySource* source,Validator validate,PreservedStore* accepted_store=nullptr,const char** error=nullptr){
  if(source){*source={};}if(version){*version=0;}candidate=nullptr;unsigned selected_version=0;
- auto accept=[&](const char* path,RecoveryKind kind){if(!fs.exists(path))return false;unsigned v=0;delete candidate;candidate=alloc_new<ProjectState>();PreservedStore attempt_store;if(!candidate || !read_project_candidate(fs,path,*candidate,&v,&attempt_store) || !validate_file_candidate(validate,*candidate,v,attempt_store,0))return false;selected_version=v;if(source)*source={kind};if(accepted_store)accepted_store->steal_from(attempt_store);return true;};
+ auto accept=[&](const char* path,RecoveryKind kind){if(!fs.exists(path))return false;unsigned v=0;delete candidate;candidate=alloc_new<ProjectState>();PreservedStore attempt_store;if(!candidate || !read_project_candidate(fs,path,*candidate,&v,&attempt_store,error) || !validate_file_candidate(validate,*candidate,v,attempt_store,0))return false;selected_version=v;if(source)*source={kind};if(accepted_store)accepted_store->steal_from(attempt_store);return true;};
  bool ok=accept(name,RecoveryKind::Main);char temporary[192];
  if(!ok && copy_text(temporary,sizeof temporary,name)){size_t n=0;while(temporary[n])++n;if(copy_text(temporary+n,sizeof temporary-n,".tmp"))ok=accept(temporary,RecoveryKind::Temporary);}
 
  if(!ok){delete candidate;candidate=nullptr;}if(ok && version)*version=selected_version;return ok;
 }
-template<class Validator> bool load_recoverable_checked(IFileAccess& fs,const char* name,ProjectState& destination,unsigned* version,RecoverySource* source,Validator validate,PreservedStore* accepted_store=nullptr){ProjectState* candidate=nullptr;bool ok=load_recoverable_candidate_checked(fs,name,candidate,version,source,validate,accepted_store);if(ok)destination=*candidate;delete candidate;return ok;}
+template<class Validator> bool load_recoverable_checked(IFileAccess& fs,const char* name,ProjectState& destination,unsigned* version,RecoverySource* source,Validator validate,PreservedStore* accepted_store=nullptr,const char** error=nullptr){ProjectState* candidate=nullptr;bool ok=load_recoverable_candidate_checked(fs,name,candidate,version,source,validate,accepted_store,error);if(ok)destination=*candidate;delete candidate;return ok;}
 inline bool load_recoverable(IFileAccess& fs,const char* name,ProjectState& destination,unsigned* version=nullptr,RecoverySource* source=nullptr,PreservedStore* accepted_store=nullptr){return load_recoverable_checked(fs,name,destination,version,source,[](ProjectState&,unsigned){return true;},accepted_store);}
 // Only current MGXC generations are recoverable. A completed temporary may be
 // the sole good generation after promotion failed. Never promote unchecked

@@ -724,7 +724,7 @@ auto Performance::mirror(const Command& c)  -> void{
   auto t=track_views_.at(c.pattern,c.track);
   const Instrument old_instrument=t.instrument;const uint8_t old_slot=t.sample_slot;
   switch(c.type) {
-   case CommandType::SetSample:if(c.parameter==1)project_.assets[c.value].metadata=c.metadata;if(c.step==unsigned(Instrument::Wavetable)){t.wavetable.values[WavetableTable]=float(kWavetableFirstAsset+c.value);break;}t.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(t.instrument!=next){t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=next;}break;
+   case CommandType::SetSample:if(c.parameter==1)project_.assets[c.value].metadata=c.metadata;if(c.step==unsigned(Instrument::Wavetable)){t.wavetable.values[WavetableTable]=float(kWavetableFirstAsset+c.value);break;}t.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(t.instrument!=next){t.mod_routes.count=0;t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=next;}break;
    case CommandType::RestoreSampleAssignment:t.sample_slot=uint8_t(c.value);t.instrument=Instrument(c.step);if(c.track==selected_ && c.pattern==project_.active_pattern)instrument_view_=0;break;
    case CommandType::SetAutomation:t.automation[c.step]=c.automation;break;
    case CommandType::SetNrpnConfig:t.nrpn[c.step].number=c.parameter;t.nrpn[c.step].enabled=c.value!=0;t.nrpn[c.step].registered=c.scalar==1;break;
@@ -770,7 +770,7 @@ auto Performance::mirror(const Command& c)  -> void{
    case CommandType::SetDirection:t.direction=PlaybackDirection(c.value);break;
    case CommandType::SetMute:if(arrangement_ui_active_ && (c.parameter!=1 || c.pattern==project_.clips[c.track].pattern))set_track_mixer_flag(arrangement_ui_mute_,c.track,c.value!=0);if(c.parameter==1){if(c.pattern<kPatterns)set_track_mixer_flag(project_.patterns[c.pattern].mute_mask,c.track,c.value!=0);}else set_track_mixer_flag(project_.muted_tracks,c.track,c.value!=0);break;
    case CommandType::SetSolo:if(arrangement_ui_active_)set_track_mixer_flag(arrangement_ui_solo_,c.track,c.value!=0);set_track_mixer_flag(project_.solo_tracks,c.track,c.value!=0);break;
-   case CommandType::SetInstrument:if(t.instrument!=Instrument(c.value)){t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=Instrument(c.value);if(c.track==selected_ && c.pattern==project_.active_pattern)instrument_view_=0;break;
+   case CommandType::SetInstrument:if(t.instrument!=Instrument(c.value)){t.mod_routes.count=0;t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=Instrument(c.value);if(c.track==selected_ && c.pattern==project_.active_pattern)instrument_view_=0;break;
    case CommandType::SetLength:t.length=c.value;break;
    case CommandType::SetNote:t.root_note=uint8_t(c.value);break;
    case CommandType::SetEngineParameter:edit_engine_parameter(project_,t,c.track,c.parameter,c.scalar,c.step,c.scalar2,c.scalar3);break;

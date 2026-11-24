@@ -75,7 +75,7 @@ template<template<class> class Q> struct BasicEngineStateView {
  Q<SampleEdit>* sample_edit;Q<CreativeState>* creative;Q<KitDefinition>* kit;
  Q<bool>* sample_loop;Q<bool>* sample_reverse;
  Q<uint8_t>* sample_slice;Q<uint8_t>* sample_slices;Q<char>* preset_name=nullptr;
- Q<float>* daisy_adsr=nullptr;Q<uint8_t>* midi_program=nullptr;Q<uint8_t>* midi_cc=nullptr;Q<uint8_t>* midi_cc_used=nullptr;Q<WavetableState>* wavetable=nullptr;Q<VirtualAnalogState>* virtual_analog=nullptr;Q<Fm6State>* fm6=nullptr;Q<AdditiveState>* additive=nullptr;Q<PhaseDistState>* phase_dist=nullptr;Q<SoundFontState>* soundfont=nullptr;Q<LayerState>* layer=nullptr;Q<FormantState>* formant=nullptr;Q<GranularState>* granular=nullptr;Q<ChimeraState>* chimera=nullptr;Q<ChimeraIpaText>* chimera_phrase=nullptr;
+ Q<float>* daisy_adsr=nullptr;Q<uint8_t>* midi_program=nullptr;Q<uint8_t>* midi_cc=nullptr;Q<uint8_t>* midi_cc_used=nullptr;Q<WavetableState>* wavetable=nullptr;Q<VirtualAnalogState>* virtual_analog=nullptr;Q<Fm6State>* fm6=nullptr;Q<AdditiveState>* additive=nullptr;Q<PhaseDistState>* phase_dist=nullptr;Q<SoundFontState>* soundfont=nullptr;Q<LayerState>* layer=nullptr;Q<FormantState>* formant=nullptr;Q<GranularState>* granular=nullptr;Q<ChimeraState>* chimera=nullptr;Q<ChimeraIpaText>* chimera_phrase=nullptr;Q<SoundModRoutes>* mod_routes=nullptr;Instrument owner=Instrument::Empty;
 };
 template<class T> using EngineMutable=T;
 template<class T> using EngineConst=const T;
@@ -89,8 +89,21 @@ struct EngineChunkDescriptor {
  void (*defaults)(const EngineStateView&);
 };
 enum EngineChunkRequirement:uint8_t {RequireResonator=1,RequireTexture=2,RequireParameters=4,RequireSampler=8,RequireCreative=16,RequireKit=32,RequireEnvelope=64,RequireMidi=128};
+inline constexpr uint32_t kChunkSmod=0x444f4d53u; // SMOD
+inline bool emit_sound_routes(const EngineStateSource& s,bool){return s.mod_routes && s.mod_routes->count;}
+inline bool encode_sound_routes(ChunkBuffer&,const EngineStateSource&);
+inline bool decode_sound_routes(ChunkSource&,const EngineStateView&);
+inline void defaults_sound_routes(const EngineStateView& s){if(s.mod_routes)s.mod_routes->count=0;}
+inline constexpr EngineChunkDescriptor kSoundRouteChunk={kChunkSmod,1,emit_sound_routes,encode_sound_routes,decode_sound_routes,defaults_sound_routes};
+struct EngineChunkList {
+ const EngineChunkDescriptor* local;
+ unsigned local_count;
+ constexpr const EngineChunkDescriptor& operator[](unsigned i)const{return i==local_count?kSoundRouteChunk:local[i];}
+};
 struct EngineStateContract {
- const EngineChunkDescriptor* chunks;uint8_t count,required;
+ EngineChunkList chunks;uint8_t count,required;
+ constexpr EngineStateContract(const EngineChunkDescriptor* local,unsigned n,unsigned mask):
+  chunks{local,n},count(uint8_t(n+1)),required(uint8_t(mask)){}
 };
 inline bool emit_reso(const EngineStateSource& s,bool required){const ResonatorState initial{};for(unsigned i=0;i<8;++i)if(s.resonator->values[i]!=initial.values[i])return true;return required;}
 inline bool encode_reso(ChunkBuffer& out,const EngineStateSource& s){ChunkWriter<ChunkBuffer> w(out);for(float v:s.resonator->values)if(!w.f32(v))return false;return true;}

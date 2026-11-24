@@ -78,7 +78,17 @@ struct TextureState {float values[15]={0,.5f,.5f,0,.5f,.5f,1,.5f,0,0,0,0,1,0,0};
 inline bool valid_texture(const TextureState& s){for(unsigned i=0;i<15;++i)if(!valid_parameter(uint16_t(620+i),s.values[i]) || (parameter_descriptor(uint16_t(620+i))->interpolation==Interpolation::Discrete && floorf(s.values[i])!=s.values[i]))return false;return true;}
 struct ResonatorState {float values[8]={0,2,0.5f,0.5f,0.5f,0.5f,0,0};};
 inline bool valid_resonator(const ResonatorState& s){for(unsigned i=0;i<8;++i)if(!valid_parameter(uint16_t(600+i),s.values[i]) || (parameter_descriptor(uint16_t(600+i))->interpolation==Interpolation::Discrete && floorf(s.values[i])!=s.values[i]))return false;return true;}
-struct SoundLeaf { ChimeraState chimera{};ChimeraIpaText chimera_phrase{};uint32_t definition_cookie=0; // transient immutable extension owner; never encoded
+constexpr unsigned kSoundModRouteLimit=4;
+struct SoundModRoute {
+ float low=0,high=1;
+ uint16_t parameter=0;
+ ModSource source=ModSource::Lfo;
+ LayerMode mode=LayerMode::Replace;
+ MacroCurve curve=MacroCurve::Linear;
+};
+struct SoundModRoutes {SoundModRoute rows[kSoundModRouteLimit]{};uint8_t count=0;};
+inline constexpr SoundModRoutes kDormantSoundRoutes{};
+struct SoundLeaf {SoundModRoutes mod_routes{}; ChimeraState chimera{};ChimeraIpaText chimera_phrase{};uint32_t definition_cookie=0; // transient immutable extension owner; never encoded
  GranularState granular{}; FormantState formant{}; PhaseDistState phase_dist{};AdditiveState additive{};SoundFontState soundfont{};Fm6State fm6{}; VirtualAnalogState virtual_analog{};WavetableState wavetable{};char preset_name[96]{}; TextureState texture{};ResonatorState resonator{}; SampleEdit sample_edit{}; uint8_t sample_slot=0;CreativeState creative{}; Instrument instrument=Instrument::Empty; uint8_t model=0; float parameters[5]={0.5f,0.5f,0.5f,0.5f,0.5f}; uint8_t sample_slice=0,sample_slices=1;bool sample_loop=false,sample_reverse=false;KitDefinition kit{};float daisy_adsr[4]={0.005f,0.12f,0.55f,0.12f};uint8_t midi_program=128,midi_cc[128]{},midi_cc_used[16]{}; };
 constexpr unsigned kLayerParts=4,kLayerRawBytes=4096;
 struct LayerPart {SoundLeaf sound{};PresetFxSnapshot fx{};uint8_t key_low=0,key_high=127,velocity_low=1,velocity_high=127;uint16_t source=kNoPreset;float level=0.5f,pan=0,detune=0;uint16_t raw_size=0;uint8_t raw[kLayerRawBytes]{};};
