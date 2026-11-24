@@ -220,11 +220,17 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
  }
  publish_freeze_capture();
  if(dsp_profile_.clock()){
-  unsigned main=0,poly=0,oscillators=0;
-  auto observe=[&](const Voice& v){if(v.instrument==unsigned(Instrument::Wavetable))oscillators+=v.wt_unison.count();};
+  unsigned main=0,poly=0,oscillators=0,upper=0,lower=0;
+  auto observe=[&](const Voice& v){
+   if(v.instrument!=unsigned(Instrument::Wavetable))return;
+   oscillators+=v.wt_unison.count();
+   if(v.wavetable.filtering()){
+    const unsigned high=v.wt_unison.spectral_count(v.wavetable);upper+=high;lower+=v.wt_unison.count()-high;
+   }
+  };
   for(const auto& v:voices_)if(v.env>=.00001f){++main;observe(v);}
   for(const auto& p:poly_voices_)if(p.owner<16 && p.voice.env>=.00001f){++poly;observe(p.voice);}
-  dsp_profile_.population(main,poly,layer_failure_,active_tracts(),oscillators);
+  dsp_profile_.population(main,poly,layer_failure_,active_tracts(),oscillators,upper,lower);
  }
  dsp_profile_.block_end(unsigned(frames));
  if(profile_clock){stage_profile_.record(profile_control,profile_events,profile_tracks,profile_output);render_audit_.stages(profile_events,profile_tracks,profile_output);}

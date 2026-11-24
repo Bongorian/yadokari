@@ -64,6 +64,17 @@ int main(){
  auto ratio=upper;ratio.values[WavetablePmRatio]=1.63f;assert(high_difference(upper,ratio)>.01);
  upper.values[WavetablePmAmount]=0;auto bright=upper;bright.values[7]=0;
  assert(high_difference(upper,bright)>.001);
+ // Cross the register boundary in both directions while the envelope is held.
+ // The first sample must meet the old output, including when a bend reverses.
+ upper.values[3]=.001f;upper.values[5]=.001f;upper.values[6]=1;
+ WavetableVoice bending;bending.init(48000);bending.trigger(820,1,upper.values);
+ float before=0;for(unsigned i=0;i<4096;++i)before=bending.next(820,true);
+ for(float hz:{1040.f,810.f,1040.f,810.f}){
+  float first=bending.next(hz,true);assert(fabsf(first-before)<1e-6f);
+  assert(bending.visual_phase_map(hz).spectral==(hz>900));
+  for(unsigned i=0;i<15;++i)before=bending.next(hz,true);
+  assert(bending.active() && std::isfinite(before));
+ }
  // The mono branch remains sample-exact; stereo uses symmetric detuning,
  // with real left/right separation only when spread is nonzero.
  for(unsigned count=1;count<=7;++count)for(float spread:{0.f,1.f}){

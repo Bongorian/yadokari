@@ -367,7 +367,6 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    const auto effective=sounding?frame.wavetable_map[track]:
     wavetable_phase_map(mode,warp,ratio,depth,261.6256f/float(frame.rate?frame.rate:48000),ui::recipe_value(t,7,&perf));
    const auto levels=wavetable_extended_levels(effective);
-   const float high_mix=wavetable_spectral_mix(effective.step);
    auto sample=[&](float phase){
     const float at=wavetable_wrap(phase)*kWavetableSamples;
     const unsigned left=unsigned(at)%kWavetableSamples,right=(left+1)%kWavetableSamples;
@@ -381,12 +380,11 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    };
    for(unsigned i=0;i<cycle.count;++i){
     const float phase=float(i)/float(cycle.count-1);
-    const auto map=wavetable_read_phases(phase,effective.mode,effective.warp,phase*effective.ratio,effective.pm);
-    const float first=sample(map.first),mixed=first+(sample(map.second)-first)*map.blend;
-    float shape=mixed;
-    if(high_mix>0){
-     const float high=wavetable_spectral_sample(effective,effective.step,phase,phase*effective.ratio,position,levels.mip,levels.blend);
-     shape+=high_mix*(high-shape);
+    float shape;
+    if(effective.spectral)shape=wavetable_spectral_sample(effective,effective.step,phase,phase*effective.ratio,position,levels.mip,levels.blend);
+    else {
+     const auto map=wavetable_read_phases(phase,effective.mode,effective.warp,phase*effective.ratio,effective.pm);
+     const float first=sample(map.first);shape=first+(sample(map.second)-first)*map.blend;
     }
     cycle.values[i]=ui::clamp01(.5f+.5f*shape);
    }

@@ -38,8 +38,14 @@ static bool measure(ProjectState& project,Engine& engine,unsigned index){
   Command note{CommandType::Trigger,uint8_t(t),uint8_t(n),100};note.parameter=1;note.scalar=float(dsp_probe_note(c,n));
   if(!engine.submit(note))return false;
  }
+ auto bend=[&](unsigned block){
+  if(!dsp_register_bend(c) || block%100)return true;
+  const uint8_t data=(block/100%2)?127:0;
+  for(unsigned t=0;t<c.tracks;++t){Command cmd{CommandType::MidiInput,uint8_t(t),data,0xe0};cmd.scalar=data;if(!engine.submit(cmd))return false;}
+  return true;
+ };
  // The firmware uses the same two seconds of warmup and six seconds of audio.
- for(unsigned n=0;n<4000;++n)engine.render(pcm.data(),24);
+ for(unsigned n=0;n<4000;++n){if(!bend(n))return false;engine.render(pcm.data(),24);}
  const auto load=wavetable_load(project.tracks[0].wavetable.values);
  const unsigned per_track=hardware::scaled(load.extended?WavetableLoad::extended_limit:WavetableLoad::legacy_limit)/load.oscillators;
  const unsigned expected=std::min(hardware::scaled(VoiceBudget::layer_total)/load.cost(),std::min(per_track,c.notes)*c.tracks);
@@ -56,6 +62,7 @@ static bool measure(ProjectState& project,Engine& engine,unsigned index){
  std::vector<double> uninterrupted;
  const double unit=ticks_per_us();
  for(unsigned n=0;n<12000;++n){
+  if(!bend(n))return false;
   const bool sampled=n%127==0;
   rusage before{},after{};
   uint64_t previous=0;
@@ -73,6 +80,7 @@ static bool measure(ProjectState& project,Engine& engine,unsigned index){
  }
  profile.stop();engine.render(pcm.data(),24);
  if(!profile.ready() || profile.snapshot().poly_peak!=expected || profile.snapshot().wt_osc_peak!=expected*load.oscillators)return false;
+ if(dsp_register_bend(c) && (profile.snapshot().wt_upper_peak!=expected || profile.snapshot().wt_lower_peak!=expected))return false;
  const auto& bin=profile.counter(voice_bin);
  if(bin.frames!=uint64_t(profile.snapshot().sampled)*24*expected)return false;
  if(uninterrupted.empty())return false;

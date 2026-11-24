@@ -384,7 +384,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
    const auto& map=frame.wavetable_map[track];
    live_sig=fnv(live_sig,perf.visual_fresh());live_sig=fnv(live_sig,frame.pattern[track]);
    live_sig=fnv(live_sig,frame.instrument[track]);hash_float(frame.envelope[track]);
-   live_sig=fnv(live_sig,map.mode);hash_float(map.warp);hash_float(map.ratio);hash_float(map.pm);hash_float(map.step);hash_float(map.brightness);
+   live_sig=fnv(live_sig,map.mode);hash_float(map.warp);hash_float(map.ratio);hash_float(map.pm);hash_float(map.step);hash_float(map.brightness);live_sig=fnv(live_sig,map.spectral);
   }
   if(chimera_performance || (perf.mode()==UiMode::Synth && t.instrument==Instrument::Chimera)){
    const auto& frame=perf.visual();

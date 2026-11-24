@@ -10,7 +10,16 @@ class WavetableVoice {
  float rate_=48000,phase_=0,scan_=0,mod_phase_=0,velocity_=0,level_=0,wet_=0;
  float values_[kWavetablePhaseParameterCount]{},target_[kWavetablePhaseParameterCount]{};
  daisysp::Adsr envelope_;
- bool started_=false;
+ bool started_=false,spectral_=false;
+ unsigned register_fade_=0;
+ float previous_extended_=0,register_from_=0;
+ float register_sample(float sample){
+  if(register_fade_){
+   const float f=(32-register_fade_)/32.f;--register_fade_;
+   sample=register_from_+(sample-register_from_)*f*f*(3-2*f);
+  }
+  previous_extended_=sample;return sample;
+ }
 
  // First decimation (4x to 2x): polyphase halfband with unity phase
  // alignment through .24 of 4x Nyquist (~113 dB mirrored rejection).
@@ -94,11 +103,14 @@ class WavetableVoice {
   const auto l=wavetable_extended_levels(map);
   // Above this crossover only a few carrier harmonics fit. An explicit
   // in-band spectrum also separates true PM sidebands from their images.
-  const float high_mix=wavetable_spectral_mix(step);
-  float high=0;
-  if(high_mix>0){
-   high=wavetable_spectral_sample(map,step,phase_,mod_phase_,position,l.mip,l.blend);
-   if(high_mix>=1){mod_phase_=wavetable_wrap(mod_phase_+mod_step);return high;}
+  const bool upper=wavetable_spectral_register(step,spectral_);
+  if(upper!=spectral_){
+   spectral_=upper;register_fade_=32;register_from_=previous_extended_;
+   if(!upper){for(float& x:first_stage_)x=0;for(float& x:second_stage_)x=0;}
+  }
+  if(upper){
+   const float high=wavetable_spectral_sample(map,step,phase_,mod_phase_,position,l.mip,l.blend);
+   mod_phase_=wavetable_wrap(mod_phase_+mod_step);return register_sample(high);
   }
   Frame frame{kWavetableData[a][l.mip],kWavetableData[b][l.mip],
               kWavetableData[a][l.next],kWavetableData[b][l.next],position-a,l.next==l.mip?0:l.blend,l.mip==6,0,0};
@@ -118,7 +130,7 @@ class WavetableVoice {
   float lo=halfband(s0,s1);
   float hi=halfband(s2,s3);
   mod_phase_=wavetable_wrap(mod_phase_+mod_step);
-  lowpass(lo);const float low=lowpass(hi)/32767;return low+(high-low)*high_mix;
+  lowpass(lo);return register_sample(lowpass(hi)/32767);
  }
  public:
  void init(unsigned rate){rate_=float(rate);envelope_.Init(rate_);started_=false;}
@@ -126,8 +138,9 @@ class WavetableVoice {
   for(unsigned i=0;i<kWavetablePhaseParameterCount;++i)target_[i]=values[i];
   envelope_.SetTime(daisysp::ADSR_SEG_ATTACK,values[3]);envelope_.SetTime(daisysp::ADSR_SEG_DECAY,values[5]);envelope_.SetSustainLevel(values[6]);envelope_.SetTime(daisysp::ADSR_SEG_RELEASE,values[4]);
  }
- void trigger(float,float velocity,const float* values){
+ void trigger(float hz,float velocity,const float* values){
   if(!wavetable_bank_ready()){started_=false;return;}
+  spectral_=wavetable_spectral_register(carrier_step(hz),false);register_fade_=0;previous_extended_=0;
   velocity_=velocity;phase_=scan_=mod_phase_=0;envelope_.Init(rate_);parameters(values);
   for(unsigned i=0;i<kWavetablePhaseParameterCount;++i)values_[i]=values[i];
   wet_=(values[WavetableWarpAmount]!=0 || values[WavetablePmAmount]!=0)?1.f:0.f;
@@ -139,7 +152,8 @@ class WavetableVoice {
  void offset_phase(float cycles){phase_=wavetable_wrap(phase_+cycles);mod_phase_=wavetable_wrap(mod_phase_+cycles*values_[WavetablePmRatio]);}
  float level()const{return level_;}
  bool filtering()const{return wet_>0;}
- WavetablePhaseMap visual_phase_map(float hz)const{return phase_map(carrier_step(hz));}
+ bool spectral_register()const{return spectral_ && filtering();}
+ WavetablePhaseMap visual_phase_map(float hz)const{auto out=phase_map(carrier_step(hz));out.spectral=spectral_register();return out;}
  void visual_controls(float* out)const{for(unsigned i=0;i<3;++i)out[i]=values_[i];}
  void visual_envelope(float* out)const{out[0]=values_[3];out[1]=values_[5];out[2]=values_[6];out[3]=values_[4];}
  float scan_phase()const{return scan_;}
@@ -154,6 +168,7 @@ class WavetableVoice {
   if(extended || wet_>0){
    for(unsigned i=WavetableWarpAmount;i<kWavetablePhaseParameterCount;++i)values_[i]+=(target_[i]-values_[i])*.002f;
    if(wet_==0){
+    spectral_=wavetable_spectral_register(step,false);register_fade_=0;
     for(float& v:first_stage_)v=0;
     for(float& v:second_stage_)v=0;
     mod_phase_=wavetable_wrap(phase_*values_[WavetablePmRatio]);

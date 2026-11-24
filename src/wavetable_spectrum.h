@@ -15,9 +15,10 @@ inline WavetableLevels wavetable_extended_levels(WavetablePhaseMap map){
  const float slope=1+(map.mode==1?4:1)*fabsf(map.warp);
  return wavetable_levels(map.step*slope*(1+2.2f*map.pm*map.ratio),map.brightness);
 }
-inline float wavetable_spectral_mix(float step){
- constexpr float crossover=.45f/(2*kUpperHarmonics);
- return fmaxf(0,fminf(1,step/crossover-1));
+inline bool wavetable_spectral_register(float step,bool was_spectral){
+ // One semitone of hysteresis around the 24-harmonic crossover.
+ constexpr float center=.45f/(1.5f*kUpperHarmonics),half=1.02930224f;
+ return step>(was_spectral?center/half:center*half);
 }
 float wavetable_spectral_sample(WavetablePhaseMap map,float step,float carrier,float modulator,
                                        float position,unsigned mip,float mip_blend);

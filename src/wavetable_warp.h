@@ -20,7 +20,7 @@ inline float wavetable_limited_pm(float amount,float mod_step){
 
 struct WavetablePhaseMap {
  unsigned mode;
- float warp,ratio,pm,step,brightness;
+ float warp,ratio,pm,step,brightness;bool spectral=false;
 };
 
 inline WavetablePhaseMap wavetable_phase_map(unsigned mode,float warp,float ratio,float pm,float step,float brightness=1){

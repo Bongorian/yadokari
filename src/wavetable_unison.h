@@ -18,6 +18,11 @@ class WavetableUnison {
 public:
  void reset(){count_=1;detune_=spread_=-1;}
  unsigned count()const{return count_;}
+ unsigned spectral_count(const WavetableVoice& primary)const{
+  unsigned result=primary.spectral_register();
+  for(unsigned i=1;i<count_;++i)result+=satellites_[i-1].spectral_register();
+  return result;
+ }
  void parameters(WavetableVoice& primary,const float* values,unsigned count){
   primary.parameters(values);
   const float detune=values[WavetableDetune],spread=values[WavetableSpread];

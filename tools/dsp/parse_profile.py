@@ -21,8 +21,9 @@ for m in re.finditer(r'DSP case (\d+) REJECTED[^\n]*',text):rejected.append({'ca
 header=r'DSP profile case (\d+) freq (\d+) blocks (\d+) sampled (\d+) main-peak (\d+) poly-peak (\d+) control-calls (\d+) control-ticks (\d+) control-max (\d+) snapshot-max (\d+)'
 for m in re.finditer(r'DSP case (\d+) active-tracts-peak (\d+)',text):
  cases[int(m[1])]['active_tracts_peak']=int(m[2])
-for m in re.finditer(r'DSP case (\d+) wavetable-osc-peak (\d+)',text):
+for m in re.finditer(r'DSP case (\d+) wavetable-osc-peak (\d+)(?: upper-peak (\d+) lower-peak (\d+))?',text):
  cases[int(m[1])]['wavetable_osc_peak']=int(m[2])
+ if m[3] is not None:cases[int(m[1])].update(wavetable_upper_peak=int(m[3]),wavetable_lower_peak=int(m[4]))
 for m in re.finditer(r'DSP unison case (\d+) requested-notes (\d+) refused-notes (\d+)',text):
  cases[int(m[1])]['requested_notes']=int(m[2]);cases[int(m[1])]['refused_notes']=int(m[3])
 for m in re.finditer(header,text):

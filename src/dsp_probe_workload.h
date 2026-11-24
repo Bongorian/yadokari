@@ -16,17 +16,18 @@ inline unsigned dsp_wavetable_start(){return dsp_stress_start()+56;}
 // Stock settings, moving table, PM alone, then each mode at both polarities
 // with and without PM. Each configuration runs at one and four held notes.
 constexpr unsigned kDspWavetableVariants=3+4*4;
-struct WavetableProbeSetting {unsigned voices,notes,tracks;bool extended;unsigned base_note=60;};
+struct WavetableProbeSetting {unsigned voices,notes,tracks;bool extended;unsigned base_note=60;bool bend=false;};
 inline constexpr WavetableProbeSetting kUnisonProbes[]={
  {2,1,1,true},{1,3,1,true},{2,2,1,true},{5,1,1,true},{6,1,1,true},
  {7,1,1,false},{7,2,1,false},{3,4,1,false},{2,2,4,true},
- {1,5,3,true,84},{1,5,3,true,118}
+ {1,5,3,true,84},{1,5,3,true,118},{1,5,3,true,81,true}
 };
 inline unsigned dsp_probe_note(const DspCondition& c,unsigned n){
  if(c.kind==DspCondition::WavetableUnison && kUnisonProbes[c.variant].base_note!=60)
   return kUnisonProbes[c.variant].base_note+n%2;
  return 60+3*n;
 }
+inline bool dsp_register_bend(const DspCondition& c){return c.kind==DspCondition::WavetableUnison && kUnisonProbes[c.variant].bend;}
 inline unsigned dsp_unison_start(){return dsp_wavetable_start()+2*kDspWavetableVariants;}
 inline unsigned dsp_case_count(){return dsp_unison_start()+sizeof(kUnisonProbes)/sizeof(*kUnisonProbes);}
 inline DspCondition dsp_condition(unsigned index){
