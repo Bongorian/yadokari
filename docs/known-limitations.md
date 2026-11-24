@@ -98,8 +98,10 @@ story, kept current per release.
   capacity than is available, the held voice continues on its admitted path
   and retries on a later control tick. Release crossfades retain their reservation.
   The extended reservation is 65.68 µs per 24 frames, derived from a 42.03 µs
-  Pi 4 estimate with two 25% margins. Pi 4 distribution remains blocked pending
-  mixed-load measurements on that board against the 500 µs deadline.
+  Pi 4 estimate with two 25% margins. The registry rounds up to 68.75 µs
+  (11 units). Applying the same conversion and margins to the current Pi 5
+  peak gives 68.24 µs per oscillator. Pi 4 distribution remains blocked
+  pending mixed-load measurements on that board against the 500 µs deadline.
 
 - High-register WAVETABLE patches with warp or PM use a band-limited sum of
   carrier harmonics and PM sidebands. Existing projects retain their settings;
