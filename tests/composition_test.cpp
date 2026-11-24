@@ -6,8 +6,34 @@
 #include <vector>
 using namespace groove;
 struct Bytes {std::vector<uint8_t> data;size_t offset=0;bool write(const uint8_t* p,size_t n){data.insert(data.end(),p,p+n);return true;}bool read(uint8_t* p,size_t n){if(n>data.size()-offset)return false;__builtin_memcpy(p,data.data()+offset,n);offset+=n;return true;}bool at_end()const{return offset==data.size();}};
+static void block_move_playback(){
+ auto project=std::make_unique<ProjectState>();make_empty_project(*project);
+ for(unsigned t=0;t<2;++t){
+  auto& track=project->tracks[t];track.instrument=Instrument::ExternalMidi;track.midi_channel=uint8_t(t);track.root_note=60;
+ }
+ project->clips[1].pattern=1;
+ auto& note=project->patterns[0].tracks[0].steps[0];note.enabled=true;note.note=69;
+ auto engine=std::make_unique<Engine>(8000);assert(engine->stage_project(*project));
+ auto panel=std::make_unique<Performance>(*engine,*project);float audio[128]{};engine->render(audio,0);
+ auto channels=[&](){
+  assert(engine->submit({CommandType::Start,0,0,0}));unsigned result=0;
+  for(unsigned i=0;i<32;++i){
+   engine->render(audio,64);MidiEvent event;
+   while(engine->pop_midi(event))if((event.bytes[0]&0xf0)==0x90 && event.bytes[1]==69 && event.bytes[2])result|=1u<<(event.bytes[0]&15);
+  }
+  assert(engine->submit({CommandType::Stop,0,0,0}));engine->render(audio,0);return result;
+ };
+ assert(channels()==1);
+ panel->set_mode(UiMode::Clip);panel->set_shift(true);assert(panel->soft_key(1));panel->set_shift(false);
+ assert(panel->knob(3,-15000) && panel->knob(4,1000) && panel->knob(5,1000) && panel->knob(7,2000));
+ assert(panel->soft_key(0) && channels()==2);
+ assert(panel->undo() && channels()==1);
+ assert(panel->redo());panel.reset(); // Audio still owns the queued edit after history disposal.
+ assert(channels()==2);
+}
 int main(){
  std::setvbuf(stdout,nullptr,_IONBF,0);
+ block_move_playback();
  auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->random_seed=412;
  auto src=track_at(*p,0,0);src.instrument=Instrument::VirtualAnalog;src.level=.43f;src.steps[0].enabled=true;src.steps[0].note=60;src.steps[0].chord[0]=64;src.steps[0].chord[1]=67;src.steps[8]=src.steps[0];src.steps[8].note=65;src.steps[8].chord[0]=69;src.steps[8].chord[1]=72;src.steps[0].locks[0]={1,.3f,true};src.automation[0].enabled=true;src.automation[0].parameter=1;src.automation[0].values[0]=.4f;
  p->tracks[2].instrument=Instrument::DrumKit;p->patterns[0].tracks[2].kit.steps[3][2].enabled=true;
