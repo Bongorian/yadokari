@@ -2220,3 +2220,10 @@ build/test-fat-browser: tests/fat_browser_test.cpp firmware/fat_browser.h src/da
 test-run-fat-browser: build/test-fat-browser
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-fat-browser
 test-all: test-run-fat-browser
+
+build/test-sound-mod-routes: tests/sound_mod_routes_test.cpp build/test-core-engine.o $(HOST_SUPPORT_OBJECTS) $(PL_OBJECTS) $(UI_BASE_ARCHIVE)
+	$(CXX) $(HOST_FLAGS) $(SAN) -O0 -fno-access-control $^ -o $@
+.PHONY: test-run-sound-mod-routes
+test-run-sound-mod-routes: build/test-sound-mod-routes
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-sound-mod-routes
+test-all: test-run-sound-mod-routes

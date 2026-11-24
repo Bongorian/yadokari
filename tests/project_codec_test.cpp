@@ -119,7 +119,7 @@ static void wavetable_files(){
   track.preset_identity=PresetIdentity{};
  }
  // Corrupt discrete input or a truncated optional frame cannot become a valid patch.
- auto view=engine_state_view(track);const auto& extension=wavetable_state_contract().chunks[1];
+ auto view=engine_state_view(track);const auto extension=wavetable_state_contract().chunks[1];
  for(float bad:{1.5f,4.f}){
   ChunkBuffer fields;ChunkWriter<ChunkBuffer> w(fields);
   for(float value:{bad,0.f,1.f,0.f})assert(w.f32(value));
