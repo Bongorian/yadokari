@@ -1,4 +1,5 @@
 #pragma once
+#include "wavetable_unison.h"
 #include "stem_capture.h"
 #include "audio_timeline_clock.h"
 #include "wavetable_voice.h"
@@ -282,7 +283,7 @@ private:
   uint64_t score_step=0;
   bool score_before_step=false;
   float last_l=0,last_r=0; // last mixed output, for the steal declick
-  Voice* layer_peer=nullptr;bool composite=false;uint8_t layer_cost=0;float layer_gain=1,layer_pan=0,layer_detune=0;
+  Voice* layer_peer=nullptr;bool composite=false;uint8_t layer_cost=0;WavetableLoad wt_reserved{};float layer_gain=1,layer_pan=0,layer_detune=0;
   CreativeState creative_state{};
   StepPitchSlide step_pitch{};bool step_mono=false,step_accent=false,tie_pending=false;uint16_t step_sound=kNoPreset;
   float a=0,env=0,frequency=261.6256f,pitch_bend=0,acid_low=0,acid_band=0;
@@ -291,7 +292,7 @@ private:
   float targets[5]={0.5f,0.5f,0.5f,0.5f,0.5f};float parameters[5]={0.5f,0.5f,0.5f,0.5f,0.5f};
   AdditiveState additive_base{};AdditiveVoice additive;PhaseDistState phase_dist_base{};PhaseDistVoice phase_dist;FormantState formant_base{};FormantVoice formant;GranularState granular_base{};ChimeraState chimera_base{};SoundFontState soundfont_base{};SoundFontVoice soundfont;Fm6State fm6_base{};Fm6Voice fm6;
   VirtualAnalogState va_base{};VirtualAnalogVoice va;
-  WavetableState wavetable_base{};WavetableVoice wavetable;
+  WavetableState wavetable_base{};WavetableVoice wavetable;WavetableUnison wt_unison;
   PolyBlepSaw saw; WavView sample{}; WavVoice sampler; DaisySynth daisy; daisysp::Fm2 fm;
   uint8_t instrument=unsigned(Instrument::Empty),channel=0,note=60,source_pattern=0,model=0,sample_slot=0,sample_root=60,choke_group=0;float sample_origin=0,sample_extent=1; SampleEdit base_sample_edit{};float sample_speed=1;uint32_t sampler_source_epoch=0;SampleMode sample_mode=SampleMode::OneShot;bool midi_note=false,capture_note=false,released=false,looping=false;uint8_t capture_channel=0,capture_pitch=60; uint8_t input_note=60,kit_pad=255,kit_watch_lane=255;float kit_mix_target[5]={0.8f,0,1,0,0};ParameterLock kit_mix_locks[kLocks]{};bool kit_mix_locked=false;KitVoiceMix kit_mix{};float kit_speed_bend=0,kit_speed_tuning=0,kit_speed_value=1;TrackInsertSlot kit_insert{};ParameterLock kit_fx_locks[kLocks]{};bool kit_fx_locked=false;float kit_insert_target[4]={0,0.5f,0.25f,1},kit_insert_current[3]={0.5f,0.25f,1};uint16_t received_channel=65535; uint64_t off_at=0;
   uint32_t voice_epoch=0,voice_instance=0; // W2 bundle invalidation stamps (runtime only)
@@ -317,7 +318,9 @@ private:
  unsigned module_route_=0,module_route_epoch_=0;bool multitimbral_=false;uint8_t module_bank_[16][16][2]{},module_reason_[16]{};uint16_t module_slot_[16]{};
  bool layer_launching_=false;uint8_t layer_failure_[16]{};
  enum class LayerGate:uint8_t {None,TrackCost,TotalCost,Slots,Shared};
- LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&,LayerGate&,uint32_t victims)const;
+ LayerGate wavetable_gate(unsigned track,WavetableLoad incoming,unsigned extra_cost,const Voice* replace,
+                          uint32_t victims=0,bool layer=false)const;
+ LayerReason layer_admission(unsigned,const LayerState&,unsigned,unsigned,uint8_t&,LayerGate&,uint32_t victims);
  uint32_t oldest_layer_tail(unsigned t,bool same_track,uint32_t planned)const;
  void steal_layer_tails(uint32_t victims,unsigned groups);
  // A stolen Layer note is cut at once; its last output decays over 64 samples

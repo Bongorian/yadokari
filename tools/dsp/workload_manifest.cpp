@@ -9,6 +9,8 @@ int main() {
   const auto c=dsp_condition(i);
   const auto* d=engine_descriptor(unsigned(c.engine));
   unsigned cost=engine_voice_cost(c.engine,c.variant);
+  if(c.kind==DspCondition::Wavetable)cost=c.variant>=2?WavetableLoad::extended_price:WavetableLoad::legacy_price;
+  if(c.kind==DspCondition::WavetableUnison){const auto& spec=kUnisonProbes[c.variant];cost=spec.voices*(spec.extended?WavetableLoad::extended_price:WavetableLoad::legacy_price);}
   if(c.kind==DspCondition::Choir)cost=c.variant*engine_voice_cost(c.engine,0);
   if(c.kind==DspCondition::Insert)cost=fx_descriptor(c.variant)->cost;
   unsigned native_avg=0,native_burst=0;

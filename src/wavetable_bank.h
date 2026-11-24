@@ -6,5 +6,5 @@ constexpr unsigned kWavetableWaves=128,kWavetableLevels=7,kWavetableSamples=256;
 // any voice starts; trigger/render never allocate or decode.
 extern const int16_t (*kWavetableData)[kWavetableLevels][kWavetableSamples];
 bool prepare_wavetable_bank();
-inline bool wavetable_bank_ready(){return kWavetableData!=nullptr;}
+inline bool wavetable_bank_ready(){return __atomic_load_n(&kWavetableData,__ATOMIC_ACQUIRE)!=nullptr;}
 }

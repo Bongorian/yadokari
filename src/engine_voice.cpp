@@ -222,11 +222,46 @@ void Engine::steal_layer_tails(uint32_t victims,unsigned groups){
  __atomic_add_fetch(&probe_steals_triggered_,groups,__ATOMIC_RELAXED);
  __atomic_add_fetch(&probe_steals_released_,groups,__ATOMIC_RELAXED);
 }
-LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected,LayerGate& gate,uint32_t victims)const{
+// Executed on note admission or a route change. Main sequencer voices, poly
+// voices and Layer leaves all share the same audio-owner view of reservations.
+Engine::LayerGate Engine::wavetable_gate(unsigned t,WavetableLoad incoming,unsigned extra_cost,
+                                         const Voice* replace,uint32_t victims,bool layer)const{
+ WavetableLoad local=incoming;
+ unsigned total=incoming.cost()+extra_cost,layer_track=layer?total:0;
+ auto count=[&](const Voice& v,unsigned owner){
+  if(&v==replace || (!v.composite && v.env<.00001f))return;
+  const bool wt=v.instrument==unsigned(Instrument::Wavetable);
+  if(wt && owner==t)local.add(v.wt_reserved);
+  if(v.composite){total+=v.layer_cost;if(owner==t)layer_track+=v.layer_cost;}
+  else if(wt)total+=v.wt_reserved.cost();
+ };
+ for(unsigned owner=0;owner<kTracks;++owner)count(voices_[owner],owner);
+ for(unsigned i=0;i<kPolyVoiceCapacity;++i){
+  const auto& p=poly_voices_[i];
+  if(p.owner<kTracks && !(victims&(uint32_t(1)<<i)))count(p.voice,p.owner);
+ }
+ const auto& policy=engine_descriptor(unsigned(Instrument::Wavetable))->polyphony;
+ if(local.oscillators>hardware::scaled(policy.voices/policy.base_cost) ||
+    local.extended>hardware::scaled(policy.extended_limit))return LayerGate::TrackCost;
+ if(layer && layer_track>hardware::scaled(VoiceBudget::layer_track))return LayerGate::TrackCost;
+ return total>hardware::scaled(VoiceBudget::layer_total)?LayerGate::TotalCost:LayerGate::None;
+}
+LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned key,unsigned velocity,uint8_t& selected,LayerGate& gate,uint32_t victims){
  gate=LayerGate::None;
  auto reason=layer_status(layer);if(reason!=LayerReason::Ready)return reason;unsigned incoming=layer_note_cost(layer,key,velocity,&selected);if(!selected)return LayerReason::Ready;if(!leaf_runtime_)return LayerReason::Voices;
- unsigned free=0,total=0,local=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
- for(const auto& p:poly_voices_){if(p.owner==255 || (victims&(uint32_t(1)<<(&p-poly_voices_)))){++free;continue;}if(p.voice.composite){total+=p.voice.layer_cost;if(p.owner==t)local+=p.voice.layer_cost;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){shared[unsigned(resource)]+=p.voice.tract_count;shared_cost[unsigned(resource)]+=p.voice.tract_count*engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
+ WavetableLoad wt{};
+ for(unsigned i=0;i<layer.count;++i)if(selected&(1u<<i)){
+  const auto& sound=layer.parts[i].sound;
+  if(sound.instrument!=Instrument::Wavetable)continue;
+  float values[kWavetableParameterCount];resolve_voice_bank(t,Instrument::Wavetable,sound.wavetable.values,values);
+  const auto load=wavetable_load(values);
+  incoming=incoming-wavetable_load(sound.wavetable.values).cost()+load.cost();wt.add(load);
+ }
+ if(incoming>VoiceBudget::layer_note)return LayerReason::Cost;
+ gate=wavetable_gate(t,wt,incoming-wt.cost(),nullptr,victims,true);
+ if(gate!=LayerGate::None)return LayerReason::Cost;
+ unsigned free=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
+ for(const auto& p:poly_voices_){if(p.owner==255 || (victims&(uint32_t(1)<<(&p-poly_voices_)))){++free;continue;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){shared[unsigned(resource)]+=p.voice.tract_count;shared_cost[unsigned(resource)]+=p.voice.tract_count*engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
  for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);unsigned units=child.instrument==Instrument::Chimera?chimera_unison(child.chimera):1;need_shared[r]+=units;need_shared_cost[r]+=units*engine_voice_cost(child.instrument,child.instrument==Instrument::Chimera?chimera_model(child.chimera):child.model);}}
  // Perf port (item 1, decision A 2026-11-15): layer admission uses the
  // scaled budgets. This deliberately gives up the option-(a) portability
@@ -237,7 +272,6 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  // into budget trims while the deadline record stays at baseline
  // (PI5_MAX_PERF_INVESTIGATION.md, 2026-11-15 verdicts).
  for(unsigned resource=1;resource<resources;++resource)if(need_shared[resource]){bool ready=resource==unsigned(VoiceResource::Plaits)?plaits_ && poly_plaits_:resource==unsigned(VoiceResource::Granular)?granular_!=nullptr:chimera_slots_!=0;const auto& policy=engine_descriptor(unsigned(resource==unsigned(VoiceResource::Plaits)?Instrument::PlaitsMacro:resource==unsigned(VoiceResource::Granular)?Instrument::Granular:Instrument::Chimera))->polyphony;if(!ready || shared[resource]+need_shared[resource]>hardware::scaled_slots(policy.shared_slots,resource==unsigned(VoiceResource::Chimera)?chimera_slots_:kSharedVoiceCapacity) || shared_cost[resource]+need_shared_cost[resource]>hardware::scaled(policy.shared_budget)){gate=LayerGate::Shared;return LayerReason::Voices;}}
- if(local+incoming>hardware::scaled(VoiceBudget::layer_track) || total+incoming>hardware::scaled(VoiceBudget::layer_total)){gate=local+incoming>hardware::scaled(VoiceBudget::layer_track)?LayerGate::TrackCost:LayerGate::TotalCost;return LayerReason::Cost;} // Perf port (item 1): layer cost gate scales with the board factor
  if(free<unsigned(__builtin_popcount(unsigned(selected)))){gate=LayerGate::Slots;return LayerReason::Voices;}
  return LayerReason::Ready;
 }
@@ -284,6 +318,13 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::ExternalMidi && panic_channels_)return nullptr;
  unsigned resolved_model=step && step->sound<kPresetSlots?project_->sounds[step->sound].model:state.plaits_model;
  int model_local=engine_model_parameter(state.instrument);if(!layer_part && actual==state.instrument && model_local>=0){const auto& r=runtime_[t];resolved_model=unsigned(resolve_target_value(*project_,state,t,engine_target(actual,unsigned(model_local)),float(resolved_model),step?step->locks:r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value);}
+ float wt_values[kWavetableParameterCount];WavetableLoad wt{};
+ if(actual==Instrument::Wavetable){
+  resolve_voice_bank(t,actual,state.wavetable.values,wt_values);wt=wavetable_load(wt_values);
+  if(!layer_launching_ && wavetable_gate(t,wt,0,poly?nullptr:&voices_[t])!=LayerGate::None){
+   ++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;
+  }
+ }
  PolyVoice* reused=nullptr;
  const ChimeraPhrase* score=nullptr;
  bool keep_score=false;
@@ -386,8 +427,10 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::Fm6){auto state=v.fm6_base;resolve_voice_bank(t,actual,v.fm6_base.values,state.values);v.fm6.trigger(v.frequency,velocity,state);}
  if(actual==Instrument::VirtualAnalog){auto clock=dsp_profile_.control_clock();unsigned start=clock?clock():0;float values[kVirtualAnalogParameterCount];resolve_voice_bank(t,actual,v.va_base.values,values);v.va.trigger(float(velocity)/127,values,event_seed_for());if(clock)dsp_profile_.va_trigger(clock()-start);}
  if(actual==Instrument::Wavetable){
-  float values[kWavetableParameterCount];resolve_voice_bank(t,actual,v.wavetable_base.values,values);
-  v.wavetable.trigger(v.frequency,float(velocity)/127,values);
+  v.wt_reserved=wt;
+  if(layer_part)v.layer_cost=uint8_t(v.layer_cost-wavetable_load(state.wavetable.values).cost()+wt.cost());
+  v.wavetable.trigger(v.frequency,float(velocity)/127,wt_values);
+  v.wt_unison.reset();v.wt_unison.parameters(v.wavetable,wt_values,wt.oscillators);
  }
  if(actual==Instrument::Texture){textures_suspended_=false;textures_[t].reseed(event_seed_for());textures_[t].trigger();}
  if(actual==Instrument::Resonator){resonators_[t].reseed(event_seed_for());if(!resonators_[t].trigger(float(v.note)+tuning)){for(auto& p:poly_voices_)if(&p.voice==&v)set_poly_owner(p,255);return nullptr;}}
@@ -470,7 +513,7 @@ void Engine::trigger_step_chord(unsigned t,unsigned velocity,int note,const Step
  }
  if(!trigger(t,velocity,note,&step,nullptr,accumulator,degrees))return;
  if(!live_poly_capable(actual) && actual!=Instrument::ExternalMidi)return;
- const auto& state=track(t);auto effective=[&](int input){int value=(step.chromatic?bounded(input+state.transpose,0,127):transform_note(input,state));return degrees?scale_move(value,accumulator,state):bounded(value+accumulator,0,127);};int heard[kStepNotes]={effective(note)};unsigned count=1;for(uint8_t chord_note:step.chord)if(chord_note<128 && count<instrument_voice_limit(actual,step.sound<kPresetSlots?project_->sounds[step.sound].model:state.plaits_model)){int next=bounded(int(state.root_note)+int(chord_note)-60,0,127),pitch=effective(next);bool duplicate=false;for(unsigned i=0;i<count;++i)duplicate|=heard[i]==pitch;if(!duplicate){heard[count++]=pitch;trigger(t,velocity,next,&step,nullptr,accumulator,degrees,true);}}}
+ const auto& state=track(t);auto effective=[&](int input){int value=(step.chromatic?bounded(input+state.transpose,0,127):transform_note(input,state));return degrees?scale_move(value,accumulator,state):bounded(value+accumulator,0,127);};int heard[kStepNotes]={effective(note)};unsigned count=1;for(uint8_t chord_note:step.chord)if(chord_note<128 && count<chord_voice_limit(actual,step.sound<kPresetSlots?project_->sounds[step.sound].model:state.plaits_model)){int next=bounded(int(state.root_note)+int(chord_note)-60,0,127),pitch=effective(next);bool duplicate=false;for(unsigned i=0;i<count;++i)duplicate|=heard[i]==pitch;if(!duplicate){heard[count++]=pitch;trigger(t,velocity,next,&step,nullptr,accumulator,degrees,true);}}}
 // Transform and deduplicate before ordering, so scale quantization cannot generate duplicate pitches.
 void Engine::trigger_step_arp(unsigned t,unsigned velocity,int note,const StepState& step,int accumulator,bool degrees,unsigned index){
  const auto& state=track(t);struct Choice{uint8_t input,pitch;};Choice choices[kStepNotes*4];unsigned count=0;

@@ -221,12 +221,14 @@ inline bool emit_wavetable_extension(const EngineStateSource& s,bool){
  return s.wavetable && !wavetable_extension_is_default(s.wavetable->values);
 }
 inline EngineStateContract wavetable_state_contract(){
- constexpr unsigned base=kWavetableLegacyParameterCount,all=kWavetableParameterCount;
+ constexpr unsigned base=kWavetableLegacyParameterCount,phase=kWavetablePhaseParameterCount,all=kWavetableParameterCount;
  static const EngineChunkDescriptor chunks[]={
   {0x42545657u,1,emit_parm,encode_wavetable_range<0,base>,decode_wavetable_range<0,base>,defaults_wavetable_range<0,base>},
-  {0x32545657u,1,emit_wavetable_extension,encode_wavetable_range<base,all>,decode_wavetable_range<base,all>,defaults_wavetable_range<base,all>}
+  {0x32545657u,1,emit_wavetable_extension,encode_wavetable_range<base,phase>,decode_wavetable_range<base,phase>,defaults_wavetable_range<base,phase>},
+  {0x33545657u,1,[](const EngineStateSource& s,bool){return s.wavetable && !wavetable_unison_is_default(s.wavetable->values);},
+   encode_wavetable_range<phase,all>,decode_wavetable_range<phase,all>,defaults_wavetable_range<phase,all>}
  };
- return {chunks,2,1};
+ return {chunks,3,1};
 }
 }
 

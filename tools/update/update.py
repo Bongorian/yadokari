@@ -26,7 +26,7 @@ IDENTITY_MARKER = b'GBX-FW-ID-v1\0\0\0\0'
 def check_release_image(image):
     start = image.find(IDENTITY_MARKER)
     if start >= 0 and image.startswith(b'GBX-DEV-ONLY-v1\0', start + len(IDENTITY_MARKER) + 40):
-        raise ValueError('Development-only firmware: Pi 4 release is blocked pending Wave B voice admission')
+        raise ValueError('Development-only firmware: Pi 4 release is blocked pending Pi 4 mixed-load qualification')
 
 
 def identity(image):

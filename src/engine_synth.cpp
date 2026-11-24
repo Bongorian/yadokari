@@ -146,9 +146,39 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
    const auto& state=track(t);
    if(!v.sound_locked && state.instrument==Instrument::Wavetable)v.wavetable_base=state.wavetable;
    float values[kWavetableParameterCount];resolve_voice_bank(t,Instrument::Wavetable,v.wavetable_base.values,values);
-   v.wavetable.parameters(values);
+   auto wanted=wavetable_load(values);
+   // Retain the extended price through the last sample of the dry crossfade.
+   if(!wanted.extended && v.wt_reserved.extended){
+    if(v.wavetable.filtering())wanted.extended=wanted.oscillators;
+    else {
+     // An unaffordable unison resize can stay pending after the filter stops.
+     // Return the old route's units even when the new count cannot fit.
+     const unsigned previous=v.wt_reserved.cost();
+     v.wt_reserved.extended=0;
+     if(v.composite)v.layer_cost-=previous-v.wt_reserved.cost();
+    }
+   }
+   if(wanted.extended!=v.wt_reserved.extended || wanted.oscillators!=v.wt_reserved.oscillators){
+    const unsigned extra=v.composite?v.layer_cost-v.wt_reserved.cost():0;
+    bool note_fits=true;
+    if(v.composite && wanted.cost()>v.wt_reserved.cost()){
+     const Voice* head=&v;
+     for(auto& p:poly_voices_)if(p.owner==t && p.voice.composite){
+      for(auto* leaf=&p.voice;leaf;leaf=leaf->layer_peer)if(leaf==head){head=&p.voice;break;}
+     }
+     unsigned group=extra+wanted.cost();
+     for(auto* leaf=head;leaf;leaf=leaf->layer_peer)if(leaf!=&v)group+=leaf->layer_cost;
+     note_fits=group<=VoiceBudget::layer_note;
+    }
+    if(note_fits && wavetable_gate(t,wanted,extra,&v,0,v.composite)==LayerGate::None){
+     v.wt_reserved=wanted;if(v.composite)v.layer_cost=uint8_t(extra+wanted.cost());
+    }else if(!v.wt_reserved.extended){
+     values[WavetableWarpAmount]=values[WavetablePmAmount]=0;
+    }
+   }
+   v.wt_unison.parameters(v.wavetable,values,v.wt_reserved.oscillators);
   }
-  l=rr=v.wavetable.next(v.frequency,!v.released);v.env=v.wavetable.active()?__builtin_fmaxf(v.wavetable.level(),.0001f):0;return;
+  v.wt_unison.next(v.wavetable,v.frequency,!v.released,l,rr);v.env=v.wavetable.active()?__builtin_fmaxf(v.wavetable.level(),.0001f):0;return;
  }
  if(v.instrument==unsigned(Instrument::Texture)){
   if(!native_budget_.held(t) && sample_count_<native_retry_sample_[t])return;
@@ -210,7 +240,7 @@ void Engine::publish_voice_visual(AudioVisualFrame& frame,unsigned t,Voice& v){
  case Instrument::Wavetable:
   level=v.wavetable.level();
   v.wavetable.visual_envelope(frame.engine_envelope[t]);
-  frame.wavetable_map[t]=v.wavetable.visual_phase_map(v.frequency);
+  frame.wavetable_map[t]=v.wavetable.visual_phase_map(v.wt_unison.primary_frequency(v.frequency));
   break;
  default:frame.voice_level_valid[t]=false;break;
  }
@@ -337,6 +367,9 @@ void Engine::build_render_bundles(){
   __builtin_memset(job->values,0,sizeof job->values);
   if(!resolve_unlayered_engine(*project_,state,t,Instrument(instrument),r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,job->values)){
    bundle_helper_->retire(*job);return; // resolution is time-varying: canonical only
+  }
+  if(instrument==unsigned(Instrument::Wavetable) && (v.wt_reserved.oscillators!=1 || job->values[WavetableUnisonCount]!=1 || wavetable_load(job->values).extended!=v.wt_reserved.extended)){
+   bundle_helper_->retire(*job);return; // canonical audio owner negotiates route changes
   }
   job->key=&v;job->voice_key=key;job->track=t;job->instrument=instrument;
   job->start_sample=sample_count_;job->automation_tick=r.automation_tick;

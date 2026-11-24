@@ -1,4 +1,5 @@
 #include "wavetable_bank.h"
+#include "wavetable_spectrum.h"
 #include "alloc_policy.h"
 #include "project_codec.h"
 namespace groove {
@@ -6,6 +7,34 @@ namespace groove {
 const int16_t (*kWavetableData)[kWavetableLevels][kWavetableSamples]=nullptr;
 namespace {
 struct BankStorage {unsigned char* bytes=nullptr;unsigned state=0;~BankStorage(){delete[] bytes;}} storage;
+}
+WavetableWarpSpectrum kWarpSpectra[4][kWarpDepthSteps+1]{};
+WavetableQuadrature kUpperSource[kWavetableWaves][kUpperHarmonics-1]{};
+static void prepare_warp_spectra(const int16_t (*bank)[kWavetableLevels][kWavetableSamples]){
+ for(unsigned wave=0;wave<kWavetableWaves;++wave)for(unsigned h=2;h<=kUpperHarmonics;++h){
+  auto& a=kUpperSource[wave][h-2];
+  constexpr unsigned size=4*kUpperHarmonics;
+  for(unsigned i=0;i<size;++i){
+   const float p=float(i*h)/size,x=bank[wave][kUpperMip][i*(kWavetableSamples/size)]*(2.f/size);
+   a.re+=x*wavetable_sine(p+.25f);a.im+=x*wavetable_sine(p);
+  }
+ }
+ // Project only the periodic warp, once on the control owner. PM has an
+ // independent phase and ratio and is expanded separately during synthesis.
+ constexpr unsigned samples=128;
+ for(unsigned mode=0;mode<4;++mode)for(unsigned d=0;d<=kWarpDepthSteps;++d){
+  auto& spectrum=kWarpSpectra[mode][d];const float amount=2.f*d/kWarpDepthSteps-1;
+  for(unsigned i=0;i<samples;++i){
+   const float p=float(i)/samples;
+   const auto map=wavetable_read_phases(p,mode,amount,0,0);
+   auto phase=[](float x)->WavetableQuadrature{return {wavetable_sine(x+.25f),wavetable_sine(x)};};
+   auto source=phase(map.first).mix(phase(map.second),map.blend);
+   for(int h=-kWarpHarmonics;h<=kWarpHarmonics;++h){
+    auto& a=spectrum.harmonic[h+kWarpHarmonics];const auto term=source.times(phase(-h*p));
+    a.re+=term.re/samples;a.im+=term.im/samples;
+   }
+  }
+ }
 }
 bool prepare_wavetable_bank(){
  if(__atomic_load_n(&storage.state,__ATOMIC_ACQUIRE)==2)return true;
@@ -44,7 +73,9 @@ bool prepare_wavetable_bank(){
  }
  ok=ok && at==sizeof kWavetablePacked && crc.value()==kWavetableCrc;
  if(!ok){delete[] raw;__atomic_store_n(&storage.state,0u,__ATOMIC_RELEASE);return false;}
- storage.bytes=raw;kWavetableData=reinterpret_cast<const int16_t (*)[kWavetableLevels][kWavetableSamples]>(raw);
+ const auto bank=reinterpret_cast<const int16_t (*)[kWavetableLevels][kWavetableSamples]>(raw);
+ prepare_warp_spectra(bank);storage.bytes=raw;
+ __atomic_store_n(&kWavetableData,bank,__ATOMIC_RELEASE);
  __atomic_store_n(&storage.state,2u,__ATOMIC_RELEASE);return true;
 }
 }

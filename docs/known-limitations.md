@@ -91,9 +91,20 @@ story, kept current per release.
   precisely for that.
 
 - WAVETABLE uses additional DSP when WARP AMT or PM AMT is nonzero.
-  The product registry still charges two units per voice and admits four notes.
-  Pi 4 distribution of this tree (SD and GUP) is blocked until Wave B recalibrates
-  voice admission and verifies the admitted load against the 500 µs audio deadline.
+  The legacy path costs 2 units per oscillator and the extended path costs 11.
+  The Pi 4 track allows four oscillators in total, including at most two extended
+  oscillators. The board profile scales both limits. WAVETABLE tracks and Layer
+  leaves share a 48-unit Pi 4 budget. When an edit, lock or morph needs more
+  capacity than is available, the held voice continues on its admitted path
+  and retries on a later control tick. Release crossfades retain their reservation.
+  The extended reservation is 65.68 µs per 24 frames, derived from a 42.03 µs
+  Pi 4 estimate with two 25% margins. Pi 4 distribution remains blocked pending
+  mixed-load measurements on that board against the 500 µs deadline.
+
+- High-register WAVETABLE patches with warp or PM use a band-limited sum of
+  carrier harmonics and PM sidebands. Existing projects retain their settings;
+  their upper-register timbre can change. With warp and PM both at zero,
+  one oscillator uses the original table reader.
 
 ## Hardware scope
 

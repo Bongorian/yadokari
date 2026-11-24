@@ -47,10 +47,14 @@ inline void bind_engine_values(const EngineParameterTable& table,const float* va
 }
 using EngineVoiceBinding=void (*)(const EngineParameterTable&,const float*,unsigned,const EngineVoiceTargets&);
 enum class VoiceResource:uint8_t { None, Plaits, Granular, Chimera, Count };
-struct EnginePolyphony {uint8_t voices=1;bool live=false;uint8_t shared_slots=0,shared_budget=0;const uint8_t* model_cost=nullptr;VoiceResource resource=VoiceResource::None;uint8_t model_count=0,base_cost=1;bool independent_voices=true;bool triggered_leaf=false;};
+struct EnginePolyphony {uint8_t voices=1;bool live=false;uint8_t shared_slots=0,shared_budget=0;const uint8_t* model_cost=nullptr;VoiceResource resource=VoiceResource::None;uint8_t model_count=0,base_cost=1;bool independent_voices=true;bool triggered_leaf=false;uint8_t extended_cost=0,extended_limit=0;};
 // Keep an independently supported per-track voice count while recalibrating
 // its weighted cost. Shared/model budgets are deliberately separate.
 constexpr EnginePolyphony calibrated_polyphony(EnginePolyphony p,unsigned cost){p.voices=uint8_t(p.voices/p.base_cost*cost);p.base_cost=uint8_t(cost);return p;}
+constexpr EnginePolyphony wavetable_polyphony(){
+ auto p=calibrated_polyphony({WavetableLoad::legacy_limit,true,0,0,nullptr},WavetableLoad::legacy_price);
+ p.extended_cost=WavetableLoad::extended_price;p.extended_limit=WavetableLoad::extended_limit;return p;
+}
 constexpr EnginePolyphony triggered_leaf_polyphony(EnginePolyphony p){p.triggered_leaf=true;return p;}
 inline VisualDeclaration engine_visual(HeroVisual hero){
  switch(hero){case HeroVisual::None:case HeroVisual::MidiInfo:return {VisualElement::None,VisualSource::None,VisualCadence::Static,VisualFallback::Empty,ResponseModel::None,"CONTROL / NO PCM"};
@@ -147,7 +151,10 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
  {kWavetableParameters[WavetableWarpMode],0,D::Native,warp_modes,4,EngineValueTarget::Wavetable,WavetableWarpMode,{EngineEditTier::Detail,EngineParameterType::Choice,"Warp"}},
  {kWavetableParameters[WavetableWarpAmount],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetableWarpAmount,{EngineEditTier::Detail,EngineParameterType::Float,"Warp"}},
  {kWavetableParameters[WavetablePmRatio],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetablePmRatio,{EngineEditTier::Detail,EngineParameterType::Float,"Phase Modulation"}},
- {kWavetableParameters[WavetablePmAmount],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetablePmAmount,{EngineEditTier::Detail,EngineParameterType::Float,"Phase Modulation"}}
+ {kWavetableParameters[WavetablePmAmount],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetablePmAmount,{EngineEditTier::Detail,EngineParameterType::Float,"Phase Modulation"}},
+ {kWavetableParameters[WavetableUnisonCount],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetableUnisonCount,{EngineEditTier::Detail,EngineParameterType::Integer,"Unison"}},
+ {kWavetableParameters[WavetableDetune],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetableDetune,{EngineEditTier::Detail,EngineParameterType::Float,"Unison"}},
+ {kWavetableParameters[WavetableSpread],0,D::Native,nullptr,0,EngineValueTarget::Wavetable,WavetableSpread,{EngineEditTier::Detail,EngineParameterType::Float,"Unison"}}
  };
  static const EngineParameterDeclaration parameters_va[]={virtual_analog_declaration(0),virtual_analog_declaration(1),virtual_analog_declaration(2),virtual_analog_declaration(3),virtual_analog_declaration(4),virtual_analog_declaration(5),virtual_analog_declaration(6),virtual_analog_declaration(7),virtual_analog_declaration(8),virtual_analog_declaration(9),virtual_analog_declaration(10),virtual_analog_declaration(11),virtual_analog_declaration(12),virtual_analog_declaration(13),virtual_analog_declaration(14),virtual_analog_declaration(15),virtual_analog_declaration(16),virtual_analog_declaration(17),virtual_analog_declaration(18),virtual_analog_declaration(19),virtual_analog_declaration(20),virtual_analog_declaration(21),virtual_analog_declaration(22),virtual_analog_declaration(23),virtual_analog_declaration(24),virtual_analog_declaration(25)};
  static const EngineDescriptor registry[]={
@@ -169,7 +176,7 @@ inline const EngineDescriptor* engine_descriptor(unsigned id){
   {{Instrument::Resonator,"RESONATOR",true,0,"PHYSICAL",3,EnvelopeNone},{"mk3.resonator",false,false,false,true},{HeroVisual::Resonator,ShapeKind::None,{engine_control(0),engine_control(2),engine_control(3),engine_control(4),engine_control(5),track_control(1),track_control(2),track_control(0)}},{parameters_20,sizeof parameters_20/sizeof parameters_20[0]},{4,true,0,0,nullptr,VoiceResource::None,0,1,false},engine_state_contract(RequireResonator),bind_engine_values,{kResonatorCosts,3,1}},
   {{Instrument::Texture,"TEXTURE",true,0,"PHYSICAL",3,EnvelopeNone},{"mk3.texture",false,false,false,true},{HeroVisual::Texture,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),engine_control(5),engine_control(10),track_control(1)}},{parameters_21,sizeof parameters_21/sizeof parameters_21[0]},{1,false,0,0,nullptr,VoiceResource::None,0,1,false},engine_state_contract(RequireTexture),bind_engine_values,{kTextureCosts,16,4}},
   {{Instrument::Empty,"EMPTY",false,0,"SYNTH",0,EnvelopeNone},{"mk3.empty",false,false,false,true},{HeroVisual::None,ShapeKind::None,{track_control(0),track_control(0),track_control(0),track_control(0),track_control(0),track_control(0),track_control(0),track_control(0)}},{},{}},
-  {{Instrument::Wavetable,"WAVETABLE",false,0,"SYNTH",2,EnvelopeNone},{"mk3.wavetable",false,false,false,true},{HeroVisual::WavetableScan,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),engine_control(5),engine_control(6),engine_control(7)}},{parameters_wavetable,kWavetableParameterCount},calibrated_polyphony({4,true,0,0,nullptr},2),wavetable_state_contract()},
+  {{Instrument::Wavetable,"WAVETABLE",false,0,"SYNTH",2,EnvelopeNone},{"mk3.wavetable",false,false,false,true},{HeroVisual::WavetableScan,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),engine_control(5),engine_control(6),engine_control(7)}},{parameters_wavetable,kWavetableParameterCount},wavetable_polyphony(),wavetable_state_contract()},
   {{Instrument::VirtualAnalog,"VA DUAL",false,0,"SYNTH",3,EnvelopeEditable},{"mk3.va-dual",false,false,false,true},{HeroVisual::Oscillators,ShapeKind::Envelope,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_va,kVirtualAnalogParameterCount},calibrated_polyphony({16,true,0,0,nullptr,VoiceResource::None,0,2},4),virtual_analog_state_contract()},
   {{Instrument::Fm6,"FM 6",false,0,"SYNTH",3,EnvelopeNone},{"mk3.fm6",false,false,false,true},{HeroVisual::Scope,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_fm6,21},{12,true,0,0,nullptr,VoiceResource::None,0,3},fm6_state_contract()},
   {{Instrument::SoundFont,"SOUNDFONT",false,0,"SAMPLER",2,EnvelopeNone},{"mk3.soundfont",false,false,false,true,EngineAssetMode::SoundFont},{HeroVisual::Scope,ShapeKind::None,{engine_control(0),engine_control(1),engine_control(2),engine_control(3),engine_control(4),track_control(0),track_control(0),track_control(0)}},{parameters_soundfont,5},{8,true,0,0,nullptr,VoiceResource::None,0,2},soundfont_state_contract()},
@@ -206,6 +213,10 @@ inline VoiceResource engine_voice_resource(unsigned engine){const auto* d=engine
 inline NativeCost engine_native_cost(Instrument engine,const float* values){const auto* d=engine_descriptor(unsigned(engine));if(!d || !d->runtime_cost.values)return {};auto table=d->runtime_cost;unsigned model=unsigned(values[0]),quality=table.qualities>1?unsigned(values[11]):0,index=model*table.qualities+quality;return table.values[index<table.count?index:table.count-1];}
 inline unsigned engine_voice_cost(Instrument engine,unsigned model){const auto* d=engine_descriptor(unsigned(engine));return d && d->polyphony.model_cost && model<d->polyphony.model_count?d->polyphony.model_cost[model]:d?d->polyphony.base_cost:1;}
 inline unsigned instrument_voice_limit(Instrument i,unsigned model=0){const auto* d=engine_descriptor(unsigned(i));if(!d)return 1;unsigned cost=engine_voice_cost(i,model);return cost?d->polyphony.voices/cost:0;}
+inline unsigned chord_voice_limit(Instrument i,unsigned model){
+ const auto limit=instrument_voice_limit(i,model);
+ return i==Instrument::Wavetable?hardware::scaled(limit):limit;
+}
 inline unsigned macro_controls(unsigned engine){const auto* d=engine_descriptor(engine);return d?d->instrument.macro_controls:0;}
 inline const char* instrument_control_name(Instrument engine,unsigned index){const auto* d=engine_descriptor(unsigned(engine));const auto* p=engine_parameter(engine,index);return d && index<d->instrument.macro_controls && p?p->value.name:"";}
 struct ControlDisplay {float value;const char* unit;unsigned precision;};

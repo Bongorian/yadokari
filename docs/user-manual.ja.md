@@ -713,7 +713,7 @@ DIN接続の外部機器がある場合の実例です。機器がなければ�
 ### 音源を試す：WAVETABLEとVA
 
 - **WAVETABLEの連続変化** — SYNTH → Top5 ENGINEでWAVETABLEを選ぶ、またはFILESのFACTORY/Presetsから`WT Glass Motion.mgxp`を装着。鍵盤／パッドで鳴らし、GENERATORのK1 POSITION、K2 SCAN DEPTH、K3 SCAN RATEを回す。K4 ATTACK、K5 RELEASEで立上がりと余韻を変えます。波形位置の変化が音に連続して現れ、ノートを離すとrelease後に消音します。Curveはテーブル資産の波形模型を塗り、下の帯に宣言scan範囲と実scan位置を表示します。無音時は宣言POSITIONの静止模型となります。
-- **WAVETABLEのワープと位相変調** — SYNTH → Top4 DETAILSで、K1はBend ±・Sync・PWM・Asymの切替、K2はワープの向きと量です。K3は内部正弦モジュレーターの周波数比（演奏音の0.25〜8倍）、K4は変調量です。右画面にはPOSITIONで指定した波形の搬送波1周期分の模型が表示されます。発音中はこのトラックで最後に鳴らした声の音高に応じて制限されたワープ量と変調量を使い、無音時はC4を基準に表示します。演奏中の実波形・スペクトラムには4-D押下で切り替えられます。K2とK4をゼロにすると従来の音に戻ります。高音域では折り返しを抑えるため、ワープと超高域に達する変調を徐々に弱めます。
+- **WAVETABLEのワープと位相変調** — SYNTH → Top4 DETAILSで、K1はBend ±・Sync・PWM・Asymの切替、K2はワープの向きと量です。K3は内部正弦モジュレーターの周波数比（演奏音の0.25〜8倍）、K4は変調量です。K5 UNISONは1音あたりの発振器数（1〜7）、K6 DETUNEは外側の声の音程差（セント）、K7 SPREADはステレオの広がりです。発振器数の合計が機種の上限に達すると、新しい発音を制限します。右画面にはPOSITIONで指定した波形の搬送波1周期分の模型が表示されます。発音中はこのトラックで最後に鳴らした声の音高に応じて制限されたワープ量と変調量を使い、無音時はC4を基準に表示します。演奏中の実波形・スペクトラムには4-D押下で切り替えられます。K5を1声、K2とK4をゼロにすると従来のテーブル音になります。高音域では再生できる倍音と変調側波帯を合成します。以前のプロジェクトもそのまま読み込めますが、ワープや位相変調を使った高音は音色が変わる場合があります。
 - **VAの波形とADSR** — ENGINEでVA DUAL、または`VA Wide Saw.mgxp`を装着。GENERATORのK1 OSC 1、K2 OSC 2、K3 DETUNE、K4 OSC MIX、K5 CUTOFFを動かす。Top3 ENVELOPEのK3 ATTACK／K4 DECAY／K5 SUSTAIN／K6 RELEASEを変更。波形・混合・うなり・フィルタと、押下中／離した後の包絡が操作に対応します。詳細値のPWM／SUB／NOISE／RESONANCE等はPreset／宣言スキーマに保持されます。
 
 ### 演奏を焼いてプリセットにする（BAKE PRESET）

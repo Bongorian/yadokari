@@ -21,6 +21,10 @@ for m in re.finditer(r'DSP case (\d+) REJECTED[^\n]*',text):rejected.append({'ca
 header=r'DSP profile case (\d+) freq (\d+) blocks (\d+) sampled (\d+) main-peak (\d+) poly-peak (\d+) control-calls (\d+) control-ticks (\d+) control-max (\d+) snapshot-max (\d+)'
 for m in re.finditer(r'DSP case (\d+) active-tracts-peak (\d+)',text):
  cases[int(m[1])]['active_tracts_peak']=int(m[2])
+for m in re.finditer(r'DSP case (\d+) wavetable-osc-peak (\d+)',text):
+ cases[int(m[1])]['wavetable_osc_peak']=int(m[2])
+for m in re.finditer(r'DSP unison case (\d+) requested-notes (\d+) refused-notes (\d+)',text):
+ cases[int(m[1])]['requested_notes']=int(m[2]);cases[int(m[1])]['refused_notes']=int(m[3])
 for m in re.finditer(header,text):
  v=list(map(int,m.groups()));c=cases[v[0]];c['profile']={'freq':v[1],'blocks':v[2],'sampled':v[3],'main_peak':v[4],'poly_peak':v[5],'control_calls':v[6],'control_ticks':v[7],'control_max_ticks':v[8],'snapshot_max_ticks':v[9]};c['profile']['control_avg_us']=v[7]*1e6/(v[1]*v[6]) if v[6] else None;c['profile']['control_max_us']=v[8]*1e6/v[1];c['profile']['snapshot_max_us']=v[9]*1e6/v[1]
 # v475 can overrun Circle's text ring when a complete case is dumped at once.

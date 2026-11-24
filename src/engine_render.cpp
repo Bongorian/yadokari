@@ -219,7 +219,13 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
   dsp_profile_.cut(DspProfile::Output,1);
  }
  publish_freeze_capture();
- if(dsp_profile_.clock()){unsigned main=0,poly=0;for(const auto& v:voices_)main+=v.env>=.00001f;for(const auto& p:poly_voices_)poly+=p.owner<16 && p.voice.env>=.00001f;dsp_profile_.population(main,poly,layer_failure_,active_tracts());}
+ if(dsp_profile_.clock()){
+  unsigned main=0,poly=0,oscillators=0;
+  auto observe=[&](const Voice& v){if(v.instrument==unsigned(Instrument::Wavetable))oscillators+=v.wt_unison.count();};
+  for(const auto& v:voices_)if(v.env>=.00001f){++main;observe(v);}
+  for(const auto& p:poly_voices_)if(p.owner<16 && p.voice.env>=.00001f){++poly;observe(p.voice);}
+  dsp_profile_.population(main,poly,layer_failure_,active_tracts(),oscillators);
+ }
  dsp_profile_.block_end(unsigned(frames));
  if(profile_clock){stage_profile_.record(profile_control,profile_events,profile_tracks,profile_output);render_audit_.stages(profile_events,profile_tracks,profile_output);}
  prepare_sound_payloads();

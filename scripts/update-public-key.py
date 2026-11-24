@@ -50,7 +50,7 @@ text += '#define GROOVE_FW_VERSION ' + str(version) + '\n'
 text += '#define GROOVE_UPDATE_WIFI_BUILD ' + ('1' if os.environ.get('ENABLE_UPDATE_WIFI', '1') == '1' else '0') + '\n'
 identity = b'GBX-FW-ID-v1\0\0\0\0' + version.to_bytes(4, 'little') + key
 # A suffix on the retained identity follows the actual binary, even if renamed.
-# Remove the Pi 4 hold when Wave B has qualified its admission limits.
+# Remove the Pi 4 hold after its mixed-load admission limits are measured on hardware.
 text += '#if defined(RASPPI) && RASPPI == 4\n'
 suffix = b'GBX-DEV-ONLY-v1\0'
 text += '#define GROOVE_RELEASE_SUFFIX ,' + ','.join(str(b) for b in suffix) + '\n'

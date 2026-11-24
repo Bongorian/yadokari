@@ -102,13 +102,14 @@ using MotionAudio=std::array<float,motion_size>;
 struct MotionPower {double witness,sidebands;};
 MotionPower motion_power(const MotionAudio& audio,unsigned fundamental,unsigned motion){
  double total=0,witness=0,sidebands=0;
- bool allowed[16]{};
- assert(motion<=16 && motion_size%motion==0);
+ bool allowed[64]{};
+ assert(motion<=64 && motion_size%motion==0);
  allowed[0]=true;
  for(unsigned harmonic=fundamental;harmonic<=motion_size/2;harmonic+=fundamental){
   allowed[harmonic%motion]=true;
   allowed[(motion-harmonic%motion)%motion]=true;
  }
+ assert(std::count(allowed,allowed+motion,false)>0);
  each_bin_power(audio,[&](unsigned i,double power){
   total+=power;
   if(!allowed[i%motion])witness+=power;
@@ -118,9 +119,9 @@ MotionPower motion_power(const MotionAudio& audio,unsigned fundamental,unsigned 
  return {10*std::log10(std::max(witness/total,1e-30)),sidebands/total};
 }
 
-void moving_controls(){
- constexpr unsigned motion=16,period=motion_size/motion;
- MotionAudio linear{},extended{};
+template<size_t Count> unsigned moving_controls(unsigned motion,const unsigned (&carriers)[Count]){
+ const unsigned period=motion_size/motion;
+ MotionAudio linear{},extended{},neutral{};
  // Calibrate the detector: pure AM sidebands are legal. A fifth harmonic
  // sampled above Nyquist folds into a separate class with known power.
  constexpr unsigned calibration_bin=12451;
@@ -136,9 +137,9 @@ void moving_controls(){
  assert(std::abs(folded.witness-10*std::log10(.0025/1.1275))<.01);
 
  double worst=-300,maximum_linear=-300;
- unsigned cases=0;
+ unsigned cases=0,above_stock=0;
  for(unsigned rate:{44100u,48000u})for(unsigned mode=0;mode<4;++mode)
-  for(unsigned carrier:{8105u,14606u})for(unsigned movement=0;movement<3;++movement){
+  for(unsigned carrier:carriers)for(unsigned movement=0;movement<3;++movement){
    // The second note uses 3:2 PM. Both the carrier and its modulator
    // complete an integer number of cycles over each analysis window.
    const float step=float(carrier)/motion_size,hz=rate*step;
@@ -167,18 +168,28 @@ void moving_controls(){
     const auto map=voice.visual_phase_map(hz);
     const auto phases=wavetable_read_phases(p,mode,map.warp,mod,map.pm);
     float a=reference(position,phases.first,step);
+    neutral[i]=reference(position,p,step);
     linear[i]=a+phases.blend*(reference(position,phases.second,step)-a);
    }
    const auto result=motion_power(extended,fundamental,motion);
    const auto control=motion_power(linear,fundamental,motion);
-   std::printf("motion rate=%u mode=%u carrier=%u movement=%s witness=%.2f linear=%.2f dB sideband=%.5f\n",
-    rate,mode,carrier,movement==0?"scan":movement==1?"amounts":"both",result.witness,control.witness,result.sidebands);
+   const auto stock=motion_power(neutral,fundamental,motion);
+   std::printf("motion rate=%u mode=%u carrier=%u movement=%s witness=%.2f linear=%.2f stock=%.2f dB sideband=%.5f\n",
+    rate,mode,carrier,movement==0?"scan":movement==1?"amounts":"both",result.witness,control.witness,stock.witness,result.sidebands);
    // Budgets apply to these trajectories, normalized to non-DC output power.
    const double ceiling=movement==0?-46.:movement==1?-70.:-50.;
    assert(result.sidebands>.0001 && result.witness < ceiling && result.witness < control.witness-30.);
+   above_stock+=result.witness>stock.witness;
    worst=std::max(worst,result.witness);maximum_linear=std::max(maximum_linear,control.witness);++cases;
   }
- std::printf("%u moving cases: worst foldback witness %.2f dB, matched linear %.2f dB\n",cases,worst,maximum_linear);
+ std::printf("%u moving cases: worst foldback witness %.2f dB, matched linear %.2f dB; %u above stock\n",cases,worst,maximum_linear,above_stock);
+ return above_stock;
+}
+
+unsigned moving_matrix(){
+ const unsigned high[]={8105,14606},wide[]={2311,4009,6735,7914,9947,17382};
+ const auto first=moving_controls(16,high);
+ return first+moving_controls(64,wide);
 }
 
 }
@@ -207,8 +218,9 @@ static void extended_sweep(){
 
 int main(int argc,char** argv){
  assert(prepare_wavetable_bank());
+ if(argc==2 && std::strcmp(argv[1],"--motion-strict")==0)return moving_matrix()?1:0;
  if(argc>1){assert(argc==2 && std::strcmp(argv[1],"--sweep")==0);extended_sweep();return 0;}
- moving_controls();
+ const auto above_stock=moving_matrix();
  constexpr Setting cases[]={{"Bend+",0,1,1,0},{"Bend-",0,-1,1,0},
   {"Sync+",1,.8f,1,0},{"Sync-",1,-.8f,1,0},{"PWM",2,1,1,0},
   {"Asym",3,-1,1,0},{"PM",0,0,2,.75f},{"Sync+PM",1,.7f,2,.75f}};
@@ -230,4 +242,5 @@ int main(int argc,char** argv){
  auto top=measure({"high Asym",3,-.64f,5,0},119.11f,3607);
  assert(top.advanced<=top.neutral && top.advanced < -100);
  std::printf("High Asym regression: stock %.2f dB, matched linear %.2f dB, extended %.2f dB\n",top.neutral,top.linear,top.advanced);
+ return above_stock?1:0;
 }

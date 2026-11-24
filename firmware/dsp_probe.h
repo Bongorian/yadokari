@@ -29,14 +29,14 @@ class CDspProbe {
   if(int32_t(ms-next_hit_ms_)<0)return;
   if(c.kind==groove::DspCondition::Saturate){for(unsigned t=0;t<c.tracks;++t)for(unsigned n=0;n<c.notes;++n){groove::Command cmd{groove::CommandType::Trigger,uint8_t(t),uint8_t(n),100};cmd.parameter=1;cmd.scalar=float(48+int((n*3+t*5+sat_round_*11)%40));engine.submit(cmd);}++sat_round_;triggered_=true;next_hit_ms_=ms+500;return;}
   if(triggered_ && !groove::dsp_retrigger(c.engine,c.variant))return;
-  for(unsigned t=0;t<c.tracks;++t)for(unsigned n=0;n<c.notes;++n){groove::Command cmd{groove::CommandType::Trigger,uint8_t(t),uint8_t(n),100};cmd.parameter=groove::dsp_retrigger(c.engine,c.variant)?0:1;cmd.scalar=float(60+3*n);engine.submit(cmd);}
+  for(unsigned t=0;t<c.tracks;++t)for(unsigned n=0;n<c.notes;++n){groove::Command cmd{groove::CommandType::Trigger,uint8_t(t),uint8_t(n),100};cmd.parameter=groove::dsp_retrigger(c.engine,c.variant)?0:1;cmd.scalar=float(groove::dsp_probe_note(c,n));engine.submit(cmd);}
   triggered_=true;next_hit_ms_=ms+500;
  }
  // One line per task interval keeps the CDC log ring bounded. Results remain
  // immutable while draining; timing windows close BEFORE the drain begins.
  static bool dump(groove::Engine& engine,unsigned index,unsigned& position){
   auto& profile=engine.dsp_profile();const auto& s=profile.snapshot();
-  if(!position){position=1;CLogger::Get()->Write("dsp",LogNotice,"DSP case %u active-tracts-peak %u",index,s.tract_peak);CLogger::Get()->Write("dsp",LogNotice,"DSP profile case %u freq %u blocks %u sampled %u main-peak %u poly-peak %u control-calls %u control-ticks %lu control-max %u snapshot-max %u",index,Frequency(),s.blocks,s.sampled,s.main_peak,s.poly_peak,s.control_calls,(unsigned long)s.control_ticks,s.control_max,s.snapshot_control_max);CLogger::Get()->Write("dsp",LogNotice,"DSP VA case %u triggers %u ticks %lu max %u params %u ticks %lu max %u",index,s.va_trigger_calls,(unsigned long)s.va_trigger_ticks,s.va_trigger_max,s.va_parameter_calls,(unsigned long)s.va_parameter_ticks,s.va_parameter_max);CLogger::Get()->Write("dsp",LogNotice,"DSP peak case %u total %u visual %u trigger %u params %u visual-max %u visual-ticks %lu",index,s.all_block_max,s.peak_visual,s.peak_va_trigger,s.peak_va_parameters,s.visual_block_max,(unsigned long)s.visual_ticks);return false;}
+  if(!position){position=1;if(index>=groove::dsp_wavetable_start())CLogger::Get()->Write("dsp",LogNotice,"DSP case %u wavetable-osc-peak %u",index,s.wt_osc_peak);CLogger::Get()->Write("dsp",LogNotice,"DSP case %u active-tracts-peak %u",index,s.tract_peak);CLogger::Get()->Write("dsp",LogNotice,"DSP profile case %u freq %u blocks %u sampled %u main-peak %u poly-peak %u control-calls %u control-ticks %lu control-max %u snapshot-max %u",index,Frequency(),s.blocks,s.sampled,s.main_peak,s.poly_peak,s.control_calls,(unsigned long)s.control_ticks,s.control_max,s.snapshot_control_max);CLogger::Get()->Write("dsp",LogNotice,"DSP VA case %u triggers %u ticks %lu max %u params %u ticks %lu max %u",index,s.va_trigger_calls,(unsigned long)s.va_trigger_ticks,s.va_trigger_max,s.va_parameter_calls,(unsigned long)s.va_parameter_ticks,s.va_parameter_max);CLogger::Get()->Write("dsp",LogNotice,"DSP peak case %u total %u visual %u trigger %u params %u visual-max %u visual-ticks %lu",index,s.all_block_max,s.peak_visual,s.peak_va_trigger,s.peak_va_parameters,s.visual_block_max,(unsigned long)s.visual_ticks);return false;}
   while(position<=groove::DspProfile::bins){unsigned i=position++-1;const auto& c=profile.counter(i);if(c.calls){CLogger::Get()->Write("dsp",LogNotice,"DSP bin case %u id %u calls %lu frames %lu ticks %lu active %lu max-block %u max-voice-q16 %lu",index,i,(unsigned long)c.calls,(unsigned long)c.frames,(unsigned long)c.ticks,(unsigned long)c.active_ticks,c.max_block_ticks,(unsigned long)c.max_voice_q16);return false;}}
   while(position<=groove::DspProfile::bins+16){unsigned t=position++-groove::DspProfile::bins-1;if(s.layer_reasons[t]){CLogger::Get()->Write("dsp",LogNotice,"DSP layer case %u track %u reason %u",index,t,unsigned(s.layer_reasons[t]));return false;}}
   return true;
@@ -80,8 +80,9 @@ public:
   }
   if(phase_==Warmup || phase_==Measure){const auto condition=this->condition();
    if(!triggered_ && condition.kind==groove::DspCondition::Native && condition.engine==groove::Instrument::Texture)texture_before_trigger_=audio->worker_missing();
+   if(!triggered_ && condition.kind==groove::DspCondition::WavetableUnison)steal_base_=engine.probe_steals();
    tone(engine,ms);trigger(engine,condition,ms);
-   if(phase_==Warmup && uint32_t(ms-start_ms_)>=2000){audio->BeginWorkerWindow();audio->BeginTimingWindow();engine.dsp_profile().begin_measurement();steal_base_=engine.probe_steals();window_ms_=ms;window_=last_missing_;measured_=true;phase_=Measure;CLogger::Get()->Write("dsp",LogNotice,"DSP case %u warmup-missing %u",case_,last_missing_-case_missing_);}
+   if(phase_==Warmup && uint32_t(ms-start_ms_)>=2000){audio->BeginWorkerWindow();audio->BeginTimingWindow();engine.dsp_profile().begin_measurement();if(condition.kind!=groove::DspCondition::WavetableUnison)steal_base_=engine.probe_steals();window_ms_=ms;window_=last_missing_;measured_=true;phase_=Measure;CLogger::Get()->Write("dsp",LogNotice,"DSP case %u warmup-missing %u",case_,last_missing_-case_missing_);}
    if(phase_==Measure && uint32_t(ms-window_ms_)>=6000){engine.dsp_profile().stop();phase_=Closing;}
    return;
   }
@@ -91,6 +92,8 @@ public:
    if(int32_t(ms-dump_due_)<0)return;
    dump_due_=ms+100;if(!dump(engine,case_,dump_position_))return;
    const auto c=condition();
+   if(measured_ && c.kind==groove::DspCondition::WavetableUnison)
+    CLogger::Get()->Write("dsp",LogNotice,"DSP unison case %u requested-notes %u refused-notes %u",case_,c.notes*c.tracks,steal_end_.refused-steal_base_.refused);
    if(measured_ && c.kind==groove::DspCondition::Native && c.engine==groove::Instrument::Texture)
     CLogger::Get()->Write("dsp",LogNotice,"Texture case %u missing pre-stage %u staging %u before-trigger-submit %u trigger-to-window %u",case_,texture_before_stage_-case_missing_,texture_after_stage_-texture_before_stage_,texture_before_trigger_-texture_after_stage_,window_-texture_before_trigger_);
    if(measured_){auto w=worker_window_;auto a=timing_window_;CLogger::Get()->Write("dsp",LogNotice,"DSP result case %u window-ms %u blocks %u avg-us %u max-us %u over500 %u window-missing %u condition-missing %u native-active %u refused %u callbacks %u callback-max %u bad %u steals %u released %u held %u steal-refused %u budget-releases %u",case_,measured_ms_,w.blocks,w.blocks?unsigned(w.total_us/w.blocks):0,w.max_us,w.over500,window_missing_,last_missing_-case_missing_,engine.native_active_mask(),engine.native_refused_mask(),a.callbacks,a.max_us,a.bad_chunks,steal_end_.triggered-steal_base_.triggered,steal_end_.released-steal_base_.released,steal_end_.held-steal_base_.held,steal_end_.refused-steal_base_.refused,steal_end_.budget_releases-steal_base_.budget_releases);}

@@ -1,6 +1,6 @@
 #pragma once
 #include "wavetable_bank.h"
-#include "wavetable_warp.h"
+#include "wavetable_spectrum.h"
 #include "wavetable_state.h"
 #include "Control/adsr.h"
 #include <math.h>
@@ -8,7 +8,7 @@
 namespace groove {
 class WavetableVoice {
  float rate_=48000,phase_=0,scan_=0,mod_phase_=0,velocity_=0,level_=0,wet_=0;
- float values_[kWavetableParameterCount]{},target_[kWavetableParameterCount]{};
+ float values_[kWavetablePhaseParameterCount]{},target_[kWavetablePhaseParameterCount]{};
  daisysp::Adsr envelope_;
  bool started_=false;
 
@@ -54,16 +54,8 @@ class WavetableVoice {
   float a=kWavetableData[wave][mip][i],b=kWavetableData[wave][mip][(i+1)&255];
   return (a+(b-a)*(x-floorf(x)))/32767;
  }
- struct Levels {unsigned mip,next;float blend;};
- static Levels select_levels(float step,float brightness){
-  float allowed=step>0?.45f/step:128;allowed*=.015625f+.984375f*brightness;
-  unsigned mip=0,harmonics=64;
-  while(mip<6 && float(harmonics)>allowed){++mip;harmonics>>=1;}
-  float blend=2-allowed/float(harmonics);if(blend<0)blend=0;if(blend>1)blend=1;
-  return {mip,mip<6?mip+1:mip,blend};
- }
  float legacy_sample(float position,float step)const{
-  auto l=select_levels(step,values_[7]);unsigned a=unsigned(position),b=a<127?a+1:a;
+  auto l=wavetable_levels(step,values_[7]);unsigned a=unsigned(position),b=a<127?a+1:a;
   float x=table(a,l.mip,phase_),y=table(b,l.mip,phase_);x+=(y-x)*(position-a);
   if(l.blend>0){float lo=table(a,l.next,phase_),hi=table(b,l.next,phase_);lo+=(hi-lo)*(position-a);x+=(lo-x)*l.blend;}
   return x;
@@ -92,15 +84,22 @@ class WavetableVoice {
  float carrier_step(float hz)const{return fminf(.45f,fmaxf(0,hz/rate_));}
  WavetablePhaseMap phase_map(float step)const{
   return wavetable_phase_map(unsigned(target_[WavetableWarpMode]),values_[WavetableWarpAmount],
-                             values_[WavetablePmRatio],values_[WavetablePmAmount],step);
+                             values_[WavetablePmRatio],values_[WavetablePmAmount],step,values_[7]);
  }
  float extended_sample(float position,float step){
   const auto map=phase_map(step);
   unsigned mode=map.mode,a=unsigned(position),b=a<127?a+1:a;
   float ratio=map.ratio,mod_step=ratio*step,pm=map.pm,warp=map.warp;
   // Reserve source bandwidth for both the phase warp and the PM sidebands.
-  float slope=mode==1?1+4*fabsf(warp):1+fabsf(warp);
-  auto l=select_levels(step*slope*(1+2.2f*pm*ratio),values_[7]);
+  const auto l=wavetable_extended_levels(map);
+  // Above this crossover only a few carrier harmonics fit. An explicit
+  // in-band spectrum also separates true PM sidebands from their images.
+  const float high_mix=wavetable_spectral_mix(step);
+  float high=0;
+  if(high_mix>0){
+   high=wavetable_spectral_sample(map,step,phase_,mod_phase_,position,l.mip,l.blend);
+   if(high_mix>=1){mod_phase_=wavetable_wrap(mod_phase_+mod_step);return high;}
+  }
   Frame frame{kWavetableData[a][l.mip],kWavetableData[b][l.mip],
               kWavetableData[a][l.next],kWavetableData[b][l.next],position-a,l.next==l.mip?0:l.blend,l.mip==6,0,0};
   // Level six contains only the fundamental. Recover its two quadratures
@@ -119,25 +118,27 @@ class WavetableVoice {
   float lo=halfband(s0,s1);
   float hi=halfband(s2,s3);
   mod_phase_=wavetable_wrap(mod_phase_+mod_step);
-  lowpass(lo);return lowpass(hi)/32767;
+  lowpass(lo);const float low=lowpass(hi)/32767;return low+(high-low)*high_mix;
  }
  public:
  void init(unsigned rate){rate_=float(rate);envelope_.Init(rate_);started_=false;}
  void parameters(const float* values){
-  for(unsigned i=0;i<kWavetableParameterCount;++i)target_[i]=values[i];
+  for(unsigned i=0;i<kWavetablePhaseParameterCount;++i)target_[i]=values[i];
   envelope_.SetTime(daisysp::ADSR_SEG_ATTACK,values[3]);envelope_.SetTime(daisysp::ADSR_SEG_DECAY,values[5]);envelope_.SetSustainLevel(values[6]);envelope_.SetTime(daisysp::ADSR_SEG_RELEASE,values[4]);
  }
  void trigger(float,float velocity,const float* values){
   if(!wavetable_bank_ready()){started_=false;return;}
   velocity_=velocity;phase_=scan_=mod_phase_=0;envelope_.Init(rate_);parameters(values);
-  for(unsigned i=0;i<kWavetableParameterCount;++i)values_[i]=values[i];
+  for(unsigned i=0;i<kWavetablePhaseParameterCount;++i)values_[i]=values[i];
   wet_=(values[WavetableWarpAmount]!=0 || values[WavetablePmAmount]!=0)?1.f:0.f;
   for(float& v:first_stage_)v=0;
   for(float& v:second_stage_)v=0;
   started_=true;
  }
  bool active()const{return started_;}
+ void offset_phase(float cycles){phase_=wavetable_wrap(phase_+cycles);mod_phase_=wavetable_wrap(mod_phase_+cycles*values_[WavetablePmRatio]);}
  float level()const{return level_;}
+ bool filtering()const{return wet_>0;}
  WavetablePhaseMap visual_phase_map(float hz)const{return phase_map(carrier_step(hz));}
  void visual_controls(float* out)const{for(unsigned i=0;i<3;++i)out[i]=values_[i];}
  void visual_envelope(float* out)const{out[0]=values_[3];out[1]=values_[5];out[2]=values_[6];out[3]=values_[4];}
@@ -151,7 +152,7 @@ class WavetableVoice {
   bool extended=target_[WavetableWarpAmount]!=0 || target_[WavetablePmAmount]!=0;
   float x;
   if(extended || wet_>0){
-   for(unsigned i=WavetableWarpAmount;i<kWavetableParameterCount;++i)values_[i]+=(target_[i]-values_[i])*.002f;
+   for(unsigned i=WavetableWarpAmount;i<kWavetablePhaseParameterCount;++i)values_[i]+=(target_[i]-values_[i])*.002f;
    if(wet_==0){
     for(float& v:first_stage_)v=0;
     for(float& v:second_stage_)v=0;

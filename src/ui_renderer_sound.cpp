@@ -365,21 +365,30 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    const float ratio=ui::recipe_value(t,WavetablePmRatio,&perf);
    const float depth=ui::recipe_value(t,WavetablePmAmount,&perf);
    const auto effective=sounding?frame.wavetable_map[track]:
-    wavetable_phase_map(mode,warp,ratio,depth,261.6256f/float(frame.rate?frame.rate:48000));
+    wavetable_phase_map(mode,warp,ratio,depth,261.6256f/float(frame.rate?frame.rate:48000),ui::recipe_value(t,7,&perf));
+   const auto levels=wavetable_extended_levels(effective);
+   const float high_mix=wavetable_spectral_mix(effective.step);
    auto sample=[&](float phase){
     const float at=wavetable_wrap(phase)*kWavetableSamples;
     const unsigned left=unsigned(at)%kWavetableSamples,right=(left+1)%kWavetableSamples;
-    auto read=[&](unsigned wave){
-     const auto* data=kWavetableData[wave][0];
+    auto read=[&](unsigned wave,unsigned mip){
+     const auto* data=kWavetableData[wave][mip];
      return data[left]+(data[right]-data[left])*(at-float(left));
     };
-    const float first=read(a);return (first+(read(b)-first)*(position-a))/32768.f;
+    auto table=[&](unsigned mip){const float first=read(a,mip);return first+(read(b,mip)-first)*(position-a);};
+    const float hi=table(levels.mip);
+    return (hi+(table(levels.next)-hi)*levels.blend)/32767.f;
    };
    for(unsigned i=0;i<cycle.count;++i){
     const float phase=float(i)/float(cycle.count-1);
     const auto map=wavetable_read_phases(phase,effective.mode,effective.warp,phase*effective.ratio,effective.pm);
     const float first=sample(map.first),mixed=first+(sample(map.second)-first)*map.blend;
-    cycle.values[i]=ui::clamp01(.5f+.5f*mixed);
+    float shape=mixed;
+    if(high_mix>0){
+     const float high=wavetable_spectral_sample(effective,effective.step,phase,phase*effective.ratio,position,levels.mip,levels.blend);
+     shape+=high_mix*(high-shape);
+    }
+    cycle.values[i]=ui::clamp01(.5f+.5f*shape);
    }
    visual_element(1,24,82,430,118,{VisualElement::Curve},cycle,theme.teal);
    return;

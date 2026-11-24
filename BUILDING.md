@@ -24,7 +24,7 @@ scripts/build-firmware.sh   # firmware: fetches Circle at a pinned
 FIRMWARE_VERSION=10000 UPDATE_PUBLIC_KEY=/path/to/public.bin scripts/release-sd.sh build/release-100 pi5
 ```
 
-This Wave A tree can package a Pi 5 release. Pi 4 and combined releases are blocked pending Wave B voice-admission calibration. Pi 4 firmware builds remain available for measurement. For a Pi 4 bench SD or signed bench update, pass `--development` to `tools/update/provision.py` or `tools/update/update.py pack`.
+The host suite checks moving wavetable controls against both reference oscillators. Run `make wavetable-motion-gate` for that check alone. Pi 4 and combined release packaging is blocked pending Pi 4 mixed-load qualification. For a Pi 4 bench SD or signed bench update, pass `--development` to `tools/update/provision.py` or `tools/update/update.py pack`.
 
 The release builder verifies each factory asset against the locked SHA-256 in
 `assets/factory-library/manifest.json`. Install the matching FluidR3 GM

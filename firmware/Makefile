@@ -90,7 +90,7 @@ plaits/clouds/dsp/granular_processor.o: ../build/mutable-port/granular_processor
 	python3 ../tools/content/embed_sample.py $< $@
 project_storage.o: ../build/embedded_demo_sample.h
 
-wavetable_bank.o: ../src/wavetable_bank.cpp ../src/generated/akwf_tables.inc ../src/wavetable_bank.h
+wavetable_bank.o: ../src/wavetable_bank.cpp ../src/generated/akwf_tables.inc ../src/wavetable_bank.h ../src/wavetable_spectrum.h ../src/wavetable_warp.h
 	$(CPP) $(CPPFLAGS) -MMD -MP -c $< -o $@
 
 daisy_ladder.o: ../third_party/daisysp/Source/Filters/ladder.cpp ../third_party/daisysp/Source/Filters/ladder.h

@@ -4,7 +4,7 @@
 namespace groove {
 inline constexpr unsigned kDspProbeRevision=6,kWave4ProbeRevision=5; // Appended Wavetable cases preserve earlier case IDs.
 struct DspCondition {
- enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir,Wavetable};
+ enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir,Wavetable,WavetableUnison};
  Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1,second_inserts=0;
 };
 inline unsigned dsp_variants(Instrument i){return i==Instrument::PlaitsMacro?24:i==Instrument::Texture?16:i==Instrument::Resonator || i==Instrument::DaisyAnalogDrums || i==Instrument::DaisySyntheticDrums?3:1;}
@@ -16,8 +16,24 @@ inline unsigned dsp_wavetable_start(){return dsp_stress_start()+56;}
 // Stock settings, moving table, PM alone, then each mode at both polarities
 // with and without PM. Each configuration runs at one and four held notes.
 constexpr unsigned kDspWavetableVariants=3+4*4;
-inline unsigned dsp_case_count(){return dsp_wavetable_start()+2*kDspWavetableVariants;}
+struct WavetableProbeSetting {unsigned voices,notes,tracks;bool extended;unsigned base_note=60;};
+inline constexpr WavetableProbeSetting kUnisonProbes[]={
+ {2,1,1,true},{1,3,1,true},{2,2,1,true},{5,1,1,true},{6,1,1,true},
+ {7,1,1,false},{7,2,1,false},{3,4,1,false},{2,2,4,true},
+ {1,5,3,true,84},{1,5,3,true,118}
+};
+inline unsigned dsp_probe_note(const DspCondition& c,unsigned n){
+ if(c.kind==DspCondition::WavetableUnison && kUnisonProbes[c.variant].base_note!=60)
+  return kUnisonProbes[c.variant].base_note+n%2;
+ return 60+3*n;
+}
+inline unsigned dsp_unison_start(){return dsp_wavetable_start()+2*kDspWavetableVariants;}
+inline unsigned dsp_case_count(){return dsp_unison_start()+sizeof(kUnisonProbes)/sizeof(*kUnisonProbes);}
 inline DspCondition dsp_condition(unsigned index){
+ if(index>=dsp_unison_start()){
+  const unsigned row=index-dsp_unison_start();const auto& c=kUnisonProbes[row];
+  return {DspCondition::WavetableUnison,Instrument::Wavetable,row,c.tracks,c.notes};
+ }
  if(index>=dsp_wavetable_start()){
   const unsigned row=index-dsp_wavetable_start();
   return {DspCondition::Wavetable,Instrument::Wavetable,row%kDspWavetableVariants,1,row<kDspWavetableVariants?1u:4u};
@@ -104,6 +120,15 @@ inline void make_dsp_probe_project(ProjectState& p,const DspCondition& c){
    if(c.variant==2 || (c.variant>=3 && ((c.variant-3)&2))){
     v[WavetablePmRatio]=7.25f;v[WavetablePmAmount]=.89f;
    }
+  }
+ }
+ if(c.kind==DspCondition::WavetableUnison){
+  const auto& spec=kUnisonProbes[c.variant];
+  for(unsigned i=0;i<c.tracks;++i){
+   auto& t=p.tracks[i];t.plaits_model=0;auto& v=t.wavetable.values;
+   v[0]=52.375f;v[1]=31.5f;v[2]=3.7f;v[WavetableUnisonCount]=float(spec.voices);
+   v[WavetableDetune]=36;v[WavetableSpread]=1;
+   if(spec.extended){v[WavetableWarpMode]=1;v[WavetableWarpAmount]=-.91f;v[WavetablePmAmount]=.89f;}
   }
  }
  if(c.kind==DspCondition::Choir)p.tracks[0].chimera.values[ChimeraUnison-kChimeraMacroCount]=float(c.variant);

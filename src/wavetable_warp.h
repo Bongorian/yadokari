@@ -20,11 +20,11 @@ inline float wavetable_limited_pm(float amount,float mod_step){
 
 struct WavetablePhaseMap {
  unsigned mode;
- float warp,ratio,pm;
+ float warp,ratio,pm,step,brightness;
 };
 
-inline WavetablePhaseMap wavetable_phase_map(unsigned mode,float warp,float ratio,float pm,float step){
- return {mode,wavetable_limited_warp(mode,warp,step),ratio,wavetable_limited_pm(pm,ratio*step)};
+inline WavetablePhaseMap wavetable_phase_map(unsigned mode,float warp,float ratio,float pm,float step,float brightness=1){
+ return {mode,wavetable_limited_warp(mode,warp,step),ratio,wavetable_limited_pm(pm,ratio*step),step,brightness};
 }
 
 // Odd quarter-wave polynomial. Reducing to [0, pi/2] keeps the error below

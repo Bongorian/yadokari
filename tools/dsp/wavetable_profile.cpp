@@ -27,18 +27,25 @@ static uint32_t stamp(){
 static double ticks_per_us(){return 1000;}
 #endif
 
-static bool measure(ProjectState& project,Engine& engine,DspCondition c){
+static bool measure(ProjectState& project,Engine& engine,unsigned index){
+ const auto c=dsp_condition(index);
  make_dsp_probe_project(project,c);
  if(!engine.stage_project(project))return false;
  std::array<float,48> pcm{};
  engine.render(pcm.data(),24);
- for(unsigned n=0;n<c.notes;++n){
-  Command note{CommandType::Trigger,0,uint8_t(n),100};note.parameter=1;note.scalar=float(60+3*n);
+ const unsigned before_notes=engine.probe_steals().refused;
+ for(unsigned t=0;t<c.tracks;++t)for(unsigned n=0;n<c.notes;++n){
+  Command note{CommandType::Trigger,uint8_t(t),uint8_t(n),100};note.parameter=1;note.scalar=float(dsp_probe_note(c,n));
   if(!engine.submit(note))return false;
  }
  // The firmware uses the same two seconds of warmup and six seconds of audio.
  for(unsigned n=0;n<4000;++n)engine.render(pcm.data(),24);
- if(engine.poly_note_count(0)!=c.notes)return false;
+ const auto load=wavetable_load(project.tracks[0].wavetable.values);
+ const unsigned per_track=hardware::scaled(load.extended?WavetableLoad::extended_limit:WavetableLoad::legacy_limit)/load.oscillators;
+ const unsigned expected=std::min(hardware::scaled(VoiceBudget::layer_total)/load.cost(),std::min(per_track,c.notes)*c.tracks);
+ unsigned held=0;for(unsigned t=0;t<c.tracks;++t)held+=engine.poly_note_count(t);
+ const unsigned refused=engine.probe_steals().refused-before_notes;
+ if(held!=expected || refused!=c.tracks*c.notes-held)return false;
  auto& profile=engine.dsp_profile();
  if(!profile.begin(stamp,engine.staged_generation()))return false;
  profile.begin_measurement();
@@ -65,22 +72,24 @@ static bool measure(ProjectState& project,Engine& engine,DspCondition c){
   }
  }
  profile.stop();engine.render(pcm.data(),24);
- if(!profile.ready() || profile.snapshot().poly_peak!=c.notes)return false;
+ if(!profile.ready() || profile.snapshot().poly_peak!=expected || profile.snapshot().wt_osc_peak!=expected*load.oscillators)return false;
  const auto& bin=profile.counter(voice_bin);
- if(bin.frames!=uint64_t(profile.snapshot().sampled)*24*c.notes)return false;
+ if(bin.frames!=uint64_t(profile.snapshot().sampled)*24*expected)return false;
  if(uninterrupted.empty())return false;
  std::sort(uninterrupted.begin(),uninterrupted.end());
  std::sort(elapsed.begin(),elapsed.end());
- std::printf("%u,%u,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%zu,%.4f,%.4f\n",c.variant,c.notes,profile.snapshot().sampled,
-             double(bin.active_ticks)*24/(bin.frames*unit),double(bin.max_voice_q16)*24/(65536*unit),
+ std::printf("%u,%u,%u,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%zu,%.4f,%.4f,%u,%u,%u,%u,%u,%u,%u,%u\n",
+             c.variant,c.notes,profile.snapshot().sampled,
+             bin.frames?double(bin.active_ticks)*24/(bin.frames*unit):0.0,double(bin.max_voice_q16)*24/(65536*unit),
              double(bin.max_block_ticks)/unit,elapsed[elapsed.size()/2]/unit,
              elapsed[elapsed.size()*99/100]/unit,elapsed.back()/unit,
-             uninterrupted.size(),uninterrupted[uninterrupted.size()/2],uninterrupted.back());
+             uninterrupted.size(),uninterrupted[uninterrupted.size()/2],uninterrupted.back(),
+             index,c.tracks,dsp_probe_note(c,0),load.oscillators,load.extended,held,refused,profile.snapshot().wt_osc_peak);
  return true;
 }
 int main(){
  auto project=std::make_unique<ProjectState>();auto engine=std::make_unique<Engine>();
- std::puts("variant,notes,sampled_blocks,voice_mean_us,voice_observed_max_us,voices_sum_max_us,worker_p50_us,worker_p99_us,worker_max_us,no_switch_samples,no_switch_voices_p50_us,no_switch_voices_max_us");
+ std::puts("variant,notes,sampled_blocks,voice_mean_us,voice_observed_max_us,voices_sum_max_us,worker_p50_us,worker_p99_us,worker_max_us,no_switch_samples,no_switch_voices_p50_us,no_switch_voices_max_us,case,tracks,base_note,osc_per_note,extended_osc_per_note,accepted_notes,refused_notes,peak_oscillators");
  for(unsigned i=dsp_wavetable_start();i<dsp_case_count();++i)
-  if(!measure(*project,*engine,dsp_condition(i))){std::fprintf(stderr,"incomplete DSP case %u\n",i);return 1;}
+  if(!measure(*project,*engine,i)){std::fprintf(stderr,"incomplete DSP case %u\n",i);return 1;}
 }

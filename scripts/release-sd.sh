@@ -6,7 +6,7 @@ out=${1:?Usage: release-sd.sh NEW_OUTPUT_DIRECTORY [both|pi4|pi5]}
 if (( $# > 2 )); then echo "Unexpected release arguments" >&2; exit 2; fi
 case ${2-both} in
  pi5) boards=(pi5) ;;
- both|pi4) echo "Pi 4 release is blocked pending Wave B WAVETABLE voice admission. Select pi5 for a Pi 5-only release." >&2; exit 1 ;;
+ both|pi4) echo "Pi 4 release is blocked pending Pi 4 mixed-load qualification. Select pi5 for a Pi 5-only release." >&2; exit 1 ;;
  *) echo "Expected both, pi4 or pi5" >&2; exit 2 ;;
 esac
 mkdir -p "$(dirname "$out")"
