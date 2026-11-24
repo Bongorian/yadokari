@@ -730,6 +730,7 @@ auto Performance::mirror(const Command& c)  -> void{
    case CommandType::SetNrpnConfig:t.nrpn[c.step].number=c.parameter;t.nrpn[c.step].enabled=c.value!=0;t.nrpn[c.step].registered=c.scalar==1;break;
    case CommandType::SetMacroValue:project_.macros[c.step].value=c.scalar;project_.macros[c.step].active=c.value!=0;break;
    case CommandType::SetMacroRoute:project_.macros[c.step].routes[c.value]=c.route;break;
+   case CommandType::SetSongFlag:if(c.step){project_.song.enabled=c.value!=0;if(!c.value)arrangement_ui_active_=false;}else project_.song.loop=c.value!=0;break;
    case CommandType::SetChain:project_.chain=c.chain;break;case CommandType::SetScene:project_.scenes[c.value]=c.scene;break;    case CommandType::SetSong:project_.song=c.song_state;if(!c.song_state.enabled)arrangement_ui_active_=false;break;    case CommandType::SetSongSection:project_.song.sections[c.value]=c.song_section;break;
    case CommandType::SetSoundOverride:t.sound_override=c.value;break;
    case CommandType::SetSound:install_pool_definition(project_,c.value,c.sound());break;

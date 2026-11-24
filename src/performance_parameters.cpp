@@ -501,8 +501,13 @@ if(mode_==UiMode::Song){
  switch(d.action){
   case SongAction::Section:song_cursor_=uint8_t(value-1);dirty_=true;return true;
   case SongAction::Track:return select_track(unsigned(value-1));
-  case SongAction::Loop:{auto song=project_.song;song.loop=change>0;return song_send(song);}
-  case SongAction::Enable:{auto song=project_.song;song.enabled=change>0;return song_send(song);}
+  case SongAction::Loop:
+  case SongAction::Enable:{
+   bool enable=d.action==SongAction::Enable, old=enable?project_.song.enabled:project_.song.loop;
+   if(old==(change>0))return true;
+   Command after{CommandType::SetSongFlag,0,uint8_t(enable),uint16_t(change>0)},before=after;
+   before.value=old;return edit(after,before);
+  }
   default:break;
  }
  auto sec=project_.song.sections[song_cursor_];

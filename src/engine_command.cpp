@@ -19,7 +19,7 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
   stem_start_pending_=true;
  }else if(c.type==CommandType::Start || c.type==CommandType::Stop || c.type==CommandType::ApplySnapshot ||
           (c.type==CommandType::SceneTakeControl && c.step==0) ||
-          c.type==CommandType::SetMultitimbral || c.type==CommandType::SetExternalClock || c.type==CommandType::SeekSong || c.type==CommandType::Continue || c.type==CommandType::SetSong || c.type==CommandType::SetSongSection){
+          c.type==CommandType::SetMultitimbral || c.type==CommandType::SetExternalClock || c.type==CommandType::SeekSong || c.type==CommandType::Continue || c.type==CommandType::SetSong || c.type==CommandType::SetSongFlag || c.type==CommandType::SetSongSection){
   if(stem_start_pending_ || stems_.running())stems_.interrupt();
   stem_start_pending_=false;
  }
@@ -40,10 +40,10 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
  // are all unchanged. The list is deliberately generous.
  if(scene_take_.active()){
   if(c.type==CommandType::Stop || c.type==CommandType::Panic || (c.type==CommandType::Start && scene_take_.state()!=SceneTake::Armed))scene_take_.fail(SceneTake::Interrupted);
-  if(c.type==CommandType::SetSong || c.type==CommandType::SetSongSection)scene_take_.fail(SceneTake::Unsupported);
+  if(c.type==CommandType::SetSong || c.type==CommandType::SetSongFlag || c.type==CommandType::SetSongSection)scene_take_.fail(SceneTake::Unsupported);
  }
- switch(c.type){case CommandType::ApplySnapshot:case CommandType::ApplyPattern:case CommandType::SetSound:case CommandType::RegisterPreset:++sound_payload_epoch_;sound_payload_plan_dirty_=true;break;case CommandType::Start:case CommandType::Stop:case CommandType::Continue:case CommandType::SetSong:case CommandType::SetSongSection:case CommandType::SetScene:case CommandType::SetChain:case CommandType::SetSoundOverride:case CommandType::LaunchClip:case CommandType::LaunchScene:case CommandType::StopClip:sound_payload_plan_dirty_=true;break;default:break;}
- switch(c.type){case CommandType::SetEngineParameter:case CommandType::SetParameter:case CommandType::SetAutomation:case CommandType::SetMacroValue:case CommandType::SetMacroRoute:case CommandType::StoreMorph:case CommandType::SetMorph:case CommandType::SetMorphEnabled:case CommandType::SetMorphSet:case CommandType::ApplySnapshot:case CommandType::ApplyPattern:case CommandType::SetSound:case CommandType::RegisterPreset:case CommandType::ApplySound:case CommandType::SetStepLock:case CommandType::ClearStepLock:case CommandType::SetSoundLock:case CommandType::GestureRecord:case CommandType::GesturePlay:case CommandType::GestureClear:case CommandType::SetMidiChannel:case CommandType::SetNrpnConfig:case CommandType::SetChain:case CommandType::LaunchClip:case CommandType::LaunchScene:case CommandType::SetScene:case CommandType::SetSongSection:case CommandType::SetSong:case CommandType::SetGrooveSnapshot:case CommandType::SetRecordedStep:case CommandType::SetStep:case CommandType::SetKitPad:case CommandType::SetKitStep:case CommandType::BindSample:case CommandType::SetSample:case CommandType::SetSampleEdit:case CommandType::SetCreative:case CommandType::SetAdvanced:case CommandType::ResendMidiState:++cc_generation_;break;default:break;}
+ switch(c.type){case CommandType::ApplySnapshot:case CommandType::ApplyPattern:case CommandType::SetSound:case CommandType::RegisterPreset:++sound_payload_epoch_;sound_payload_plan_dirty_=true;break;case CommandType::Start:case CommandType::Stop:case CommandType::Continue:case CommandType::SetSongFlag:case CommandType::SetSong:case CommandType::SetSongSection:case CommandType::SetScene:case CommandType::SetChain:case CommandType::SetSoundOverride:case CommandType::LaunchClip:case CommandType::LaunchScene:case CommandType::StopClip:sound_payload_plan_dirty_=true;break;default:break;}
+ switch(c.type){case CommandType::SetEngineParameter:case CommandType::SetParameter:case CommandType::SetAutomation:case CommandType::SetMacroValue:case CommandType::SetMacroRoute:case CommandType::StoreMorph:case CommandType::SetMorph:case CommandType::SetMorphEnabled:case CommandType::SetMorphSet:case CommandType::ApplySnapshot:case CommandType::ApplyPattern:case CommandType::SetSound:case CommandType::RegisterPreset:case CommandType::ApplySound:case CommandType::SetStepLock:case CommandType::ClearStepLock:case CommandType::SetSoundLock:case CommandType::GestureRecord:case CommandType::GesturePlay:case CommandType::GestureClear:case CommandType::SetMidiChannel:case CommandType::SetNrpnConfig:case CommandType::SetChain:case CommandType::LaunchClip:case CommandType::LaunchScene:case CommandType::SetScene:case CommandType::SetSongSection:case CommandType::SetSongFlag:case CommandType::SetSong:case CommandType::SetGrooveSnapshot:case CommandType::SetRecordedStep:case CommandType::SetStep:case CommandType::SetKitPad:case CommandType::SetKitStep:case CommandType::BindSample:case CommandType::SetSample:case CommandType::SetSampleEdit:case CommandType::SetCreative:case CommandType::SetAdvanced:case CommandType::ResendMidiState:++cc_generation_;break;default:break;}
  auto& state=edit_track(c);const auto previous_engine=state.instrument;
  switch(c.type) {
   case CommandType::SetKitPad:if(c.step<16 && state.instrument==Instrument::DrumKit && valid_sample_edit(c.kit_pad.edit)){
@@ -243,6 +243,17 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
   case CommandType::ResendMidiState:for(unsigned t=0;t<16;++t){auto& r=runtime_[t];r.program_sent=255;for(auto& value:r.cc_sent)value=255;for(auto& value:r.nrpn_sent)value=65535;r.expression_sent_bend=65535;r.expression_sent_pressure=255;refresh_cc(t);if(!refresh_expression(t))expression_resend_mask_|=uint16_t(1u<<t);else expression_resend_mask_&=uint16_t(~(1u<<t));}break;
   case CommandType::ResendMidiTransport:transport_resend_=true;break;
   case CommandType::SetChain:{if(valid_scene_chain(c.chain)){bool restart=project_->chain.enabled!=c.chain.enabled || !project_->chain.length || chain_position_>=c.chain.length;project_->chain=c.chain;if(restart){chain_armed_=true;chain_bars_=chain_position_=0;}}}break;
+  case CommandType::SetSongFlag:{
+   auto& song=project_->song;
+   if(!c.step){song.loop=c.value!=0;break;}
+   song.enabled=c.value!=0;
+   if(!song.enabled){song_snapshot_=false;song_mute_mask_=0;song_transpose_=0;}
+   else if(playing_ && !song_armed_ && !song_finished_ && song_section_<song.length){
+    const auto& section=song.sections[song_section_];
+    song_snapshot_=section.ticks!=0;song_mute_mask_=section.mute_mask;song_transpose_=section.transpose;
+   }
+   break;
+  }
   case CommandType::SetScene:if(c.value<16){bool valid=true;for(auto pattern:c.scene.pattern_for_track)if(pattern>=16)valid=false;if(valid)project_->scenes[c.value]=c.scene;}break;   case CommandType::SetSongSection:if(c.value<32 && valid_song_section(c.song_section))project_->song.sections[c.value]=c.song_section;break;   case CommandType::SetSong:if(valid_song(c.song_state)){project_->song=c.song_state;if(!c.song_state.enabled){song_snapshot_=false;song_mute_mask_=0;song_transpose_=0;}if(playing_ && c.song_state.enabled && c.song_state.length){song_armed_=true;song_finished_=false;}}break;
   case CommandType::SetSoundOverride:if(c.value<kPresetSlots || c.value==kNoPreset)state.sound_override=c.value;break;
   case CommandType::InstallTwin:{auto* p=__atomic_load_n(&twin_install_,__ATOMIC_ACQUIRE);if(!p)break;bool ok=!__atomic_load_n(&p->cancel,__ATOMIC_ACQUIRE) && p->generation==generation_ && p->revision==cc_generation_ && p->track<16 && p->asset<kSampleAssets && p->twin.prepared() && twin_capture_allowed(p->track);if(ok){project_->sounds[p->twin.source]=p->source;project_->sounds[p->twin.sampled]=p->sampled;project_->assets[p->asset]=p->material;bind_sample(p->asset,p->view);project_->twins[p->track]=p->twin;++sound_payload_epoch_;sound_payload_plan_dirty_=true;}__atomic_store_n(&p->status,ok?1u:2u,__ATOMIC_RELEASE);break;}

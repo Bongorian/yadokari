@@ -3,9 +3,29 @@
 #include "performance.h"
 #include <cassert>
 #include <cstring>
+#include <memory>
 using namespace groove;
 
 int main() {
+ // Front-panel flag edits must preserve an in-flight section and its clock.
+ for(bool loop_at_end:{false,true}){
+  auto model=std::make_unique<ProjectState>();auto& project=*model;make_empty_project(project);project.tempo=120;
+  auto& song=project.song;song.enabled=true;song.loop=true;song.length=3;
+  song.sections[0].bars=1;song.sections[1].bars=3;song.sections[2].bars=1;
+  auto audio=std::make_unique<Engine>(8000);auto& engine=*audio;assert(engine.stage_project(project));auto panel=std::make_unique<Performance>(engine,project);auto& ui=*panel;ui.set_mode(UiMode::Song);
+  assert(engine.submit({CommandType::Start,0,0,0}));
+  AudioVisualFrame latest{};float pcm[512];
+  auto play=[&](unsigned samples){while(samples){unsigned n=samples<256?samples:256;engine.render(pcm,n);samples-=n;AudioVisualFrame f;while(engine.pop_visual(f))latest=f;}};
+  play(20000);assert(latest.song_active && latest.song_section==1);
+  assert(ui.knob(1,1000) && ui.knob(2,1000)); // already on
+  assert(ui.knob(1,-1000) && ui.knob(2,-1000));
+  play(1000);assert(!latest.song_active);
+  assert(ui.knob(2,1000));play(15000);
+  assert(latest.song_active && latest.song_section==1 && latest.song_tick>3840);
+  if(loop_at_end)assert(ui.knob(1,1000));
+  play(32000);assert(latest.song_active && latest.song_section==2);
+  play(16000);assert(latest.song_active==loop_at_end && latest.song_section==(loop_at_end?0:2));
+ }
  // Door + LED.
  {
   Engine engine(8000);
