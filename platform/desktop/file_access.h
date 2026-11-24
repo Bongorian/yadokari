@@ -57,7 +57,10 @@ public:
   DIR* dir=opendir(*checked?checked:".");if(!dir)return false;bool ok=true;
   for(;;){errno=0;auto* e=readdir(dir);if(!e){ok=errno==0;break;}if(e->d_name[0]=='.')continue;
    char full[256];struct stat info{};if(!join_path(full,sizeof full,checked,e->d_name) || lstat(full,&info)!=0){ok=false;break;}
-   if((!S_ISREG(info.st_mode) && !S_ISDIR(info.st_mode)) || !data_browser_entry(checked,e->d_name,S_ISDIR(info.st_mode)))continue;
+   // A case-sensitive host must expose the exact staging suffix that its writer uses.
+   bool staged_song=S_ISREG(info.st_mode) && data_suffix(e->d_name,".mgxs.tmp") &&
+                    !std::strcmp(e->d_name+std::strlen(e->d_name)-4,".tmp");
+   if((!S_ISREG(info.st_mode) && !S_ISDIR(info.st_mode)) || (!data_browser_entry(checked,e->d_name,S_ISDIR(info.st_mode)) && !staged_song))continue;
    if(count==capacity){ok=false;break;}if(!copy_text(out[count].name,sizeof out[count].name,e->d_name)){ok=false;break;}
    out[count].directory=S_ISDIR(info.st_mode);out[count++].bytes=uint64_t(info.st_size);
   }

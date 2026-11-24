@@ -756,7 +756,15 @@ public:
   unsigned cursor=reset?0:b.folder_offset+b.cursor;
   copy_text(folder_directory_,sizeof folder_directory_,b.directory);folder_favorites_=b.favorites_only;
   if(!reset && b.folder_delta){int next=int(cursor)+b.folder_delta;cursor=unsigned(next<0?0:next);}b.folder_delta=0;
-  BrowserFolder folder;bool ok=folder.read(fs_,b.directory,[&](const FileEntry& entry){
+  BrowserFolder folder;bool ok=folder.read(fs_,b.directory,[&](FileEntry& entry){
+   if(!entry.directory && data_suffix(entry.name,".mgxs.tmp")){
+    char temp[192],main[192];
+    if(!join_path(temp,sizeof temp,b.directory,entry.name))return false;
+    entry.name[__builtin_strlen(entry.name)-4]=0;
+    if(!data_browser_entry(b.directory,entry.name,false) || !join_path(main,sizeof main,b.directory,entry.name) ||
+       fs_.exists(main) || data_content_kind(fs_,temp)!=unsigned(ContentKind::Song) || !valid_project_file(fs_,temp))return false;
+    entry.orphan_song=true;
+   }
    if(!data_browser_entry(b.directory,entry.name,entry.directory))return false;
    if(!b.favorites_only || entry.directory)return true;
    char path[160];if(join_path(path,sizeof path,b.directory,entry.name))for(const auto& asset:project_.assets)if(asset.metadata.favorite && !__builtin_strcmp(asset.path,path))return true;return false;
@@ -767,7 +775,7 @@ public:
   b.reveal_file[0]=0;
   b.folder_total=ok?folder.count:0;if(cursor>=b.folder_total)cursor=b.folder_total?b.folder_total-1:0;
   b.folder_offset=cursor/64*64;b.cursor=cursor-b.folder_offset;b.count=ok?folder.page(cursor,b.entries,64):0;
-  for(unsigned i=0;i<b.count;++i){b.entries[i].content_kind=0;char path[192];if(!b.entries[i].directory && browser_project_kind(b.entries[i].name) && join_path(path,sizeof path,b.directory,b.entries[i].name)){b.entries[i].content_kind=uint8_t(data_content_kind(fs_,path));uint8_t h[6];unsigned n=0;if(fs_.read(path,0,h,6,n) && n==6 && !__builtin_memcmp(h,"MGXC",4)){b.entries[i].format_version=wav_u16(h+4);b.entries[i].unsupported=b.entries[i].format_version!=kFormatVersion;}}}
+  for(unsigned i=0;i<b.count;++i){if(b.entries[i].orphan_song){b.entries[i].content_kind=uint8_t(ContentKind::Song);b.entries[i].format_version=kFormatVersion;continue;}b.entries[i].content_kind=0;char path[192];if(!b.entries[i].directory && browser_project_kind(b.entries[i].name) && join_path(path,sizeof path,b.directory,b.entries[i].name)){b.entries[i].content_kind=uint8_t(data_content_kind(fs_,path));uint8_t h[6];unsigned n=0;if(fs_.read(path,0,h,6,n) && n==6 && !__builtin_memcmp(h,"MGXC",4)){b.entries[i].format_version=wav_u16(h+4);b.entries[i].unsupported=b.entries[i].format_version!=kFormatVersion;}}}
   copy_text(b.status,sizeof b.status,!ok?(folder.memory_failure?"Folder memory unavailable / retry":"Folder scan failed / retry"):b.count?"Select / WAV preview: Cue / Preset: track":"Empty folder");ui_.mark_dirty();
  }
  bool transfer_busy()const{return recording_controls_busy() || analysis_active_ || resident_wait_ || ui_.browser().analysis_pending || ui_.file_action_pending();}

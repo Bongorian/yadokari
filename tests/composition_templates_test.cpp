@@ -23,5 +23,24 @@ int main(){
  UiRenderer renderer;renderer.draw(*p,*ui);assert(ui->knob_label(1)[0]==0 && ui->soft_label(2)[0]==0);assert(ui->request_file(FileAction::Open));assert(files->service());flush();assert(p->tempo==137 && std::string(ui->project_name())=="Untitled" && !ui->browser().new_project_list);ui->request_save();assert(ui->browser().edit.operation==BrowserOperation::SaveProject);ui->cancel_browser_edit();assert(files->save("PROJECTS/Named.mgxs"));assert(master_bytes()==bytes);
  auto check=std::make_unique<ProjectState>();assert(read_project_file(fs,"FACTORY/DEMOS/A-first.mgxs",*check) && check->tempo==137); // Save left the master bytes untouched.
  ui->request_project(Performance::ProjectAction::New);assert(files->service());assert(ui->soft_key(1));assert(!ui->browser().new_project_list && ui->mode()==UiMode::Project);
+ // Browser discovery and open use the canonical project name throughout.
+ assert(fs.directory("Orphans"));
+ assert(fs.move("FACTORY/DEMOS/A-first.mgxs","Orphans/Take.mgxs.tmp"));
+ assert(fs.write("Orphans/Bad.mgxs.tmp",0,"MGXC",4,true));
+ auto& b=ui->browser();assert(copy_text(b.directory,sizeof b.directory,"Orphans"));
+ ui->set_mode(UiMode::Browser);files->refresh();
+ assert(b.count==1 && std::string(b.entries[0].name)=="Take.mgxs" && b.entries[0].content_kind==1);
+ p->tempo=111;assert(ui->soft_key(0) && files->service());flush();
+ assert(p->tempo==137 && fs.exists("Orphans/Take.mgxs.tmp") && !fs.exists("Orphans/Take.mgxs"));
+ assert(files->save("Orphans/Take.mgxs"));flush();
+ assert(fs.exists("Orphans/Take.mgxs") && !fs.exists("Orphans/Take.mgxs.tmp"));
+ assert(::link("Orphans/Take.mgxs","Orphans/Take.mgxs.tmp")==0);
+ assert(copy_text(b.directory,sizeof b.directory,"Orphans"));files->refresh();
+ assert(b.count==1 && !b.entries[0].orphan_song && std::string(b.entries[0].name)=="Take.mgxs");
+ // A maximum-length Save As stem still fits with both suffixes during discovery.
+ std::string long_name=std::string(95,'L')+".mgxs";
+ std::string long_temp="Orphans/"+long_name+".tmp";
+ assert(::link("Orphans/Take.mgxs",long_temp.c_str())==0);files->refresh();
+ assert(b.count==2 && b.entries[0].orphan_song && long_name==b.entries[0].name);
  files.reset();ui.reset();e.reset();std::filesystem::current_path(old);std::filesystem::remove_all(root);puts("composition templates PASS: zero-template fallback; 70-file paging; ContentKind filter; unnamed Save As; factory source kept; cancel");
 }

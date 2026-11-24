@@ -9,7 +9,8 @@
 #include <stdint.h>
 #include <stddef.h>
 namespace groove {
-struct FileEntry {char name[96]{};bool directory=false;uint64_t bytes=0;uint8_t content_kind=0;uint16_t format_version=0;bool unsupported=false;};
+// Save As accepts a 95-byte stem, then appends ".mgxs" and stages it under ".tmp".
+struct FileEntry {char name[105]{};bool directory=false;uint64_t bytes=0;uint8_t content_kind=0;uint16_t format_version=0;bool unsupported=false,orphan_song=false;};
 class DirectoryCursor {
 public:
  virtual ~DirectoryCursor()=default;
