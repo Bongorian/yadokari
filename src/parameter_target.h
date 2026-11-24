@@ -69,6 +69,20 @@ inline unsigned target_index(Instrument engine,ParameterTarget target){
  return kCommonMorphParameters+row;
 }
 inline ParameterTarget next_target(Instrument engine,ParameterTarget current,int change){int index=int(target_index(engine,current));int limit=int(target_count(engine))-1;index+=change;if(index<0)index=0;if(index>limit)index=limit;return target_at(engine,unsigned(index));}
+// Keep legacy MACR records round-trippable, including dormant unison routes.
+inline bool macro_target_allowed(ParameterTarget target){
+ return target!=engine_target(Instrument::Wavetable,WavetableUnisonCount);
+}
+inline ParameterTarget next_macro_target(Instrument engine,ParameterTarget current,int change){
+ if(engine!=Instrument::Wavetable)return next_target(engine,current,change);
+ const int skip=int(target_index(engine,engine_target(engine,WavetableUnisonCount)));
+ int row=int(target_index(engine,current));
+ if(row>skip || (row==skip && change>0))--row;
+ row+=change;
+ if(row<0)row=0;
+ if(row>=int(target_count(engine))-1)row=int(target_count(engine))-2;
+ return target_at(engine,unsigned(row+(row>=skip)));
+}
 inline uint16_t engine_ui_reference(Instrument engine,EngineParameterReference ref){if(ref.scope==EngineParameterScope::Track)return ref.index;if(ref.scope==EngineParameterScope::Engine){const auto* d=engine_parameter(engine,ref.index);return d?engine_target(engine,ref.index):0;}return 0;}
 inline const char* target_owner_name(ParameterTarget target,const UnavailableTargetOwners& owners){if(unavailable_target(target))return target_owner_present(target,owners)?owners.guid[unavailable_owner(target)]:"Unavailable engine";const auto* d=engine_descriptor(unsigned(target_engine(target)));return d?d->instrument.name:"Unavailable engine";}
 // Wire reference: zero + common u16, or GUID length + GUID bytes + local u16.

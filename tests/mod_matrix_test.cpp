@@ -90,6 +90,34 @@ int main() {
   route.source = ModSource::Lfo; route.mode = LayerMode::Add; route.low = 0; route.high = 0.1f; mod = {}; mod.lfo = 1;
   assert(near(resolve_cutoff(p, &mod), 0.9f));
  }
+ // WT destinations use scoped MACR records throughout the codec and resolver.
+ {
+  auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+  auto t=track_at(*p,0,0);t.instrument=Instrument::Wavetable;
+  auto id=[](unsigned i){return engine_target(Instrument::Wavetable,i);};
+  assert(next_macro_target(t.instrument,id(11),1)==id(13));
+  assert(next_macro_target(t.instrument,id(13),-1)==id(11));
+  unsigned targets[]={0,WavetableWarpAmount,WavetablePmAmount,WavetableDetune};
+  for(auto source:{ModSource::Macro,ModSource::Lfo,ModSource::Envelope}){
+   auto& bank=p->macros[0];bank.active=true;bank.value=.25f;
+   ModRuntime runtime{};runtime.lfo=.5f;runtime.envelope=.75f;
+   float mix=source==ModSource::Macro?.25f:source==ModSource::Lfo?.5f:.75f;
+   for(unsigned r=0;r<4;++r){
+    auto& d=kWavetableParameters[targets[r]];
+    bank.routes[r]={true,id(targets[r]),1,d.minimum,d.maximum,LayerMode::Replace,MacroCurve::Linear,source};
+   }
+   bank.routes[4]={true,id(WavetableUnisonCount),1,7,7,LayerMode::Replace,MacroCurve::Linear,source};
+   Buffer wire;assert(encode_project(wire,*p));auto copy=std::make_unique<ProjectState>();assert(decode_project(wire,*copy));
+   auto track=track_at(*copy,0,0);
+   for(auto i:targets){
+    auto actual=resolve_target_value(*copy,track,0,id(i),t.wavetable.values[i],nullptr,0,false,0,0,true,nullptr,0,nullptr,&runtime);
+    auto& d=kWavetableParameters[i];assert(actual.sources==FromMacro && near(actual.value,d.minimum+mix*(d.maximum-d.minimum)));
+   }
+   auto count=resolve_target_value(*copy,track,0,id(WavetableUnisonCount),3,nullptr,0,false,0,0,true,nullptr,0,nullptr,&runtime);
+   assert(!count.sources && count.value==3);
+   Buffer again;assert(encode_project(again,*copy) && again.bytes==wire.bytes);
+  }
+ }
  // ---- Validation ----
  {
   ProjectState p; make_empty_project(p); assert(valid_project(p));

@@ -450,6 +450,8 @@ K4 **SONG FX TYPE** and K5 **SONG FX AMT** edit values stored in the Song. Leavi
 
 The final value of a sound is generally decided in the order <strong>base → Morph → Automation → Gesture → Macro → Lock → Control All → smoothing/Modulation</strong>. Even if you change a knob's base value, if a Lock or Macro is overriding it, the sound at that moment may not change. `RESET LIVE` clears Morph, Macro, Control All, and temporary FX, but does not erase Step-side Automation/Lock.
 
+On WAVETABLE, use MODULATION → MACRO ROUTES to target POSITION, WARP AMT, PM AMT or DETUNE. Select the parent macro, track LFO or envelope as the source and enable the macro bank and route. The fixed scan LFO is added to the resolved POSITION. UNISON stays under direct sound control. Moving warp or PM away from zero requests the extended oscillator budget while the note is held.
+
 #### TWIN: switching a heavy engine to a prepared sampled version
 
 **MIXER → Top6 TWIN** starts automatic capture if nothing is prepared yet. You can set the range first with
