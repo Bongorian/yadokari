@@ -110,7 +110,7 @@ auto Performance::top_slot(unsigned index)const -> unsigned{
   if(audio_page()){static const uint8_t normal[]={0,1,8,8,2,3,4,7},shift[]={0,8,8,8,2,6,5,1};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Clip){static const uint8_t slots[]={4,5,8,8,0,1,2,3};return slots[index];}
   if(mode_==UiMode::Scene){static const uint8_t slots[]={1,2,4,8,0,3,5,8};return slots[index];}
-  if(mode_==UiMode::Song){if(index<4)return 8;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
+  if(mode_==UiMode::Song){if(index==2)return 6;if(index<4)return 8;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
   if(mode_==UiMode::Mixer){static const uint8_t normal[]={8,8,8,8,0,1,5,7},shift[]={8,8,8,8,5,1,6,7};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Synth && !source_select_ && track_const(selected_).instrument==Instrument::Layer){const uint8_t slots[]={0,1,uint8_t(layer_page()?2:8),uint8_t(layer_page()?3:8),4,5,6,7};return slots[index];}
   if(mode_==UiMode::Synth && wave_profile()){static const uint8_t slots[]={0,1,8,8,4,5,2,3};return slots[index];}
@@ -731,7 +731,11 @@ auto Performance::mirror(const Command& c)  -> void{
    case CommandType::SetMacroValue:project_.macros[c.step].value=c.scalar;project_.macros[c.step].active=c.value!=0;break;
    case CommandType::SetMacroRoute:project_.macros[c.step].routes[c.value]=c.route;break;
    case CommandType::SetSongFlag:if(c.step){project_.song.enabled=c.value!=0;if(!c.value)arrangement_ui_active_=false;}else project_.song.loop=c.value!=0;break;
-   case CommandType::SetChain:project_.chain=c.chain;break;case CommandType::SetScene:project_.scenes[c.value]=c.scene;break;    case CommandType::SetSong:project_.song=c.song_state;if(!c.song_state.enabled)arrangement_ui_active_=false;break;    case CommandType::SetSongSection:project_.song.sections[c.value]=c.song_section;break;
+   case CommandType::SetChain:project_.chain=c.chain;break;case CommandType::SetScene:project_.scenes[c.value]=c.scene;break;    case CommandType::SetSong:project_.song=c.song_state;
+    if(song_cursor_>=song_display_count())song_cursor_=uint8_t(song_display_count()?song_display_count()-1:0);
+    if(!c.song_state.enabled)arrangement_ui_active_=false;
+    break;
+   case CommandType::SetSongSection:project_.song.sections[c.value]=c.song_section;break;
    case CommandType::SetSoundOverride:t.sound_override=c.value;break;
    case CommandType::SetSound:install_pool_definition(project_,c.value,c.sound());break;
    case CommandType::RegisterPreset:project_.sounds[c.value]=c.sound();t.preset_identity=c.sound().identity;t.preset_slot=c.value;t.preset_fx=c.sound().fx;t.output_trim=c.sound().output_trim;copy_track_field(t.preset_name,c.sound().preset_name);twin_registered(project_,c.track,c.value);break;

@@ -224,6 +224,7 @@ auto Performance::page_top_selected(unsigned index)const -> bool{if(mode_==UiMod
 __attribute__((optimize("Os"),noinline))
 #endif
 auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigation_scope(*this);if(common_top(index).action!=CommonTopAction::None)return common_top_key(index);if(!browser_editing() && modal_active())return modal_key(index);if(index==7 && bake_control())return bake_next();if(audio_page())return audio_key(index);if(mode_==UiMode::Mixer && index>=2 && index<4)return false;if(browser_editing())return browser_edit_key(index);if(freeze_modal_){if(index==0 || index==1)return request_file(FileAction::CancelFreeze);return true;}if(stretch_modal_){if(stretch_modal_==1){if(index==0)return request_file(FileAction::BeginStretch);if(index==1){stretch_modal_=0;dirty_=true;return true;}return true;}if(index==0 || index==1)return request_file(FileAction::CancelStretch);return true;}if(!page_top_enabled(index))return false;if(mode_==UiMode::Modulation && modulation_button_control(index,modulation_controls()).action==ModulationAction::Multitimbral){set_mode(UiMode::Perform);set_performance_page(PerformModule);return true;}encoder_edit_=false;if(mode_==UiMode::Song){switch(song_button_control(index,song_controls()).action){
+ case SongAction::Copy:return reorder_song_section(song_cursor_+1,true);
  case SongAction::Record:return scene_take_toggle();
  case SongAction::Cancel:return scene_take_cancel();
  case SongAction::Add:return song_add();
@@ -245,6 +246,7 @@ auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigatio
    default:break;
   }}
   if(mode_==UiMode::Generate && gen_page_==5 && index==4)return harmony_generate();
+  if(mode_==UiMode::Generate && gen_page_==2 && shifted() && index==4)return groove_copied_ && request_file(FileAction::SaveGroove);
   if(mode_==UiMode::Generate && gen_page_==2 && shifted() && index==5)return apply_groove_all();
   if(mode_==UiMode::Generate){auto ga=generate_button(index,shifted(),gen_page_,groove_copied_,history_cursor_,history_size_).action;if(ga==GenerateAction::RotateLeft)return rotate_track(-1);if(ga==GenerateAction::RotateRight)return rotate_track(1);}
   if(mode_==UiMode::Step && step_button_control(index,step_controls()).action==StepAction::CopyStep)return copy_step();
@@ -386,6 +388,7 @@ auto Performance::page_top_key(unsigned index) -> bool{NavigationScope navigatio
   if(mode_==UiMode::Modulation){auto ma=modulation_button_control(index,modulation_controls()).action;if(ma==ModulationAction::AutoPagePrev || ma==ModulationAction::AutoPageNext){automation_cell_=uint8_t(bounded(int(automation_cell_)+(ma==ModulationAction::AutoPagePrev?-16:16),0,int(kAutomationSteps)-1));dirty_=true;return true;}}
   if(mode_==UiMode::Modulation && modulation_button_control(index,modulation_controls()).action==ModulationAction::Page){modulation_page_=uint8_t(modulation_button_control(index,modulation_controls()).minimum);dirty_=true;return true;}
   if(mode_==UiMode::Clip){switch(clip_button_control(index,clip_controls()).action){
+   case ClipControlAction::Block:return begin_block();
    case ClipControlAction::Variation:return begin_variation();
    case ClipControlAction::Copy:return copy_pattern();
    case ClipControlAction::Double:return extend_track();

@@ -42,5 +42,18 @@ int main(){
  std::string long_temp="Orphans/"+long_name+".tmp";
  assert(::link("Orphans/Take.mgxs",long_temp.c_str())==0);files->refresh();
  assert(b.count==2 && b.entries[0].orphan_song && long_name==b.entries[0].name);
+ // A portable groove goes through the real Extract, Save, Files/Open and Paste controls.
+ ui->set_mode(UiMode::Generate);assert(ui->soft_key(2));auto t=track_at(*p,p->active_pattern,ui->selected_track());
+ t.steps[0].enabled=true;t.steps[0].microtiming=-21;t.steps[0].velocity=115;
+ assert(ui->soft_key(4));ui->set_shift(true);assert(ui->soft_key(4));ui->set_shift(false);assert(files->service());
+ assert(fs.exists("GROOVES/Groove-001.grv"));assert(ui->request_file(FileAction::SaveGroove) && files->service());
+ assert(fs.exists("GROOVES/Groove-002.grv"));GrooveTemplate exported;assert(read_groove_template(fs,"GROOVES/Groove-001.grv",exported));
+ assert(exported.timing[0]==-21 && exported.velocity[0]==15);
+ t.steps[0].microtiming=31;assert(ui->soft_key(4));
+ ui->set_mode(UiMode::Browser);assert(copy_text(b.directory,sizeof b.directory,"GROOVES"));files->refresh();b.cursor=0;
+ assert(ui->soft_enabled(0) && !ui->soft_enabled(2) && !ui->soft_enabled(3));
+ assert(ui->soft_key(0) && files->service() && ui->mode()==UiMode::Generate && ui->generate_page()==2);
+ assert(ui->soft_key(5));flush();assert(t.groove.timing[0]==-21 && t.groove.velocity[0]==15 && t.groove.amount==100);
+ assert(fs.write("GROOVES/Bad.grv",0,"YGR1",4,true) && !read_groove_template(fs,"GROOVES/Bad.grv",exported));
  files.reset();ui.reset();e.reset();std::filesystem::current_path(old);std::filesystem::remove_all(root);puts("composition templates PASS: zero-template fallback; 70-file paging; ContentKind filter; unnamed Save As; factory source kept; cancel");
 }

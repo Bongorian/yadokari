@@ -15,6 +15,18 @@ int main(){
  // Harmony follows heard source pitches even when the destination has transpose.
  bass.transpose=5;auto transposed=std::make_unique<TrackState>(bass);assert(make_harmony(*transposed,ConstTrackView(src),ConstTrackView(bass),HarmonyMode::Bass));assert(int(bass.root_note)+transposed->steps[0].note-60+bass.transpose==36);bass.transpose=0;
  auto e=std::make_unique<Engine>();assert(e->stage_project(*p));auto ui=std::make_unique<Performance>(*e,*p);float buffer[2]{};auto flush=[&](){e->render(buffer,0);ui->poll();};flush();
+ // Copy a rectangle across three tracks, including kit lanes, with source and destination overlapping.
+ ui->set_mode(UiMode::Clip);ui->set_shift(true);assert(ui->soft_key(1));ui->set_shift(false);
+ assert(ui->composition_dialog()==3 && ui->knob(1,2000) && ui->knob(3,-12000) && ui->knob(6,1000));
+ assert(ui->soft_key(0));flush();assert(p->patterns[0].tracks[0].steps[1].note==60 && p->patterns[0].tracks[0].steps[1].locks[0].enabled);
+ assert(!p->patterns[0].tracks[0].steps[2].enabled && p->patterns[0].tracks[2].kit.steps[3][3].enabled);
+ assert(ui->undo());flush();assert(!p->patterns[0].tracks[0].steps[1].enabled && p->patterns[0].tracks[2].kit.steps[3][2].enabled);
+ ui->set_shift(true);assert(ui->soft_key(1));ui->set_shift(false);
+ assert(ui->knob(1,2000) && ui->knob(7,1000) && ui->soft_key(0));flush();
+ assert(!p->patterns[0].tracks[0].steps[0].enabled && !p->patterns[0].tracks[2].kit.steps[3][2].enabled);
+ assert(ui->undo());flush();assert(p->patterns[0].tracks[0].steps[0].enabled && p->patterns[0].tracks[2].kit.steps[3][2].enabled);
+ ui->set_shift(true);assert(ui->soft_key(1));ui->set_shift(false);assert(ui->knob(1,1000) && ui->knob(5,15000));
+ assert(!ui->soft_key(0) && ui->composition_dialog()==3 && ui->soft_key(1));
  auto original=std::make_unique<TrackState>(track_at(*p,0,0));auto untouched=std::make_unique<TrackState>(track_at(*p,0,1));
  ui->set_mode(UiMode::Clip);ui->set_shift(true);assert(ui->knob(7,1000));assert(ui->copy_track_only());ui->set_shift(false);assert(ui->copy_pattern());assert(ui->select_pattern(1));flush();assert(ui->paste_pattern());flush();assert(same_track_snapshot(track_at(*p,1,0),ConstTrackView(*original)));assert(p->tracks[0].level==.43f && p->tracks[1].level==.28f);assert(ui->undo());flush();assert(sequence_empty(p->patterns[1].tracks[0]));assert(ui->redo());flush();assert(p->patterns[1].tracks[0].automation[0].enabled);
  assert(ui->select_pattern(0));flush();

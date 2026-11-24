@@ -4,6 +4,11 @@
 namespace groove {
 enum class CompositionAction:uint8_t {None,Kind,Amount,Source,Target,Harmony,CopyScope,Destination};
 using CompositionControl=ui::ControlDescriptor<CompositionAction>;
+inline CompositionControl block_knob(unsigned i){
+ static constexpr const char* names[]={"FIRST TRACK","TRACKS","FIRST STEP","STEPS","DEST PAT","DEST TRACK","DEST STEP","ACTION"};
+ if(i>=8)return {};
+ return {names[i],CompositionAction::Amount,true,i==7?0:1,i==7?1:i==2 || i==3 || i==6?int(kSteps):16};
+}
 inline CompositionControl variation_knob(unsigned i,const VariationOptions& o){
  if(i==0)return {"VARIATION",CompositionAction::Kind,true,0,2};
  if(i!=1)return {};

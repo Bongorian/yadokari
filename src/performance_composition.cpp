@@ -28,9 +28,49 @@ auto Performance::duplicate_variation() -> bool{
  if(!engine_.replace_pattern(target,*after,0xffff,true)){delete before;delete after;return composition_notice("PATTERN EDIT BUSY / SOURCE KEPT",true);}
  Command c{CommandType::ApplyPattern,0,1,uint16_t(target)};push_history(c,c,before,after);install_pattern(project_,target,*after);select_pattern(target);return composition_notice("VARIATION COPIED / SOURCE KEPT");
 }
+auto Performance::begin_block() -> bool{
+ if(modal_active() || file_action_pending())return false;
+ uint16_t fields[]={uint16_t(selected_+1),1,1,16,uint16_t(project_.active_pattern+1),uint16_t(selected_+1),1,0};
+ __builtin_memcpy(block_fields_,fields,sizeof fields);composition_modal_=3;dirty_=true;return true;
+}
+auto Performance::apply_block() -> bool{
+ const unsigned from=block_fields_[0]-1,tracks=block_fields_[1],first=block_fields_[2]-1,count=block_fields_[3];
+ const bool clear=block_fields_[7]!=0;
+ const unsigned pattern=project_.active_pattern,target=clear?pattern:block_fields_[4]-1;
+ const unsigned to=clear?from:block_fields_[5]-1,start=clear?first:block_fields_[6]-1;
+ if(from+tracks>kTracks || to+tracks>kTracks || first+count>kSteps || start+count>kSteps)
+  return composition_notice("BLOCK OUTSIDE TRACK OR STEP RANGE",true);
+ for(unsigned n=0;n<tracks;++n){
+  const auto source=track_at(project_,pattern,from+n),dest=track_at(project_,target,to+n);
+  if(project_.audio[from+n].kind!=TrackKind::Instrument || project_.audio[to+n].kind!=TrackKind::Instrument ||
+     (source.instrument==Instrument::DrumKit)!=(dest.instrument==Instrument::DrumKit) || dest.frozen_asset!=255 ||
+     first+count>source.length)return composition_notice("CHECK LENGTH / KIT / AUDIO / FROZEN TRACK",true);
+ }
+ if(!allocation_admitted(sizeof(PatternState),2))return memory_refused();
+ auto* before=alloc_new<PatternState>(project_,target);auto* after=before?alloc_new<PatternState>(*before):nullptr;
+ if(!after){delete before;return memory_refused();}
+ uint16_t mask=0;
+ for(unsigned n=0;n<tracks;++n){
+  const auto& src=project_.patterns[pattern].tracks[from+n];auto& dst=after->tracks[to+n];mask|=uint16_t(1u<<(to+n));
+  if(!clear && start+count>dst.length)dst.length=uint16_t(start+count);
+  for(unsigned s=0;s<count;++s){
+   dst.steps[start+s]=clear?StepState{}:src.steps[first+s];
+   dst.mutation_source[start+s]=clear?StepState{}:src.mutation.frozen?src.mutation_source[first+s]:src.steps[first+s];
+   for(unsigned pad=0;pad<16;++pad)dst.kit.steps[pad][start+s]=clear?KitStepState{}:src.kit.steps[pad][first+s];
+  }
+ }
+ if(!engine_.replace_pattern(target,*after,mask,true)){delete before;delete after;return composition_notice("BLOCK EDIT BUSY / ORIGINAL KEPT",true);}
+ Command c{CommandType::ApplyPattern,0,1,uint16_t(target)};c.parameter=mask;
+ push_history(c,c,before,after);install_pattern(project_,target,*after,mask);refresh_steps();
+ return composition_notice(clear?"BLOCK CLEARED / ONE UNDO":"BLOCK COPIED / ONE UNDO");
+}
 auto Performance::begin_variation() -> bool{if(modal_active() || file_action_pending())return false;composition_modal_=1;dirty_=true;return true;}
-auto Performance::composition_apply() -> bool{if(!composition_modal_)return false;bool ok=composition_modal_==1?duplicate_variation():duplicate_scene(composition_scene_source_,composition_scene_target_);if(ok)composition_modal_=0;return ok;}
+auto Performance::composition_apply() -> bool{if(!composition_modal_)return false;bool ok=composition_modal_==3?apply_block():composition_modal_==1?duplicate_variation():duplicate_scene(composition_scene_source_,composition_scene_target_);if(ok)composition_modal_=0;return ok;}
 auto Performance::composition_knob(unsigned index,int delta) -> bool{int change=delta/1000;if(!change && delta)change=delta>0?1:-1;if(!change)return false;
+ if(composition_modal_==3){
+  if(index>=8)return false;
+  block_fields_[index]=uint16_t(block_knob(index).adjusted(block_fields_[index],change));dirty_=true;return true;
+ }
  if(composition_modal_==2){if(index!=0)return false;composition_scene_target_=uint8_t(bounded(int(composition_scene_target_)+change,0,15));dirty_=true;return true;}
  if(index==0)variation_.kind=PatternVariation(bounded(int(variation_.kind)+change,0,2));else if(index==1){if(variation_.kind==PatternVariation::Thin)variation_.density=uint8_t(bounded(int(variation_.density)+change,0,100));else if(variation_.kind==PatternVariation::Transpose){int value=bounded(int(variation_.transpose)+change,-12,12);if(!value)value=change>0?1:-1;variation_.transpose=int8_t(value);}else variation_.drop_track=uint8_t(bounded(int(variation_.drop_track)+change,0,15));}else return false;dirty_=true;return true;
 }
@@ -46,6 +86,16 @@ auto Performance::commit_composition_pattern(PatternState* after) -> bool{
  if(!engine_.replace_pattern(project_.active_pattern,*after,0xffff,true)){delete before;delete after;return composition_notice("PATTERN EDIT BUSY / ORIGINAL KEPT",true);}
  Command c{CommandType::ApplyPattern,0,1,project_.active_pattern};push_history(c,c,before,after);install_pattern(project_,project_.active_pattern,*after);refresh_steps();return true;
 }
+bool Performance::export_groove(GrooveTemplate& out)const{
+ if(!groove_copied_)return false;
+ for(unsigned i=0;i<16;++i){out.timing[i]=groove_clip_timing_[i];out.velocity[i]=groove_clipboard_.velocity[i];}
+ return true;
+}
+void Performance::import_groove(const GrooveTemplate& input){
+ groove_clipboard_=GrooveState{};groove_clipboard_.preset=4;groove_clipboard_.amount=100;
+ for(unsigned i=0;i<16;++i){groove_clip_timing_[i]=input.timing[i];groove_clipboard_.velocity[i]=input.velocity[i];}
+ groove_copied_=true;groove_clip_clipped_=false;set_mode(UiMode::Generate);gen_page_=2;dirty_=true;
+}
 auto Performance::apply_groove_all() -> bool{
  if(!allocation_admitted(sizeof(PatternState),2))return memory_refused();
  auto* after=alloc_new<PatternState>(project_,project_.active_pattern);if(!after)return memory_refused();
@@ -54,6 +104,24 @@ auto Performance::apply_groove_all() -> bool{
  bool ok=commit_composition_pattern(after);if(ok)composition_notice(limited?"GROOVE APPLIED ALL / TIMING LIMITED":"GROOVE APPLIED TO ALL 16 TRACKS");return ok;
 }
 
+auto Performance::reorder_song_section(unsigned destination,bool copy) -> bool{
+ auto next=project_.song;const unsigned source=song_cursor_;
+ if(scene_take_requested_ || source>=next.length)return false;
+ const auto section=next.sections[source];
+ if(copy){
+  if(next.length>=32 || destination>next.length)return false;
+  for(unsigned i=next.length;i>destination;--i)next.sections[i]=next.sections[i-1];
+  ++next.length;
+ }else{
+  if(destination>=next.length)return false;
+  if(source==destination)return true;
+  for(unsigned i=source;i<destination;++i)next.sections[i]=next.sections[i+1];
+  for(unsigned i=source;i>destination;--i)next.sections[i]=next.sections[i-1];
+ }
+ next.sections[destination]=section;
+ if(!song_send(next))return false;
+ song_cursor_=uint8_t(destination);return true;
+}
 auto Performance::song_skeleton() -> bool{
  if(project_.song.length)return composition_notice("SONG HAS SECTIONS / SKELETON NEEDS EMPTY SONG",true);
  if(scene_take_requested_)return composition_notice("END ARRANGEMENT TAKE FIRST",true);

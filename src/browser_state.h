@@ -3,9 +3,10 @@
 #include "browser_file_ops.h"
 #include "sample_analysis.h"
 namespace groove {
-enum class FileAction:uint8_t {None,FolderMove,LibraryOpen,LibraryMove,LibraryKind,LibraryOriginals,LibraryPrev,LibraryNext,SaveCurrentPreset,LibraryOpenKits,KitPrev,KitNext,MidiRecord,MidiRecordInternal,MidiImport,Capture,RecordToggle,SampleRecordToggle,AuditionSelectedSample,Overdub,Duplicate,ToggleFavorites,Refresh,Open,Up,Preview,StopPreview,Load,Favorite,Kit,SaveKit,Collect,AutoSlice,ImportWavLoop,MapPads,Factory,DiagnosticsTest,SavePreset,BeginStretch,CancelStretch,BeginFreeze,CancelFreeze,RenameFile,DeleteFile,NewFolder,Resample,CancelResample,SaveProject,AudioRecord,AudioOverdub,OverwritePreset,LibraryInspect,LibraryRestore,LibraryEngine,BeginTwin,CancelTwin,NewProjectMenu,SongStems};
+enum class FileAction:uint8_t {None,FolderMove,LibraryOpen,LibraryMove,LibraryKind,LibraryOriginals,LibraryPrev,LibraryNext,SaveCurrentPreset,LibraryOpenKits,KitPrev,KitNext,MidiRecord,MidiRecordInternal,MidiImport,Capture,RecordToggle,SampleRecordToggle,AuditionSelectedSample,Overdub,Duplicate,ToggleFavorites,Refresh,Open,Up,Preview,StopPreview,Load,Favorite,Kit,SaveKit,Collect,AutoSlice,ImportWavLoop,MapPads,Factory,DiagnosticsTest,SavePreset,BeginStretch,CancelStretch,BeginFreeze,CancelFreeze,RenameFile,DeleteFile,NewFolder,Resample,CancelResample,SaveProject,AudioRecord,AudioOverdub,OverwritePreset,LibraryInspect,LibraryRestore,LibraryEngine,BeginTwin,CancelTwin,NewProjectMenu,SongStems,SaveGroove};
 // Family recognition only; actual type comes from the container header.
 inline unsigned browser_project_kind(const char* name){return data_mgx_file(name)?1:0;}
+inline bool is_groove_file(const char* name){return data_suffix(name,".grv");}
 inline bool is_ipa_file(const char* name){return data_suffix(name,".ipa");}
 inline bool is_soundfont_file(const char* name){return data_suffix(name,".sf2");}
 inline bool is_dx7_file(const char* name){return data_suffix(name,".syx");}

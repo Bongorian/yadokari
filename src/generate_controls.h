@@ -1,13 +1,14 @@
 #pragma once
 #include "ui/control_descriptor.h"
 namespace groove {
-enum class GenerateAction:uint8_t {None,Page,RotateLeft,RotateRight,Extract,Paste,PatPrev,PatNext,Undo,Redo,ApplyAll,Harmony};
+enum class GenerateAction:uint8_t {None,Page,RotateLeft,RotateRight,Extract,Paste,PatPrev,PatNext,Undo,Redo,ApplyAll,Harmony,SaveGroove};
 constexpr ui::TopWork top_work(GenerateAction a){switch(a){case GenerateAction::None:return ui::TopWork::Empty;case GenerateAction::Page:return ui::TopWork::Selection;case GenerateAction::PatPrev:case GenerateAction::PatNext:return ui::TopWork::Exit;default:return ui::TopWork::Execute;}}
 constexpr uint8_t icon_for(GenerateAction action){switch(action){case GenerateAction::Paste:return ui::icons::Paste;case GenerateAction::PatPrev:return ui::icons::Back;case GenerateAction::PatNext:return ui::icons::Forward;case GenerateAction::Undo:return ui::icons::Undo;case GenerateAction::Redo:return ui::icons::Redo;default:return ui::icons::None;}}
 
 using GenerateControl=ui::ControlDescriptor<GenerateAction>;
 inline GenerateControl generate_button(unsigned index,bool shift,unsigned gen_page,bool groove_copied,unsigned history_cursor,unsigned history_size){
  if(gen_page==5 && index==4)return {"GENERATE",GenerateAction::Harmony,true};
+ if(gen_page==2 && shift && index==4)return {"SAVE GROOVE",GenerateAction::SaveGroove,groove_copied};
  if(gen_page==2 && shift && index==5)return {"APPLY ALL",GenerateAction::ApplyAll,true};
  if(gen_page==0 && shift && index==4)return {"ROTATE LEFT",GenerateAction::RotateLeft,true};
  if(gen_page==0 && shift && index==5)return {"ROTATE RIGHT",GenerateAction::RotateRight,true};

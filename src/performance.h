@@ -1,5 +1,6 @@
 #pragma once
 #include "sequence_operations.h"
+#include "groove_template.h"
 #include "audio_controls.h"
 #include "transfer_view.h"
 #include "channel_controls.h"
@@ -464,6 +465,11 @@ public:
  PerformContext perform_controls()const;
  BrowserEditContext browser_edit_controls()const{return {browser_.edit.operation,browser_confirmation()};}
  SongControlContext song_controls()const;
+ bool reorder_song_section(unsigned destination,bool copy);
+ // Block editor fields use the same one-based coordinates as the panel.
+ uint16_t block_fields_[8]{};
+ bool begin_block();
+ bool apply_block();
  bool song_send(const SongState& s);
  bool song_section_send(unsigned i,const SongSection& s);
  bool song_materialize();
@@ -692,6 +698,7 @@ public:
  bool commit_composition_phrase(unsigned,const PhraseState&);
  bool commit_composition_pattern(PatternState*);
  bool duplicate_variation();bool begin_variation();bool composition_apply();bool composition_knob(unsigned,int);
+ bool export_groove(GrooveTemplate&)const;void import_groove(const GrooveTemplate&);
  bool harmony_generate();bool apply_groove_all();bool song_skeleton();bool scene_empty(unsigned)const;bool begin_scene_duplicate();bool duplicate_scene(unsigned,unsigned);bool composition_notice(const char*,bool error=false);
  unsigned composition_dialog()const{return composition_modal_;}
  unsigned scene_duplicate_target()const{return composition_scene_target_;}unsigned scene_duplicate_source()const{return composition_scene_source_;}

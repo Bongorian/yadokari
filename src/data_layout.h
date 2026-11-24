@@ -46,7 +46,7 @@ inline bool data_content_name(char* out,unsigned capacity,const char* name,unsig
 inline void data_strip_mgx_suffix(char* name){unsigned n=0;while(name[n])++n;name[n-data_mgx_suffix_length(name)]=0;}
 // Templates are edited in RAM, saved as user projects and restored on open.
 inline bool factory_path(const char* path){char clean[192];return canonical_path(clean,sizeof clean,"",path) && (data_under(clean,"FACTORY") || (data_equal(clean,"BENCH.MGXS") || data_equal(clean,"BENCH.MGX")));}
-inline bool data_playable_file(const char* name){if(data_mgx_file(name))return true;const char* extensions[]={".wav",".mid",".midi",".syx",".sf2",".part",".ipa"};for(const char* ext:extensions)if(data_suffix(name,ext))return true;return false;}
+inline bool data_playable_file(const char* name){if(data_mgx_file(name))return true;const char* extensions[]={".wav",".mid",".midi",".syx",".sf2",".part",".ipa",".grv"};for(const char* ext:extensions)if(data_suffix(name,ext))return true;return false;}
 inline bool data_browser_entry(const char* directory,const char* name,bool folder){
  char path[192];if(name[0]=='.' || !join_path(path,sizeof path,directory,name))return false;
  if(data_under(path,"FACTORY/DEBUG") || data_under(path,"GROOVE") || data_under(path,"firmware") || (data_equal(path,"BENCH.MGXS") || data_equal(path,"BENCH.MGX")))return false;
