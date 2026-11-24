@@ -62,6 +62,8 @@ story, kept current per release.
   back up your songs first. The provisioned DATA volume starts
   small and Recovery expands it to the end of the card on first
   boot; an interrupted expansion resumes in Recovery.
+- **Host SD image recovery.** `tools/update/recover.py` preserves the full DATA partition and asks the FAT32 provisioner to create an identically sized one. DATA must occupy a whole number of MiB in the range 64–32768 MiB (32 GiB). An expanded DATA partition can exceed this range or end between MiB boundaries. Back up the entire original SD card before attempting [image recovery](firmware-updates.md).
+
 - **Remote diagnostics are opt-in by marker.** On a prepared
   (A/B) card, USB file sessions, remote diagnostics and update commands require the
   DATA/REMOTE.ON marker; official images bundle the marker by

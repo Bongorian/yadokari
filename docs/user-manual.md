@@ -286,6 +286,8 @@ Even if you swap the asset while a note is sounding, a note being held continues
 | RESAMPLE | Recording 1–4 bars of what is playing and turning it into an asset | The same Live-series WAV as a normal recording. Buses including FX can also be selected |
 | OVERDUB IN / SRC | Adding input to a Sampler loop that meets the conditions | After verification and mixing, `RECORDINGS/Dub-NNN.wav`. Not unconditional overdubbing onto any loop |
 
+![REC SOURCE showing the insert tap of track 16](manual/sampler-rec-source.png)
+
 ### Recording the external input
 
 ![SAMPLER + SHIFT. Top5 REC INPUT, Top6 PREVIEW, Top7 REC SOURCE.](manual/sampler-record.png)
@@ -373,6 +375,10 @@ Example: to advance from Pattern1 to Pattern2 after Pattern1 has looped twice, s
 
 The left of CLIP is the <strong>Pattern list of the selected Track</strong>. The short bars at the bottom edge are hit density. If the **PLAYING PATTERN** and **EDITING PATTERN** on the right differ, **NOT PLAYING** is shown. FOLLOW holds the settings of the Pattern being edited. The **LIVE** on the left of SCENE is also separate from the selected Scene; the right side is the **TRACK → PATTERN** correspondence table. An amber underline indicates a Track whose assignment will change on launch.
 
+**Edit several tracks together.** In PATTERN (CLIP), press **SHIFT + Top2 BLOCK EDIT**. K1–K4 select the first track, track count, first step and step count. Set K8 to COPY and use K5–K7 for the destination pattern, first track and first step. CLEAR erases the selected source cells. Top1 APPLY commits the entire rectangle, Top2 CANCEL discards the edit, and one UNDO restores it. Copy supports overlapping ranges and extends the destination phrase as needed. Cells include notes, chords, step locks and all kit pad hits.
+
+![Multi-track block editor](manual/clip-block.png)
+
 ### Saving a Scene
 
 ![SCENE](manual/scene.png)
@@ -387,7 +393,11 @@ The left of CLIP is the <strong>Pattern list of the selected Track</strong>. The
 
 ![Scene duplication](manual/scene-duplicate.png)
 
+**Reuse a groove in another song.** Open VARIATION → Top3 GROOVE and press Top5 EXTRACT to capture 16 cells of timing and dynamics. **SHIFT + Top5 SAVE GROOVE** writes the next available file in `GROOVES/`, starting with `Groove-001.grv`. In the destination song, OPEN the file in FILES. Top6 PASTE applies it to the selected track and SHIFT + Top6 APPLY ALL applies it to all tracks. Opening a template alone leaves the project intact.
+
 ### Building a Song by hand
+
+Select a section with K1, then turn K4 MOVE TO to reposition it. Top3 DUP SECTION inserts a copy immediately after the selection. Both operations preserve the duration, mute and restart information of a recorded section. K2 LOOP and K3 ENABLE preserve your position during playback. Turn LOOP off to finish the current pass, or turn it on before the last section ends to play another pass.
 
 In an empty SONG, pressing <strong>Top6 SKELETON</strong> once places 5 sections referencing Scene1–5, of **4 / 8 / 8 / 8 / 4 bars**, and turns LOOP ON. Scenes, bar counts, and transposition can be edited with the existing knobs. If you are using 3 kinds of Scene, swap the references. If sections already exist, it refuses to overwrite, and the whole skeleton can be undone with a single UNDO.
 
@@ -1097,6 +1107,8 @@ Saving is the normal PROJECT → SAVE / SAVE AS operation. The attributes are ke
 ## Files, connections and startup
 
 ### Organizing DATA and files
+
+If an interrupted save leaves only a complete `X.mgxs.tmp`, FILES lists it as `X.mgxs`. OPEN loads the song without writing to the card. When the main file also exists, FILES lists the main name once.
 
 For save destinations and the DATA layout, see [DATA and content layout](data-content.md). New saves are songs `.mgxs`, Kits `.mgxk` and Presets `.mgxp`, and FILES displays the internal kind as SONG / KIT / PATCH.
 

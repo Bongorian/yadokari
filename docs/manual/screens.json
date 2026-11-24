@@ -224,7 +224,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-copy-scope.png",
-      "sha256": "977ca441cd5d46e454489ae7a55a251595f9dc9fe45d80d2216c948ee71b79c3"
+      "sha256": "aa899c456cdedebfb4cffa20c675b3289bdb33049b6b2addd484099bab8e95d8"
     },
     {
       "page": "clip-variation",
@@ -284,7 +284,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song.png",
-      "sha256": "a1bb97569ea472bc02201583cd0b791080202e60fe2237d32cbf0e1603c27d52"
+      "sha256": "8ee1af131b53a633eb5cab46b731c1f129544d185af1fe199e7f4bf24522265d"
     },
     {
       "page": "song-empty",
@@ -294,7 +294,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-empty.png",
-      "sha256": "a1bb97569ea472bc02201583cd0b791080202e60fe2237d32cbf0e1603c27d52"
+      "sha256": "8ee1af131b53a633eb5cab46b731c1f129544d185af1fe199e7f4bf24522265d"
     },
     {
       "page": "song-skeleton",
@@ -304,7 +304,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-skeleton.png",
-      "sha256": "c799ec1018ceb3af38566a31fcfcbbd71bf3fd64c8b09e2dbb88e8737545be9e"
+      "sha256": "01a927483ca49c265937e5927477aa53a2d7200c18811853850ac28586b3b8de"
     },
     {
       "page": "song-sections",
@@ -314,7 +314,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-sections.png",
-      "sha256": "02aa9b3e8e3416372dc62452feb8b7c4f1fb6c7f04b7985506bc4a5f136a66b6"
+      "sha256": "07bdbc8268ca4dbd14e6bab01dc076aeb51e17d14f4c5f0074d286ec301085ef"
     },
     {
       "page": "song-snapshot",
@@ -324,7 +324,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-snapshot.png",
-      "sha256": "39ddca56ef3f255481b4b6133e4fda21ab07862046bfbde377eb9ace7806d8ad"
+      "sha256": "f7ee443adb6836f7704c4091f7a449850cb4d64e55dec34444ababcb9f26e059"
     },
     {
       "page": "song-take",
@@ -334,7 +334,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-take.png",
-      "sha256": "25a1d17fcf690d00262dc8a644c63e52f5d117c10d79afb1e404274dc226379f"
+      "sha256": "86c7fa5e9f4ac7c824193a08f65def7ca6e1a52ac159f05cdbd3de08297cd8a6"
     },
     {
       "page": "mixer",
@@ -744,7 +744,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "groove-apply-all.png",
-      "sha256": "ca2930dba8d14c2e82f4910f6dfd543200edc31d432a56b4a6c3a76aa3e73a2f"
+      "sha256": "a373ceac9f0cfa7bd0d50dcc7f86809b96582807ff060afe7782f84b475123a7"
     },
     {
       "page": "modulation",
@@ -994,7 +994,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler.png",
-      "sha256": "d42f29a87b303d99c7a79bc99bc282d00831c94b0f6d9ed9dce2bddb417c4249"
+      "sha256": "8e82f37bcd328ea951d480bfd917d37434f22458bcf29114140da1cb1dfbf931"
     },
     {
       "page": "trim",
@@ -1004,7 +1004,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "trim.png",
-      "sha256": "d06ff230b1b6a5d0fd9b7f28aeb81c84eeca91e691e3e8bc67afa51d451840b8"
+      "sha256": "affb4cd3e5f2c44921b64010455643462c3b0069693c300a172ae9ab4fa9ea0c"
     },
     {
       "page": "slices",
@@ -1014,7 +1014,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "slices.png",
-      "sha256": "69ccc70623f018003e767302e9528c6a7c5b1c07cbdb163d3654147f2473e8a2"
+      "sha256": "f0425e2b9e82e340988e7ba17a855c82a90b5d3bd6da63dadc1b2bc286de71c1"
     },
     {
       "page": "sampler-record",
@@ -1024,7 +1024,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler-record.png",
-      "sha256": "88ba352f13fa10d0dd56df390141f1456ea609be19a60952aa74072dfd63923d"
+      "sha256": "7491d0c8a8d71082822d7f6c7df59fa79e9ffc7d818f0fb5194d0ed32686e8e1"
     },
     {
       "page": "sampler-source-idle",
@@ -1074,7 +1074,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler-end-marker.png",
-      "sha256": "a91f939d473ba2880c69920a6600bf66fc390b43d81009116aa9488e791107c2"
+      "sha256": "9cbba89ed75f618a992731223dcf87406d4b7fb9d28f444f294b7ef241646cd7"
     },
     {
       "page": "wave",
@@ -1084,7 +1084,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "wave.png",
-      "sha256": "09b0f75e8fa4c412fe467205914b2ca46702722ea56105076164caf64cefbd94"
+      "sha256": "7a5088484ce9c7d98a80519b95e40e19a4ff98fb6592546c18de8704f1f787e1"
     },
     {
       "page": "zones",
@@ -2335,6 +2335,26 @@
       "theme": "cyber-2",
       "file": "icons.png",
       "sha256": "9c3600ab33e4879f7a9f0e364532ddf466de0198d48938ba01ecfac439128b9f"
+    },
+    {
+      "page": "clip-block",
+      "mode": "CLIP",
+      "engine": 19,
+      "engine_page": 0,
+      "title": "CLIP",
+      "theme": "cyber-2",
+      "file": "clip-block.png",
+      "sha256": "03cc1ef0d84fb8eefd4e57b4cd9db7e71c041aafc3a1bc72e0b52c91842cb239"
+    },
+    {
+      "page": "sampler-rec-source",
+      "mode": "SAMPLER",
+      "engine": 19,
+      "engine_page": 0,
+      "title": "SAMPLER",
+      "theme": "cyber-2",
+      "file": "sampler-rec-source.png",
+      "sha256": "c43048b7c2d34c8630dacf69cd4e24a8b919c64e485fd6a9aa454ba7cea56fe1"
     }
   ]
 }

@@ -150,6 +150,11 @@ int main(int argc,char** argv) {
   for(unsigned n=0;n<ui::icons::Count+2;++n){unsigned id=n+1;bool active=id>=ui::icons::Count;if(active)id=id==ui::icons::Count?ui::icons::Play:id==ui::icons::Count+1?ui::icons::Stop:ui::icons::Record;unsigned col=n%6,side=col/3;int x=int(col%3)*160+10,y=26+int(n/6)*30;sheet->icon(side,x,y,id,sheet->theme.accent,active);sheet->label_band(side,x+20,y-2,130,18,active?(id==ui::icons::Play?"Play active":id==ui::icons::Stop?"Stop active":"Record active"):ui::icons::shapes[id].name,sheet->theme.text,ui::FontRole::Small);}
   FILE* file=std::fopen((frame_dir/"icons.ppm").c_str(),"wb");if(!file)return 1;std::fprintf(file,"P6\n960 272\n255\n");for(unsigned y=0;y<272;++y)for(unsigned x=0;x<960;++x){uint32_t v=sheet->pixels[x/480][y*480+x%480];unsigned char rgb[]={uint8_t(v>>16),uint8_t(v>>8),uint8_t(v)};if(std::fwrite(rgb,1,3,file)!=3)return 1;}if(std::fclose(file))return 1;
  }
+ ui.take_file_action();ui.set_mode(UiMode::Clip);ui.set_shift(true);
+ if(!ui.soft_key(1))throw std::runtime_error("block editor unavailable");
+ ui.set_shift(false);ui.knob(1,2000);shot("clip-block");ui.modal_cancel();
+ ui.select_track(5);ui.set_mode(UiMode::Sampler);ui.soft_key(0);
+ p->routing.capture_bus=50;ui.mark_dirty();shot("sampler-rec-source");
  int status=std::fclose(report)|std::fclose(controls);
  if(placements)status|=std::fclose(placements);
  if(frames)status|=std::fclose(frames);

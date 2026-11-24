@@ -51,6 +51,12 @@ By default, remote leaves the Trial unconfirmed. `--confirm-identity-only` is an
 After confirmation, record the version/highest, phase and error of a normal reboot. Building, signature verification, Trial, confirmation, normal boot and actual-sound checks are recorded separately. For power loss, the design target at each point — during transfer, during writing, with a Trial unconfirmed, and during boot after confirmation — is recovery without bricking. This procedure alone does not prove the safety of WLAN or of all external devices.
 
 
+## Rebuild an SD image on a host
+
+1. Before any recovery attempt, back up the **entire original SD card** to a regular image file, including its partition table, boot slots, journal and DATA. Keep this backup.
+2. Run `python3 tools/update/recover.py --help` for the board's factory, recovery and boot-file arguments. Supply the complete backup as the input and a separate, new path as the output.
+3. Wait for the protected DATA SHA-256 readback to pass before writing the resulting image to a card. The provisioner supports an integer number of MiB from 64 to 32768 inclusive for FAT32 DATA. A card expanded beyond that range or to a fractional MiB cannot be rebuilt with this tool. The size restriction applies to the DATA partition.
+
 ## Explicit remote diagnostics
 
 `UITEST` is screen cycling only; `OPTTEST` is an explicit, continuous UI → DSP4 → Fluid qualification. A UI completion marker is never confused with the completion of another diagnostic. `DEPLOYCHECK` is a dedicated functional check: it inspects long-song editing, TWIN, production operations and MODULE/Layer display, and returns to the original Project. While STATUS shows `diagnostic_busy=1`, no other diagnostic, update or transfer can be started. STATUS/LOG can be read.

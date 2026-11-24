@@ -286,6 +286,8 @@ ZONESで<strong>SHIFT+4-D押下</strong>は選択SliceのWARPを切り替えま�
 | RESAMPLE | 再生中の1–4小節を録音して素材化 | 通常録音と同じLive系WAV。FX込みのbusも選択可能 |
 | OVERDUB IN / SRC | 条件の合うSamplerループに入力を足す | 検証・ミックス後`RECORDINGS/Dub-NNN.wav`。任意のループへの無条件重ね録りではない |
 
+![REC SOURCEにInsertとトラック16を表示](manual/sampler-rec-source.png)
+
 ### 外部Inputを録音する
 
 ![SAMPLER + SHIFT。Top5 REC INPUT、Top6 PREVIEW、Top7 REC SOURCE。](manual/sampler-record.png)
@@ -373,6 +375,10 @@ KitのPatternコピーは全16 Padの列も含みます。CLIPのSHIFT側「DOUB
 
 CLIP左は<strong>選択TrackのPattern一覧</strong>。下端の短い棒は打点密度です。右の **PLAYING PATTERN** と **EDITING PATTERN** が違えば **NOT PLAYING** が出ます。FOLLOWは編集中Patternの設定です。SCENE左の **LIVE** と選択Sceneも別で、右は **TRACK → PATTERN** の対応表。琥珀の下線はlaunchで割当が変わるTrackを示します。
 
+**複数トラックをまとめて編集する** — PATTERN（CLIP）で **SHIFT＋Top2 BLOCK EDIT** を開きます。K1～K4で先頭トラック、トラック数、先頭ステップ、ステップ数を指定します。K8がCOPYのとき、K5～K7がコピー先のPattern、先頭トラック、先頭ステップです。CLEARは元の範囲を消します。Top1 APPLYで確定、Top2 CANCELで取消、確定後は1回のUNDOで全体を戻せます。同一Pattern内の重なる範囲にもコピーできます。ノート・コード・ステップロックとKitの全パッドの打点が対象です。コピー先の長さは必要に応じて伸びます。
+
+![複数トラックのブロック編集](manual/clip-block.png)
+
 ### Sceneを保存する
 
 ![SCENE](manual/scene.png)
@@ -387,7 +393,11 @@ CLIP左は<strong>選択TrackのPattern一覧</strong>。下端の短い棒は�
 
 ![Scene複製](manual/scene-duplicate.png)
 
+**Grooveを別の曲で使う** — VARIATION → Top3 GROOVE → Top5 EXTRACTで、演奏のタイミングと強弱を16セルに抽出します。**SHIFT＋Top5 SAVE GROOVE** で `GROOVES/Groove-001.grv` のような空き番号のファイルに保存します。別の曲でFILESからそのファイルをOPENし、Top6 PASTEで選択中トラック、SHIFT＋Top6 APPLY ALLで全トラックに適用します。OPENの時点では曲は変わりません。
+
 ### 手で並べてSongを作る
+
+K1でセクションを選び、K4 MOVE TOを回すとその位置へ移動します。Top3 DUP SECTIONは選んだ区間を直後に複製します。実演から記録した区間の長さ・Mute・再始動情報も引き継ぎます。再生中にK2 LOOPやK3 ENABLEを変えてもセクションの先頭へ戻りません。LOOPをOFFにすると現在の周回で終了し、最後のセクションが終わる前にONに戻すと次の周回へ進みます。
 
 空のSONGで<strong>Top6 SKELETON</strong>を1回押すと、Scene1–5を参照する **4／8／8／8／4小節**の5セクションを置き、LOOPをONにします。Scene・小節数・移調は既存ノブで編集できます。3種類のSceneを使う場合は参照を差し替えます。既存セクションがある場合は上書きせず拒否し、骨格全体を1回のUNDOで戻せます。
 
@@ -1103,6 +1113,8 @@ SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまた
 
 ### DATAとファイルの整理
 
+保存が中断して完全な `X.mgxs.tmp` だけが残った曲は、FILESで `X.mgxs` と表示され、通常どおりOPENできます。開くだけではカード上のファイルは変更されません。同名の正本があれば一覧には正本が1件だけ表示されます。
+
 保存先とDATAの構成は[DATAとコンテンツの配置](data-content.md)を参照してください。新規保存は曲`.mgxs`・Kit`.mgxk`・Preset`.mgxp`で、FILESでは内部種別をSONG／KIT／PATCHで表示します。
 
 長い音源名・サンプル名は枠内で横スクロールします。先頭と末尾を各1.2秒保持し、28px/秒で往復。音源選択のK2も省略せず表示します。更新画面にもSETTINGSの現在のテーマとpixel orderを適用し、CANCEL後は通常画面全体を描き直します。
@@ -1132,6 +1144,8 @@ Ethernet経由のブラウザ転送に加え、開発ホストは[USBファイ�
 テーマはSETTINGS → DISPLAY → 4-DでTHEMEを選択 → K1。右LCDの3×3一覧に確定9名を表示します。CYBER 2が既定。選択は直ちに表示へ反映し、DEVICE.CFGへ保存され、曲のloadや保存では上書きしません。
 
 ### 起動時の表示と標準データ
+
+PCでSDイメージを復旧する前に、パーティションを含む**元のSDカード全体**をイメージファイルへバックアップし、その原本を保管してください。`tools/update/recover.py` にはこのバックアップを入力し、別名の新規イメージを出力先に指定します。DATAをそのまま写せる対応サイズは整数MiBの64～32768 MiB（32 GiB）です。手順は[更新・復旧ガイド](firmware-updates.md)にあります。
 
 ![起動スプラッシュ（右画面）](../assets/boot/splash-yadokari-480x272.png)
 

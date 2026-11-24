@@ -404,3 +404,7 @@ LAYR revision 2 stores four u8 inclusive key/velocity bounds per child, before i
 u32 payload length. Each child may contain an optional PFXS v1 using the same
 41-byte payload as root FX. Root and leaf FX coexist. Preset identities are as
 specified above.
+
+## Portable groove templates
+
+Groove templates are separate `.grv` assets for transfer between projects. A template is exactly 52 bytes: ASCII `YGR1`, then 16 cells in sequencer order. Each cell is a signed little-endian 16-bit timing offset from the straight grid (−192 to +288 in 1/96-step units), followed by a signed 8-bit velocity offset (−64 to +64 relative to velocity 100). Source swing is included. Paste subtracts destination swing and limits the resulting offset to ±96. User saves go in `GROOVES/`. Place supplied factory templates in `FACTORY/GROOVES/` in the provisioner’s boot-files tree. The provisioner copies that subtree to DATA, and FILES opens either location. Applied track settings continue to use the existing MGXC groove fields.
