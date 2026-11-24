@@ -543,7 +543,9 @@ public:
   for(unsigned i=0;i<kSampleAssets;++i)bindings_[i]=prepared[i];
   project_=*candidate;preserved_.steal_from(loaded_store);definitions_.steal_from(replacement);ui_.project_loaded();update_preset_status();if(!kit && remember)remember_project(path);
   ui_.notify_recovery(source);
- }else ui_.notify(UiNotice::Failed);delete candidate;return ok;}
+ }else{ui_.notify(UiNotice::Failed);}
+ delete candidate;return ok;
+ }
  bool load_soundfont(const char* path){
   if(!allocation_admitted(sizeof(ProjectState),2))return ui_.memory_refused();
   auto target=record_target();WavView view;if(!library_.load(path,view))return false;
