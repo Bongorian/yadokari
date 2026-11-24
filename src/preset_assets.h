@@ -4,6 +4,7 @@ namespace groove {
 // The descriptor declares the addressing model; every consumer uses this walk.
 template<class Sound> inline uint64_t leaf_asset_mask(const Sound& s){
  uint64_t mask=0;auto mark=[&](unsigned slot){if(slot<kSampleAssets)mask|=uint64_t(1)<<slot;};
+ if(s.instrument==Instrument::Wavetable){unsigned table=unsigned(s.wavetable.values[WavetableTable]);if(table>=kWavetableFirstAsset)mark(table-kWavetableFirstAsset);return mask;}
  switch(engine_asset_mode(s.instrument)){
  case EngineAssetMode::SoundFont:case EngineAssetMode::Sample:case EngineAssetMode::OptionalSample:mark(s.sample_slot);break;
  case EngineAssetMode::Kit:for(const auto& pad:s.kit.pads)for(auto slot:pad.sample)mark(slot);break;
@@ -27,6 +28,11 @@ inline uint64_t project_asset_mask(const ProjectState& p,unsigned except_track=k
  return mask;
 }
 inline void remap_leaf_assets(SoundLeaf& s,const uint8_t (&mapping)[kSampleAssets]){
+ if(s.instrument==Instrument::Wavetable){
+  unsigned table=unsigned(s.wavetable.values[WavetableTable]);
+  if(table>=kWavetableFirstAsset && table-kWavetableFirstAsset<kSampleAssets)s.wavetable.values[WavetableTable]=float(kWavetableFirstAsset+mapping[table-kWavetableFirstAsset]);
+  return;
+ }
  switch(engine_asset_mode(s.instrument)){
  case EngineAssetMode::SoundFont:case EngineAssetMode::Sample:case EngineAssetMode::OptionalSample:case EngineAssetMode::WaveRing:s.sample_slot=mapping[s.sample_slot];break;
  case EngineAssetMode::Kit:for(auto& pad:s.kit.pads)for(auto& slot:pad.sample)if(slot<kSampleAssets)slot=mapping[slot];break;

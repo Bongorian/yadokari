@@ -27,7 +27,13 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
  // performing sixteen 64-bit divisions at every audio sample.
  // A strip sweep can queue many positions before one audio callback. Apply
  // only the latest position and spread target recomputation across callbacks.
- for(unsigned mi=0;mi<8;++mi)if(project_->macros[mi].active)for(const auto& route:project_->macros[mi].routes)if(route.enabled && route.source!=ModSource::Macro)control_refresh_mask_|=route.tracks;
+ // WT reads its scoped matrix at each 32-sample voice boundary. Scheduling
+ // track mixer, MIDI and insert refreshes for the same routes duplicates work.
+ for(const auto& macro:project_->macros)if(macro.active)for(const auto& route:macro.routes){
+  if(!route.enabled || route.source==ModSource::Macro)continue;
+  if(engine_target(route.parameter) && target_engine(route.parameter)==Instrument::Wavetable)continue;
+  control_refresh_mask_|=route.tracks;
+ }
  for(unsigned budget=0;budget<2 && control_refresh_mask_;++budget){
   unsigned t=control_refresh_cursor_;
   while(!(control_refresh_mask_&(1u<<t)))t=(t+1)&15;

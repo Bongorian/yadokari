@@ -15,9 +15,13 @@ bool Engine::plain_visual_parameters(unsigned t){
  return true;
 }
 void Engine::resolve_voice_bank(unsigned t,Instrument engine,const float* bases,float* values){
- auto& r=runtime_[t];auto state=track(t);if(resolve_unlayered_engine(*project_,state,t,engine,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,values))return;
+ auto& r=runtime_[t];auto state=track(t);uint32_t destinations=0;
+ const bool have_bases=resolve_unlayered_engine(*project_,state,t,engine,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,values,0,0,engine==Instrument::Wavetable?&destinations:nullptr);
+ if(have_bases && !destinations)return;
  ModRuntime mod=mod_runtime(t);const auto& table=engine_descriptor(unsigned(engine))->parameters;
- for(unsigned i=0;i<table.count;++i){unsigned offset=table.declarations[i].offset;values[offset]=resolve_target_value(*project_,state,t,engine_target(engine,i),bases[offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;}
+ for(unsigned i=0;i<table.count;++i){
+  if(have_bases && !(destinations&(uint32_t(1)<<i)))continue;
+  unsigned offset=table.declarations[i].offset;values[offset]=resolve_target_value(*project_,state,t,engine_target(engine,i),bases[offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;}
 }
 bool Engine::admit_native(unsigned t,Instrument engine,const float* values){
  if(!native_budget_.admit(t,engine_native_cost(engine,values))){native_retry_sample_[t]=sample_count_+48;layer_failure_[t]=uint8_t(LayerReason::Cost);__atomic_fetch_or(&native_refused_,1u<<t,__ATOMIC_RELEASE);return false;}
@@ -344,6 +348,8 @@ void Engine::build_render_bundles(){
      instrument!=unsigned(Instrument::Formant) && instrument!=unsigned(Instrument::Wavetable) && !va)return;
   // VA renders the raw voice only; Layer gain/pan/detune and leaf FX stay on the
   // owner after the voice output, so Layer children (composite) may be bundled.
+  // Asset slot views may be rebound by the canonical audio owner.
+  if(instrument==unsigned(Instrument::Wavetable) && v.wavetable.custom_table())return;
   if((!va && (v.composite || v.leaf)) || v.step_pitch.remaining || v.env<0.00001f)return;
   auto& r=runtime_[t];const auto& state=track(t);
   const uint64_t window_end=sample_count_+RenderBundleJob::kFrames;

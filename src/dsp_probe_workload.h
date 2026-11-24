@@ -2,7 +2,7 @@
 #include "benchmark_project.h"
 #include "future_factory_presets.h"
 namespace groove {
-inline constexpr unsigned kDspProbeRevision=7,kWave4ProbeRevision=5; // Appended Wavetable cases preserve earlier case IDs.
+inline constexpr unsigned kDspProbeRevision=6,kWave4ProbeRevision=5,kWavetableProbeRevision=7; // Appended Wavetable cases preserve earlier case IDs.
 struct DspCondition {
  enum Kind:unsigned {Idle,Leaf,Insert,Native,Voices,Layers,Chain,Extension,Saturate,Choir,Wavetable,WavetableUnison};
  Kind kind=Idle;Instrument engine=Instrument::Empty;unsigned variant=0,tracks=1,notes=1,second_inserts=0;
@@ -16,11 +16,12 @@ inline unsigned dsp_wavetable_start(){return dsp_stress_start()+56;}
 // Stock settings, moving table, PM alone, then each mode at both polarities
 // with and without PM. Each configuration runs at one and four held notes.
 constexpr unsigned kDspWavetableVariants=3+4*4;
-struct WavetableProbeSetting {unsigned voices,notes,tracks;bool extended;unsigned base_note=60;bool bend=false,modulate=false;};
+struct WavetableProbeSetting {unsigned voices,notes,tracks;bool extended;unsigned base_note=60;bool bend=false,modulate=false;unsigned table=0;};
 inline constexpr WavetableProbeSetting kUnisonProbes[]={
  {2,1,1,true},{1,3,1,true},{2,2,1,true},{5,1,1,true},{6,1,1,true},
  {7,1,1,false},{7,2,1,false},{3,4,1,false},{2,2,4,true},
- {1,5,3,true,84},{1,5,3,true,118},{1,5,3,true,81,true},{1,5,3,true,118,false,true}
+ {1,5,3,true,84},{1,5,3,true,118},{1,5,3,true,81,true},{1,5,3,true,118,false,true},
+ {2,5,3,false,60,false,false,1},{1,5,3,true,84,false,true,kWavetableFirstAsset+1}
 };
 inline unsigned dsp_probe_note(const DspCondition& c,unsigned n){
  if(c.kind==DspCondition::WavetableUnison && kUnisonProbes[c.variant].base_note!=60)
@@ -129,6 +130,11 @@ inline void make_dsp_probe_project(ProjectState& p,const DspCondition& c){
    auto& t=p.tracks[i];t.plaits_model=0;auto& v=t.wavetable.values;
    v[0]=52.375f;v[1]=31.5f;v[2]=3.7f;v[WavetableUnisonCount]=float(spec.voices);
    v[WavetableDetune]=36;v[WavetableSpread]=1;
+   v[WavetableTable]=float(spec.table);
+   if(spec.table){
+    p.macros[1].active=true;t.lfo_rate=5;
+    p.macros[1].routes[0]={true,engine_target(Instrument::Wavetable,0),0xffff,0,127,LayerMode::Replace,MacroCurve::Linear,ModSource::Lfo};
+   }
    if(spec.modulate){
     t.lfo_rate=7;
     auto& matrix=p.macros[0];matrix.active=true;

@@ -215,6 +215,10 @@ public:
   if(!engine_rate_supported(sound.instrument,rate_))return false;
   const uint64_t ready=__atomic_load_n(&sample_ready_mask_,__ATOMIC_ACQUIRE);
   if(sound.instrument==Instrument::SoundFont)return sound.sample_slot<kSampleAssets && (__atomic_load_n(&soundfont_ready_mask_,__ATOMIC_ACQUIRE)&(uint64_t(1)<<sound.sample_slot));
+  if(sound.instrument==Instrument::Wavetable && sound.wavetable.values[WavetableTable]>=kWavetableFirstAsset){
+   const unsigned slot=unsigned(sound.wavetable.values[WavetableTable])-kWavetableFirstAsset;
+   return slot<kSampleAssets && (__atomic_load_n(&wt_ready_mask_,__ATOMIC_ACQUIRE)&(uint64_t(1)<<slot));
+  }
   if(sound.instrument==Instrument::Granular && !granular_)return false;
   if(engine_asset_mode(sound.instrument)==EngineAssetMode::Sample)return sound.sample_slot<kSampleAssets && (ready&(uint64_t(1)<<sound.sample_slot));
   if(sound.instrument==Instrument::DrumKit)for(const auto& pad:sound.kit.pads)for(auto slot:pad.sample)if(slot<kSampleAssets && !(ready&(uint64_t(1)<<slot)))return false;
@@ -377,8 +381,19 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  PresetPreview* preset_preview_=nullptr;uint32_t preset_preview_pending_=0;uint8_t preset_preview_track_=255;
  void start_preset_preview(const CommandState&);void stop_preset_preview();
 
+ WavetableBankView wt_assets_[kSampleAssets]{};
+ uint64_t wt_ready_mask_=0;
+ const WavetableBankView* wavetable_bank(unsigned table)const{
+  if(table<kWavetableFirstAsset)return factory_wavetable(table);
+  unsigned slot=table-kWavetableFirstAsset;
+  return slot<kSampleAssets && wt_assets_[slot].frames?&wt_assets_[slot]:nullptr;
+ }
  uint64_t sample_ready_mask_=0,soundfont_ready_mask_=0;
- void bind_sample(unsigned slot,const WavView& sample){samples_[slot]=sample;const uint64_t bit=uint64_t(1)<<slot;if(sample.soundfont)__atomic_fetch_or(&soundfont_ready_mask_,bit,__ATOMIC_RELEASE);else __atomic_fetch_and(&soundfont_ready_mask_,~bit,__ATOMIC_RELEASE);if(sample.frames)__atomic_fetch_or(&sample_ready_mask_,bit,__ATOMIC_RELEASE);else __atomic_fetch_and(&sample_ready_mask_,~bit,__ATOMIC_RELEASE);}
+ void bind_sample(unsigned slot,const WavView& sample){samples_[slot]=sample;const uint64_t bit=uint64_t(1)<<slot;
+  wt_assets_[slot]=read_wavetable_asset(sample);
+  if(wt_assets_[slot].frames)__atomic_fetch_or(&wt_ready_mask_,bit,__ATOMIC_RELEASE);
+  else __atomic_fetch_and(&wt_ready_mask_,~bit,__ATOMIC_RELEASE);
+  if(sample.soundfont)__atomic_fetch_or(&soundfont_ready_mask_,bit,__ATOMIC_RELEASE);else __atomic_fetch_and(&soundfont_ready_mask_,~bit,__ATOMIC_RELEASE);if(sample.frames)__atomic_fetch_or(&sample_ready_mask_,bit,__ATOMIC_RELEASE);else __atomic_fetch_and(&sample_ready_mask_,~bit,__ATOMIC_RELEASE);}
 
  void refresh_parameters(unsigned t,const StepState* step=nullptr);bool refresh_parameters_step(unsigned t,const StepState* step);
  void refresh_effects();

@@ -69,9 +69,10 @@ static void wavetable_files(){
  auto& child=layer.layer.parts[0].sound;
  child.instrument=Instrument::Wavetable;
 
- for(unsigned format=0;format<3;++format){
+ for(unsigned format=0;format<4;++format){
   const bool extended=format>=1;
-  if(format==2){track.wavetable.values[WavetableUnisonCount]=3;track.wavetable.values[WavetableSpread]=1;}
+  if(format==3)track.wavetable.values[WavetableTable]=kWavetableFirstAsset+9;
+  if(format>=2){track.wavetable.values[WavetableUnisonCount]=3;track.wavetable.values[WavetableSpread]=1;}
   if(extended){
    const float settings[]={3,-.75f,2.5f,.375f};
    std::memcpy(track.wavetable.values+8,settings,sizeof settings);
@@ -90,11 +91,12 @@ static void wavetable_files(){
   assert(frames[0].kind==kind4("WVTB") && frames[0].version==1 && frames[0].payload.size()==32);
   if(extended)assert(frames[1].kind==kind4("WVT2") && frames[1].version==1 && frames[1].payload.size()==16);
 
-  if(format==2)assert(frames[2].kind==kind4("WVT3") && frames[2].version==1 && frames[2].payload.size()==12);
+  if(format==3)assert(frames[3].kind==kind4("WVT4") && frames[3].payload.size()==4);
+  if(format>=2)assert(frames[2].kind==kind4("WVT3") && frames[2].version==1 && frames[2].payload.size()==12);
   ChunkBuffer bank;ChunkWriter<ChunkBuffer> writer(bank);
   assert(write_morph_snapshot(writer,project->morph_a[0]));
   // The count immediately precedes the engine values at the end of the bank.
-  unsigned values=format==2?15:extended?12:8;
+  unsigned values=format==3?16:format==2?15:extended?12:8;
   unsigned offset=bank.size-4*values-2;
   assert(bank.data[offset]==values && bank.data[offset+1]==0);
 

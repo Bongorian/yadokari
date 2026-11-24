@@ -94,14 +94,15 @@ story, kept current per release.
   The legacy path costs 2 units per oscillator and the extended path costs 11.
   The Pi 4 track allows four oscillators in total, including at most two extended
   oscillators. The board profile scales both limits. WAVETABLE tracks and Layer
-  leaves share a 48-unit Pi 4 budget. When an edit, lock or morph needs more
+  leaves share a 48-unit Pi 4 budget. When an edit, modulation route, lock or morph needs more
   capacity than is available, the held voice continues on its admitted path
   and retries on a later control tick. Release crossfades retain their reservation.
   The extended reservation is 65.68 µs per 24 frames, derived from a 42.03 µs
   Pi 4 estimate with two 25% margins. The registry rounds up to 68.75 µs
-  (11 units). Applying the same conversion and margins to the current Pi 5
-  peak gives 68.24 µs per oscillator. Pi 4 distribution remains blocked
-  pending mixed-load measurements on that board against the 500 µs deadline.
+  (11 units). The 2-unit dry price also applies to continuous table morphs.
+  Their cost depends on the assigned modulation and active oscillator count.
+  Pi 4 distribution remains blocked pending mixed-load measurements on that
+  board against the 500 µs deadline.
 
 - High-register WAVETABLE patches with warp or PM use a band-limited sum of
   carrier harmonics and PM sidebands. Existing projects retain their settings;

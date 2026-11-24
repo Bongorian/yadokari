@@ -2,6 +2,7 @@
 // build pinned to one core. Wall time includes OS preemption on hosted builds.
 #include "engine.h"
 #include "dsp_probe_workload.h"
+#include "dsp_wavetable_fixture.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -30,7 +31,8 @@ static double ticks_per_us(){return 1000;}
 static bool measure(ProjectState& project,Engine& engine,unsigned index){
  const auto c=dsp_condition(index);
  make_dsp_probe_project(project,c);
- if(!engine.stage_project(project))return false;
+ WavView views[kSampleAssets]{};views[1]=dsp_wavetable_fixture();
+ if(!engine.stage_project(project,views))return false;
  std::array<float,48> pcm{};
  engine.render(pcm.data(),24);
  const unsigned before_notes=engine.probe_steals().refused;

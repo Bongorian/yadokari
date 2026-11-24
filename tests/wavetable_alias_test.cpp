@@ -1,4 +1,5 @@
 #include "wavetable_voice.h"
+#include "dsp_wavetable_fixture.h"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -10,6 +11,7 @@
 
 using namespace groove;
 namespace {
+const WavetableBankView* bank=nullptr;
 constexpr unsigned N=8192;
 using Audio=std::array<float,N>;
 constexpr double pi=3.14159265358979323846;
@@ -19,7 +21,8 @@ constexpr double pi=3.14159265358979323846;
 float linear_wave(unsigned a,unsigned mip,float phase){
  float x=phase*256;
  unsigned i=unsigned(x)&255;
- float lo=kWavetableData[a][mip][i],hi=kWavetableData[a][mip][(i+1)&255];
+ const auto* pcm=bank?bank->wave(a,mip):kWavetableData[a][mip];
+ float lo=pcm[i],hi=pcm[(i+1)&255];
  return (lo+(hi-lo)*(x-floorf(x)))/32767;
 }
 float reference(float position,float phase,float step){
@@ -27,7 +30,8 @@ float reference(float position,float phase,float step){
  unsigned mip=0,harmonics=64;
  while(mip<6 && harmonics>allowed){++mip;harmonics>>=1;}
  float blend=std::clamp(2-allowed/harmonics,0.f,1.f);
- unsigned a=unsigned(position),b=std::min(a+1,127u);
+ if(bank)position=bank->position(position);
+ unsigned a=unsigned(position),b=std::min(a+1,bank?bank->frames-1:127u);
  auto read=[&](unsigned level){
   float lo=linear_wave(a,level,phase);
   return lo+(linear_wave(b,level,phase)-lo)*(position-a);
@@ -75,7 +79,7 @@ Result measure(const Setting& s,float position,unsigned bin){
  float step=float(bin)/N,hz=step*rate;
  float values[]={position,0,1,.001f,.005f,.001f,1,1,float(s.mode),s.warp,s.ratio,s.pm};
  WavetableVoice voice;
- voice.init(rate);voice.trigger(hz,1,values);
+ voice.init(rate);voice.trigger(hz,1,values,bank);
  // One full period both aligns phase and settles ADSR and IIR histories.
  for(unsigned i=0;i<N;++i)voice.next(hz,true);
  Audio old{},extended{},neutral{};
@@ -147,19 +151,20 @@ template<size_t Count> unsigned moving_controls(unsigned motion,const unsigned (
    const float ratio=carrier%2?2.f:1.5f;
    const unsigned fundamental=carrier%2?carrier:carrier/2;
    const bool scan=movement!=1,amounts=movement!=0;
-   float values[]={63.5f,scan?36.f:0.f,float(rate)/period,.001f,.01f,.001f,1,1,float(mode),.65f,ratio,.55f};
-   WavetableVoice voice;voice.init(rate);voice.trigger(hz,1,values);
+   float values[]={63.5f,scan && !bank?36.f:0.f,float(rate)/period,.001f,.01f,.001f,1,1,float(mode),.65f,ratio,.55f};
+   WavetableVoice voice;voice.init(rate);voice.trigger(hz,1,values,bank);
    // Warm up the envelope, dezipper and filters with the same motion.
    // Capture after a full FFT window so both oscillator phases start at zero.
    for(unsigned n=0;n<2*motion_size;++n){
-    if(amounts && n%32==0){
+    if(n%32==0 && (amounts || (bank && scan))){
      const double angle=2*pi*(n%period)/period;
-     values[WavetableWarpAmount]=.92f*std::sin(angle);
-     values[WavetablePmAmount]=.5f+.48f*std::cos(angle);
+     if(bank && scan)values[0]=63.5f+60.f*std::sin(angle);
+     if(amounts){values[WavetableWarpAmount]=.92f*std::sin(angle);values[WavetablePmAmount]=.5f+.48f*std::cos(angle); }
      voice.parameters(values);
     }
     float position=voice.position()*127;
     float x=voice.next(hz,true);
+    if(bank)position=voice.position()*127;
     if(n<motion_size)continue;
     unsigned i=n-motion_size;
     extended[i]=x;
@@ -218,6 +223,16 @@ static void extended_sweep(){
 
 int main(int argc,char** argv){
  assert(prepare_wavetable_bank());
+ if(argc==2 && std::strcmp(argv[1],"--tables")==0){
+  auto imported=read_wavetable_asset(dsp_wavetable_fixture());assert(imported.frames==2);
+  unsigned failures=0;
+  for(auto table:{factory_wavetable(1),factory_wavetable(2),static_cast<const WavetableBankView*>(&imported)}){
+   bank=table;
+   failures+=moving_matrix();
+   extended_sweep();
+  }
+  return failures?1:0;
+ }
  if(argc==2 && std::strcmp(argv[1],"--motion-strict")==0)return moving_matrix()?1:0;
  if(argc>1){assert(argc==2 && std::strcmp(argv[1],"--sweep")==0);extended_sweep();return 0;}
  const auto above_stock=moving_matrix();

@@ -40,13 +40,19 @@ inline ParameterValue resolve_parameter(const ProjectState& project,ConstTrackVi
 // Native blocks use engine ownership and declaration offsets directly. Check
 // shared layers once; when none match, resolution reduces to clamped bases.
 // No cache survives a block, so edits, Sound locks and gestures stay immediate.
-inline bool resolve_unlayered_engine(const ProjectState& project,ConstTrackView track,unsigned track_index,Instrument engine,const ParameterLock* locks,bool automation_running,const GestureOverlay* gesture,unsigned pattern,bool control_all,uint16_t control_id,const float* bases,float* output,ParameterTarget common=0,unsigned common_offset=0){
+inline bool resolve_unlayered_engine(const ProjectState& project,ConstTrackView track,unsigned track_index,Instrument engine,const ParameterLock* locks,bool automation_running,const GestureOverlay* gesture,unsigned pattern,bool control_all,uint16_t control_id,const float* bases,float* output,ParameterTarget common=0,unsigned common_offset=0,uint32_t* routed_locals=nullptr){
+ if(routed_locals)*routed_locals=0;
  const auto* descriptor=engine_descriptor(unsigned(engine));if(!descriptor)return false;
  auto inside=[&](ParameterTarget target){return (engine_target(target) && !unavailable_target(target) && target_engine(target)==engine) || (common && target==common);};
  if(project.morph_enabled || (gesture && gesture->morph_active) || (control_all && inside(control_id)))return false;
  if(automation_running)for(const auto& lane:track.automation)if(lane.enabled && inside(lane.parameter))return false;
  if(gesture)for(unsigned i=0;i<gesture->count;++i){const auto& e=gesture->points[i];if(e.track==track_index && e.pattern==pattern && inside(e.parameter))return false;}
- for(unsigned mi=0;mi<8;++mi)if(project.macros[mi].active || (gesture && gesture->macro_active[mi]))for(const auto& route:project.macros[mi].routes)if(route.enabled && inside(route.parameter) && (route.tracks&(1u<<track_index)))return false;
+ for(unsigned mi=0;mi<8;++mi)if(project.macros[mi].active || (gesture && gesture->macro_active[mi]))for(const auto& route:project.macros[mi].routes)if(route.enabled && inside(route.parameter) && (route.tracks&(1u<<track_index))){
+  // Render-ahead callers require a wholly static bank. The audio owner can
+  // instead resolve just these destinations through the full matrix below.
+  if(!routed_locals || !engine_target(route.parameter))return false;
+  if(macro_target_allowed(route.parameter))*routed_locals|=uint32_t(1)<<target_local(route.parameter);
+ }
  if(locks)for(unsigned i=0;i<kLocks;++i)if(locks[i].enabled && inside(locks[i].id))return false;
  for(unsigned i=0;i<descriptor->parameters.count;++i){unsigned offset=descriptor->parameters.declarations[i].offset;output[offset]=clamp_target(engine_target(engine,i),bases[offset]);}
  if(common)output[common_offset]=clamp_target(common,bases[common_offset]);

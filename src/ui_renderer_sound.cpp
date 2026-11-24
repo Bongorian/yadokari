@@ -358,8 +358,15 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    const bool sounding=perf.visual_fresh() && frame.instrument[track]==unsigned(Instrument::Wavetable)
     && frame.pattern[track]==perf.editing_pattern() && frame.envelope[track]>=.00001f;
    cycle.label=sounding?"BASE TABLE MODEL / PLAYED PITCH":"BASE TABLE MODEL / C4";
-   const float position=ui::recipe_value(t,0,&perf);
-   const unsigned a=unsigned(position),b=a<127?a+1:a;
+   const unsigned selection=unsigned(t.wavetable.values[WavetableTable]);
+   if(selection>=kWavetableFirstAsset){
+    label(1,24,118,"USER TABLE",theme.text,Font::Body,430);
+    label(1,24,147,"4-D: VIEW LIVE WAVEFORM",theme.secondary,Font::Small,430);return;
+   }
+   const auto* bank=factory_wavetable(selection);
+   const float control=sounding?frame.wavetable_position[track]*127.f:ui::recipe_value(t,0,&perf);
+   const float position=bank?bank->position(control):control;
+   const unsigned a=unsigned(position),b=a+1<(bank?bank->frames:kWavetableWaves)?a+1:a;
    const unsigned mode=unsigned(ui::recipe_value(t,WavetableWarpMode,&perf));
    const float warp=ui::recipe_value(t,WavetableWarpAmount,&perf);
    const float ratio=ui::recipe_value(t,WavetablePmRatio,&perf);
@@ -371,7 +378,7 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
     const float at=wavetable_wrap(phase)*kWavetableSamples;
     const unsigned left=unsigned(at)%kWavetableSamples,right=(left+1)%kWavetableSamples;
     auto read=[&](unsigned wave,unsigned mip){
-     const auto* data=kWavetableData[wave][mip];
+     const auto* data=bank?bank->wave(wave,mip):kWavetableData[wave][mip];
      return data[left]+(data[right]-data[left])*(at-float(left));
     };
     auto table=[&](unsigned mip){const float first=read(a,mip);return first+(read(b,mip)-first)*(position-a);};
@@ -381,7 +388,7 @@ auto UiRenderer::synth(ConstTrackView t,const Performance& perf) -> void{
    for(unsigned i=0;i<cycle.count;++i){
     const float phase=float(i)/float(cycle.count-1);
     float shape;
-    if(effective.spectral)shape=wavetable_spectral_sample(effective,effective.step,phase,phase*effective.ratio,position,levels.mip,levels.blend);
+    if(effective.spectral)shape=wavetable_spectral_sample(effective,effective.step,phase,phase*effective.ratio,position,levels.mip,levels.blend,bank);
     else {
      const auto map=wavetable_read_phases(phase,effective.mode,effective.warp,phase*effective.ratio,effective.pm);
      const float first=sample(map.first);shape=first+(sample(map.second)-first)*map.blend;

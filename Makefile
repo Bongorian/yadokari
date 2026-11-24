@@ -1351,11 +1351,12 @@ test-run-wavetable-engine: build/test-wavetable-engine
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-engine
 wavetable-bank:
 	python3 tools/content/generate-wavetable.py
-build/test-wavetable-alias: tests/wavetable_alias_test.cpp src/wavetable_voice.h src/wavetable_warp.h src/wavetable_spectrum.h src/wavetable_state.h build/host-support/src/wavetable_bank.o build/host-support/third_party/daisysp/Source/Control/adsr.o $(UI_BASE_ARCHIVE)
+build/test-wavetable-alias: tests/wavetable_alias_test.cpp src/dsp_wavetable_fixture.h src/generated/wavetable_probe.inc src/wavetable_voice.h src/wavetable_warp.h src/wavetable_spectrum.h src/wavetable_state.h build/host-support/src/wavetable_bank.o build/host-support/third_party/daisysp/Source/Control/adsr.o $(UI_BASE_ARCHIVE)
 	$(CXX) $(HOST_FLAGS) $(SAN) -O2 -Wall -Wextra -Werror $< $(filter %.o,$^) -o $@ $(UI_BASE_ARCHIVE)
 .PHONY: test-run-wavetable-alias
 test-run-wavetable-alias: build/test-wavetable-alias
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-alias
+	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-alias --tables
 .PHONY: wavetable-motion-gate
 wavetable-motion-gate: build/test-wavetable-alias
 	UBSAN_OPTIONS=halt_on_error=1 ./build/test-wavetable-alias --motion-strict

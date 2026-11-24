@@ -1,5 +1,6 @@
 #pragma once
 #include "wavetable_warp.h"
+#include "wavetable_bank.h"
 
 namespace groove {
 constexpr unsigned kUpperMip=2,kUpperHarmonics=64>>kUpperMip;
@@ -21,5 +22,5 @@ inline bool wavetable_spectral_register(float step,bool was_spectral){
  return step>(was_spectral?center/half:center*half);
 }
 float wavetable_spectral_sample(WavetablePhaseMap map,float step,float carrier,float modulator,
-                                       float position,unsigned mip,float mip_blend);
+                                       float position,unsigned mip,float mip_blend,const WavetableBankView* bank=nullptr);
 }

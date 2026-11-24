@@ -117,6 +117,10 @@ void Engine::command(const CommandState& incoming,const SoundState* payload) {
    refresh_parameters(c.track);break;}
   case CommandType::BindSample: if(c.value<kSampleAssets){bind_sample(c.value,c.sample);if(c.parameter==1)project_->assets[c.value].metadata=c.metadata;}break;
   case CommandType::SetSample: if(c.value<kSampleAssets){
+   if(c.step==unsigned(Instrument::Wavetable) && state.instrument==Instrument::Wavetable && read_wavetable_asset(c.sample).frames){
+    bind_sample(c.value,c.sample);if(c.parameter==1)project_->assets[c.value].metadata=c.metadata;
+    state.wavetable.values[WavetableTable]=float(kWavetableFirstAsset+c.value);break;
+   }
    // Rebinding material is not replacement of the attached Sampler instance.
    // Existing voices retain their WavView/rate/root and follow its live speed.
    if(state.instrument!=Instrument::Sampler){retire_sampler_source(c.track);voices_[c.track].sampler.stop();}

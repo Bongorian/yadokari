@@ -226,9 +226,11 @@ inline EngineStateContract wavetable_state_contract(){
   {0x42545657u,1,emit_parm,encode_wavetable_range<0,base>,decode_wavetable_range<0,base>,defaults_wavetable_range<0,base>},
   {0x32545657u,1,emit_wavetable_extension,encode_wavetable_range<base,phase>,decode_wavetable_range<base,phase>,defaults_wavetable_range<base,phase>},
   {0x33545657u,1,[](const EngineStateSource& s,bool){return s.wavetable && !wavetable_unison_is_default(s.wavetable->values);},
-   encode_wavetable_range<phase,all>,decode_wavetable_range<phase,all>,defaults_wavetable_range<phase,all>}
+   encode_wavetable_range<phase,WavetableTable>,decode_wavetable_range<phase,WavetableTable>,defaults_wavetable_range<phase,WavetableTable>},
+  {0x34545657u,1,[](const EngineStateSource& s,bool){return s.wavetable && s.wavetable->values[WavetableTable]!=0;},
+   encode_wavetable_range<WavetableTable,all>,decode_wavetable_range<WavetableTable,all>,defaults_wavetable_range<WavetableTable,all>}
  };
- return {chunks,3,1};
+ return {chunks,4,1};
 }
 }
 

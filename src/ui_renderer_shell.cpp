@@ -478,6 +478,12 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
  }
 auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,unsigned i) -> KnobValue{
   KnobValue out;const char* name=perf.knob_label(i);float raw=perf.knob_display_value(i);uint16_t parameter=perf.knob_parameter(i);
+  if(parameter==engine_target(Instrument::Wavetable,WavetableTable)){
+   unsigned table=unsigned(raw);
+   if(table<kWavetableFirstAsset){constexpr const char* names[]={"AKWF","REED","PRISM"};out.append(names[table]);}
+   else{out.append("ASSET ");out.number(float(table-kWavetableFirstAsset+1),0);}
+   return out;
+  }
   if(perf.composition_dialog()==2){if(i==0)out.number(raw,0);return out;}
   if(perf.composition_dialog()){if(i==0){static const char* names[]={"THIN","TRANSPOSE","DROP TRACK"};out.append(names[unsigned(perf.variation_options().kind)]);}else if(i==1){out.number(raw,0);if(perf.variation_options().kind==PatternVariation::Thin)out.append("%");else if(perf.variation_options().kind==PatternVariation::Transpose)out.append("st");}return out;}
   if(perf.mode()==UiMode::Clip && !perf.clip_follow_page() && perf.shifted() && i==7){out.append(perf.copy_track_only()?"TRACK ONLY":"ALL");return out;}

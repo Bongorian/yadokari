@@ -450,7 +450,9 @@ K4 **SONG FX TYPE** and K5 **SONG FX AMT** edit values stored in the Song. Leavi
 
 The final value of a sound is generally decided in the order <strong>base → Morph → Automation → Gesture → Macro → Lock → Control All → smoothing/Modulation</strong>. Even if you change a knob's base value, if a Lock or Macro is overriding it, the sound at that moment may not change. `RESET LIVE` clears Morph, Macro, Control All, and temporary FX, but does not erase Step-side Automation/Lock.
 
-On WAVETABLE, use MODULATION → MACRO ROUTES to target POSITION, WARP AMT, PM AMT or DETUNE. Select the parent macro, track LFO or envelope as the source and enable the macro bank and route. The fixed scan LFO is added to the resolved POSITION. UNISON stays under direct sound control. Moving warp or PM away from zero requests the extended oscillator budget while the note is held.
+On WAVETABLE, use MODULATION → Top 3 MACRO MAP and knob 3 to target POSITION, WARP AMT, PM AMT or DETUNE. Use Shift + knob 3 to select the parent macro, track LFO or envelope as the source and enable the macro bank and route. The fixed scan LFO is added to the resolved POSITION. UNISON stays under direct sound control. Moving warp or PM away from zero requests the extended oscillator budget while the note is held.
+
+In SYNTH → DETAILS, knob 8 selects the table for the next note. AKWF scans the 128 original waves. REED and PRISM morph between phase-aligned frames. For a user table, convert a mono WAV with the converter's `tools/wavetable.py input.wav table.wav --cycle 256`, using the actual length of a single cycle. Assign the resulting WAV to a WAVETABLE track from the browser. Its ASSET number appears on knob 8. The asset follows the sound into presets and Layers. A missing or invalid table prevents the note from starting.
 
 #### TWIN: switching a heavy engine to a prepared sampled version
 

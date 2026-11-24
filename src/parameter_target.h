@@ -26,7 +26,7 @@ inline Instrument target_engine(ParameterTarget target){return unavailable_targe
 inline unsigned target_local(ParameterTarget target){return target&31;}
 inline ParameterTarget engine_target(Instrument engine,unsigned local){return local<32?ParameterTarget(0x8000|(unsigned(engine)<<5)|local):kNoParameterTarget;}
 inline const ParameterDescriptor* target_descriptor(ParameterTarget target){if(unavailable_target(target)){static const ParameterDescriptor missing={0,"UNAVAILABLE",-1000000,1000000,0,Interpolation::Linear,"",3,1};return &missing;}if(engine_target(target)){if(((target&0x7fff)>>5)>=instrument_count())return nullptr;const auto* d=engine_parameter(target_engine(target),target_local(target));return d?&d->value:nullptr;}return parameter_descriptor(target);}
-inline bool sound_attribute_target(ParameterTarget target){return engine_target(target) && target_engine(target)==Instrument::Chimera && chimera_sound_attribute(target_local(target));}
+inline bool sound_attribute_target(ParameterTarget target){return target==engine_target(Instrument::Wavetable,WavetableTable) || (engine_target(target) && target_engine(target)==Instrument::Chimera && chimera_sound_attribute(target_local(target)));}
 inline bool valid_target_address(ParameterTarget target){return !sound_attribute_target(target) && target_descriptor(target) && (engine_target(target) || morph_common_parameter(target));}
 inline bool valid_target_value(ParameterTarget target,float value){const auto* d=target_descriptor(target);return d && value>=d->minimum && value<=d->maximum && (!engine_target(target) || d->interpolation!=Interpolation::Discrete || __builtin_floorf(value)==value);}
 inline bool valid_target(ParameterTarget target,float value){return valid_target_address(target) && valid_target_value(target,value);}
@@ -49,7 +49,7 @@ struct ChimeraControlTargets {
 inline constexpr ChimeraControlTargets kChimeraControlTargets{};
 inline unsigned target_count(Instrument engine){
  const auto* d=engine_descriptor(unsigned(engine));
- return kCommonMorphParameters+(engine==Instrument::Chimera?kChimeraControlTargets.count:d?d->parameters.count:0);
+ return kCommonMorphParameters+(engine==Instrument::Chimera?kChimeraControlTargets.count:engine==Instrument::Wavetable?unsigned(WavetableTable):d?d->parameters.count:0);
 }
 inline ParameterTarget target_at(Instrument engine,unsigned index){
  if(index<kCommonMorphParameters)return morph_parameter_at(index);

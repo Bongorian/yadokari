@@ -397,7 +397,7 @@ inline void set_morph_endpoint(ParameterSnapshot& s,ConstTrackView t,uint16_t id
 inline bool edit_engine_parameter(ProjectState& p,TrackView t,unsigned track,unsigned local,float value,unsigned mode=0,float a=0,float b=0){
  const auto* d=engine_parameter(t.instrument,local);if(!d || local>=kEngineMorphParameters)return false;
  auto valid=[&](float v){return v>=d->value.minimum && v<=d->value.maximum && (d->value.interpolation!=Interpolation::Discrete || floorf(v)==v);};
- if(t.instrument==Instrument::Chimera && chimera_sound_attribute(local))
+ if(sound_attribute_target(engine_target(t.instrument,local)))
   return mode!=1 && set_engine_parameter(t,local,value);
  if(mode==1 && (!valid(a) || !valid(b)))return false;
  if(!set_engine_parameter(t,local,value))return false;

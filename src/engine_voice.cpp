@@ -262,7 +262,11 @@ LayerReason Engine::layer_admission(unsigned t,const LayerState& layer,unsigned 
  if(gate!=LayerGate::None)return LayerReason::Cost;
  unsigned free=0;constexpr unsigned resources=unsigned(VoiceResource::Count);unsigned shared[resources]{},shared_cost[resources]{},need_shared[resources]{},need_shared_cost[resources]{};
  for(const auto& p:poly_voices_){if(p.owner==255 || (victims&(uint32_t(1)<<(&p-poly_voices_)))){++free;continue;}auto resource=engine_voice_resource(p.voice.instrument);if(resource!=VoiceResource::None){shared[unsigned(resource)]+=p.voice.tract_count;shared_cost[unsigned(resource)]+=p.voice.tract_count*engine_voice_cost(Instrument(p.voice.instrument),p.voice.model);}}
- for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);unsigned units=child.instrument==Instrument::Chimera?chimera_unison(child.chimera):1;need_shared[r]+=units;need_shared_cost[r]+=units*engine_voice_cost(child.instrument,child.instrument==Instrument::Chimera?chimera_model(child.chimera):child.model);}}
+ for(unsigned i=0;i<layer.count;++i){if(!(selected&(1u<<i)))continue;const auto& child=layer.parts[i].sound;if(!engine_rate_supported(child.instrument,rate_))return LayerReason::Unsupported;
+  if(child.instrument==Instrument::Wavetable && child.wavetable.values[WavetableTable]!=0 && !wavetable_bank(unsigned(child.wavetable.values[WavetableTable])))return LayerReason::Assets;
+  if(engine_asset_mode(child.instrument)==EngineAssetMode::Sample && !samples_[child.sample_slot].frames)return LayerReason::Assets;
+  if(child.instrument==Instrument::SoundFont && (!soundfont_resident(samples_[child.sample_slot].soundfont) || !soundfont_name(samples_[child.sample_slot].soundfont,unsigned(child.soundfont.values[0]),unsigned(child.soundfont.values[1]))))return LayerReason::Assets;
+  auto resource=engine_voice_resource(unsigned(child.instrument));if(resource!=VoiceResource::None){unsigned r=unsigned(resource);unsigned units=child.instrument==Instrument::Chimera?chimera_unison(child.chimera):1;need_shared[r]+=units;need_shared_cost[r]+=units*engine_voice_cost(child.instrument,child.instrument==Instrument::Chimera?chimera_model(child.chimera):child.model);}}
  // Perf port (item 1, decision A 2026-11-15): layer admission uses the
  // scaled budgets. This deliberately gives up the option-(a) portability
  // guarantee -- a layer accepted on Pi 5 may be refused on Pi 4 -- and
@@ -320,6 +324,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  int model_local=engine_model_parameter(state.instrument);if(!layer_part && actual==state.instrument && model_local>=0){const auto& r=runtime_[t];resolved_model=unsigned(resolve_target_value(*project_,state,t,engine_target(actual,unsigned(model_local)),float(resolved_model),step?step->locks:r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value);}
  float wt_values[kWavetableParameterCount];WavetableLoad wt{};
  if(actual==Instrument::Wavetable){
+  if(state.wavetable.values[WavetableTable]!=0 && !wavetable_bank(unsigned(state.wavetable.values[WavetableTable]))){layer_failure_[t]=uint8_t(LayerReason::Assets);return nullptr;}
   resolve_voice_bank(t,actual,state.wavetable.values,wt_values);wt=wavetable_load(wt_values);
   if(!layer_launching_ && wavetable_gate(t,wt,0,poly?nullptr:&voices_[t])!=LayerGate::None){
    ++poly_steals_.refused;__atomic_add_fetch(&probe_steals_refused_,1,__ATOMIC_RELAXED);return nullptr;
@@ -429,7 +434,7 @@ Engine::Voice* Engine::trigger(unsigned t,unsigned velocity,int note,const StepS
  if(actual==Instrument::Wavetable){
   v.wt_reserved=wt;
   if(layer_part)v.layer_cost=uint8_t(v.layer_cost-wavetable_load(state.wavetable.values).cost()+wt.cost());
-  v.wavetable.trigger(v.frequency,float(velocity)/127,wt_values);
+  v.wavetable.trigger(v.frequency,float(velocity)/127,wt_values,wavetable_bank(unsigned(state.wavetable.values[WavetableTable])));
   v.wt_unison.reset();v.wt_unison.parameters(v.wavetable,wt_values,wt.oscillators);
  }
  if(actual==Instrument::Texture){textures_suspended_=false;textures_[t].reseed(event_seed_for());textures_[t].trigger();}

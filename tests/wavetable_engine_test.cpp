@@ -1,4 +1,6 @@
 #include "engine.h"
+#include "dsp_wavetable_fixture.h"
+#include "preset_assets.h"
 #include "performance.h"
 #include "project_codec.h"
 #include <memory>
@@ -6,8 +8,56 @@
 #include <cassert>
 #include <cstdio>
 using namespace groove;
+static void verify_import(){
+ const WavView asset=dsp_wavetable_fixture();
+ auto bank=read_wavetable_asset(asset);assert(bank.frames==2);
+ WavView invalid=asset;--invalid.frames;assert(!read_wavetable_asset(invalid).frames);
+ auto project=std::make_unique<ProjectState>();make_empty_project(*project);
+ auto track=track_at(*project,0,0);track.instrument=Instrument::Wavetable;
+ auto e=std::make_unique<Engine>();assert(e->stage_project(*project));float pcm[256]{};e->render(pcm,0);
+ auto ui=std::make_unique<Performance>(*e,*project);ui->set_mode(UiMode::Synth);
+ assert(ui->soft_key(3) && ui->instrument_view()==kFirstSynthDetailView);
+ assert(ui->knob_parameter(7)==engine_target(Instrument::Wavetable,WavetableTable));
+ assert(ui->knob(7,1000));e->render(pcm,0);assert(track.wavetable.values[WavetableTable]==1);
+ assert(ui->knob(7,1000));e->render(pcm,0);assert(track.wavetable.values[WavetableTable]==2);
+ assert(ui->undo());e->render(pcm,0);assert(track.wavetable.values[WavetableTable]==1);
+ assert(ui->undo());e->render(pcm,0);assert(track.wavetable.values[WavetableTable]==0);
+ assert(ui->assign_sample(9,asset));e->render(pcm,0);
+ assert(track.instrument==Instrument::Wavetable && track.wavetable.values[WavetableTable]==kWavetableFirstAsset+9);
+ SoundState sound;snapshot_sound(sound,track);assert(sound_asset_mask(sound)==(uint64_t(1)<<9) && e->preset_assets_ready(sound));
+ uint8_t map[kSampleAssets]{};map[9]=7;remap_sound_assets(sound,map);
+ assert(required_sound_asset_mask(sound)==(uint64_t(1)<<7) && !e->preset_assets_ready(sound));
+ assert(ui->undo());e->render(pcm,0);assert(track.wavetable.values[WavetableTable]==0);
+ assert(ui->redo());e->render(pcm,0);
+ Command key{CommandType::MidiInput,0,69,0x90};key.scalar=100;assert(e->submit(key));
+ double energy=0;for(unsigned i=0;i<32;++i){e->render(pcm,128);for(float v:pcm)energy+=v*v;}assert(energy>.1);
+ Command remove{CommandType::BindSample,0,0,9};assert(e->submit(remove));e->render(pcm,128);
+ snapshot_sound(sound,track);assert(!e->preset_assets_ready(sound));
+}
+static void verify_routed_audio(){
+ auto project=std::make_unique<ProjectState>();make_empty_project(*project);
+ auto t=track_at(*project,0,0);t.instrument=Instrument::Wavetable;t.lfo_rate=8;
+ t.wavetable.values[0]=42;t.wavetable.values[WavetableUnisonCount]=2;
+ auto render=[&](float* result){
+  auto e=std::make_unique<Engine>();assert(e->stage_project(*project));e->render(result,0);
+  Command note{CommandType::MidiInput,0,80,0x90};note.scalar=100;assert(e->submit(note));
+  for(unsigned n=0;n<32;++n)e->render(result+256*n,128);
+ };
+ constexpr unsigned length=32*256;float ref[length],out[length];
+ for(unsigned table:{0u,1u,2u}){
+  t.wavetable.values[WavetableTable]=float(table);project->macros[0].active=false;render(ref);
+  project->macros[0].active=true;project->macros[0].value=.875f;
+  for(auto source:{ModSource::Macro,ModSource::Lfo,ModSource::Envelope})
+   for(unsigned i:{0u,unsigned(WavetableWarpAmount),unsigned(WavetablePmAmount),unsigned(WavetableDetune)}){
+    const auto& d=kWavetableParameters[i];
+    project->macros[0].routes[0]={true,engine_target(Instrument::Wavetable,i),1,d.minimum,d.maximum,LayerMode::Replace,MacroCurve::Linear,source};
+    render(out);double energy=0;for(unsigned n=0;n<length;++n){double dx=out[n]-ref[n];energy+=dx*dx;}assert(energy>1e-6);
+   }
+ }
+}
 int main(){
  allocation_admission_hook=+[](size_t,unsigned,size_t){return false;};assert(!prepare_wavetable_bank() && !wavetable_bank_ready());allocation_admission_hook=nullptr;assert(prepare_wavetable_bank() && wavetable_bank_ready());
+ verify_import();verify_routed_audio();
  ProjectCrc bank_crc;for(unsigned i=0;i<458752;++i)bank_crc.add(reinterpret_cast<const uint8_t*>(kWavetableData)[i]);assert(bank_crc.value()==0x1db3d4c9u);
 
  auto p=std::make_unique<ProjectState>();make_empty_project(*p);auto t=track_at(*p,0,0);t.instrument=Instrument::Wavetable;t.wavetable.values[0]=42.5f;t.wavetable.values[1]=9;t.wavetable.values[4]=.01f;

@@ -1,11 +1,19 @@
 #include "wavetable_bank.h"
 #include "wavetable_spectrum.h"
 #include "alloc_policy.h"
+#include "wav_sampler.h"
 #include "project_codec.h"
 namespace groove {
 #include "generated/akwf_tables.inc"
 const int16_t (*kWavetableData)[kWavetableLevels][kWavetableSamples]=nullptr;
 namespace {
+constexpr int16_t reed[]={
+#include "generated/wavetable_reed.inc"
+};
+constexpr int16_t prism[]={
+#include "generated/wavetable_prism.inc"
+};
+constexpr WavetableBankView factories[]={{reed+4,unsigned(reed[2])},{prism+4,unsigned(prism[2])}};
 struct BankStorage {unsigned char* bytes=nullptr;unsigned state=0;~BankStorage(){delete[] bytes;}} storage;
 }
 namespace {
@@ -45,11 +53,21 @@ static void prepare_warp_spectra(const int16_t (*bank)[kWavetableLevels][kWaveta
  }
 }
 }
+const WavetableBankView* factory_wavetable(unsigned index){
+ return index>=1 && index<=2?&factories[index-1]:nullptr;
+}
+WavetableBankView read_wavetable_asset(const WavView& sample){
+ if(!sample.data || sample.reader || sample.format!=1 || sample.channels!=1 || sample.bits!=16 ||
+    sample.frames<4 || (uintptr_t(sample.data)&1) || !wav_tag(sample.data,"YWT1"))return {};
+ unsigned count=wav_u16(sample.data+4);
+ if(count<2 || count>16 || wav_u16(sample.data+6)!=0 || sample.frames!=4+count*(7*256+30))return {};
+ return {reinterpret_cast<const int16_t*>(sample.data+8),count};
+}
 // At high pitches the carrier and PM sidebands can cross Nyquist separately.
 // Sum the admitted components at their physical frequencies. This keeps the
 // Fourier coefficients (table scan and moving controls) outside the phase map.
 float wavetable_spectral_sample(WavetablePhaseMap map,float step,float carrier,float modulator,
-                                       float position,unsigned mip,float mip_blend){
+                                       float position,unsigned mip,float mip_blend,const WavetableBankView* bank){
  const float depth=(map.warp+1)*(.5f*kWarpDepthSteps);
  unsigned bin=unsigned(depth);if(bin>=kWarpDepthSteps)bin=kWarpDepthSteps-1;
  const auto* spectra=kWarpSpectra[map.mode]+bin;
@@ -93,9 +111,10 @@ float wavetable_spectral_sample(WavetablePhaseMap map,float step,float carrier,f
   result.re+=term.re;result.im+=term.im;
  }
  if(full_band)result=result.times(common);
- const unsigned a=unsigned(position),b=a+1<kWavetableWaves?a+1:a;
+ const unsigned count=bank?bank->frames:kWavetableWaves;
+ const unsigned a=unsigned(position),b=a+1<count?a+1:a;
  const float mix=position-a;
- const auto* first=kWavetableData[a][6];const auto* second=kWavetableData[b][6];
+ const auto* first=bank?bank->wave(a,6):kWavetableData[a][6];const auto* second=bank?bank->wave(b,6):kWavetableData[b][6];
  const float cosine=first[0]+mix*(second[0]-first[0]),sine=first[64]+mix*(second[64]-first[64]);
  float sample=cosine*result.re+sine*result.im;
  // Preserve the source's remaining in-band partials at low warp/PM depths.
@@ -105,7 +124,11 @@ float wavetable_spectral_sample(WavetablePhaseMap map,float step,float carrier,f
  auto osc=c[kWarpHarmonics+1];
  for(unsigned h=2;h<=kUpperHarmonics && h<=limit;++h){
   osc=h<=kWarpHarmonics?c[kWarpHarmonics+h]:osc.times(c[kWarpHarmonics+1]);
-  const auto part=kUpperSource[a][h-2].mix(kUpperSource[b][h-2],mix);
+  WavetableQuadrature part;
+  if(bank){
+   const auto* x=bank->partial(a,h);const auto* y=bank->partial(b,h);
+   part={x[0]+mix*(y[0]-x[0]),x[1]+mix*(y[1]-x[1])};
+  }else part=kUpperSource[a][h-2].mix(kUpperSource[b][h-2],mix);
   sample+=(part.re*osc.re+part.im*osc.im)*(h>limit/2?1-mip_blend:1);
  }
  return sample/32767.f;

@@ -451,6 +451,10 @@ K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定で�
 
 音色の最終値は概ね <strong>基底→Morph→Automation→Gesture→Macro→Lock→Control All→平滑化／Modulation</strong>の順で決まります。ノブの基底を変えてもLockやMacroが上書きしていると、その瞬間の音は変わらないことがあります。`RESET LIVE`はMorph・Macro・Control All・一時FXを解除しますが、Step側のAutomation／Lockまで消しません。
 
+WAVETABLEでは **MODULATION → Top3 MACRO MAP** を開き、K3で POSITION、WARP AMT、PM AMT、DETUNE のいずれかを選びます。SHIFT＋K3で変調元を選び、ルートと親マクロを有効にします。固定スキャンLFOは変調後のPOSITIONに加算されます。UNISONの声数はSYNTHで設定します。
+
+**SYNTH → Top4 DETAILS → K8 TABLE** で次の発音に使うテーブルを選べます。AKWFは従来の128波形、REEDとPRISMは位相をそろえたフレーム間をPOSITIONでモーフします。手持ちの波形はPCのコンバータで `python3 tools/wavetable.py input.wav table.wav --cycle 256` のように変換します。`--cycle` には入力波形の1周期のサンプル数を指定してください。変換したWAVをブラウザーからWAVETABLEトラックに割り当てると、K8に資産番号が表示されます。
+
 #### TWIN：重い音源を準備済みのサンプル版へ切り替える
 
 **MIXER → Top6 TWIN** は、未準備なら自動取り込みを始めます。先に

@@ -3,6 +3,7 @@
 #include "project_storage.h"
 #include "../src/session_files.h"
 #include "../src/dsp_probe_workload.h"
+#include "../src/dsp_wavetable_fixture.h"
 #include "../src/alloc_policy.h"
 #include <circle/logger.h>
 #include <circle/timer.h>
@@ -13,6 +14,7 @@ class CDspProbe {
  groove::WavView original_views_[64]{},views_[64]{};
  uint8_t pcm_[512*2]{};bool optimization_=false;bool sf_ready_=false,aborted_=false,triggered_=false,measured_=false;unsigned bank_=0,program_=0,case_=0,window_=0,case_missing_=0,suite_missing_=0,last_missing_=0;
  unsigned texture_before_stage_=0,texture_after_stage_=0,texture_before_trigger_=0;
+ unsigned revision_=groove::kWave4ProbeRevision;
  unsigned start_ms_=0,window_ms_=0,next_hit_ms_=0,next_tone_ms_=0,suite_ms_=0,restore_generation_=0,sat_round_=0;
  unsigned dump_position_=0,dump_due_=0,measured_ms_=0,window_missing_=0;bool dump_started_=false;
  groove::Engine::ProbeSteals steal_base_{},steal_end_{};
@@ -55,10 +57,12 @@ public:
   original_=groove::alloc_new<groove::ProjectState>(project);candidate_=groove::alloc_new<groove::ProjectState>();
   if(!original_ || !candidate_){delete original_;delete candidate_;original_=candidate_=nullptr;return false;}
   files.copy_bindings(original_views_);for(auto& view:views_)view={};for(unsigned i=0;i<512;++i){int16_t value=(i%128)<64?8192:-8192;pcm_[2*i]=uint8_t(value);pcm_[2*i+1]=uint8_t(uint16_t(value)>>8);}views_[0]={pcm_,512,48000,1,16,1};
-  optimization_=suite==Suite::Optimization;original_mode_=ui.mode();
+  views_[1]=groove::dsp_wavetable_fixture();
+  optimization_=suite==Suite::Optimization;
+  revision_=optimization_?groove::kDspProbeRevision:suite==Suite::Wavetable?groove::kWavetableProbeRevision:groove::kWave4ProbeRevision;original_mode_=ui.mode();
   case_=suite==Suite::Wavetable?groove::dsp_wavetable_start():suite==Suite::Stress?groove::dsp_stress_start():0;aborted_=sf_ready_=false;phase_=Prepare;
   unsigned low=~0u,high=0;uint64_t sum=0;for(unsigned i=0;i<256;++i){unsigned a=Clock(),elapsed=Clock()-a;if(elapsed<low)low=elapsed;if(elapsed>high)high=elapsed;sum+=elapsed;}
-  CLogger::Get()->Write("dsp",LogNotice,"DSP suite revision %u begin first %u end %u freq %u clock-pair-min %u avg %u max %u deadline-us 500 seed 0x57313001",optimization_?groove::kDspProbeRevision:groove::kWave4ProbeRevision,case_,end_case(),Frequency(),low,unsigned(sum/256),high);
+  CLogger::Get()->Write("dsp",LogNotice,"DSP suite revision %u begin first %u end %u freq %u clock-pair-min %u avg %u max %u deadline-us 500 seed 0x57313001",revision_,case_,end_case(),Frequency(),low,unsigned(sum/256),high);
   ui.panic();return true;
  }
  void service(groove::Engine& engine,groove::ProjectState& project,groove::Performance& ui,groove::SessionFiles& files,CProjectStorage& storage,CMk3Audio* audio,bool stop){
@@ -108,6 +112,6 @@ public:
    engine.dsp_profile().stop();ui.stop();engine.submit({groove::CommandType::DiagnosticTone,0,0,0});if(!engine.dsp_profile().quiescent())return;
    if(engine.stage_project(*original_,original_views_)){project=*original_;files.set_bindings(original_views_);ui.project_loaded();ui.set_mode(original_mode_);restore_generation_=engine.staged_generation();phase_=Restoring;}return;
   }
-  if(phase_==Restoring && ui.visual().generation==restore_generation_){delete original_;delete candidate_;original_=candidate_=nullptr;phase_=Idle;CLogger::Get()->Write("dsp",LogNotice,"DSP suite revision %u completed aborted %u elapsed-ms %u total-missing %u restored 1",optimization_?groove::kDspProbeRevision:groove::kWave4ProbeRevision,unsigned(aborted_),uint32_t(ms-suite_ms_),last_missing_-suite_missing_);}
+  if(phase_==Restoring && ui.visual().generation==restore_generation_){delete original_;delete candidate_;original_=candidate_=nullptr;phase_=Idle;CLogger::Get()->Write("dsp",LogNotice,"DSP suite revision %u completed aborted %u elapsed-ms %u total-missing %u restored 1",revision_,unsigned(aborted_),uint32_t(ms-suite_ms_),last_missing_-suite_missing_);}
  }
 };

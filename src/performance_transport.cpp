@@ -707,7 +707,7 @@ auto Performance::edit(Command after,Command before)  -> bool{
   if(before.pattern>=kPatterns)before.pattern=after.pattern;
   Instrument next=track_const(after.track).instrument;
   if(after.type==CommandType::SetInstrument)next=Instrument(after.value);
-  else if(after.type==CommandType::SetSample)next=after.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;
+  else if(after.type==CommandType::SetSample)next=after.step==unsigned(Instrument::Wavetable)?Instrument::Wavetable:after.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;
   else if(after.type==CommandType::RestoreSampleAssignment)next=Instrument(after.step);
   else if(after.type==CommandType::ApplySound)next=after.sound().instrument;
   TrackHistory* old_state=nullptr;TrackHistory* new_state=nullptr;
@@ -724,7 +724,7 @@ auto Performance::mirror(const Command& c)  -> void{
   auto t=track_views_.at(c.pattern,c.track);
   const Instrument old_instrument=t.instrument;const uint8_t old_slot=t.sample_slot;
   switch(c.type) {
-   case CommandType::SetSample:if(c.parameter==1)project_.assets[c.value].metadata=c.metadata;t.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(t.instrument!=next){t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=next;}break;
+   case CommandType::SetSample:if(c.parameter==1)project_.assets[c.value].metadata=c.metadata;if(c.step==unsigned(Instrument::Wavetable)){t.wavetable.values[WavetableTable]=float(kWavetableFirstAsset+c.value);break;}t.sample_slot=uint8_t(c.value);{auto next=c.step==unsigned(Instrument::Granular)?Instrument::Granular:Instrument::Sampler;if(t.instrument!=next){t.definition_cookie=0;t.preset_name[0]=0;t.preset_identity={};t.preset_slot=kNoPreset;t.preset_fx={};t.output_trim=1;}t.instrument=next;}break;
    case CommandType::RestoreSampleAssignment:t.sample_slot=uint8_t(c.value);t.instrument=Instrument(c.step);if(c.track==selected_ && c.pattern==project_.active_pattern)instrument_view_=0;break;
    case CommandType::SetAutomation:t.automation[c.step]=c.automation;break;
    case CommandType::SetNrpnConfig:t.nrpn[c.step].number=c.parameter;t.nrpn[c.step].enabled=c.value!=0;t.nrpn[c.step].registered=c.scalar==1;break;

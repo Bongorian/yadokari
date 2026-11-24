@@ -2,8 +2,9 @@
 #include "parameters.h"
 namespace groove {
 enum WavetableParameter : unsigned {
- WavetableWarpMode=8, WavetableWarpAmount, WavetablePmRatio, WavetablePmAmount, WavetableUnisonCount, WavetableDetune, WavetableSpread, kWavetableParameterCount
+ WavetableWarpMode=8, WavetableWarpAmount, WavetablePmRatio, WavetablePmAmount, WavetableUnisonCount, WavetableDetune, WavetableSpread, WavetableTable, kWavetableParameterCount
 };
+constexpr unsigned kWavetableFirstAsset=3;
 constexpr unsigned kWavetablePhaseParameterCount=WavetableUnisonCount;
 constexpr unsigned kWavetableLegacyParameterCount=WavetableWarpMode;
 // Declared ranges are shared by state validation, codec and editor metadata.
@@ -22,7 +23,8 @@ inline constexpr ParameterDescriptor kWavetableParameters[]={
  {WavetablePmAmount,"PM AMT",0,1,0,Interpolation::Linear,"",2,.01f},
  {WavetableUnisonCount,"UNISON",1,7,1,Interpolation::Discrete,"voices",0,1},
  {WavetableDetune,"DETUNE",0,100,12,Interpolation::Linear,"ct",1,.5f},
- {WavetableSpread,"SPREAD",0,1,.75f,Interpolation::Linear,"",2,.01f}
+ {WavetableSpread,"SPREAD",0,1,.75f,Interpolation::Linear,"",2,.01f},
+ {WavetableTable,"TABLE",0,66,0,Interpolation::Discrete,"",0,1}
 };
 static_assert(sizeof kWavetableParameters/sizeof *kWavetableParameters==kWavetableParameterCount);
 // Wave A Pi 5 measurements, converted using the measured legacy Pi 4/Pi 5
@@ -49,7 +51,7 @@ inline bool wavetable_extension_is_default(const float* values){
  return true;
 }
 inline bool wavetable_unison_is_default(const float* values){
- for(unsigned i=WavetableUnisonCount;i<kWavetableParameterCount;++i)
+ for(unsigned i=WavetableUnisonCount;i<WavetableTable;++i)
   if(values[i]!=kWavetableParameters[i].initial)return false;
  return true;
 }

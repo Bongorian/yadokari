@@ -9,6 +9,9 @@ namespace groove {
 class WavetableVoice {
  float rate_=48000,phase_=0,scan_=0,mod_phase_=0,velocity_=0,level_=0,wet_=0;
  float values_[kWavetablePhaseParameterCount]{},target_[kWavetablePhaseParameterCount]{};
+ const WavetableBankView* bank_=nullptr;
+ const int16_t* wave(unsigned index,unsigned mip)const{return bank_?bank_->wave(index,mip):kWavetableData[index][mip];}
+ unsigned adjacent(unsigned a)const{return a+1<(bank_?bank_->frames:kWavetableWaves)?a+1:a;}
  daisysp::Adsr envelope_;
  bool started_=false,spectral_=false;
  unsigned register_fade_=0;
@@ -58,13 +61,13 @@ class WavetableVoice {
   }
   return x;
  }
- static float table(unsigned wave,unsigned mip,float phase){
+ float table(unsigned index,unsigned mip,float phase)const{
   float x=phase*256;unsigned i=unsigned(x)&255;
-  float a=kWavetableData[wave][mip][i],b=kWavetableData[wave][mip][(i+1)&255];
+  const auto* pcm=wave(index,mip);float a=pcm[i],b=pcm[(i+1)&255];
   return (a+(b-a)*(x-floorf(x)))/32767;
  }
  float legacy_sample(float position,float step)const{
-  auto l=wavetable_levels(step,values_[7]);unsigned a=unsigned(position),b=a<127?a+1:a;
+  auto l=wavetable_levels(step,values_[7]);unsigned a=unsigned(position),b=adjacent(a);
   float x=table(a,l.mip,phase_),y=table(b,l.mip,phase_);x+=(y-x)*(position-a);
   if(l.blend>0){float lo=table(a,l.next,phase_),hi=table(b,l.next,phase_);lo+=(hi-lo)*(position-a);x+=(lo-x)*l.blend;}
   return x;
@@ -97,7 +100,7 @@ class WavetableVoice {
  }
  float extended_sample(float position,float step){
   const auto map=phase_map(step);
-  unsigned mode=map.mode,a=unsigned(position),b=a<127?a+1:a;
+  unsigned mode=map.mode,a=unsigned(position),b=adjacent(a);
   float ratio=map.ratio,mod_step=ratio*step,pm=map.pm,warp=map.warp;
   // Reserve source bandwidth for both the phase warp and the PM sidebands.
   const auto l=wavetable_extended_levels(map);
@@ -109,11 +112,11 @@ class WavetableVoice {
    if(!upper){for(float& x:first_stage_)x=0;for(float& x:second_stage_)x=0;}
   }
   if(upper){
-   const float high=wavetable_spectral_sample(map,step,phase_,mod_phase_,position,l.mip,l.blend);
+   const float high=wavetable_spectral_sample(map,step,phase_,mod_phase_,position,l.mip,l.blend,bank_);
    mod_phase_=wavetable_wrap(mod_phase_+mod_step);return register_sample(high);
   }
-  Frame frame{kWavetableData[a][l.mip],kWavetableData[b][l.mip],
-              kWavetableData[a][l.next],kWavetableData[b][l.next],position-a,l.next==l.mip?0:l.blend,l.mip==6,0,0};
+  Frame frame{wave(a,l.mip),wave(b,l.mip),
+              wave(a,l.next),wave(b,l.next),position-a,l.next==l.mip?0:l.blend,l.mip==6,0,0};
   // Level six contains only the fundamental. Recover its two quadratures
   // directly, avoiding re-modulation of the int16 table's quantisation noise.
   if(frame.fundamental){
@@ -138,7 +141,8 @@ class WavetableVoice {
   for(unsigned i=0;i<kWavetablePhaseParameterCount;++i)target_[i]=values[i];
   envelope_.SetTime(daisysp::ADSR_SEG_ATTACK,values[3]);envelope_.SetTime(daisysp::ADSR_SEG_DECAY,values[5]);envelope_.SetSustainLevel(values[6]);envelope_.SetTime(daisysp::ADSR_SEG_RELEASE,values[4]);
  }
- void trigger(float hz,float velocity,const float* values){
+ void trigger(float hz,float velocity,const float* values,const WavetableBankView* bank=nullptr){
+  bank_=bank;
   if(!wavetable_bank_ready()){started_=false;return;}
   spectral_=wavetable_spectral_register(carrier_step(hz),false);register_fade_=0;previous_extended_=0;
   velocity_=velocity;phase_=scan_=mod_phase_=0;envelope_.Init(rate_);parameters(values);
@@ -149,6 +153,7 @@ class WavetableVoice {
   started_=true;
  }
  bool active()const{return started_;}
+ bool custom_table()const{return bank_!=nullptr;}
  void offset_phase(float cycles){phase_=wavetable_wrap(phase_+cycles);mod_phase_=wavetable_wrap(mod_phase_+cycles*values_[WavetablePmRatio]);}
  float level()const{return level_;}
  bool filtering()const{return wet_>0;}
@@ -159,10 +164,11 @@ class WavetableVoice {
  float scan_phase()const{return scan_;}
  float position()const{float p=values_[0]+values_[1]*sinf(scan_*6.283185307f);return fmaxf(0,fminf(127,p))/127;}
  float next(float hz,bool gate){
-  if(!started_)return 0;
+  if(!started_ || (bank_ && !bank_->frames)){started_=false;return 0;}
   for(unsigned i=0;i<kWavetableLegacyParameterCount;++i)values_[i]+=(target_[i]-values_[i])*.002f;
   float step=carrier_step(hz);
   float pos=values_[0]+values_[1]*sinf(scan_*6.283185307f);if(pos<0)pos=0;if(pos>127)pos=127;
+  if(bank_)pos=bank_->position(pos);
   bool extended=target_[WavetableWarpAmount]!=0 || target_[WavetablePmAmount]!=0;
   float x;
   if(extended || wet_>0){

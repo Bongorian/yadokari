@@ -4,7 +4,7 @@ import argparse,json,re,math,hashlib
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--log',type=Path,required=True);p.add_argument('--manifest',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--allow-partial',action='store_true');a=p.parse_args()
 text=a.log.read_text(errors='replace');manifest=json.loads(a.manifest.read_text());cases={c['case']:dict(c,bins=[]) for c in manifest['cases']};started=set();skips=[];rejected=[]
-frequency_match=re.search(r'DSP suite revision [1-6] begin .* freq (\d+)',text)
+frequency_match=re.search(r'DSP suite revision [1-7] begin .* freq (\d+)',text)
 assert frequency_match,'missing architectural clock frequency'
 frequency=int(frequency_match[1])
 # Historical full-suite manifests list every insert in numeric order.
@@ -65,7 +65,7 @@ for c in completed:
   if c['native_avg_us']:entry.update(native_reference_avg=math.ceil(mean*1.25),native_reference_burst=math.ceil(row['max_block_us']*1.25))
   else:entry.update(reference_mean_cost=math.ceil(mean*1.25/6.25),reference_peak_cost=math.ceil(maximum*1.25/6.25),reference_safe_poly_slots=min(32,math.floor(300/(maximum*1.25))) if maximum and c['independent'] else None)
  table.append(entry)
-finish=re.search(r'DSP suite revision [1-6] completed aborted (\d+) elapsed-ms (\d+) total-missing (\d+) restored (\d+)',text)
+finish=re.search(r'DSP suite revision [1-7] completed aborted (\d+) elapsed-ms (\d+) total-missing (\d+) restored (\d+)',text)
 report={'log_sha256':hashlib.sha256(a.log.read_bytes()).hexdigest(),'manifest_sha256':hashlib.sha256(a.manifest.read_bytes()).hexdigest(),'scope':'six-second deadline window; voice/FX profile covers candidate generation incl warmup; coarse control/condition/suite include setup; no hypothetical quality/voice reduction','started':sorted(started),'completed':completed,'skipped':skips,'rejected':rejected,'cost_table':table,'suite':dict(zip(['aborted','elapsed_ms','total_missing','restored'],map(int,finish.groups()))) if finish else None}
 a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2)+'\n')
 if not a.allow_partial:
