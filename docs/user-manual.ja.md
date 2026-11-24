@@ -377,6 +377,8 @@ CLIP左は<strong>選択TrackのPattern一覧</strong>。下端の短い棒は�
 
 **複数トラックをまとめて編集する** — PATTERN（CLIP）で **SHIFT＋Top2 BLOCK EDIT** を開きます。K1～K4で先頭トラック、トラック数、先頭ステップ、ステップ数を指定します。K8でCOPYまたはMOVEを選び、K5～K7で編集先のPattern、先頭トラック、先頭ステップを指定します。MOVEは別のPatternへの移動も1回で確定します。CLEARは元の範囲を消します。Top1 APPLYで確定、Top2 CANCELで取消、確定後は1回のUNDOで全体を戻せます。コピーと移動は同一Pattern内の重なる範囲にも使えます。重なるセルには移動元の内容が残り、必要に応じて編集先の長さが延びます。ノート・コード・ステップロックとKitの全パッドの打点が対象です。コピー先の長さは必要に応じて伸びます。
 
+左右の図で、適用前のコピー元とコピー先を見比べられます。上段はパターン番号、トラック範囲、ステップ範囲です。点灯したセルはイベントを表します。選択が16ステップを超えると図には先頭16ステップが表示され、上段には全範囲が残ります。CLEAR では左の範囲だけが対象です。
+
 ![複数トラックのブロック編集](manual/clip-block.png)
 
 ### Sceneを保存する
@@ -455,6 +457,8 @@ MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります
 ![A/B MORPH](manual/perform.png)
 ![MACROS](manual/macros.png)
 K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定です。LIVE FX を離れると、パッドでラッチしたエフェクトが解除されます。
+
+左の図は実機と同じ並びで、左下がパッド1です。1は REPEAT、2は FILL、14・15・16は両バンクともモーフの A・中間・B です。バンク2の3・4は PITCH DIVE・PITCH RISE です。
 
 ![LIVE FX](manual/live-fx.png)
 ![GESTURE](manual/gesture.png)

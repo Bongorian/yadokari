@@ -76,7 +76,7 @@ int main(int argc,char** argv) {
  ui.set_mode(UiMode::Mixer);shot("mixer");ui.set_mode(UiMode::Effects);shot("fx");ui.soft_key(3);shot("inserts");
  for(unsigned type=0;type<20;++type){ui.set_parameter(94,float(type));ui.set_parameter(95,0.6f);ui.set_parameter(96,0.5f);char name[32];std::snprintf(name,sizeof name,"insert-%u",type);shot(name);}ui.soft_key(1);shot("compressor");
  ui.set_mode(UiMode::Modulation);ui.soft_key(1);shot("automation");ui.soft_key(2);shot("macro-map");ui.soft_key(3);shot("midi");ui.set_shift(true);shot("midi-input");ui.soft_key(3);ui.set_shift(false);shot("nrpn");
- ui.set_mode(UiMode::Perform);shot("perform");ui.soft_key(1);shot("macros");ui.soft_key(6);shot("live-fx");ui.soft_key(2);shot("gesture");ui.soft_key(3);shot("mutation");
+ ui.set_mode(UiMode::Perform);shot("perform");ui.soft_key(1);shot("macros");ui.soft_key(6);shot("live-fx");ui.soft_key(4);shot("live-fx-bank-2");ui.pad(mk3::pad_logical(2),0x10,3000);advance(4800);shot("live-fx-pitch");ui.pad(mk3::pad_logical(2),0x20,0);ui.soft_key(4);ui.soft_key(2);shot("gesture");ui.soft_key(3);shot("mutation");
  ui.soft_key(0);const auto morph=ui.navigation();ui.soft_key(5);
  if(!ui.on_perform_page(PerformVocoder))return 1;
  shot("vocoder");ui.restore_navigation(morph);

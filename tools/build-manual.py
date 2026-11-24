@@ -27,16 +27,23 @@ screens = []
 index=ROOT/'docs/manual/screens.json'
 # Manual packaging consumes the canonical pack; stale build PPMs never re-enter it.
 if index.exists():
-    pack=json.loads(index.read_text());names={Path(row['file']).name.removesuffix('.png') for row in pack['frames'] if row['theme']==pack['default_theme']}
-    sources=[ROOT/'build'/f'manual-{name}.ppm' for name in sorted(names)]
+    pack=json.loads(index.read_text())
+    for row in sorted(pack['frames'], key=lambda r:r['file']):
+        if row['theme']!=pack['default_theme']:continue
+        source=index.parent/row['file']
+        target=OUT/source.name
+        data=source.read_bytes()
+        if hashlib.sha256(data).hexdigest()!=row['sha256']:
+            raise ValueError(f'Indexed screenshot checksum differs: {source}')
+        if source!=target:target.write_bytes(data)
+        screens.append({'file':target.name,'sha256':row['sha256']})
 else:
-    sources=sorted((ROOT/'build').glob('manual-*.ppm'))
-for source in sources:
-    target = OUT / (source.stem.removeprefix('manual-') + '.png')
-    with Image.open(source) as picture:
-        assert picture.size == (960, 272), source
-        picture.save(target, optimize=True)
-    screens.append({'file': target.name, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest()})
+    for source in sorted((ROOT/'build').glob('manual-*.ppm')):
+        target=OUT/(source.stem.removeprefix('manual-')+'.png')
+        with Image.open(source) as picture:
+            assert picture.size==(960,272),source
+            picture.save(target,optimize=True)
+        screens.append({'file':target.name,'sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
 if not screens:
     raise SystemExit('Run build/manual-render first')
 control_rows=[]

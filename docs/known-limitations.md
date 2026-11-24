@@ -46,6 +46,10 @@ story, kept current per release.
   invitations for at least 7 minutes, so the session comes back by
   itself only with *Anyone*; otherwise connect again from the Mac.
 
+## Display
+
+- On Pi 5, a full-screen transition from SETTINGS to ROUTING can leave just over 100 ms between completed LCD updates. The delay occurs while the new page is arriving on the controller.
+
 ## Updates and signing
 
 - **One baked-in update key, no rotation.** Official images trust

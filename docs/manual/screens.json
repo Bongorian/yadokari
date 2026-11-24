@@ -14,7 +14,7 @@
       "title": "PAD",
       "theme": "cyber-2",
       "file": "pad.png",
-      "sha256": "523483f13e254890d69a76e5f1c8de8b717256bd0a9052409343942e177409f3"
+      "sha256": "81c33665197893c4fd9dcbe2b45fb6419e96988d7a4f74cb129799acb89a446a"
     },
     {
       "page": "step-attributes-shift",
@@ -24,7 +24,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step-attributes-shift.png",
-      "sha256": "3556779ae5cbb7bc03459c1b669ec11c671cab7e39681b7ecb8c64510821a24a"
+      "sha256": "a3aca2eb78d47c794c5e266f79822e1d3ed027aaa308391a6ef71e8c96688414"
     },
     {
       "page": "step-attributes",
@@ -34,7 +34,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step-attributes.png",
-      "sha256": "2c0f0bd99528906581e0bb06bc464b825ff8e3836224422d9e8e0f37228a3b8d"
+      "sha256": "b3134e62e732d2f8606f355b73e073dbd409c77123e3d3f329df63b44a7d9b8c"
     },
     {
       "page": "step-attributes-overview",
@@ -44,7 +44,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step-attributes-overview.png",
-      "sha256": "5f72961278326e336f3649a4b73a3317aee7010628c16cb1f90b2644e93355c8"
+      "sha256": "e33d7adf5b027f5a948bedb0db91a3a4c3d67bb764b067b0e26135daa3578d57"
     },
     {
       "page": "tracker-attributes",
@@ -54,7 +54,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "tracker-attributes.png",
-      "sha256": "119ab4bcbac67f6288e5effbb5a553a22f43ccad008ecd9ba5ce9ece48408aef"
+      "sha256": "1185a5fda30cfcf2d46367695f791a2cf690bd70086b169e3bf031aa9198074c"
     },
     {
       "page": "step",
@@ -64,7 +64,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step.png",
-      "sha256": "01350d862eb4498e867f87c7e167d295e9f9545c1ea27faa424858ab11ae0792"
+      "sha256": "0c8dcee736ab284d272c2846ff3ebc83379a439eb0b45b17f967f38c937649fd"
     },
     {
       "page": "step-shift",
@@ -74,7 +74,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step-shift.png",
-      "sha256": "b76dc0aadcb2a84cacbe5290d69c534ae1b9a2198ceec525ab2dca012c20d7d0"
+      "sha256": "35cf7784de6757e80d150df1d22edc666f4480e5860afb4cce16e7f23403f649"
     },
     {
       "page": "tracker",
@@ -84,7 +84,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "tracker.png",
-      "sha256": "5bcebc96da5e777e42795f8c9c6f2b9181dd4916d6dfa791ded4d2706b4f93d5"
+      "sha256": "41437486267f6c73ec8dbbbab3cff358cd5a442243b9099297c54e7b041b6f12"
     },
     {
       "page": "tracker-overlay",
@@ -94,7 +94,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "tracker-overlay.png",
-      "sha256": "7fc5a929a87ff7833d9b533263aea8c55b392855f9bfaa6fe1ad736d813465b1"
+      "sha256": "ae6f2c258aaf90557ed4dae02bda2accdb096f5916ea2c35b7a4addfa3a97f34"
     },
     {
       "page": "tracker-multitouch-overlay",
@@ -104,7 +104,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "tracker-multitouch-overlay.png",
-      "sha256": "1bfcdebc8a9c104933b82561417ad7cd4339b981d3c52e1311ace426746211aa"
+      "sha256": "084be2baac642c27189af9577649cdcb7b69e203a35c2be606c9b181a788f924"
     },
     {
       "page": "step-help",
@@ -114,7 +114,7 @@
       "title": "STEP",
       "theme": "cyber-2",
       "file": "step-help.png",
-      "sha256": "614de679b3ab6028353a4f67a0f3f7afc97d336b6a076be2525ee335c22275cd"
+      "sha256": "595751222c8ae9acd72b7642704ac1e084c4350344d048ce1146bc9d8440e371"
     },
     {
       "page": "synth",
@@ -124,7 +124,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "synth.png",
-      "sha256": "69e7a8b4e2c6f7a1c9537c115d0875c404cdb0f9b56e1f9f52b74682a495a56e"
+      "sha256": "563018b0206438f1f7e8092b82b86bd31272d95a9511a126620b3dfdf878a9ea"
     },
     {
       "page": "source",
@@ -134,7 +134,7 @@
       "title": "ENGINE",
       "theme": "cyber-2",
       "file": "source.png",
-      "sha256": "71266f8e7d9d89fc6aa1c75ad753d9313b166b2ee476469839d73966eda4de50"
+      "sha256": "300118881f90d0361333cda3defa5dc0fe4cc5e88a81adf909a97d016a0be603"
     },
     {
       "page": "engine-sounds",
@@ -144,7 +144,7 @@
       "title": "ENGINE",
       "theme": "cyber-2",
       "file": "engine-sounds.png",
-      "sha256": "f4d6e28903ddc68c9aea75139e244ba5cd0008b171664a7de8367476a865336a"
+      "sha256": "b58ba8e5a71dbb573a4a176d11ed09987db0d403101df30ecb470ccf1d0af5d5"
     },
     {
       "page": "presets",
@@ -154,7 +154,7 @@
       "title": "PRESETS",
       "theme": "cyber-2",
       "file": "presets.png",
-      "sha256": "52b219a20f4101b67351ae057b08166fa7da9fe400a7688039a11f9f7328f79f"
+      "sha256": "8f7e2d397dbb04aa415df574184171472d48b8d618bd4b6324244509548df2dc"
     },
     {
       "page": "kits",
@@ -164,7 +164,7 @@
       "title": "KITS",
       "theme": "cyber-2",
       "file": "kits.png",
-      "sha256": "45e8fc5b3d420d4c09c8746acfd8e4fca45e0a4ac9aca3753f0da02320858a7f"
+      "sha256": "9b4943380162c54c5e43117f19a6b5d6c3043e38d6db3ea6d7150aaa75de9771"
     },
     {
       "page": "engine-no-sounds",
@@ -174,7 +174,7 @@
       "title": "ENGINE",
       "theme": "cyber-2",
       "file": "engine-no-sounds.png",
-      "sha256": "09a617ff800115afdc3e4b48e5387020eeeaf1bc03c61c4dcfcdd4297a656597"
+      "sha256": "82901770b4014729eb6bbf2a5a2fd2fee160c547affe97825b0279a7f7477bb5"
     },
     {
       "page": "new-templates",
@@ -184,7 +184,7 @@
       "title": "NEW PROJECT",
       "theme": "cyber-2",
       "file": "new-templates.png",
-      "sha256": "e6e2311ffdbe637662cb240e78a4f59133fef8ee23d2144712fbb163985ff0c4"
+      "sha256": "cdd2687983c889dc7ceaba4c9bd4e71f97fadc8608b78bbeaf54ed3c526f9918"
     },
     {
       "page": "keyboard",
@@ -194,7 +194,7 @@
       "title": "KEYBOARD",
       "theme": "cyber-2",
       "file": "keyboard.png",
-      "sha256": "52a5a287184f39268e77e613b5521d8eb0d82e8a1d81e564858cb09c0c1e78a5"
+      "sha256": "4c0fd8b9d78bbd80c7ed4382f176cba935cfb32d6ca59795a4d8be8d40561564"
     },
     {
       "page": "chords",
@@ -204,7 +204,7 @@
       "title": "CHORDS",
       "theme": "cyber-2",
       "file": "chords.png",
-      "sha256": "26925dd976d5570ddecf9e6b65c00d6b90facf5a1f3db7330abb7bbf3a9ed20a"
+      "sha256": "63c2afe57125dac077181daba7fa6cf415a3a6955430cb0f8d2bb0995bace56c"
     },
     {
       "page": "clip",
@@ -214,7 +214,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip.png",
-      "sha256": "b375961c52bb2dc41ef93d73d0b9620721c4ff6a52c62bde9a400cc3ef625088"
+      "sha256": "c0f2ac69432537ee5daf5ea5cf513acacde70687fef659590936da2fd2ffa02c"
     },
     {
       "page": "clip-copy-scope",
@@ -224,7 +224,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-copy-scope.png",
-      "sha256": "aa899c456cdedebfb4cffa20c675b3289bdb33049b6b2addd484099bab8e95d8"
+      "sha256": "69cbd107a51241316d78c703d160258982d1aeda0ca7390518a82ba7ae1b4fb2"
     },
     {
       "page": "clip-variation",
@@ -234,7 +234,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-variation.png",
-      "sha256": "6a8aed059590d0ed33d6fdd65e360c4a7fc8d27a83f53b805f551e8e4afabbf8"
+      "sha256": "4d0ed784b9f3ad7871a80ca74b9fa0db9b65677bccb4dbe42ce0d5d5da2de566"
     },
     {
       "page": "clip-follow",
@@ -244,7 +244,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-follow.png",
-      "sha256": "4d3cacf2c00151b87ddae09d443d55f28e0d48201330d79bd80ff0429545fa6d"
+      "sha256": "08520e0b342d335a074ad0d67cc9d9e5933db806a55edf1b381970f48dc387c2"
     },
     {
       "page": "scene",
@@ -254,7 +254,7 @@
       "title": "SCENE",
       "theme": "cyber-2",
       "file": "scene.png",
-      "sha256": "9b6f5d1772bf4b0740acf48885005c4fbbdb4252bd04ee69f94dc3282ab8472b"
+      "sha256": "f38d0ddf0775e2c92640d370cfe3ff463e9d836e23f851a49c0ba632b5e38865"
     },
     {
       "page": "scene-duplicate",
@@ -264,7 +264,7 @@
       "title": "SCENE",
       "theme": "cyber-2",
       "file": "scene-duplicate.png",
-      "sha256": "423c21a0b3814ec06b61c06002546c7bcc7fc668991759b4903a5c63ea7ec397"
+      "sha256": "e607cde5d1118329d9a9fc1cc83227ecdb45b7d38b9e74adfdffa54cb8ea84f3"
     },
     {
       "page": "scene-varied",
@@ -274,7 +274,7 @@
       "title": "SCENE",
       "theme": "cyber-2",
       "file": "scene-varied.png",
-      "sha256": "ddc2add94936f81ce451a8a86c8ff3880471de0f0000f265e528daaa7764ba03"
+      "sha256": "01b67db5e75779c89953607adac0e35d435f3b81e539eb820f7329d7dc304e8d"
     },
     {
       "page": "song",
@@ -284,7 +284,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song.png",
-      "sha256": "ce29d9a23a074b6fb3dd510ff1927da212041a25cd51431d0d0c3d20acdaf085"
+      "sha256": "eed2db8b4d9240a5733eca091df31a5f32a59b79b573c232db1476c64cfa61b4"
     },
     {
       "page": "song-empty",
@@ -294,7 +294,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-empty.png",
-      "sha256": "ce29d9a23a074b6fb3dd510ff1927da212041a25cd51431d0d0c3d20acdaf085"
+      "sha256": "eed2db8b4d9240a5733eca091df31a5f32a59b79b573c232db1476c64cfa61b4"
     },
     {
       "page": "song-skeleton",
@@ -304,7 +304,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-skeleton.png",
-      "sha256": "a4e2c7ad813e4f815652d52bd73c4c3bedb653ddd8a135de5ba5b63da86abd52"
+      "sha256": "b364584f67d405f9e8e870c82acf883cd669fa23da5b8f1a4d96dc76e5cda38f"
     },
     {
       "page": "song-sections",
@@ -314,7 +314,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-sections.png",
-      "sha256": "647fc2c7bcf43b34031f9cb76a9537c852d3a2f367740be78fec8106fa9e309c"
+      "sha256": "b42c2d6183c8e642c35e79743c53aee6f32b5ec17e256bcc23814dcb85bd5342"
     },
     {
       "page": "song-snapshot",
@@ -324,7 +324,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-snapshot.png",
-      "sha256": "d1ae6e3baae972c31f2189dd66e95caac5d551b42aab3e3e8f1b59beadcfd1fa"
+      "sha256": "fea05234f9a959c526af039230115cbfa1b9296169f940b62e92214ed43bdab8"
     },
     {
       "page": "song-take",
@@ -334,7 +334,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-take.png",
-      "sha256": "c34c2d1e931893b767a6771a7abfbbc0592c150634336f2b7ecc1502154086bc"
+      "sha256": "1fa5e35ba9ad10425807e4f8e336d891266c32ea6a311693618dfbe846bbe071"
     },
     {
       "page": "mixer",
@@ -344,7 +344,7 @@
       "title": "MIXER",
       "theme": "cyber-2",
       "file": "mixer.png",
-      "sha256": "de88805b879f84e3b0a257a307d5dab34832faa7443264e209242ca9a410af7d"
+      "sha256": "66a06e2c115fd1331c01e0b18d4d294a66fcb9fa4abc2d77674df4571a64ec5a"
     },
     {
       "page": "fx",
@@ -354,7 +354,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "fx.png",
-      "sha256": "f3fe9249934a1a4fa60b6792ba81d70b9286a16e4edf5645d5f239cfe7d5c6c9"
+      "sha256": "d1ee93af7e87825513ef6e138b2fe03a489c31d4517fee03fff32873b74510ab"
     },
     {
       "page": "inserts",
@@ -364,7 +364,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "inserts.png",
-      "sha256": "a0cfb908ac86005bf16908eceb198b3cf8da5c8070d2148a9172c8b05b10d2c1"
+      "sha256": "4a91a664a2534f247ff7e0f2ad871fcb64bf68f995fe023b85827b9e46e8f898"
     },
     {
       "page": "insert-0",
@@ -374,7 +374,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-0.png",
-      "sha256": "c68b74d698c833a6a0fbc83162bb0d5df72d9640b22f863dc20449877380f032"
+      "sha256": "842ac7f543f540d32f26060dbd0634f0a0f9bebf463d36b35b1412675ae3fa79"
     },
     {
       "page": "insert-1",
@@ -384,7 +384,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-1.png",
-      "sha256": "75a3e575305d957af02dd7c54a4472f66b8d37aa08e4bb7e9aa4b0beb0c1f5d2"
+      "sha256": "362a4b98337e17c55bdd72aa7f100ff05e6705c5a9cf586957e1f22c53b365c1"
     },
     {
       "page": "insert-2",
@@ -394,7 +394,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-2.png",
-      "sha256": "2868b78d381235a1c40eccde46a727e3731da5437c027ae55f866c0c630a508d"
+      "sha256": "f4216736319ae3c4bef8df72157d1e25c931ce905e9080e5abdff35149fa99a9"
     },
     {
       "page": "insert-3",
@@ -404,7 +404,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-3.png",
-      "sha256": "f3dc8f4e5490e054bb99391666a057bb2a59b0a16a4a65642966451116f1a792"
+      "sha256": "9c5047a541696ed06cb84b0b9ad52f0e9bae39772d4c7b5c2838386a190ba267"
     },
     {
       "page": "insert-4",
@@ -414,7 +414,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-4.png",
-      "sha256": "e5419fe019d927c1d58362d2cb57ced7b01b3c231923e9321a882b9cb45ede1b"
+      "sha256": "3297a8ecfce7c99ef0e23c97f627447c122dbd425335148647edc35f986ead23"
     },
     {
       "page": "insert-5",
@@ -424,7 +424,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-5.png",
-      "sha256": "a082a1afdfe980e8537b24e229f4043b014fa98d99e30fe0758419a580477cdc"
+      "sha256": "0ce1495bd4eab6559a9c0f376ffd61dbf9d36272ba7dbde566875fb783133310"
     },
     {
       "page": "insert-6",
@@ -434,7 +434,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-6.png",
-      "sha256": "10645009b844d20c606451e5944b466181947292269cc05accce5fc5158f2513"
+      "sha256": "3a77305eb984fcb8ef8b33ce2a4223ab6d0b280df178e2ed578cd54656c7183a"
     },
     {
       "page": "insert-7",
@@ -444,7 +444,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-7.png",
-      "sha256": "266e6c4e9b02bf61c6af2f39bdadc3d1898151185d56dbd3e17b8809bddd4e29"
+      "sha256": "b4e74b5b9e988961f6c61eb5378805b0ec46addc6fa95fdfaa650ce2962b0ed3"
     },
     {
       "page": "insert-8",
@@ -454,7 +454,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-8.png",
-      "sha256": "a190de9bbf51308243b16fc63e6d22dde76ca92977719019dda6d0b77fbb238b"
+      "sha256": "5aefde2242bcfe9b73530e8662adc69d47e47740d1b81c0a53b80a50db7c56f6"
     },
     {
       "page": "insert-9",
@@ -464,7 +464,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-9.png",
-      "sha256": "dce90c2d93b9a29e60b3fa2b26acbe6147f6f25208ac3e5c41d004c20e558553"
+      "sha256": "75acab8d2717aa6140145b25736db26da97a26bb3515b5ffb5acb0b56d97a14d"
     },
     {
       "page": "insert-10",
@@ -474,7 +474,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-10.png",
-      "sha256": "4084eba12291e0da4190a53732ce9856fcecd8b279fbf422c612fdfd78854ae2"
+      "sha256": "12c946eb2d19f60db08a97d6c414556e6b477c5028f73af8d90155b3bfb46a35"
     },
     {
       "page": "insert-11",
@@ -484,7 +484,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-11.png",
-      "sha256": "93a79984b210f1bfba507c67f8a37535918529f849ddf0af2cef2c6232b70786"
+      "sha256": "1ab3fb161c3d47e363356bef4060c689ac290f45699090593ec2f6565a5376fa"
     },
     {
       "page": "insert-12",
@@ -494,7 +494,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-12.png",
-      "sha256": "3019f5d96cc0912e402e79948a3f5c49ac72df515387296d65c2e2902ed5effa"
+      "sha256": "e9806021e73b65d4412fa31088a6dd269cdd0a862f9eda7cd35ef5ebb0962c33"
     },
     {
       "page": "insert-13",
@@ -504,7 +504,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-13.png",
-      "sha256": "9d239f80e7826b3e6d0e16d98ae1038f4e8f5a9d8763a68daab80cbabae15aa1"
+      "sha256": "692a1e036970fa94b6f29cbab68a6e29ebbfb5d160fb27d1802e09cb9a4df1b7"
     },
     {
       "page": "insert-14",
@@ -514,7 +514,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-14.png",
-      "sha256": "3536e1ae7ca95ead63aa35dda9cfbcb6098fc748f853355f330ae00313b526ce"
+      "sha256": "37faf2d323669b96870cfeb51d94067043b398b681fa48eb5fb498ffdcf02af0"
     },
     {
       "page": "insert-15",
@@ -524,7 +524,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-15.png",
-      "sha256": "14e7c6d6d1371e7803e871c9f62a7cc9ba070caba8b54d1a9accb070a9b1af46"
+      "sha256": "2b3150169d55172df0b3d29801dc50fc774a71a382772a95f984ad62727b6642"
     },
     {
       "page": "insert-16",
@@ -534,7 +534,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-16.png",
-      "sha256": "ad0e38a95921baa5a348aa6d27b6bd888ce41d58d5a92343bb15d810f7c995b2"
+      "sha256": "0a2882b13c254ebe3ee95a0a0e2a7ca374d277241257da05cc471f70d6219ca8"
     },
     {
       "page": "insert-17",
@@ -544,7 +544,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-17.png",
-      "sha256": "c5ae01469748a526d56747172bf2ab1454563b16574c6d4eb0540d7493b262cc"
+      "sha256": "500a9e02e0b8dc8d640f8c7ed3a3f80ec35bc0b418348abe95d03564d3cd21e1"
     },
     {
       "page": "insert-18",
@@ -554,7 +554,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-18.png",
-      "sha256": "aabd7526baec46a7dd1513c3ca0ff0b8456e39a246a4661da43955338d81b329"
+      "sha256": "4cf8e36405467327e574dba3ccb5092a33db89001b40d79c9989d53d557ecc72"
     },
     {
       "page": "insert-19",
@@ -564,7 +564,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "insert-19.png",
-      "sha256": "2a2546838d90b6bb796fac2332241b1694e1b4f4bb44ed09e6b82d671ac23e4f"
+      "sha256": "19c077f440f2dde130e39539af9b7287ef7babf785cc6ac4ecbb711358f922fa"
     },
     {
       "page": "compressor",
@@ -574,7 +574,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "compressor.png",
-      "sha256": "e8df559b5e6a03a4b4619d02ad97c59fe2c865db5ecf30e5cfea0e19ec91b31a"
+      "sha256": "2833a375da85eaca1211e63f616e2ab5d47a977fbbd71ab64865026202b63cd9"
     },
     {
       "page": "automation",
@@ -584,7 +584,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "automation.png",
-      "sha256": "4dd12782d8b42eb422e81356a0792b64f774eda6c761f472e1cc2e4cb63754c6"
+      "sha256": "28f06144ed95594a52556c396af9b10fa3ef8e3f2e19c044889b37dde53f9a77"
     },
     {
       "page": "macro-map",
@@ -594,7 +594,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "macro-map.png",
-      "sha256": "ad3f9017d8fc8f4a8ee59dbbabcfd3c4854637ddf46a5e3ba7043d966bd8468d"
+      "sha256": "66506fdf12e02f80b9a16371057f059b0502934b4b3c1d755563bf3df62e7caa"
     },
     {
       "page": "midi",
@@ -604,7 +604,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "midi.png",
-      "sha256": "c026d8534a19767e12c7c48a4a2a82445cfdba1f6ed5b6319b44c563b9c41dae"
+      "sha256": "2d53ec5cd19603eb8ad174d2bcf9abaa7f1474536ebdb683f8f7ece3737bc0b0"
     },
     {
       "page": "midi-input",
@@ -614,7 +614,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "midi-input.png",
-      "sha256": "af01a423c8b20d9751b04429406356f1a7c9754f8f0917b45299e5d2348406d8"
+      "sha256": "64fdacda4cac098e77515d31343f2968fd12b190a404d02ac70e1b521077942c"
     },
     {
       "page": "nrpn",
@@ -624,7 +624,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "nrpn.png",
-      "sha256": "b8a8d7d26891e30c3de6ea3fd767039267d0932227fb782ee0fbab06bdf6ece3"
+      "sha256": "3b4e5aa7fb3d7858b505c20aa75a5c61cac85b0ca54380f6d8a67f37381f1b70"
     },
     {
       "page": "perform",
@@ -634,7 +634,7 @@
       "title": "A/B MORPH",
       "theme": "cyber-2",
       "file": "perform.png",
-      "sha256": "b353342e6194fe87cb70bd96557e49052188ad38881e5e337aaf93b780dee830"
+      "sha256": "b415b4926b72ff0cecd3da61282fa982f736c0fe3eef108d76f19ada7a209b8a"
     },
     {
       "page": "macros",
@@ -644,7 +644,7 @@
       "title": "MACROS",
       "theme": "cyber-2",
       "file": "macros.png",
-      "sha256": "0bd50b1408dba0fee0384ca175942deecfce79860c06cdd54ccd43cfec8fc237"
+      "sha256": "65d04052dbca9e4c4b1df5cfad4dd4fbf189c93f152d034e7b0ece0408998bf3"
     },
     {
       "page": "live-fx",
@@ -654,7 +654,27 @@
       "title": "LIVE FX",
       "theme": "cyber-2",
       "file": "live-fx.png",
-      "sha256": "b1c4c8b899914c1ec5ff93028b9a3bf1db7da331ceff17335fb140743c2135ce"
+      "sha256": "14b3b2c7de2a65c63a047e1d19c80cab8d97875d990dcd1f99c688c7f56a1952"
+    },
+    {
+      "page": "live-fx-bank-2",
+      "mode": "PERFORM",
+      "engine": 4,
+      "engine_page": 0,
+      "title": "LIVE FX",
+      "theme": "cyber-2",
+      "file": "live-fx-bank-2.png",
+      "sha256": "9e5de2ca43914418421b7dddf8b4befa0c07b2f87c835916c5d6bad98224bdcd"
+    },
+    {
+      "page": "live-fx-pitch",
+      "mode": "PERFORM",
+      "engine": 4,
+      "engine_page": 0,
+      "title": "LIVE FX",
+      "theme": "cyber-2",
+      "file": "live-fx-pitch.png",
+      "sha256": "64d80c3ec2c7b81b230c3fd492e692c7bd080adaab2a3e06128b5ce1d82db367"
     },
     {
       "page": "gesture",
@@ -664,7 +684,7 @@
       "title": "GESTURE",
       "theme": "cyber-2",
       "file": "gesture.png",
-      "sha256": "ce4259b6c67b26a08c4e495a54936027b63d8d40403016b4cdc368d2f46ecf42"
+      "sha256": "368f2efbaa933fa70f8671e46f7bf240c6b3ece2d6436dd72d433d61668fc42b"
     },
     {
       "page": "mutation",
@@ -674,7 +694,7 @@
       "title": "MUTATION",
       "theme": "cyber-2",
       "file": "mutation.png",
-      "sha256": "e2dd7a44267d7614e5b43bcbae30a6f3f3a88d321b69244f249c20c87e5759b3"
+      "sha256": "20ae93fc1772f0a5334d205a813b6df82ed54cada57ba39cd172dfb41887329d"
     },
     {
       "page": "vocoder",
@@ -684,7 +704,7 @@
       "title": "VOCODER",
       "theme": "cyber-2",
       "file": "vocoder.png",
-      "sha256": "9f66068489383bb7cb0618d48acbc0410552459b2d75940a62828e2f1d14b2e5"
+      "sha256": "a4c2ea61f460a0b645479cddcacd5995df3b896a7519df794a3f0a53652a9d5a"
     },
     {
       "page": "live-tools",
@@ -694,7 +714,7 @@
       "title": "LIVE TOOLS",
       "theme": "cyber-2",
       "file": "live-tools.png",
-      "sha256": "c24871548b2e589128294bbac6a3ae582211e41a44a1ee3eace2d9b49b7bf87a"
+      "sha256": "56dc1398573220052b0d527c1fa9db457d32d31ed40040bdbc75ab30ad20c4ef"
     },
     {
       "page": "recording",
@@ -704,7 +724,7 @@
       "title": "RECORDING",
       "theme": "cyber-2",
       "file": "recording.png",
-      "sha256": "f27707633b1496d3f08eaa3b65e72af04f4fdb032f5d44cfd746a771bb6c5bda"
+      "sha256": "648aba3160696d5f49aaecfd8516f0f1a253b41696eea26d25c5d32a238d6abf"
     },
     {
       "page": "fx-map",
@@ -714,7 +734,7 @@
       "title": "FX MAP",
       "theme": "cyber-2",
       "file": "fx-map.png",
-      "sha256": "217d036f34e2d27090dc89235c98bd06bd9fc462e1ff534ac05df9c1a3ce274c"
+      "sha256": "ce8152f46ade26161a04a0ae91d11e4b4aa00abf57eef0f12fbc0ee4c8e3b913"
     },
     {
       "page": "midi-module",
@@ -724,7 +744,7 @@
       "title": "MIDI MODULE",
       "theme": "cyber-2",
       "file": "midi-module.png",
-      "sha256": "a381b58ded3dc7c88db698b7a72b86a0ce0523270aa357659503af007c4fa477"
+      "sha256": "62342669d759fc62dac7e20c7cb6c0e1788c0bad62947a1f49606dc67d74afef"
     },
     {
       "page": "generate",
@@ -734,7 +754,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "generate.png",
-      "sha256": "014116f2073aa61fcfc2b150e0d25db9443d6b573eb7e5f6bffe654b7be72590"
+      "sha256": "5dd70a9e4d735411328ab3044db82c0753c082868958ee89f804ff30308f74e9"
     },
     {
       "page": "groove-apply-all",
@@ -744,7 +764,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "groove-apply-all.png",
-      "sha256": "a373ceac9f0cfa7bd0d50dcc7f86809b96582807ff060afe7782f84b475123a7"
+      "sha256": "cde77c25bc6ffe3f703a42a4129e920889f8b47b84d2fd6a7b1eaca06fd5a2ea"
     },
     {
       "page": "modulation",
@@ -754,7 +774,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "modulation.png",
-      "sha256": "b38f28c31167dea30766a4e5a80f0c9637a7e44c0bde8302690f3a4aefdcd92b"
+      "sha256": "56367978080a85c311e1fd99563e229e7cb860e024eaa83d2f8d85411b56d058"
     },
     {
       "page": "modulation-sync",
@@ -764,7 +784,7 @@
       "title": "MODULATION",
       "theme": "cyber-2",
       "file": "modulation-sync.png",
-      "sha256": "609224d458175fa6dbe88bd00a0890fc13009ffcbb4bc5b2a965193d85aa1a11"
+      "sha256": "6503f718a25822d69512893c8fd4c9d0b0c99ccbf896b02de84156ddb4634bad"
     },
     {
       "page": "GENERATE-page-0",
@@ -774,7 +794,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-0.png",
-      "sha256": "03ef9857508a52a0af8dd0c1909c28de3edeada438c7f99f3d7e189c54cdaf3c"
+      "sha256": "7c547c6069c843bc6cfdc4ebe7d2a6e911b595a8390bf5bb3011929da086573f"
     },
     {
       "page": "GENERATE-page-1",
@@ -784,7 +804,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-1.png",
-      "sha256": "0925a7cc690e4f08a74cb21a206e9a5ad6ea61019ff5381d2ae6b9a4e142f135"
+      "sha256": "8cdd199288cf4f0cd8eadb34f07adeb6b6b8b371d03d5a60d4c3ff61138a6aca"
     },
     {
       "page": "GENERATE-page-2",
@@ -794,7 +814,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-2.png",
-      "sha256": "628938441368615c1aa122bafab9caaba017b89c5a65299957de86e72d5dbe02"
+      "sha256": "7a5d4796648a45ff6dde32637989052e575f30506b583bab7d4c06da4042b900"
     },
     {
       "page": "GENERATE-page-3",
@@ -804,7 +824,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-3.png",
-      "sha256": "b11bcaffbcd1600062511113315fa331f7f83f318399ea1ad2d886573aafdeaa"
+      "sha256": "e3dd3bd8e941124e6391056c69eee92b1172333a8b83d6058626caede39514f5"
     },
     {
       "page": "GENERATE-page-4",
@@ -814,7 +834,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-4.png",
-      "sha256": "ce2b1cb0beb2cc5f1a1c0f3ea0bcaa8ab196b68bdabddb48c63a7d0d0d2f6033"
+      "sha256": "493b46d7109bcc9f8bf4c9da7d5be77a2247b3fef3810662068742cdeaf735b5"
     },
     {
       "page": "GENERATE-page-5",
@@ -824,7 +844,7 @@
       "title": "GENERATE",
       "theme": "cyber-2",
       "file": "GENERATE-page-5.png",
-      "sha256": "ca240b05e3c0666b71287863348c0ada237ab4874e8c7af3043e3dddf3fe5d9b"
+      "sha256": "d35e6102c84263b488cc1886d9624139f256eee6857685b7fd9b35c3d447e234"
     },
     {
       "page": "PERFORM-page-0",
@@ -834,7 +854,7 @@
       "title": "A/B MORPH",
       "theme": "cyber-2",
       "file": "PERFORM-page-0.png",
-      "sha256": "b582675c70768e8f1017b6d2d6a0563726f032c2fb51f503d267aba69d619e07"
+      "sha256": "65e31421485a0b485e8d6482b3e2795d2552dc873b7cf252e912a36981ce0bf4"
     },
     {
       "page": "PERFORM-page-1",
@@ -844,7 +864,7 @@
       "title": "MACROS",
       "theme": "cyber-2",
       "file": "PERFORM-page-1.png",
-      "sha256": "58ebb508bba7600e62c998883185cafb3cea8baf2d13f2a7e38b2f416cfc554b"
+      "sha256": "84d01ecf2df49f768cc4d112fb4f33359907d9108702559ed25cf79f5da8b767"
     },
     {
       "page": "PERFORM-page-2",
@@ -854,7 +874,7 @@
       "title": "GESTURE",
       "theme": "cyber-2",
       "file": "PERFORM-page-2.png",
-      "sha256": "a493bae31f7be17a0f2b419c377bf578db19e30e0780679831377871d92a2831"
+      "sha256": "279dfd03f5c18a08e522608812a7536f9e22d682cffc79d960d6bfc82a772545"
     },
     {
       "page": "PERFORM-page-3",
@@ -864,7 +884,7 @@
       "title": "MUTATION",
       "theme": "cyber-2",
       "file": "PERFORM-page-3.png",
-      "sha256": "8add2ae70fe1a901cd26f1b7c35184c51247fc28fe85a2e536c76a3b669cd605"
+      "sha256": "100f2d47f90edd44a6659f78dd87669b382df51941c88f684222756fce710a81"
     },
     {
       "page": "PERFORM-page-4",
@@ -874,7 +894,7 @@
       "title": "LIVE FX",
       "theme": "cyber-2",
       "file": "PERFORM-page-4.png",
-      "sha256": "cfcd74b26391c9293c1b0077bda9f5e56d063e81dacc971444807a2632456efc"
+      "sha256": "14b3b2c7de2a65c63a047e1d19c80cab8d97875d990dcd1f99c688c7f56a1952"
     },
     {
       "page": "PERFORM-page-5",
@@ -884,7 +904,7 @@
       "title": "LOOPER",
       "theme": "cyber-2",
       "file": "PERFORM-page-5.png",
-      "sha256": "15cc4725fbaca0c3c3fc2fb5a4b5f339b93aff4511316ebabc725870a7d141dd"
+      "sha256": "9f0e371e53810c2f6ec60cf333c3013b742933bc8dc018bf3e493034b977a673"
     },
     {
       "page": "effects-page-0",
@@ -894,7 +914,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-0.png",
-      "sha256": "c7425aaaf44089231150786a4cd5d1d7a5b9d94f1d03ea807efdfc82ccfc791d"
+      "sha256": "0d015d700a48fb635ba593b62c1852d0b27ceec0dd220006889fd4824338833f"
     },
     {
       "page": "effects-page-1",
@@ -904,7 +924,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-1.png",
-      "sha256": "0ee15b71281baf441f3813ff907601fa587df5ae3f54817db052c0dff4831e5a"
+      "sha256": "9d454144b1294e3cb8f572c948a82205f9d0f8a9fc5b371d1907539307b60b64"
     },
     {
       "page": "effects-page-2",
@@ -914,7 +934,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-2.png",
-      "sha256": "792e989d534983b582f8cf7e7e25d9329ef38e3d85fd2436231912a8b4117774"
+      "sha256": "9a6161ccf3e47fd14e62cc32d8753dd36ff4afac532086de796a73d19751c3af"
     },
     {
       "page": "effects-page-3",
@@ -924,7 +944,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-3.png",
-      "sha256": "874e52a776305dee0ccc1b39622e606a89bc018e6037168dc5750af339db98b3"
+      "sha256": "ebea02e96db88f413ca3fdf123ecfbc302799c6f2b714f4e1a43eaddad46a565"
     },
     {
       "page": "effects-page-4",
@@ -934,7 +954,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-4.png",
-      "sha256": "c0e19225196643a8fc46d8fede3e256f9c7c3f5f57d976a14414c98635109d5b"
+      "sha256": "1de3ebea14dbe06d2a7f1c362ec825b902792d41f0b1fcf99d33bfceed08e5b7"
     },
     {
       "page": "effects-page-5",
@@ -944,7 +964,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-page-5.png",
-      "sha256": "26ce711521cf7c05a0afe777f44fffcbc761f712df07dea84827e33ddeecc029"
+      "sha256": "d04f2547e1d1854e1079f6eaf14eced309e4045e6cec5dfb6ad458a8349142ef"
     },
     {
       "page": "kit-pads",
@@ -954,7 +974,7 @@
       "title": "PAD",
       "theme": "cyber-2",
       "file": "kit-pads.png",
-      "sha256": "2d71d59215266311ec0a31e175a54cd5a0eaf98309df4321f6ed7f67e5d65896"
+      "sha256": "70602e2f9bb3b0fc3ae7c07b2725a2957eb16bbdd899fe86a8e1278083ba8db6"
     },
     {
       "page": "clip-kit",
@@ -964,7 +984,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-kit.png",
-      "sha256": "dccc70cf3f59538dfbbf478d11afe261410c3ba1660895ca158f77dce070045c"
+      "sha256": "f646fdbfa7320555c94dae6f7f39633c8f4c53ec2d4b96c5190123a7e4af267f"
     },
     {
       "page": "looper",
@@ -974,7 +994,7 @@
       "title": "LOOPER",
       "theme": "cyber-2",
       "file": "looper.png",
-      "sha256": "9cae8cb56b6c9d4efebd7011675e9f232fd32dbf352baf452dcbc596bea7bbbe"
+      "sha256": "952c3552d8515c5bb0620205650e889d51b3c1dfe0196232fd459c524cd37762"
     },
     {
       "page": "audio-timeline",
@@ -984,7 +1004,7 @@
       "title": "AUDIO TIMELINE",
       "theme": "cyber-2",
       "file": "audio-timeline.png",
-      "sha256": "02d9cc00050eb592b9e0218f8d457c6c8ee4ef1d4728548773f18f86e403fe76"
+      "sha256": "78f46ccbd00e8f1498236b43e405457b8fff1e6175ff1e48805c3f03fbd0691f"
     },
     {
       "page": "sampler",
@@ -994,7 +1014,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler.png",
-      "sha256": "8e82f37bcd328ea951d480bfd917d37434f22458bcf29114140da1cb1dfbf931"
+      "sha256": "c1e059d7b2bcffedc299e729b45612ac07d5d3d87f1815cdc75d39f16edcd66c"
     },
     {
       "page": "trim",
@@ -1004,7 +1024,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "trim.png",
-      "sha256": "affb4cd3e5f2c44921b64010455643462c3b0069693c300a172ae9ab4fa9ea0c"
+      "sha256": "142c74eb3681a1c3d57e4cb25b031db4e6d62b7567b29d51a184a003ecc787b1"
     },
     {
       "page": "slices",
@@ -1014,7 +1034,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "slices.png",
-      "sha256": "f0425e2b9e82e340988e7ba17a855c82a90b5d3bd6da63dadc1b2bc286de71c1"
+      "sha256": "e550c27ec22f22497e178ce78d41163d62b872b9c8b702947e9a5c9e622d591f"
     },
     {
       "page": "sampler-record",
@@ -1024,7 +1044,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler-record.png",
-      "sha256": "7491d0c8a8d71082822d7f6c7df59fa79e9ffc7d818f0fb5194d0ed32686e8e1"
+      "sha256": "b99be06d008c3028ec7fa8c28e09db3143cd1acff06ef7da06a60584d827917d"
     },
     {
       "page": "sampler-source-idle",
@@ -1034,7 +1054,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "sampler-source-idle.png",
-      "sha256": "be5644ccdceddc4690234a58dd439e0831d97d8cb1d678306dca4d8f1cf2bea6"
+      "sha256": "f62dae8ad83bf067b9c4b0a0e55e179916e1cb870256428a0f17d7115b337bc8"
     },
     {
       "page": "sampler-source-playing",
@@ -1044,7 +1064,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "sampler-source-playing.png",
-      "sha256": "b6dd897994186479b36c8d91e1f98bd1f8d316698cebb2f5ceac7a7a6af1d254"
+      "sha256": "4c238b9de1f8f11a8f7d3bd85c4e40db3a79edbcb00307302a25210a1e711d29"
     },
     {
       "page": "sampler-analysis-pending",
@@ -1054,7 +1074,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "sampler-analysis-pending.png",
-      "sha256": "427d23eec300ebbd6bb9b0724119c9439c9d5465dbc6acc3f2cec1ec7be0e4d0"
+      "sha256": "f930b2b8215a441267ca5586674b88b1767e8907ef6fa7b1b31728e79dbeb08f"
     },
     {
       "page": "sampler-start-marker",
@@ -1064,7 +1084,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler-start-marker.png",
-      "sha256": "69e3807d89e4a0a4001c211c0a26134e419eb38ec50eb3486a17c765939b4d90"
+      "sha256": "f7777d7acdefae2c3b0c3dea08f9be13dde454043a6a9c29ca9b453c2312372d"
     },
     {
       "page": "sampler-end-marker",
@@ -1074,7 +1094,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "sampler-end-marker.png",
-      "sha256": "9cbba89ed75f618a992731223dcf87406d4b7fb9d28f444f294b7ef241646cd7"
+      "sha256": "1236a34a433e4820be6f526f102c01c23b6a231687d87c85857b98819a6be41c"
     },
     {
       "page": "wave",
@@ -1084,7 +1104,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "wave.png",
-      "sha256": "7a5088484ce9c7d98a80519b95e40e19a4ff98fb6592546c18de8704f1f787e1"
+      "sha256": "46e9c95c923a49d0074dc254902bb888c44ca96b53123995f78d4e1fb9d66a5e"
     },
     {
       "page": "zones",
@@ -1094,7 +1114,7 @@
       "title": "SAMPLER",
       "theme": "cyber-2",
       "file": "zones.png",
-      "sha256": "fb42f477afab6b7348f81d0c50e01b8df7d7ef83490052323bee765750ee4df0"
+      "sha256": "3937e683caf9f20cd9f7176c79aba6ca8e9ca8149a6d3235202f4bf24712586e"
     },
     {
       "page": "routing",
@@ -1104,7 +1124,7 @@
       "title": "ROUTING",
       "theme": "cyber-2",
       "file": "routing.png",
-      "sha256": "f26378587cc5485a010e6048d4f2162b56ee4e629f7487f1efd06b5d6e9935b7"
+      "sha256": "3d9e2305de589952bb6c31f4a4aac5780ed57e361c359140e3621936a8e151e8"
     },
     {
       "page": "resample",
@@ -1114,7 +1134,7 @@
       "title": "ROUTING",
       "theme": "cyber-2",
       "file": "resample.png",
-      "sha256": "dbbb9a5ce4a6d29c72ecdb15c0f8da7914ebf213ed6e21518d07e4e2cb0dc2a4"
+      "sha256": "9ce2fcd977a541706106e04e40753b0076f809bbec0a12d1b6c23f69d3340581"
     },
     {
       "page": "group-fx",
@@ -1124,7 +1144,7 @@
       "title": "ROUTING",
       "theme": "cyber-2",
       "file": "group-fx.png",
-      "sha256": "adebef7433ae161abb6ff4662658de542ca1bdd83117a45b1b46ab904ec1d6a6"
+      "sha256": "6a42e1bcdd7f4739e3782211372bf38d47acac1f9d2bb76bc2c91c42ff8fe295"
     },
     {
       "page": "group-sends",
@@ -1134,7 +1154,7 @@
       "title": "ROUTING",
       "theme": "cyber-2",
       "file": "group-sends.png",
-      "sha256": "d48a102c897370444a8023efb48acc49283d82d93e9a99c040f911b126929134"
+      "sha256": "6d33c294b05be3ef555b508ccd15859004b63288aa61fb539bc3c5400674db88"
     },
     {
       "page": "group-parallel",
@@ -1144,7 +1164,7 @@
       "title": "ROUTING",
       "theme": "cyber-2",
       "file": "group-parallel.png",
-      "sha256": "3b97e64fd9d18d3ab46c555d67a95a2874eda3dca1202471982c7343d733f6b8"
+      "sha256": "78fc44d3484ca27a5dfa3291ea75ad7f843fbe76fb790c7c3005c1d77f107f5d"
     },
     {
       "page": "project",
@@ -1154,7 +1174,7 @@
       "title": "PROJECT",
       "theme": "cyber-2",
       "file": "project.png",
-      "sha256": "0891005d71ed06d845685774ac60a98217881ed194382378b26a2d17463d3afb"
+      "sha256": "91eb73750ed8139c508ba7dcc4e37b75a2664d1d200be5e28e57806da957bea0"
     },
     {
       "page": "midi-export",
@@ -1164,7 +1184,7 @@
       "title": "PROJECT",
       "theme": "cyber-2",
       "file": "midi-export.png",
-      "sha256": "32dec307fa4e8eed6ed41fb49bd205e5152652caf5c960214f00fe937fcb5fa0"
+      "sha256": "2a9b410b050da2dbc77953573568148a5e00442191ba57232d6bef5e135f61d0"
     },
     {
       "page": "new-confirm",
@@ -1174,7 +1194,7 @@
       "title": "PROJECT",
       "theme": "cyber-2",
       "file": "new-confirm.png",
-      "sha256": "2e0ee93e4fce6a51db5aaf3d3de5f1769cfea47a12dc7f5b3397c60e745441be"
+      "sha256": "5906af43e6edb1bfb8dc04992bbe73a149853f201d179b928ccb4c47c8050f41"
     },
     {
       "page": "settings",
@@ -1184,7 +1204,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings.png",
-      "sha256": "dd86da6c8e0204c15b8333fb126a795b447473cc7f0948b7d5d1f3489f408079"
+      "sha256": "574ab3f74c9f806b74ff2f80a6b5287c579d4404dde0189b9d8df35723b28674"
     },
     {
       "page": "settings-display",
@@ -1194,7 +1214,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-display.png",
-      "sha256": "89ec0951c8de3a1e2d1a9b539b34a04c3147a2c86378aa50dd7e694acf399982"
+      "sha256": "fcd8f37fbd28fddc7ea42a0beb5b0f8581a7086f1f1e0e480552634383d1838d"
     },
     {
       "page": "settings-theme",
@@ -1204,7 +1224,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-theme.png",
-      "sha256": "bbd41ba43f9909302771b294e3c36a05ead34e2daaf15fb72f8898bc25479f80"
+      "sha256": "a980369c82eb2f9be4806beab0853a472edfd6c64989ca083585b09a62ef8019"
     },
     {
       "page": "settings-display-last",
@@ -1214,7 +1234,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-display-last.png",
-      "sha256": "e0d26043c4d5205e5b5d982e59291b6db2c604811c77988a3bac1836da7ab6fc"
+      "sha256": "36db90b40f9895aaec115440db5fbbb44be8e3f849ee8022caa902c8e7edd2cb"
     },
     {
       "page": "settings-lights",
@@ -1224,7 +1244,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-lights.png",
-      "sha256": "10af80194a9112442bd52cebb4a054bb1b4d98f474076e125ad0ff1cfcb06c2e"
+      "sha256": "44e1117eaa05915c4233f49fb823385a687768e2638f18e9e6217ef3b8540919"
     },
     {
       "page": "settings-pad",
@@ -1234,7 +1254,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-pad.png",
-      "sha256": "1ab8efdc1548a5fbfc75af3e1ea71b22cc1faf3ee7a5fb6252982e7501ca1c6b"
+      "sha256": "6402a2e1a296cc1d40d14e58f82b534c7778f347dbcf038e97a353c665a36563"
     },
     {
       "page": "settings-audio",
@@ -1244,7 +1264,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-audio.png",
-      "sha256": "b7eda2efd0a0b25647d95453ad6598bb58616079619916d757a6e2eb23154dfa"
+      "sha256": "9053178d6d9946c2b00984e5e130c59d5d0b0e0808c837af2464f3160e73377f"
     },
     {
       "page": "settings-audio-overlay",
@@ -1254,7 +1274,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-audio-overlay.png",
-      "sha256": "12f96a08c435cfc4a675d158f1d5925c8234e9249b95cdaaa6329488c9c4d8e0"
+      "sha256": "6ff87f0224b219ff8d7cb3667977326cca15eb9e6ffc0f5712541cdfb6e47daf"
     },
     {
       "page": "settings-midi",
@@ -1264,7 +1284,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-midi.png",
-      "sha256": "4322c94806bbf02ee29be0f13de0347f5efa434af76b97a3afa2bae67c225f8c"
+      "sha256": "2096a6fa8af38e2bbbae625782170e9fa22f4b35026ab455d91b5d2a1f58e07e"
     },
     {
       "page": "settings-system",
@@ -1274,7 +1294,7 @@
       "title": "SETTINGS",
       "theme": "cyber-2",
       "file": "settings-system.png",
-      "sha256": "f94c08c7bb6e3dc05daf1f09b8ba008a17b9da4ee0365ac8f0195b27dee2d6e7"
+      "sha256": "ced86aa5d500f42d509f6091d0a9627d09520c1b74a3f28fa7612a6085ced3d2"
     },
     {
       "page": "browser",
@@ -1284,7 +1304,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "browser.png",
-      "sha256": "85dd58b92b1860142c368fea2c12e0abe4095f81a84f065b5bee6b628e4d8d82"
+      "sha256": "d35fed06d58281d5328da9f4bbb420e68beefd825922832de0551b5db562b450"
     },
     {
       "page": "browser-shift",
@@ -1294,7 +1314,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "browser-shift.png",
-      "sha256": "06f5e5d255ef3a152c5ecbc73911c495dcc9940deac3ea2b20bfda2d6f65c5ed"
+      "sha256": "0aa8eeb3f2ef5df282d1141665c58121efe23b3f03343010907acb03a566ee67"
     },
     {
       "page": "folder-name",
@@ -1304,7 +1324,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "folder-name.png",
-      "sha256": "ddf34745bc7afbcbda8b634d7081ac0e888c78007dceb4b4f50d1c948ecd4c4a"
+      "sha256": "fbb2063ae62d590f40f8c30f0682dc71a975b90a5a7574056341fdb8f972f3d1"
     },
     {
       "page": "rename",
@@ -1314,7 +1334,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "rename.png",
-      "sha256": "5ff36f0eb0cc337685c47b9afc1a3ecc384cc013c4a251d69a5ba6827b44de6d"
+      "sha256": "d1562b9d9069adc99d2ea2528da2341086e08a244ca7420c3387c1274f14085e"
     },
     {
       "page": "delete-confirm",
@@ -1324,7 +1344,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "delete-confirm.png",
-      "sha256": "172053ffd4f52fb4b681b68de42e364d4c81e6786e608fda2899ac889bc04747"
+      "sha256": "f2cd4d7c6cdbeb4eb5d0ea7d87f832d80392e9aff676c721edb7252d539c2476"
     },
     {
       "page": "diagnostics",
@@ -1334,7 +1354,7 @@
       "title": "DIAGNOSTICS",
       "theme": "cyber-2",
       "file": "diagnostics.png",
-      "sha256": "6558e7f192e5c47b3ea16c9d39735d6d431086825aca03456a379253f5b7a167"
+      "sha256": "5efe6d8c87ddd4cd1153c5f819f77ed52d9a26f1284d748589e8fdb61a5ab383"
     },
     {
       "page": "clip-pending",
@@ -1344,7 +1364,7 @@
       "title": "CLIP",
       "theme": "cyber-2",
       "file": "clip-pending.png",
-      "sha256": "24ebf1837026400fb14ad56e7247b23f53654d0ead7f570fce7bdbeff5abf73b"
+      "sha256": "6485912bed51fe649cf9f982d5e96f60c9d9bd2247c3fe9f8ca4dde7a9222c83"
     },
     {
       "page": "scene-pending",
@@ -1354,7 +1374,7 @@
       "title": "SCENE",
       "theme": "cyber-2",
       "file": "scene-pending.png",
-      "sha256": "93e49b1b3ab704c3742d7c44f0fc3c972558cb934655997c51a09fbf466ae3e1"
+      "sha256": "9eb73a15a49c4531b9485d94e647f85e36a91981afc33469f43a17b2d8d41433"
     },
     {
       "page": "midi-import-confirm",
@@ -1364,7 +1384,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "midi-import-confirm.png",
-      "sha256": "195663bf63bae70346f78d88a9b05985f3127839dd6a2ded7ba937414a332ecf"
+      "sha256": "bbbd43ec572ab06ebf10f07e1628f2460d281b35bd5f026431924bcb21aa75b7"
     },
     {
       "page": "engine-00-page-0",
@@ -1374,7 +1394,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-00-page-0.png",
-      "sha256": "069dd94a55046c6d1ec1605fc45c4de6c668668c70a666a65230dfc0fbe9c7e5"
+      "sha256": "b0e27c6408daa3479d01e16506ebe99498ddeb967ac6b750f8014ad8b02d8db5"
     },
     {
       "page": "engine-00-page-1",
@@ -1384,7 +1404,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-00-page-1.png",
-      "sha256": "b1f30bac7206a012dc9e022db8da03069cf229ee2028d6b4869453ed6bff504e"
+      "sha256": "ef7729a520b51c4f2409e11e6f8abfe8e45bba4073e0f400aeb0a1fa45bb4e3c"
     },
     {
       "page": "engine-00-page-2",
@@ -1394,7 +1414,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-00-page-2.png",
-      "sha256": "0cabc3726a3edd756b7022c334da73f4ee85a380c2db0f06cf928aff464af136"
+      "sha256": "3f8c582c5d6826696b127e616ceeff301d20f4fffbca375371351a7afb73e24d"
     },
     {
       "page": "engine-01-page-0",
@@ -1404,7 +1424,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-01-page-0.png",
-      "sha256": "089073bbf7dcfc8bffa8371738d0f3c60897c3e86b06c1abd2da222fedae4e63"
+      "sha256": "7f41b7c04f73f9c1a7fd1206b3ee93f1fe06678d796ef24a53f1414370c43217"
     },
     {
       "page": "engine-01-page-1",
@@ -1414,7 +1434,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-01-page-1.png",
-      "sha256": "50dbf5584ade84644c7dd44cb6c3f572a8495736a13b96d0401b23a8f9093ebe"
+      "sha256": "9498e5338cf335336e2cec6620a353027c526ebb5ea3572b8a2bfc974989133c"
     },
     {
       "page": "engine-02-page-0",
@@ -1424,7 +1444,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-02-page-0.png",
-      "sha256": "9b8a3710d0c7fb1a1579edfca9ba4f0f9e00f51d0c0571d76afb43d1238ec19b"
+      "sha256": "09aa3a4e83ac65b037b6a50f04aef70fd5db368421fb1ba7fa86910ef02642b9"
     },
     {
       "page": "engine-02-page-1",
@@ -1434,7 +1454,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-02-page-1.png",
-      "sha256": "45300d540f38b6ca59ffd64dfcd4a43a69e3eeed93b7af73bc3ebda91108874b"
+      "sha256": "19fa137d329c54be6f76d585ba237bf15272f23d22960dc619d445426e95abc3"
     },
     {
       "page": "engine-02-page-2",
@@ -1444,7 +1464,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-02-page-2.png",
-      "sha256": "7302b1d2a1c107e57c67e4118f283ed713751a28bfae9702736067f5f9736fc4"
+      "sha256": "3ec1e468cce9664b7eadc73d7220cb8bf8ca718cc747dead31a4925cd36aa37e"
     },
     {
       "page": "engine-03-page-0",
@@ -1454,7 +1474,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-03-page-0.png",
-      "sha256": "5e6230fd375c5e4fbe38365aaae74d04b2004fe382d57e48553b0c307f46dc44"
+      "sha256": "b0f306b08b691a12e0083aecae931aa62f2ba447d64671160aa07315a419a7c8"
     },
     {
       "page": "engine-03-page-1",
@@ -1464,7 +1484,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-03-page-1.png",
-      "sha256": "d84365726f9fc772c249bd951117d6c90b4ad6d576cd7ce35a12ae201380d2c6"
+      "sha256": "5840869502482da7069fed3568138414e8dc38a6837a2a148d224384d4b14989"
     },
     {
       "page": "engine-03-page-2",
@@ -1474,7 +1494,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-03-page-2.png",
-      "sha256": "df53eee10774451aa5d51990d1f08ff9017c58e90216a581ab7d146bc71693e1"
+      "sha256": "23894a2d34e10ddc1cb12f308e2bf5b687507fdf5941114c2ca3051691225662"
     },
     {
       "page": "engine-04-page-0",
@@ -1484,7 +1504,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-04-page-0.png",
-      "sha256": "46e3f1904aeb31904f62a3c56b5a022cacf92e5e86425a2497da314a98e905f2"
+      "sha256": "2cf9929d090117a2472772b41854df96b90e79facd9d2f50cb4d6afa87d8f09e"
     },
     {
       "page": "engine-04-page-1",
@@ -1494,7 +1514,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-04-page-1.png",
-      "sha256": "4529defb396f25d02e89d7dc929a0497266855a62bd108abcd17a2201cfd58b6"
+      "sha256": "112f6e69c902d774a48a801fafc94bce4222a896ed7d50f31d21fd4343f8fef2"
     },
     {
       "page": "engine-04-page-2",
@@ -1504,7 +1524,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-04-page-2.png",
-      "sha256": "de290183306abd08c6b18b78ae6acce1b64e661897ec99c6a56733ca6c910bde"
+      "sha256": "479cda7363cc6d308f8216abc2ccbedf7b464410a65d6d644e18b8cb31a20a24"
     },
     {
       "page": "engine-05-page-0",
@@ -1514,7 +1534,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-05-page-0.png",
-      "sha256": "3e201b9523adc55922c2fc3eea49557bbe5f083302decefa00cc426b0e342d16"
+      "sha256": "c7f5757a89f6546bdbc7e1429cbd5e6cc85448e2c37ede00b834523b96d150c9"
     },
     {
       "page": "engine-06-page-0",
@@ -1524,7 +1544,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-06-page-0.png",
-      "sha256": "be94a8564a2799fd6c98c8e89da49340388193903f4d3f93ff227b060db22a75"
+      "sha256": "dce0b22013f8d0a000e1acd1e907178a44b701d98c61b6f29ebcb25529d7f3e1"
     },
     {
       "page": "engine-06-page-1",
@@ -1534,7 +1554,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-06-page-1.png",
-      "sha256": "3520c2d74b752b638f7125e8949a0e2796a372ec3d3c5647b01c99f54f2100ed"
+      "sha256": "7a454fd0798cd78ddcc00a235e4e478319739d5b452e4c333e10090dc5c3510a"
     },
     {
       "page": "engine-06-page-2",
@@ -1544,7 +1564,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-06-page-2.png",
-      "sha256": "f5accd3e06746308c3d8f6774b7671697ec835b2dd369180f9459b7619606f5e"
+      "sha256": "ea1122bf4de1324ea6d59b404f2c22035d0adeabf6bbd9c4508bf958be62c9a1"
     },
     {
       "page": "engine-07-page-0",
@@ -1554,7 +1574,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-07-page-0.png",
-      "sha256": "1b51f3d462ce10fe206efd8f00007139314d976d57f1a1ca27e2bec4e7fbf416"
+      "sha256": "d25d4c31eb5b5ee758ff849c819f35e77968961667b39c558c04b67c560c40f4"
     },
     {
       "page": "engine-07-page-1",
@@ -1564,7 +1584,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-07-page-1.png",
-      "sha256": "e345e4a44590f3a516f5fad26cf7ab3d508490b4db369e3dc22ea94bd16db5db"
+      "sha256": "153f68b044d4ba1c0d3733217311b5e6f89374fc6324933d93239520fd587fda"
     },
     {
       "page": "engine-07-page-3",
@@ -1574,7 +1594,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-07-page-3.png",
-      "sha256": "9030d54e78750202c09d10378fedcec2c54939c2645f0076e647e51282253dfc"
+      "sha256": "62ea7f1fa4b3673c10c04aaf6e16c154e8e81d066f719a62e916916b6fe4fe11"
     },
     {
       "page": "engine-08-page-0",
@@ -1584,7 +1604,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-08-page-0.png",
-      "sha256": "ba2cd4653cc66809df132f7d4f8ca9246bc7885ab55538a0fe71a15a7b88a4e1"
+      "sha256": "56d54a1579f9c1c719069139c0fc117885e09f66319b63332ef4a97d0f11ef9a"
     },
     {
       "page": "engine-08-page-1",
@@ -1594,7 +1614,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-08-page-1.png",
-      "sha256": "4eb917abfa020b98d98118595ba82dd13bc673c6aba3850f073d3e2a0f461d75"
+      "sha256": "bcdbc416807067a8aa3bccd3e0dc758b0e98b8b5a5a7c70a8886cdbbda1e1ffc"
     },
     {
       "page": "engine-08-page-3",
@@ -1604,7 +1624,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-08-page-3.png",
-      "sha256": "b47bd00a4423464f9507a106d4cc51f54449afe3765609fa2e7a3efa8de36dfb"
+      "sha256": "6ed1c15a49bba59dce1f2cf41810c5009df154db7685f3b92bfbf5387f301d99"
     },
     {
       "page": "engine-09-page-0",
@@ -1614,7 +1634,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-09-page-0.png",
-      "sha256": "e06da2676223b741b35a51dd6237bda8c1ea410c4595303613cd052df3876b49"
+      "sha256": "9e542949a3fa8ace95da478070e4d229f1c8a4df642247e7d610e857d29c95b0"
     },
     {
       "page": "engine-09-page-1",
@@ -1624,7 +1644,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-09-page-1.png",
-      "sha256": "9dd76c6823c683416947dcf064e39fe6f5353c4242b827556284b554ed15c501"
+      "sha256": "58378bc8b7b4db27f022d04138c6cdc7e63f1e9b55715c0107238830c501692f"
     },
     {
       "page": "engine-09-page-3",
@@ -1634,7 +1654,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-09-page-3.png",
-      "sha256": "5334bff5743ad0d86bb75bcd4b221aff5e43551da6cbf9e79ae47af786b98cbf"
+      "sha256": "61c1c3e01a0f8ac130d6f70ddff23801623dd9edc6ef51b6a6af0c169f75d326"
     },
     {
       "page": "engine-10-page-0",
@@ -1644,7 +1664,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-10-page-0.png",
-      "sha256": "f9e51df81db96164413af32cc534a86ad8614621ee78e15a587bfa83f0f05007"
+      "sha256": "9b1fc4d63e144dd8e8be783bcce7befab48c89c335e4d3150cca500fff19f982"
     },
     {
       "page": "engine-10-page-1",
@@ -1654,7 +1674,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-10-page-1.png",
-      "sha256": "a2af060800c30c697339ce9202e2c17ee7164bce43cbf698bee01f1210cd1a1a"
+      "sha256": "0a0f48b1546aa48124a2a132fa27af772c055ee64f07d853737fe1e8d231d518"
     },
     {
       "page": "engine-10-page-2",
@@ -1664,7 +1684,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-10-page-2.png",
-      "sha256": "4c7f09dae1074064800bd9fa0e9032c3d79201097cac762202a3098097b15fae"
+      "sha256": "6e6a4d57d15b428626885f04dc6f2a03c9aa7209592f2f5ba95e71790c144c0c"
     },
     {
       "page": "engine-10-page-3",
@@ -1674,7 +1694,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-10-page-3.png",
-      "sha256": "a117f41625b5442c9b617b622bdd58bba3f5748dbb6209993068e0e516cc4fab"
+      "sha256": "72459a4b573816fb8b3fa8e749fc175f3c9b7472f837ec57f82c88dfd5971aae"
     },
     {
       "page": "engine-11-page-0",
@@ -1684,7 +1704,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-11-page-0.png",
-      "sha256": "294a606dfef916a9d164a1cca089c49472e56dddf0b6bf372a39a3a4ba48f68c"
+      "sha256": "bafaddd525aa3a500a2cdb9f9235ddd6565a16728dd71deb5aace93bf962ec2f"
     },
     {
       "page": "engine-11-page-1",
@@ -1694,7 +1714,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-11-page-1.png",
-      "sha256": "53a10283ffbb31c6b8de39fcffa493ae0e3b6de2137b426f69866ab569349401"
+      "sha256": "2c1f3ac8e95de241a686d474e94a088e8439d740f9ae029fdfdc16026a1e92fb"
     },
     {
       "page": "engine-11-page-3",
@@ -1704,7 +1724,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-11-page-3.png",
-      "sha256": "a997126e498f72876a5c13662c96846bc87c0d492e6860366b8362d4abe1764e"
+      "sha256": "8b2ed4a7f38235970f0df2b631d1bb1e00257cbdf0234265b4ff7ffd544b47a5"
     },
     {
       "page": "engine-12-page-0",
@@ -1714,7 +1734,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-12-page-0.png",
-      "sha256": "91b27d8de5f0ef44036a65a45ff5eedf67e0f04833c8b0323897ae3503e9ccf7"
+      "sha256": "4dfcc0d7b379325bd3295ccef4700be5e50520db3f5094866b907d0b89ebfbf2"
     },
     {
       "page": "engine-12-page-1",
@@ -1724,7 +1744,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-12-page-1.png",
-      "sha256": "c7985fa09d44e3e10cf58267273ed9c8c09b58f15f02521538cc1a28e49e8f8b"
+      "sha256": "e0ed226c3859542dfcae094689d4ded7cdbee6052edee98917ddeb73733624ab"
     },
     {
       "page": "engine-13-page-0",
@@ -1734,7 +1754,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-13-page-0.png",
-      "sha256": "bb0f2dd40926962463fc65d84703bbd1dcc8b224f9ac33f9c7dab6155d336c16"
+      "sha256": "23677c9912f01088cbc5cabb8a2d4c24195583a2aa7408a7252dc2db1ef2f022"
     },
     {
       "page": "engine-13-page-1",
@@ -1744,7 +1764,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-13-page-1.png",
-      "sha256": "53be3f5c7b1a919b92b662298838d820fdcdc444781a642674d5dcb3763c4c68"
+      "sha256": "0727224157a49f3da0a5332dff5654db6c98c4d58aeba496059347d53e5f8d7d"
     },
     {
       "page": "engine-14-page-0",
@@ -1754,7 +1774,7 @@
       "title": "KIT PADS",
       "theme": "cyber-2",
       "file": "engine-14-page-0.png",
-      "sha256": "c1b45873d0e78bf4ccf61151b8ce12c129f4d4deff56f059ede40eca5854fdd9"
+      "sha256": "3f326ebfd9a67b0d6bcdf6ad1f586977623f1831f01d44212e13f915cf65be16"
     },
     {
       "page": "engine-14-page-1",
@@ -1764,7 +1784,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-14-page-1.png",
-      "sha256": "13be9124811c4ef10aa29c243ded2c626ca3bc9eaa4781f9227cb7986e370a6f"
+      "sha256": "bf399876bf4779983d4d595ac83fed06d14a7eeb8c7830cbe036022f50cebb04"
     },
     {
       "page": "engine-15-page-0",
@@ -1774,7 +1794,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-15-page-0.png",
-      "sha256": "71023c0f12eb3fdfeee7010dd2761cdc381a5d2e6a877b482bb377e5be544ba7"
+      "sha256": "b998af4f286946ed51f78eabbd4f7f67b328864437679756d51add5de67ec654"
     },
     {
       "page": "engine-15-page-1",
@@ -1784,7 +1804,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-15-page-1.png",
-      "sha256": "9ba0d292e1f113ce5fbcbdf0a481b88ed5d5ac11e960c22f9f769a37f8d24620"
+      "sha256": "6f9d4f9975e0c7a8127994a23e669715f38c6b73ce5bc955eebe970073993ee0"
     },
     {
       "page": "engine-15-page-2",
@@ -1794,7 +1814,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-15-page-2.png",
-      "sha256": "680392707f71f2024a4a7f4f6857313ac90fa6cfd56dc34ac0851f4afd7dfdbf"
+      "sha256": "3b4f37bc01e01a9137a153e8af07134a0d998ecb1b02491357d58d7c7383a847"
     },
     {
       "page": "engine-16-page-0",
@@ -1804,7 +1824,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-16-page-0.png",
-      "sha256": "4e3a4195ac186ad8808601ba0bd7301245948d8eabc829b337e624e7a9a28fbd"
+      "sha256": "10d8c981e580552ca96f5fed57ebaf9718c9d2ecf477a18c18e34680f4ed3f2c"
     },
     {
       "page": "engine-16-page-1",
@@ -1814,7 +1834,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-16-page-1.png",
-      "sha256": "f068fe827c7eb79a651ec0a31fcbabf168fc6c6e673ba0b1643f2c4e62e7c20b"
+      "sha256": "1d841eb037921f663f70591a3be1726f84539d7af0599ab624f92624469968dd"
     },
     {
       "page": "engine-16-page-2",
@@ -1824,7 +1844,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-16-page-2.png",
-      "sha256": "005d11f991b73b47901f5c80a9308fa61456965ce21da651c54a87d199d02a85"
+      "sha256": "02a8933325b71b275474bc0772ea9335a2fde0923668d8b065e25565aace4de0"
     },
     {
       "page": "engine-16-page-3",
@@ -1834,7 +1854,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-16-page-3.png",
-      "sha256": "26e6776bf36451d116ef072803c231a1c8704fc96e6f9b7e0da6d61fc0a24555"
+      "sha256": "0cd0a71ce992307ccdcbb3d3c71ce9b4653fd35e732663bb1ebaae8b64fb2620"
     },
     {
       "page": "engine-17-page-0",
@@ -1844,7 +1864,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-17-page-0.png",
-      "sha256": "d6a11e3e2d5a7a44a1d1b96c9b126a4eeaf96752366f92fcba5869edae1a6f2f"
+      "sha256": "5cb0d2b8683c6b613c8db0efda03d0b096c491d2a23005e5a58388e8bce132d6"
     },
     {
       "page": "engine-17-page-1",
@@ -1854,7 +1874,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-17-page-1.png",
-      "sha256": "c6ab07e39a1dadb594539c66d30a7cf2ac30eef1e878f73e197ec7d0dd96c910"
+      "sha256": "a1ba6e4e0c428b7e09505aab6c66ca759fcd94ff9d7fb4f5b03fd856d716e76c"
     },
     {
       "page": "engine-18-page-0",
@@ -1864,7 +1884,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-18-page-0.png",
-      "sha256": "faef48b0c935a502bab345f0544de98fea2dd091dcb0a99a2d28f3e46807406d"
+      "sha256": "2249c39c01f666571463dabc720b856fc43aa9724b303f84fded5e0c22d0186a"
     },
     {
       "page": "engine-18-page-1",
@@ -1874,7 +1894,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-18-page-1.png",
-      "sha256": "b32b59566f1af7482c31c8c0f93388a2c50f95462a49982485442bcf9c53fba3"
+      "sha256": "349a7e59640cf8e90160175148f45e501313bec7ec3e1e625b5b250fa7ce731a"
     },
     {
       "page": "engine-18-page-3",
@@ -1884,7 +1904,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-18-page-3.png",
-      "sha256": "ccf1e9e1f0d4987b9779a4889fbc44c3dc8432f405c64a54da88ca8974fa73d3"
+      "sha256": "43a1f80256fea2edecc29af5d0cd8adf487bf269e15a12756a14427ed3f8883d"
     },
     {
       "page": "engine-19-page-0",
@@ -1894,7 +1914,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-19-page-0.png",
-      "sha256": "9f3ceceee4b53eb01a21b94b3de00caa87533c4d9bb685a4ef438f51abeccbf2"
+      "sha256": "959f9cdaec648f8622152294b30ae0135e1348009db6fd0ac495556be546e7dc"
     },
     {
       "page": "engine-19-page-1",
@@ -1904,7 +1924,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-19-page-1.png",
-      "sha256": "6b63debce1357a15e7c25bd743cd2689ab7438cb4b08cbbb4abd0d8898933a41"
+      "sha256": "e8bd5784ae91f4345d9386b502f5664e13c99bf2b31fe023e0435f3124800376"
     },
     {
       "page": "engine-19-page-2",
@@ -1914,7 +1934,17 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-19-page-2.png",
-      "sha256": "b9fc8ac740edaf2a89e9dfeda7df50136aa3e6c92e1bf1763e81be45b9263382"
+      "sha256": "e76ddc7f5de2a8aa3f9ca20e2d7bffe1c60dc0d6005e1e37de35c8a5b7ebdcce"
+    },
+    {
+      "page": "engine-19-page-3",
+      "mode": "SYNTH",
+      "engine": 19,
+      "engine_page": 5,
+      "title": "SYNTH",
+      "theme": "cyber-2",
+      "file": "engine-19-page-3.png",
+      "sha256": "c2e92695f6903de8eefcca080f2e30354e3291f8dbd040448aaa67a6ebfc1dc8"
     },
     {
       "page": "engine-20-page-0",
@@ -1924,7 +1954,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-20-page-0.png",
-      "sha256": "0d168b1c4884612bd1a20330f937b76454dbe0cfc9a2c8f3c64be078524592a7"
+      "sha256": "6ef4c6b03c8ea5ecceb0006c9cafba203e8f0b1468f4de5755acef7d25f9f5ce"
     },
     {
       "page": "engine-20-page-1",
@@ -1934,7 +1964,17 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-20-page-1.png",
-      "sha256": "95138ac44236e74e23042b7f780eb3b212763561bf14cd91c70b5853f74c8112"
+      "sha256": "196bdf16586d5834a11cbb5143df88b1b228866ecdf6b483afec7044f035db7a"
+    },
+    {
+      "page": "engine-20-page-3",
+      "mode": "SYNTH",
+      "engine": 20,
+      "engine_page": 5,
+      "title": "SYNTH",
+      "theme": "cyber-2",
+      "file": "engine-20-page-3.png",
+      "sha256": "77c58314f9418c81fb4209b0f259b2eb74875e06ca25796bd956d4675c378c4d"
     },
     {
       "page": "engine-21-page-0",
@@ -1944,7 +1984,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-21-page-0.png",
-      "sha256": "c193554686a9fa383f5a151c52f938a4be5cb3ccf24d8fd369cbffadbb51e86d"
+      "sha256": "4f8b7d8ba4e60384155dc1067e687c99cbbcbb0dfb5e1823ba459426d2cbbc1b"
     },
     {
       "page": "engine-21-page-1",
@@ -1954,7 +1994,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-21-page-1.png",
-      "sha256": "24e163e8a000db1882fc1530650b108b1ac833769c1d5af060eb9f8558e71574"
+      "sha256": "10d5de80bb7688291b1dc9370df65807547130e59a63520de9c7139015025689"
     },
     {
       "page": "engine-22-page-0",
@@ -1964,7 +2004,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-22-page-0.png",
-      "sha256": "1e79af7561aa247b5bca12c6d2468d343186424e64301355dafe3d8c48f44355"
+      "sha256": "c21303c8c704e4024c4a60897311edab6061595e871ecff686bb95f4489d2974"
     },
     {
       "page": "engine-22-page-1",
@@ -1974,7 +2014,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-22-page-1.png",
-      "sha256": "e4cbad8323f559ffffb18e1d964622918120dfb43e2a07e2082d4ad2bdc00185"
+      "sha256": "b7bc6a40b4566efad5d0cd174d7fa810d290d1f8131f60b2b3cbe8ec7160ad5b"
     },
     {
       "page": "engine-22-page-2",
@@ -1984,7 +2024,17 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-22-page-2.png",
-      "sha256": "6ec0a9d519482004323f55a163f8b3d0298607264a2a661c2df4d3391f7243bf"
+      "sha256": "bec8b891bebfe47894fd7c8401b75dc3795d472583adf7ca61369953267f6dc8"
+    },
+    {
+      "page": "engine-22-page-3",
+      "mode": "SYNTH",
+      "engine": 22,
+      "engine_page": 5,
+      "title": "SYNTH",
+      "theme": "cyber-2",
+      "file": "engine-22-page-3.png",
+      "sha256": "e79d068f4ffbd019f02801932fc6e379c4bf2f747836df46953f7d4ec56f5d52"
     },
     {
       "page": "engine-23-page-0",
@@ -1994,7 +2044,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-23-page-0.png",
-      "sha256": "bce503dfda2f136bacde4c769f6a1e9c8e479c62efdbe6289866e56a89b7f6e2"
+      "sha256": "40913ab9b4dcbb0fa4232e9e60bde0172db84e10096e464b88926e58ffb6bc10"
     },
     {
       "page": "engine-23-page-1",
@@ -2004,7 +2054,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-23-page-1.png",
-      "sha256": "69995564da2a7d4e83fd336f5960e71082ee2369121c77a18d031dc9c9bd6973"
+      "sha256": "cb692f114e3510ae80c6340b7932dfc037a1dc4e95160dc023e3276adb920a48"
     },
     {
       "page": "engine-23-page-2",
@@ -2014,7 +2064,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-23-page-2.png",
-      "sha256": "d1c71f70ddf2382de919ecd567abe887cbe15375ed1849d12985fc637eeb58f2"
+      "sha256": "7a2a0a4dbbc0d9f25d5b397f07582ef1c5beb7eb1cd67153b76f616c7751002a"
     },
     {
       "page": "engine-24-page-0",
@@ -2024,7 +2074,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-24-page-0.png",
-      "sha256": "c67c6d9113d5aee864772c045a4a211f0fbf490211a214fcfe31f7cea577ad00"
+      "sha256": "d46e187d2daa81f52704934d45547034460a7f9cd5b084eeb4c7e876e0af8c40"
     },
     {
       "page": "engine-24-page-1",
@@ -2034,7 +2084,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-24-page-1.png",
-      "sha256": "41ee9b4dc9bc1a986c75acbda4b4a9f9879e34dd506cdd067575e7f675a79d3e"
+      "sha256": "fb1e7c0641e64521f64d1ce8bf90e41863dcc0ffad83f87cb2e559521660ca06"
     },
     {
       "page": "engine-25-page-0",
@@ -2044,7 +2094,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-25-page-0.png",
-      "sha256": "50b7692c8ad5c1366c3081051e0eac2e3531bc11b7a05e6debca3878b77f78a1"
+      "sha256": "90a5ea33b134c7247320e5bd662cf6723bf5847823178f1230e850ad507703de"
     },
     {
       "page": "engine-25-page-1",
@@ -2054,7 +2104,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-25-page-1.png",
-      "sha256": "0330bfd31fb67fc12d274577350dc321edeeafa736d2a1866293383983875ad8"
+      "sha256": "bb3238024f7776e28b276a13b9c633c4af97ff919a4f7dac261c28c48c50496d"
     },
     {
       "page": "engine-25-page-2",
@@ -2064,7 +2114,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-25-page-2.png",
-      "sha256": "7c876638bbf42ab9824ede56b3a90e726c07ede827c4db9d38af7b8f62bd56b3"
+      "sha256": "f0f22af84bed19faf066ae5e33f92bd57fe7e413c52a7f6611eef658c51e6dd5"
     },
     {
       "page": "engine-26-page-0",
@@ -2074,7 +2124,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-26-page-0.png",
-      "sha256": "1501dd28a3331c453e4e20db84fbfe4cbd7fc6cafd9474163db30e70e321733b"
+      "sha256": "abc275d08f2e3f08aea6ed4f0dfd50006d664dd9be6c86a21aa44511c5fefd1a"
     },
     {
       "page": "engine-26-page-1",
@@ -2084,7 +2134,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-26-page-1.png",
-      "sha256": "ca996aa5cfba097d7a60a095879cc0f450c7b87304fdc454e198f3253254256b"
+      "sha256": "42c5558f57df6b60453f7dda157c0f6dbdcbb97b3267384b66dc351ae5494c52"
     },
     {
       "page": "engine-26-page-2",
@@ -2094,7 +2144,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-26-page-2.png",
-      "sha256": "5e9e598621db1e251d727b9d0866873fcddc51ebd43ac12a573a97865f974267"
+      "sha256": "302d68373dbc03169450eb6f66dd753e06afa9faf77a487449d367ef189c2ea3"
     },
     {
       "page": "engine-27-page-0",
@@ -2104,7 +2154,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-27-page-0.png",
-      "sha256": "13b1ee509ec9072d70c069dd06983b036ec9f644d7ac8a3342f2a717927ea80e"
+      "sha256": "d52457d1d8d74f74e1dd1f4e8a95974cb58a936e73fde5c4479fd17666de0c40"
     },
     {
       "page": "engine-27-page-1",
@@ -2114,7 +2164,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-27-page-1.png",
-      "sha256": "8ebffd301e4ad7729ba29ee3d15eaaa98b44a2981e25c955a917d162c5feb3e3"
+      "sha256": "88ffec851caf5db18d16fef0f9a9a4e826246e37dd3a4b5f9d1c18ca8eb19bdd"
     },
     {
       "page": "engine-27-page-2",
@@ -2124,7 +2174,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-27-page-2.png",
-      "sha256": "17cfec630ddd2618f7ba36059d2098606b1f0197a578fb726baa2cb0e1977364"
+      "sha256": "619df28f01e658b66e9677481d9782ce5534cf2e0440c966dc2c3d9d33b48f1e"
     },
     {
       "page": "engine-27-page-3",
@@ -2134,7 +2184,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "engine-27-page-3.png",
-      "sha256": "79d04ad0bf1aab27444206e9245dcd71bce352839d0a51a9ffe17bdc32945c3f"
+      "sha256": "a31442209249b9622606fa90aeede21d69d65adc5d68efd667a128371797723f"
     },
     {
       "page": "layer-edit-0",
@@ -2144,7 +2194,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "layer-edit-0.png",
-      "sha256": "96825b54d2a4319d675bcf1856015f720da02a66a3979916de2f2d9e6c2ba90e"
+      "sha256": "f00cbae7d621948cca213c8ff4ce6fa6b0e3702c26c0977f233a73fc82d6aa78"
     },
     {
       "page": "layer-edit-1",
@@ -2154,7 +2204,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "layer-edit-1.png",
-      "sha256": "fb00c452e0e6437e9768640c278cdf619b01807d77f76f6fe14fddc4a858d528"
+      "sha256": "2092d2c748cf31a466c19a01a00976ee6399463eb9ce3aff49b5d085968cd53e"
     },
     {
       "page": "layer-edit-2",
@@ -2164,7 +2214,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "layer-edit-2.png",
-      "sha256": "50ed4c59f057e5636b62b435ccb3e0342010f8a0c99588aa90cc82810dac652a"
+      "sha256": "1f25362ba483a086b291dfb3ad9537cf3da5529517384f83b12eb49ae832e2db"
     },
     {
       "page": "layer-edit-3",
@@ -2174,7 +2224,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "layer-edit-3.png",
-      "sha256": "bb9e8387ef515917c94d1a872ab9264cd76f8a602c0fe76476b599cfd1b5b3a9"
+      "sha256": "c77bf336c53bb5c368167ee8d52184c7b171bb6f706e39b146154f3676d4543d"
     },
     {
       "page": "layer-edit-4",
@@ -2184,7 +2234,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "layer-edit-4.png",
-      "sha256": "b9e2e35d4fbc96bc002375b3a899f3d9bf5efdb51380777cac1fd040212bf72c"
+      "sha256": "8a8efe11e9665c48974fa055bd65c434ca45d5ad1cadefbdd3169906def1445c"
     },
     {
       "page": "synth-fm",
@@ -2194,7 +2244,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "synth-fm.png",
-      "sha256": "0dc9fa052543755a5e529e5daf2e299217112abcafa1f6349f6b94b50f5d380d"
+      "sha256": "ed2ec0e7df217db1c3df5d08ca60279d1b7265000b33a22805954b3385a051b5"
     },
     {
       "page": "synth-tone",
@@ -2204,7 +2254,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "synth-tone.png",
-      "sha256": "4529defb396f25d02e89d7dc929a0497266855a62bd108abcd17a2201cfd58b6"
+      "sha256": "112f6e69c902d774a48a801fafc94bce4222a896ed7d50f31d21fd4343f8fef2"
     },
     {
       "page": "synth-adsr",
@@ -2214,7 +2264,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "synth-adsr.png",
-      "sha256": "7302b1d2a1c107e57c67e4118f283ed713751a28bfae9702736067f5f9736fc4"
+      "sha256": "3ec1e468cce9664b7eadc73d7220cb8bf8ca718cc747dead31a4925cd36aa37e"
     },
     {
       "page": "synth-folder",
@@ -2224,7 +2274,7 @@
       "title": "SYNTH",
       "theme": "cyber-2",
       "file": "synth-folder.png",
-      "sha256": "4c7f09dae1074064800bd9fa0e9032c3d79201097cac762202a3098097b15fae"
+      "sha256": "6e6a4d57d15b428626885f04dc6f2a03c9aa7209592f2f5ba95e71790c144c0c"
     },
     {
       "page": "effects-pitch-shift",
@@ -2234,7 +2284,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-pitch-shift.png",
-      "sha256": "aefc837723ff4b8013bde372fe673314c51c6f27e8a1f58a19b0a2b214dee514"
+      "sha256": "3d879c53a3018859b62cc2a498e153d158142a4e456acdf94f0dff216956e7b0"
     },
     {
       "page": "effects-rotary",
@@ -2244,7 +2294,7 @@
       "title": "FX",
       "theme": "cyber-2",
       "file": "effects-rotary.png",
-      "sha256": "480f8cc717b1e7e48015591fbf2e5988e432454b27152a7d96617953087cee3a"
+      "sha256": "5c109cae15dd0d4c9ef16a081a83743c47589cf539f2d4556d5d106b7b341f03"
     },
     {
       "page": "preset-include-fx",
@@ -2254,7 +2304,7 @@
       "title": "FILES",
       "theme": "cyber-2",
       "file": "preset-include-fx.png",
-      "sha256": "db16b73624342b9846f20a6108f9ac473ef5bf82e14d1774d72fa2d77bb2b037"
+      "sha256": "f2617fa0ef95f2740dd5ac18425fe305f18a3a0b95d824a078a6a3a8a9de06f2"
     },
     {
       "page": "save-as",
@@ -2264,47 +2314,47 @@
       "title": "PROJECT",
       "theme": "cyber-2",
       "file": "save-as.png",
-      "sha256": "906c2685a00337c64fbdfb8cb3fd67c3a1bfe8b2053eee1a18bae597e41abb01"
+      "sha256": "fe6d145f45e68156f1bdbfc097fd4dc28c8895fe49a1349d3cdd3ec4d04969c4"
     },
     {
       "page": "transfer-ready",
-      "mode": "PROJECT",
+      "mode": "FILE TRANSFER",
       "engine": 19,
       "engine_page": 0,
-      "title": "PROJECT",
+      "title": "FILE TRANSFER",
       "theme": "cyber-2",
       "file": "transfer-ready.png",
-      "sha256": "4c505e1ff577f263273690f9c3648f1310e44bc6fbf408ffb2ac397a8c99d2f2"
+      "sha256": "7694b6362170ce0345a599f9e74ea47f374e1b75d72a18377bafa2d5b2594dd1"
     },
     {
       "page": "transfer-receiving",
-      "mode": "PROJECT",
+      "mode": "FILE TRANSFER",
       "engine": 19,
       "engine_page": 0,
-      "title": "PROJECT",
+      "title": "FILE TRANSFER",
       "theme": "cyber-2",
       "file": "transfer-receiving.png",
-      "sha256": "c451d9ebc9be528f044d0d85135574ddab42e4016fae84d7f08f705018436bfc"
+      "sha256": "ac506d315b4efe22626b58855ef767102012c1532cde9494124f99539277a01c"
     },
     {
       "page": "transfer-error",
-      "mode": "PROJECT",
+      "mode": "FILE TRANSFER",
       "engine": 19,
       "engine_page": 0,
-      "title": "PROJECT",
+      "title": "FILE TRANSFER",
       "theme": "cyber-2",
       "file": "transfer-error.png",
-      "sha256": "80587cf6dad74118ecce054654fd4ccf5e668f269e29f8908a0c9bdb8d6617cd"
+      "sha256": "a87967b0a899103c4ed687e0c24bf1e87c8239b2c1493c03ea3e143d1845d8c0"
     },
     {
       "page": "transfer-usb",
-      "mode": "PROJECT",
+      "mode": "FILE TRANSFER",
       "engine": 19,
       "engine_page": 0,
-      "title": "PROJECT",
+      "title": "FILE TRANSFER",
       "theme": "cyber-2",
       "file": "transfer-usb.png",
-      "sha256": "247013364f7496e1ba2bc1e5844c33d71ad8f362054841bb1c3c65ac90e4715a"
+      "sha256": "53ce68dbc106820c630ce890910f5e5bc246aa96a12a034e9148caa01f83b89d"
     },
     {
       "page": "type-099",
@@ -2314,7 +2364,7 @@
       "title": "PAD",
       "theme": "cyber-2",
       "file": "type-099.png",
-      "sha256": "7d45319ef295a0fb4aec017d5324090178dd3e569d839d25651da06051ddd7c4"
+      "sha256": "a8e01fdaf47e5dcdb85e105f85caddcffeda04d790c23bf7a9c0a2eee858ce89"
     },
     {
       "page": "type-100",
@@ -2324,7 +2374,27 @@
       "title": "PAD",
       "theme": "cyber-2",
       "file": "type-100.png",
-      "sha256": "ae21b1bbf488d1d42e5de7b1a0e80153fc9be33f74cf3811a43671909a3e673c"
+      "sha256": "5b7ca223ff123e137c817f28d4cce938730539e0686408314b2ddbfe2a508c2f"
+    },
+    {
+      "page": "clip-block",
+      "mode": "CLIP",
+      "engine": 19,
+      "engine_page": 0,
+      "title": "CLIP",
+      "theme": "cyber-2",
+      "file": "clip-block.png",
+      "sha256": "f1991bc0e8174035526c13016ca86e896250b3cd89ded61c6f71c85872766941"
+    },
+    {
+      "page": "sampler-rec-source",
+      "mode": "SAMPLER",
+      "engine": 19,
+      "engine_page": 0,
+      "title": "SAMPLER",
+      "theme": "cyber-2",
+      "file": "sampler-rec-source.png",
+      "sha256": "a362055d7edb94fc95f77a03f13e3b33af9df7e7ec8daf4bf7be8e499635e7f2"
     },
     {
       "page": "icons",
@@ -2335,26 +2405,6 @@
       "theme": "cyber-2",
       "file": "icons.png",
       "sha256": "9c3600ab33e4879f7a9f0e364532ddf466de0198d48938ba01ecfac439128b9f"
-    },
-    {
-      "page": "clip-block",
-      "mode": "CLIP",
-      "engine": 19,
-      "engine_page": 0,
-      "title": "CLIP",
-      "theme": "cyber-2",
-      "file": "clip-block.png",
-      "sha256": "03cc1ef0d84fb8eefd4e57b4cd9db7e71c041aafc3a1bc72e0b52c91842cb239"
-    },
-    {
-      "page": "sampler-rec-source",
-      "mode": "SAMPLER",
-      "engine": 19,
-      "engine_page": 0,
-      "title": "SAMPLER",
-      "theme": "cyber-2",
-      "file": "sampler-rec-source.png",
-      "sha256": "c43048b7c2d34c8630dacf69cd4e24a8b919c64e485fd6a9aa454ba7cea56fe1"
     }
   ]
 }

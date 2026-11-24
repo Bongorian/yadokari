@@ -377,6 +377,8 @@ The left of CLIP is the <strong>Pattern list of the selected Track</strong>. The
 
 **Edit several tracks together.** In PATTERN (CLIP), press **SHIFT + Top2 BLOCK EDIT**. K1–K4 select the first track, track count, first step and step count. Set K8 to COPY or MOVE and use K5–K7 for the destination pattern, first track and first step. MOVE clears the source and writes the destination in one edit, including between patterns. CLEAR erases the selected source cells. Top1 APPLY commits the entire rectangle, Top2 CANCEL discards the edit, and one UNDO restores it. COPY and MOVE support overlapping ranges and extend the destination phrase as needed. Cells include notes, chords, step locks and all kit pad hits.
 
+The two grids show the current source and destination before applying the edit. Each heading gives the pattern, track range and step range. Lit cells contain events. Selections longer than sixteen steps show the first sixteen in the grid and the full range in the heading. CLEAR acts on the source only.
+
 ![Multi-track block editor](manual/clip-block.png)
 
 ### Saving a Scene
@@ -454,6 +456,8 @@ Use <strong>MIXER</strong> for levels, and move to FX with <strong>CHANNEL</stro
 ![A/B MORPH](manual/perform.png)
 ![MACROS](manual/macros.png)
 K4 **SONG FX TYPE** and K5 **SONG FX AMT** edit values stored in the Song. Leaving LIVE FX releases the latched pad effect.
+
+The pad map follows the hardware, with pad 1 at bottom left. Pads 1 and 2 trigger Repeat and Fill. Pads 14, 15 and 16 select morph A, midpoint and B in both banks. Pads 3 and 4 in bank 2 trigger Pitch Dive and Pitch Rise.
 
 ![LIVE FX](manual/live-fx.png)
 ![GESTURE](manual/gesture.png)

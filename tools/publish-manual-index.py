@@ -34,4 +34,10 @@ listing = {'renderer':'tools/manual_render.cpp','physical_images':False,'default
 links = [f'<li><a href="{html.escape(f["file"])}">{html.escape(f["page"])}</a> · {html.escape(f["title"])}</li>' for f in frames]
 (output/'screens.html').write_text('<!doctype html><meta charset="utf-8"><title>Screen index</title><h1>Screen index · CYBER 2</h1><ul>\n'+'\n'.join(links)+'\n</ul>\n')
 shutil.copyfile(root/'build/manual-controls.tsv', output/'controls.tsv')
+# Both current indexes describe exactly the PNG bytes published above.
+manifest_path = output/'manifest.json'
+manifest = json.loads(manifest_path.read_text())
+manifest['renderer_source_sha256'] = hashlib.sha256((root/'tools/manual_render.cpp').read_bytes()).hexdigest()
+manifest['screens'] = sorted(({'file': f['file'], 'sha256': f['sha256']} for f in frames), key=lambda f: f['file'])
+manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
 print(f'{len(frames)} indexed images and matching controls')

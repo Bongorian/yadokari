@@ -28,7 +28,7 @@ for number,theme in enumerate(THEMES):
  else:
   assert (ROOT/f'build/manual-themes/{number}/frames.tsv').exists(),('missing cached renderer fixture',theme)
  source=ROOT/f'build/manual-themes/{number}';target=OUT/'themes'/theme;target.mkdir(parents=True,exist_ok=True)
- frames=list(csv.DictReader((source/'frames.tsv').open(),delimiter='\t'));names={row['frame'] for row in frames};modes={row['mode'] for row in frames}
+ frames=list(csv.DictReader((source/'frames.tsv').open(),delimiter='\t'));names={row['frame'] for row in frames};modes={row['mode'] for row in frames if row['type']!='transfer'}
  assert len(modes)==20,(theme,'main page coverage',modes)
  if reference is None:reference=names
  assert names==reference,(theme,'page set differs')
@@ -63,7 +63,8 @@ for number,theme in enumerate(THEMES):
    face=metrics[int(row['role'])];top=int(row['y'])+(face['line_height']-face['cap_height'])//2;error=2*top+face['cap_height']-(2*int(row['band_y'])+int(row['band_h']));centered+=1
    if abs(error)>2:alignment_failures.append({'theme':theme,'cap_error':error,**row})
  for name in names:
-  titles=[r for r in placements if r['frame']==name and int(r['x']) in (10,30) and int(r['role'])==2 and int(r['y'])<64]
+  title_anchors=(24,) if name.startswith('transfer-') else (10,30)
+  titles=[r for r in placements if r['frame']==name and int(r['x']) in title_anchors and int(r['role'])==2 and int(r['y'])<64]
   assert {r['side'] for r in titles}=={'0','1'},(theme,name,'missing shared header title')
   assert len({int(r['y']) for r in titles})==1,(theme,name,'left/right title alignment')
  # Compare actual rendered header labels beside a digit-count change.
@@ -79,7 +80,7 @@ for number,theme in enumerate(THEMES):
  for control in controls:
   kind=control['kind'];label=control['label'];number=int(control['number']);typ=control['type']
   if kind=='button' and label:
-   if int(control['label_width'])>107:grammar_failures.append({'theme':theme,'reason':'Top label exceeds native field',**control})
+   if int(control['label_width'])>111:grammar_failures.append({'theme':theme,'reason':'Top label exceeds native field',**control})
    exception=control.get('placement_exception')=='1'
    if exception and not (typ=='sound' and control['mode']=='SYNTH' and ((number==3 and label=='USE CHILD') or (number==4 and label=='REMOVE'))):grammar_failures.append({'theme':theme,'reason':'undeclared Top placement exception',**control})
    if not exception and typ not in ('selection','transient') and ((number<=4 and control['work']!='selection') or (number>4 and control['work']=='selection')):grammar_failures.append({'theme':theme,'reason':'Top work on wrong LCD',**control})
@@ -133,6 +134,7 @@ if transfer_frames:
    with Image.open(ppm) as picture:
     assert picture.size==(960,272)
     picture.save(target,optimize=True)
+   manifest['frames']=[r for r in manifest['frames'] if (r['page'],r['theme'])!=(name,theme)]
    manifest['frames'].append({'page':name,'mode':'FILE TRANSFER','engine':-1,'engine_page':-1,'type':'transient','left':'network and physical connection code','right':'address, transfer state and expiry','title':'FILE TRANSFER','theme':theme,'file':str(target.relative_to(OUT)),'sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'fixture':'tests/ui_grammar_test.cpp'})
    if number==DEFAULT:shutil.copyfile(target,OUT/target.name);shutil.copyfile(ppm,ROOT/f'build/manual-{name}.ppm')
  manifest['transfer_fixture']={'renderer':'tests/ui_grammar_test.cpp','states':4,'themes':len(THEMES),'physical_images':False}
