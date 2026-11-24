@@ -484,7 +484,7 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
    else{out.append("ASSET ");out.number(float(table-kWavetableFirstAsset+1),0);}
    return out;
   }
-  if(perf.composition_dialog()==3){if(i==7)out.append(raw?"CLEAR":"COPY");else out.number(raw,0);return out;}
+  if(perf.composition_dialog()==3){if(i==7)out.append(raw==int(BlockAction::Move)?"MOVE":raw==int(BlockAction::Clear)?"CLEAR":"COPY");else out.number(raw,0);return out;}
   if(perf.composition_dialog()==2){if(i==0)out.number(raw,0);return out;}
   if(perf.composition_dialog()){if(i==0){static const char* names[]={"THIN","TRANSPOSE","DROP TRACK"};out.append(names[unsigned(perf.variation_options().kind)]);}else if(i==1){out.number(raw,0);if(perf.variation_options().kind==PatternVariation::Thin)out.append("%");else if(perf.variation_options().kind==PatternVariation::Transpose)out.append("st");}return out;}
   if(perf.mode()==UiMode::Clip && !perf.clip_follow_page() && perf.shifted() && i==7){out.append(perf.copy_track_only()?"TRACK ONLY":"ALL");return out;}
@@ -650,7 +650,7 @@ auto UiRenderer::composition_panel(const ProjectState& p,const Performance& perf
  if(perf.composition_dialog()==3){
   for(unsigned i=0;i<8;++i){auto shown=formatted_knob(p,perf,i);value_row(i/4,24,76+int(i%4)*29,430,27,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar});}
   label(0,24,198,perf.notice_error()?perf.notice_text():"TOP 1 APPLY / TOP 2 CANCEL",theme.secondary,Font::Small,430);
-  label(1,24,198,perf.knob_value(7)?"CLEAR SELECTED SOURCE CELLS":"COPY SOURCE CELLS TO DESTINATION",theme.secondary,Font::Small,430);return;
+  label(1,24,198,perf.knob_value(7)==int(BlockAction::Move)?"MOVE SOURCE CELLS TO DESTINATION":perf.knob_value(7)==int(BlockAction::Clear)?"CLEAR SELECTED SOURCE CELLS":"COPY SOURCE CELLS TO DESTINATION",theme.secondary,Font::Small,430);return;
  }
  label(0,24,85,perf.composition_dialog()==2?"DUPLICATE SCENE":"DUPLICATE + VARIATION",theme.text,Font::Heading,430);
  for(unsigned i=0;i<(perf.composition_dialog()==2?1u:2u);++i){auto shown=formatted_knob(p,perf,i);value_row(0,24,122+int(i)*34,430,30,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar});}

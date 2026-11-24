@@ -74,7 +74,7 @@ class Performance {
  PresetGuidIssuer preset_guids_;uint64_t asset_clone_pending_=0;uint8_t asset_clone_alias_[kSampleAssets]{};
  void mirror_track_install(const TrackInstall&,unsigned);
  struct TrackHistory : TrackState {TrackInstall install{};TrackMorphState morph{};bool phrase_only=false;explicit TrackHistory(const ConstTrackView& t):TrackState(t){}};
- struct History {Command before{},after{};uint32_t group=0;PatternState* pattern_before=nullptr;PatternState* pattern_after=nullptr;TrackHistory* track_before=nullptr;TrackHistory* track_after=nullptr;};
+ struct History {Command before{},after{};uint32_t group=0;PatternState* pattern_before=nullptr;PatternState* pattern_after=nullptr;TrackHistory* track_before=nullptr;TrackHistory* track_after=nullptr;BlockEdit* block=nullptr;};
  struct RotationRevision {uint32_t from=0,to=0;uint16_t length=0;uint8_t pattern=0,track=0;int8_t direction=0;};
  static constexpr uint32_t kRotationHistory=0x524f5441u;
  struct NavigationScope {Performance& ui;explicit NavigationScope(Performance& p):ui(p){if(!ui.navigation_depth_++)ui.save_navigation();}~NavigationScope(){if(!--ui.navigation_depth_)ui.record_navigation();}};
@@ -470,6 +470,7 @@ public:
  uint16_t block_fields_[8]{};
  bool begin_block();
  bool apply_block();
+ bool install_block(BlockEdit& edit,bool forward);
  bool song_send(const SongState& s);
  bool song_section_send(unsigned i,const SongSection& s);
  bool song_materialize();

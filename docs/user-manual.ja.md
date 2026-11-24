@@ -375,7 +375,7 @@ KitのPatternコピーは全16 Padの列も含みます。CLIPのSHIFT側「DOUB
 
 CLIP左は<strong>選択TrackのPattern一覧</strong>。下端の短い棒は打点密度です。右の **PLAYING PATTERN** と **EDITING PATTERN** が違えば **NOT PLAYING** が出ます。FOLLOWは編集中Patternの設定です。SCENE左の **LIVE** と選択Sceneも別で、右は **TRACK → PATTERN** の対応表。琥珀の下線はlaunchで割当が変わるTrackを示します。
 
-**複数トラックをまとめて編集する** — PATTERN（CLIP）で **SHIFT＋Top2 BLOCK EDIT** を開きます。K1～K4で先頭トラック、トラック数、先頭ステップ、ステップ数を指定します。K8がCOPYのとき、K5～K7がコピー先のPattern、先頭トラック、先頭ステップです。CLEARは元の範囲を消します。Top1 APPLYで確定、Top2 CANCELで取消、確定後は1回のUNDOで全体を戻せます。同一Pattern内の重なる範囲にもコピーできます。ノート・コード・ステップロックとKitの全パッドの打点が対象です。コピー先の長さは必要に応じて伸びます。
+**複数トラックをまとめて編集する** — PATTERN（CLIP）で **SHIFT＋Top2 BLOCK EDIT** を開きます。K1～K4で先頭トラック、トラック数、先頭ステップ、ステップ数を指定します。K8でCOPYまたはMOVEを選び、K5～K7で編集先のPattern、先頭トラック、先頭ステップを指定します。MOVEは別のPatternへの移動も1回で確定します。CLEARは元の範囲を消します。Top1 APPLYで確定、Top2 CANCELで取消、確定後は1回のUNDOで全体を戻せます。コピーと移動は同一Pattern内の重なる範囲にも使えます。重なるセルには移動元の内容が残り、必要に応じて編集先の長さが延びます。ノート・コード・ステップロックとKitの全パッドの打点が対象です。コピー先の長さは必要に応じて伸びます。
 
 ![複数トラックのブロック編集](manual/clip-block.png)
 

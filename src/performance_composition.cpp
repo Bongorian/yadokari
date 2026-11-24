@@ -35,7 +35,8 @@ auto Performance::begin_block() -> bool{
 }
 auto Performance::apply_block() -> bool{
  const unsigned from=block_fields_[0]-1,tracks=block_fields_[1],first=block_fields_[2]-1,count=block_fields_[3];
- const bool clear=block_fields_[7]!=0;
+ const auto action=BlockAction(block_fields_[7]);
+ const bool clear=action==BlockAction::Clear;
  const unsigned pattern=project_.active_pattern,target=clear?pattern:block_fields_[4]-1;
  const unsigned to=clear?from:block_fields_[5]-1,start=clear?first:block_fields_[6]-1;
  if(from+tracks>kTracks || to+tracks>kTracks || first+count>kSteps || start+count>kSteps)
@@ -44,25 +45,23 @@ auto Performance::apply_block() -> bool{
   const auto source=track_at(project_,pattern,from+n),dest=track_at(project_,target,to+n);
   if(project_.audio[from+n].kind!=TrackKind::Instrument || project_.audio[to+n].kind!=TrackKind::Instrument ||
      (source.instrument==Instrument::DrumKit)!=(dest.instrument==Instrument::DrumKit) || dest.frozen_asset!=255 ||
-     first+count>source.length)return composition_notice("CHECK LENGTH / KIT / AUDIO / FROZEN TRACK",true);
+     (action==BlockAction::Move && source.frozen_asset!=255) || first+count>source.length)return composition_notice("CHECK LENGTH / KIT / AUDIO / FROZEN TRACK",true);
  }
- if(!allocation_admitted(sizeof(PatternState),2))return memory_refused();
- auto* before=alloc_new<PatternState>(project_,target);auto* after=before?alloc_new<PatternState>(*before):nullptr;
- if(!after){delete before;return memory_refused();}
- uint16_t mask=0;
- for(unsigned n=0;n<tracks;++n){
-  const auto& src=project_.patterns[pattern].tracks[from+n];auto& dst=after->tracks[to+n];mask|=uint16_t(1u<<(to+n));
-  if(!clear && start+count>dst.length)dst.length=uint16_t(start+count);
-  for(unsigned s=0;s<count;++s){
-   dst.steps[start+s]=clear?StepState{}:src.steps[first+s];
-   dst.mutation_source[start+s]=clear?StepState{}:src.mutation.frozen?src.mutation_source[first+s]:src.steps[first+s];
-   for(unsigned pad=0;pad<16;++pad)dst.kit.steps[pad][start+s]=clear?KitStepState{}:src.kit.steps[pad][first+s];
-  }
- }
- if(!engine_.replace_pattern(target,*after,mask,true)){delete before;delete after;return composition_notice("BLOCK EDIT BUSY / ORIGINAL KEPT",true);}
- Command c{CommandType::ApplyPattern,0,1,uint16_t(target)};c.parameter=mask;
- push_history(c,c,before,after);install_pattern(project_,target,*after,mask);refresh_steps();
- return composition_notice(clear?"BLOCK CLEARED / ONE UNDO":"BLOCK COPIED / ONE UNDO");
+ if(action==BlockAction::Move && pattern==target && from==to && first==start)
+  return composition_notice("BLOCK ALREADY AT DESTINATION");
+ auto* edit=alloc_new<BlockEdit>(action,BlockOrigin{pattern,from,first},BlockOrigin{target,to,start},tracks,count);
+ if(!edit)return memory_refused();
+ if(!edit->capture(project_)){edit->release();return memory_refused();}
+ if(!install_block(*edit,true)){edit->release();return composition_notice("BLOCK EDIT BUSY / ORIGINAL KEPT",true);}
+ Command cmd{CommandType::ApplyBlockEdit,0,0,0};push_history(cmd,cmd);
+ history_[history_cursor_-1].block=edit;
+ return composition_notice(clear?"BLOCK CLEARED / ONE UNDO":action==BlockAction::Move?"BLOCK MOVED / ONE UNDO":"BLOCK COPIED / ONE UNDO");
+}
+bool Performance::install_block(BlockEdit& edit,bool forward){
+ if(!engine_.submit_block_edit(edit,forward))return false;
+ edit.apply(project_,forward);
+ edit.changed_ranges([&](unsigned pattern,uint16_t mask){clear_record_ids(pattern,mask);});
+ refresh_steps();return true;
 }
 auto Performance::begin_variation() -> bool{if(modal_active() || file_action_pending())return false;composition_modal_=1;dirty_=true;return true;}
 auto Performance::composition_apply() -> bool{if(!composition_modal_)return false;bool ok=composition_modal_==3?apply_block():composition_modal_==1?duplicate_variation():duplicate_scene(composition_scene_source_,composition_scene_target_);if(ok)composition_modal_=0;return ok;}

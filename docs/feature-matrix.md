@@ -22,7 +22,7 @@ What the instrument does, area by area. File formats are specified in
   at 960 PPQN. A snapshot holds the Clip state; it is not a recording of
   all parameters or a tempo map.
 - Composition workflow: hierarchical CLIP / SCENE / SONG display,
-  TRACK ONLY copying, rectangular copy/clear across tracks, DUP + VAR pattern
+  TRACK ONLY copying, rectangular copy/move/clear across tracks and patterns, DUP + VAR pattern
   variation, HARMONY generation, portable Groove templates, batch Groove
   application, Scene duplication, Song section move/duplicate, a 5-section
   Song skeleton and NEW project templates.

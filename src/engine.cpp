@@ -1,5 +1,6 @@
 #include "drum_gm.h"
 #include "engine.h"
+#include "block_edit.h"
 #include "hardware_profile.h"
 #include "alloc_policy.h"
 #include "pcm_output.h"
@@ -65,7 +66,7 @@ Engine::Engine(uint32_t sample_rate):pattern_staging_(new PatternState()),patter
  for(auto& p:poly_voices_)insert_resources_ready_&=p.voice.kit_insert.ready();
  for(auto& group:group_inserts_)for(auto& slot:group)insert_resources_ready_&=slot.ready();
 }
-Engine::~Engine() {delete[] chimeras_;delete twin_install_;delete[] twin_storage_;delete[] leaf_runtime_; delete[] granular_;delete preset_preview_; delete[] textures_; delete[] resonators_; delete[] freeze_storage_;delete[] modulation_storage_;delete[] plaits_;delete[] poly_plaits_;delete[] public_drums_;delete[] record_erased_;delete erase_payload_;delete attached_payload_;delete attached_consumer_;delete live_record_queue_;delete commands_;delete sound_commands_;delete sound_command_consumer_;delete morph_commands_;delete morph_command_consumer_;delete midi_capture_events_;delete[] creative_;delete project_; delete staging_;delete pattern_staging_;delete pattern_revisions_; }
+Engine::~Engine() {if(pending_block_)pending_block_->release();delete[] chimeras_;delete twin_install_;delete[] twin_storage_;delete[] leaf_runtime_; delete[] granular_;delete preset_preview_; delete[] textures_; delete[] resonators_; delete[] freeze_storage_;delete[] modulation_storage_;delete[] plaits_;delete[] poly_plaits_;delete[] public_drums_;delete[] record_erased_;delete erase_payload_;delete attached_payload_;delete attached_consumer_;delete live_record_queue_;delete commands_;delete sound_commands_;delete sound_command_consumer_;delete morph_commands_;delete morph_command_consumer_;delete midi_capture_events_;delete[] creative_;delete project_; delete staging_;delete pattern_staging_;delete pattern_revisions_; }
 #include "preset_preview.inc"
 bool Engine::stage_project(const ProjectState& p,const WavView* assets) {
  if(!insert_resources_ready_)return false;
@@ -141,6 +142,24 @@ bool Engine::replace_track(unsigned pattern,unsigned t,const TrackState& state,b
  pattern_staging_->name_mask=0;pattern_staging_->install.clear();if(install)pattern_staging_->install=*install;
  pattern_staging_->tracks[t]=state;pattern_staging_->groove_only=false;pattern_staging_->include_settings=true;pattern_staging_->include_morph=morph!=nullptr;if(morph)pattern_staging_->morph[t]=*morph;pattern_staging_->swing=0;
  return replace_pattern(pattern,*pattern_staging_,uint16_t(1u<<t),preserve_phase,binding,bindings,assets);
+}
+void Engine::reap_block_edit(){
+ if(pending_block_ && !__atomic_load_n(&pattern_pending_,__ATOMIC_ACQUIRE)){
+  pending_block_->release();pending_block_=nullptr;
+ }
+}
+bool Engine::submit_block_edit(BlockEdit& edit,bool forward){
+ if(__atomic_load_n(&pattern_pending_,__ATOMIC_ACQUIRE) || !commands_->free_space())return false;
+ reap_block_edit();edit.retain();pending_block_=&edit;
+ uint32_t revision=pattern_revision_serial_+1;if(!revision)++revision;
+ Command cmd{CommandType::ApplyBlockEdit,0,uint8_t(forward),0};cmd.pattern_revision=revision;
+ __atomic_store_n(&pattern_pending_,2,__ATOMIC_RELEASE);
+ if(!submit(cmd)){__atomic_store_n(&pattern_pending_,0,__ATOMIC_RELEASE);reap_block_edit();return false;}
+ pattern_revision_serial_=revision;
+ edit.changed_ranges([&](unsigned pattern,uint16_t mask){
+  for(unsigned t=0;t<kTracks;++t)if(mask&(1u<<t))pattern_revisions_->published[pattern][t]=revision;
+ });
+ return true;
 }
 bool Engine::replace_pattern(unsigned index,const PatternState& pattern,uint16_t changed_tracks,bool preserve_phase,const Command* sample_binding,const WavView* bindings,const SampleAssetState* assets){if(bool(bindings)!=bool(assets) || (bindings && sample_binding) || (sample_binding && (sample_binding->type!=CommandType::BindSample || sample_binding->value>=kSampleAssets || sample_binding->parameter!=1)))return false;if(index>=kPatterns || __atomic_load_n(&pattern_pending_,__ATOMIC_ACQUIRE) || !commands_->free_space() || pattern.swing>100)return false;if(pattern.install.preset.slot!=kNoPreset && (pattern.install.preset.slot>=kPresetSlots || !valid_sound(pattern.install.preset.sound) || !prepare_chimera_sound(pattern.install.preset.sound.chimera_phrase,pattern.install.preset.sound.layer)))return false;if(pattern.install.clones.count>kSampleAssets || ((bindings || sample_binding) && pattern.install.clones.count))return false;uint64_t clone_sources=0,clone_targets=0;for(unsigned i=0;i<pattern.install.clones.count;++i){const auto& clone=pattern.install.clones.rows[i];if(clone.from>=kSampleAssets || clone.to>=kSampleAssets || clone.from==clone.to || clone.asset.metadata.root>127 || clone.asset.metadata.bpm>300 || (clone_targets&(uint64_t(1)<<clone.to)))return false;clone_sources|=uint64_t(1)<<clone.from;clone_targets|=uint64_t(1)<<clone.to;}if(clone_sources&clone_targets)return false;pattern_staging_->name_mask=pattern.name_mask;for(unsigned n=0;n<kTracks;++n)if(pattern.name_mask&(1u<<n)){if(!valid_preset_name(pattern.track_names[n]))return false;copy_track_field(pattern_staging_->track_names[n],pattern.track_names[n]);}pattern_staging_->install=pattern.install;uint16_t mask=changed_tracks?changed_tracks:0xffff;for(unsigned t=0;t<kTracks;++t)if((mask&(1u<<t)) && (!valid_track(pattern.tracks[t]) || !prepare_chimera_sound(pattern.tracks[t].chimera_phrase,pattern.tracks[t].layer)))return false;for(unsigned t=0;t<kTracks;++t)if(mask&(1u<<t))pattern_staging_->tracks[t]=pattern.tracks[t];pattern_staging_->groove_only=pattern.groove_only;pattern_staging_->include_settings=pattern.include_settings;pattern_staging_->include_morph=pattern.include_morph;if(pattern.include_settings && pattern.include_morph)for(unsigned t=0;t<kTracks;++t)if(mask&(1u<<t))pattern_staging_->morph[t]=pattern.morph[t];if(mask==0xffff){pattern_staging_->swing=pattern.swing;pattern_staging_->mute_mask=pattern.mute_mask;}pattern_assets_=bindings!=nullptr;if(bindings)for(unsigned i=0;i<kSampleAssets;++i){pattern_samples_[i]=bindings[i];pattern_sample_metadata_[i]=assets[i].metadata;}__atomic_store_n(&pattern_pending_,1,__ATOMIC_RELEASE);Command apply{CommandType::ApplyPattern,0,uint8_t(preserve_phase),uint16_t(index)};apply.parameter=changed_tracks;uint32_t revision=pattern_revision_serial_+1;if(!revision)++revision;apply.pattern_revision=revision;if(sample_binding){apply.frames=unsigned(sample_binding->value)+1;apply.sample=sample_binding->sample;apply.metadata=sample_binding->metadata;}if(!submit(apply)){__atomic_store_n(&pattern_pending_,0,__ATOMIC_RELEASE);return false;}if(!pattern.groove_only){pattern_revision_serial_=revision;for(unsigned t=0;t<kTracks;++t)if(mask&(1u<<t))pattern_revisions_->published[index][t]=revision;}return true;}
 // O-09: 1024-entry sine table with linear interpolation (max

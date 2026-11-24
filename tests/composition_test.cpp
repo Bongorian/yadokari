@@ -27,6 +27,35 @@ int main(){
  assert(ui->undo());flush();assert(p->patterns[0].tracks[0].steps[0].enabled && p->patterns[0].tracks[2].kit.steps[3][2].enabled);
  ui->set_shift(true);assert(ui->soft_key(1));ui->set_shift(false);assert(ui->knob(1,1000) && ui->knob(5,15000));
  assert(!ui->soft_key(0) && ui->composition_dialog()==3 && ui->soft_key(1));
+ // MOVE snapshots both ends, including overwritten hits, mutation sources and lengths.
+ auto open_block=[&](){ui->set_shift(true);assert(ui->soft_key(1));ui->set_shift(false);};
+ auto& source=p->patterns[0].tracks[0];auto& dest=p->patterns[1].tracks[0];
+ source.mutation.frozen=true;source.mutation_source[0]=source.steps[0];source.mutation_source[0].note=73;
+ dest.steps[15].enabled=true;dest.steps[15].note=81;
+ const unsigned old_length=dest.length;
+ open_block();assert(ui->knob(7,2000) && ui->knob(1,2000) && ui->knob(3,-12000));
+ assert(ui->knob(4,1000) && ui->knob(6,15000) && ui->soft_key(0));
+ assert(!source.steps[0].enabled && !source.mutation_source[0].enabled && !p->patterns[0].tracks[2].kit.steps[3][2].enabled);
+ assert(dest.steps[15].note==60 && dest.steps[15].chord[0]==64 && dest.steps[15].locks[0].enabled);
+ assert(dest.mutation_source[15].note==73 && dest.length==19 && p->patterns[1].tracks[2].kit.steps[3][17].enabled);
+ assert(e->pattern_revision(0,2)==e->pattern_revision(1,2) && e->pattern_revision(0,2)>0);
+ assert(!ui->undo());flush();assert(ui->undo());flush();
+ assert(source.steps[0].enabled && source.mutation_source[0].note==73 && dest.steps[15].note==81 && dest.length==old_length);
+ assert(p->patterns[0].tracks[2].kit.steps[3][2].enabled && !p->patterns[1].tracks[2].kit.steps[3][17].enabled);
+ assert(ui->redo());flush();assert(!source.steps[0].enabled && dest.steps[15].locks[0].enabled);
+ assert(ui->undo());flush();source.mutation.frozen=false;dest.steps[15]=StepState{};
+ // Overlap in both axes: the destination wins even where it covers the source.
+ open_block();assert(ui->knob(7,2000) && ui->knob(1,1000) && ui->knob(3,-12000));
+ // Move two melodic rows downward; use a melodic third row for this edit.
+ p->tracks[2].instrument=Instrument::VirtualAnalog;
+ assert(ui->knob(5,1000) && ui->knob(6,1000) && ui->soft_key(0));flush();
+ assert(!source.steps[0].enabled && p->patterns[0].tracks[1].steps[1].locks[0].enabled);
+ assert(!p->patterns[0].tracks[2].steps[2].enabled);assert(ui->undo());flush();
+ assert(source.steps[0].enabled && !p->patterns[0].tracks[1].steps[1].enabled);
+ p->tracks[2].instrument=Instrument::DrumKit;
+ open_block();assert(ui->knob(7,2000) && ui->knob(4,1000));source.frozen_asset=0;
+ assert(!ui->soft_key(0) && source.steps[0].enabled && ui->composition_dialog()==3);
+ source.frozen_asset=255;assert(ui->soft_key(1));
  auto original=std::make_unique<TrackState>(track_at(*p,0,0));auto untouched=std::make_unique<TrackState>(track_at(*p,0,1));
  ui->set_mode(UiMode::Clip);ui->set_shift(true);assert(ui->knob(7,1000));assert(ui->copy_track_only());ui->set_shift(false);assert(ui->copy_pattern());assert(ui->select_pattern(1));flush();assert(ui->paste_pattern());flush();assert(same_track_snapshot(track_at(*p,1,0),ConstTrackView(*original)));assert(p->tracks[0].level==.43f && p->tracks[1].level==.28f);assert(ui->undo());flush();assert(sequence_empty(p->patterns[1].tracks[0]));assert(ui->redo());flush();assert(p->patterns[1].tracks[0].automation[0].enabled);
  assert(ui->select_pattern(0));flush();
