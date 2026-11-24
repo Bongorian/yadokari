@@ -8,20 +8,20 @@
 namespace groove {
 static float sine_table(float phase){static float table[1025];static bool built=false;if(!built){for(unsigned i=0;i<=1024;++i)table[i]=sinf(6.283185307f*float(i)/1024);built=true;}float x=phase*(1024/6.283185307f);if(x<0)x=0;if(x>=1024)x=1023.9999f;unsigned i=unsigned(x);float frac=x-float(i);return table[i]+(table[i+1]-table[i])*frac;}
 bool Engine::plain_visual_parameters(unsigned t){
- if(project_->morph_enabled || gesture_overlay_.morph_active || gesture_overlay_.count || control_all_)return false;
+ if(track(t).mod_routes.count || project_->morph_enabled || gesture_overlay_.morph_active || gesture_overlay_.count || control_all_)return false;
  for(unsigned i=0;i<8;++i)if(project_->macros[i].active || gesture_overlay_.macro_active[i])return false;
  const auto& r=runtime_[t];for(const auto& lock:r.active_locks)if(lock.enabled)return false;
  if(r.automation_live)for(const auto& lane:track(t).automation)if(lane.enabled)return false;
  return true;
 }
-void Engine::resolve_voice_bank(unsigned t,Instrument engine,const float* bases,float* values){
+void Engine::resolve_voice_bank(unsigned t,Instrument engine,const float* bases,float* values,const SoundModRoutes* routes){
  auto& r=runtime_[t];auto state=track(t);uint32_t destinations=0;
- const bool have_bases=resolve_unlayered_engine(*project_,state,t,engine,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,values,0,0,engine==Instrument::Wavetable?&destinations:nullptr);
+ const bool have_bases=resolve_unlayered_engine(*project_,state,t,engine,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,values,0,0,engine==Instrument::Wavetable?&destinations:nullptr,routes);
  if(have_bases && !destinations)return;
  ModRuntime mod=mod_runtime(t);const auto& table=engine_descriptor(unsigned(engine))->parameters;
  for(unsigned i=0;i<table.count;++i){
   if(have_bases && !(destinations&(uint32_t(1)<<i)))continue;
-  unsigned offset=table.declarations[i].offset;values[offset]=resolve_target_value(*project_,state,t,engine_target(engine,i),bases[offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;}
+  unsigned offset=table.declarations[i].offset;values[offset]=resolve_target_value(*project_,state,t,engine_target(engine,i),bases[offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,routes).value;}
 }
 bool Engine::admit_native(unsigned t,Instrument engine,const float* values){
  if(!native_budget_.admit(t,engine_native_cost(engine,values))){native_retry_sample_[t]=sample_count_+48;layer_failure_[t]=uint8_t(LayerReason::Cost);__atomic_fetch_or(&native_refused_,1u<<t,__ATOMIC_RELEASE);return false;}
@@ -90,7 +90,7 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
     if(chimera_sound_attribute(local))continue;
     detail.values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::Chimera,local),
       detail.values[i],runtime.active_locks,unsigned(runtime.automation_cell),control_all_,control_all_id_,
-      control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&mod).value;
+      control_all_delta_,runtime.automation_live,&gesture_overlay_,runtime.pattern,nullptr,&mod,v.route_override()).value;
    }
    // Keep the program and species that were admitted for this note. An
    // active voice cannot switch to a differently priced creature in place.
@@ -121,14 +121,14 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
   return;
  }
  if(bundle_helper_ && bundle_take(t,v,voice_key,l,rr))return;
- if(v.instrument==unsigned(Instrument::SoundFont)){if(v.env<.00001f){v.soundfont.stop();return;}if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::SoundFont)v.soundfont_base=track(t).soundfont;float values[5];resolve_voice_bank(t,Instrument::SoundFont,v.soundfont_base.values,values);v.soundfont.parameters(values);}v.soundfont.next(v.frequency,!v.released,l,rr);v.env=v.soundfont.active()?1:0;return;}
- if(v.instrument==unsigned(Instrument::Additive)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Additive)v.additive_base=track(t).additive;float values[25];resolve_voice_bank(t,Instrument::Additive,v.additive_base.values,values);v.additive.parameters(values);}l=rr=v.additive.next(v.frequency,!v.released);v.env=v.additive.active()?1:0;return;}
- if(v.instrument==unsigned(Instrument::PhaseDist)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::PhaseDist)v.phase_dist_base=track(t).phase_dist;float values[9];resolve_voice_bank(t,Instrument::PhaseDist,v.phase_dist_base.values,values);v.phase_dist.parameters(values);}l=rr=v.phase_dist.next(v.frequency,!v.released);v.env=v.phase_dist.active()?1:0;return;}
- if(v.instrument==unsigned(Instrument::Granular)){if(v.env<.00001f || !granular_ || v.shared_slot>=kSharedVoiceCapacity)return;auto& dsp=granular_[v.shared_slot];if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Granular)v.granular_base=track(t).granular;float values[kGranularParameterCount];resolve_voice_bank(t,Instrument::Granular,v.granular_base.values,values);dsp.parameters(values);}dsp.next(v.frequency,!v.released,l,rr);v.env=dsp.active()?1:0;return;}
- if(v.instrument==unsigned(Instrument::Formant)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Formant)v.formant_base=track(t).formant;float values[9];resolve_voice_bank(t,Instrument::Formant,v.formant_base.values,values);v.formant.parameters(values);}l=rr=v.formant.next(v.frequency,!v.released);v.env=v.formant.active()?1:0;return;}
+ if(v.instrument==unsigned(Instrument::SoundFont)){if(v.env<.00001f){v.soundfont.stop();return;}if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::SoundFont)v.soundfont_base=track(t).soundfont;float values[5];resolve_voice_bank(t,Instrument::SoundFont,v.soundfont_base.values,values,v.route_override());v.soundfont.parameters(values);}v.soundfont.next(v.frequency,!v.released,l,rr);v.env=v.soundfont.active()?1:0;return;}
+ if(v.instrument==unsigned(Instrument::Additive)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Additive)v.additive_base=track(t).additive;float values[25];resolve_voice_bank(t,Instrument::Additive,v.additive_base.values,values,v.route_override());v.additive.parameters(values);}l=rr=v.additive.next(v.frequency,!v.released);v.env=v.additive.active()?1:0;return;}
+ if(v.instrument==unsigned(Instrument::PhaseDist)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::PhaseDist)v.phase_dist_base=track(t).phase_dist;float values[9];resolve_voice_bank(t,Instrument::PhaseDist,v.phase_dist_base.values,values,v.route_override());v.phase_dist.parameters(values);}l=rr=v.phase_dist.next(v.frequency,!v.released);v.env=v.phase_dist.active()?1:0;return;}
+ if(v.instrument==unsigned(Instrument::Granular)){if(v.env<.00001f || !granular_ || v.shared_slot>=kSharedVoiceCapacity)return;auto& dsp=granular_[v.shared_slot];if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Granular)v.granular_base=track(t).granular;float values[kGranularParameterCount];resolve_voice_bank(t,Instrument::Granular,v.granular_base.values,values,v.route_override());dsp.parameters(values);}dsp.next(v.frequency,!v.released,l,rr);v.env=dsp.active()?1:0;return;}
+ if(v.instrument==unsigned(Instrument::Formant)){if(v.env<.00001f)return;if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Formant)v.formant_base=track(t).formant;float values[9];resolve_voice_bank(t,Instrument::Formant,v.formant_base.values,values,v.route_override());v.formant.parameters(values);}l=rr=v.formant.next(v.frequency,!v.released);v.env=v.formant.active()?1:0;return;}
  if(v.instrument==unsigned(Instrument::Fm6)){
   if(v.env<=0)return;
-  if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Fm6)v.fm6_base=track(t).fm6;float values[21];resolve_voice_bank(t,Instrument::Fm6,v.fm6_base.values,values);v.fm6.parameters(values);}
+  if((sample_count_&63)==0){if(!v.sound_locked && track(t).instrument==Instrument::Fm6)v.fm6_base=track(t).fm6;float values[21];resolve_voice_bank(t,Instrument::Fm6,v.fm6_base.values,values,v.route_override());v.fm6.parameters(values);}
   l=rr=v.fm6.next(v.frequency,!v.released);v.env=v.fm6.active()?1:0;return;
  }
  if(v.instrument==unsigned(Instrument::VirtualAnalog)){
@@ -138,7 +138,7 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
     if(cached.sample==sample_count_ && cached.generation==generation_){__builtin_memcpy(values,cached.values,sizeof values);resolved=true;}
     else{auto& r=runtime_[t];if(resolve_unlayered_engine(*project_,track(t),t,Instrument::VirtualAnalog,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,v.va_base.values,values)){__builtin_memcpy(cached.values,values,sizeof values);cached.sample=sample_count_;cached.generation=generation_;resolved=true;}}
    }
-   if(!resolved)resolve_voice_bank(t,Instrument::VirtualAnalog,v.va_base.values,values);
+   if(!resolved)resolve_voice_bank(t,Instrument::VirtualAnalog,v.va_base.values,values,v.route_override());
    v.va.parameters(values);if(parameter_clock)dsp_profile_.va_parameters(parameter_clock()-parameter_start);
   }
   if(!(va_helper_ && va_job_sample_[voice_key]==sample_count_ && va_helper_->take(&v,sample_count_,va_job_[voice_key],v.va,v.frequency,!v.released,l)))l=v.va.next(v.frequency,!v.released);
@@ -149,7 +149,7 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
   if((sample_count_&31)==0){
    const auto& state=track(t);
    if(!v.sound_locked && state.instrument==Instrument::Wavetable)v.wavetable_base=state.wavetable;
-   float values[kWavetableParameterCount];resolve_voice_bank(t,Instrument::Wavetable,v.wavetable_base.values,values);
+   float values[kWavetableParameterCount];resolve_voice_bank(t,Instrument::Wavetable,v.wavetable_base.values,values,v.route_override());
    auto wanted=wavetable_load(values);
    // Retain the extended price through the last sample of the dry crossfade.
    if(!wanted.extended && v.wt_reserved.extended){
@@ -189,11 +189,11 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
   if(!textures_ || textures_suspended_ || poly || (track(t).instrument!=Instrument::Texture && !v.sound_locked))return;
   auto& dsp=textures_[t];auto& r=runtime_[t];
   if(dsp.boundary()){const float* bases=v.sound_locked?v.texture_state.values:track(t).texture.values;
-   if(!resolve_unlayered_engine(*project_,track(t),t,Instrument::Texture,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,v.texture_values,632,12)){
+   if(!resolve_unlayered_engine(*project_,track(t),t,Instrument::Texture,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,v.texture_values,632,12,nullptr,v.route_override())){
     ModRuntime mod=mod_runtime(t);const auto& descriptor=*engine_descriptor(unsigned(Instrument::Texture));float values[15];
-    for(unsigned i=0;i<descriptor.parameters.count;++i)values[i]=resolve_target_value(*project_,track(t),t,engine_target(Instrument::Texture,i),bases[descriptor.parameters.declarations[i].offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;
+    for(unsigned i=0;i<descriptor.parameters.count;++i)values[i]=resolve_target_value(*project_,track(t),t,engine_target(Instrument::Texture,i),bases[descriptor.parameters.declarations[i].offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,v.route_override()).value;
     descriptor.bind(descriptor.parameters,values,descriptor.parameters.count,{nullptr,nullptr,nullptr,nullptr,v.texture_values});
-    v.texture_values[12]=resolve_target_value(*project_,track(t),t,632,bases[12],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;
+    v.texture_values[12]=resolve_target_value(*project_,track(t),t,632,bases[12],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,v.route_override()).value;
    }
   }
   if(dsp.boundary()){if(!admit_native(t,Instrument::Texture,v.texture_values) && !native_budget_.held(t))return;for(unsigned i=0;i<15;++i)v.texture_values[i]=native_values_[t][i];}
@@ -204,9 +204,9 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
   if(!resonators_ || poly)return;
   auto& dsp=resonators_[t];auto& r=runtime_[t];
   if(dsp.boundary()){const float* bases=v.sound_locked?v.resonator_state.values:track(t).resonator.values;
-   if(!resolve_unlayered_engine(*project_,track(t),t,Instrument::Resonator,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,v.resonator_values)){
+   if(!resolve_unlayered_engine(*project_,track(t),t,Instrument::Resonator,r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,v.resonator_values,0,0,nullptr,v.route_override())){
     ModRuntime mod=mod_runtime(t);const auto& descriptor=*engine_descriptor(unsigned(Instrument::Resonator));float values[8];
-    for(unsigned i=0;i<descriptor.parameters.count;++i)values[i]=resolve_target_value(*project_,track(t),t,engine_target(Instrument::Resonator,i),bases[descriptor.parameters.declarations[i].offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;
+    for(unsigned i=0;i<descriptor.parameters.count;++i)values[i]=resolve_target_value(*project_,track(t),t,engine_target(Instrument::Resonator,i),bases[descriptor.parameters.declarations[i].offset],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,v.route_override()).value;
     descriptor.bind(descriptor.parameters,values,descriptor.parameters.count,{nullptr,nullptr,nullptr,nullptr,v.resonator_values});
    }
   }
@@ -371,7 +371,7 @@ void Engine::build_render_bundles(){
   }
   auto* job=bundle_helper_->claim();if(!job)return;
   __builtin_memset(job->values,0,sizeof job->values);
-  if(!resolve_unlayered_engine(*project_,state,t,Instrument(instrument),r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,job->values)){
+  if(!resolve_unlayered_engine(*project_,state,t,Instrument(instrument),r.active_locks,r.automation_live,&gesture_overlay_,r.pattern,control_all_,control_all_id_,bases,job->values,0,0,nullptr,v.route_override())){
    bundle_helper_->retire(*job);return; // resolution is time-varying: canonical only
   }
   if(instrument==unsigned(Instrument::Wavetable) && (v.wt_reserved.oscillators!=1 || job->values[WavetableUnisonCount]!=1 || wavetable_load(job->values).extended!=v.wt_reserved.extended)){

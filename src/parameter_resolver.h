@@ -1,7 +1,7 @@
 #pragma once
 #include "project.h"
 namespace groove {
-enum ParameterSource:unsigned { FromMorph=1,FromAutomation=2,FromMacro=4,FromLock=8,FromControlAll=16,FromGesture=32 };
+enum ParameterSource:unsigned { FromMorph=1,FromAutomation=2,FromMacro=4,FromLock=8,FromControlAll=16,FromGesture=32,FromSoundRoute=64 };
 struct GestureOverlay {GesturePoint points[128]{};unsigned count=0;bool morph_active=false,macro_active[8]{};float morph=0,macros[8]{};
  void clear(){count=0;morph_active=false;for(auto& on:macro_active)on=false;}
  void apply(const GesturePoint& p){if(p.target==GestureTarget::Morph){morph_active=true;morph=p.value;return;}if(p.target==GestureTarget::Macro){macro_active[p.parameter]=true;macros[p.parameter]=p.value;return;}for(unsigned i=0;i<count;++i)if(points[i].track==p.track && points[i].pattern==p.pattern && points[i].parameter==p.parameter){points[i]=p;return;}if(count<128)points[count++]=p;}
@@ -13,7 +13,24 @@ struct ParameterValue {float value=0;unsigned sources=0;};
 // project validation and offline analysis).
 struct ModRuntime {float lfo=0,pressure=0,envelope=0,velocity=0;};
 inline float apply_layer(float base,float value,LayerMode mode){return mode==LayerMode::Add?base+value:mode==LayerMode::Multiply?base*value:value;}
-inline ParameterValue resolve_target_value(const ProjectState& project,ConstTrackView track,unsigned track_index,ParameterTarget id,float base,const ParameterLock* locks,unsigned automation_cell,bool control_all=false,ParameterTarget control_id=0,float control_delta=0,bool automation_running=true,const GestureOverlay* gesture=nullptr,unsigned pattern=255,const ParameterLock* pad_locks=nullptr,const ModRuntime* mod=nullptr){
+template<class Route>
+inline void apply_mod_route(ParameterValue& result,ParameterTarget id,const Route& route,float drive,const ModRuntime* mod,unsigned provenance){
+ if(route.source!=ModSource::Macro){
+  if(!mod)return;
+  switch(route.source){
+   case ModSource::Lfo:drive=mod->lfo;break;
+   case ModSource::Pressure:drive=mod->pressure;break;
+   case ModSource::Envelope:drive=mod->envelope;break;
+   case ModSource::Velocity:drive=mod->velocity;break;
+   default:return;
+  }
+ }
+ const float position=macro_curve(drive,route.curve);
+ const float value=route.mode==LayerMode::Replace?interpolate_target(id,route.low,route.high,position):route.low+(route.high-route.low)*position;
+ result.value=apply_layer(result.value,value,route.mode);
+ result.sources|=provenance;
+}
+inline ParameterValue resolve_target_value(const ProjectState& project,ConstTrackView track,unsigned track_index,ParameterTarget id,float base,const ParameterLock* locks,unsigned automation_cell,bool control_all=false,ParameterTarget control_id=0,float control_delta=0,bool automation_running=true,const GestureOverlay* gesture=nullptr,unsigned pattern=255,const ParameterLock* pad_locks=nullptr,const ModRuntime* mod=nullptr,const SoundModRoutes* sound_routes=nullptr){
  ParameterValue result{base,0};if(unavailable_target(id) || !valid_target_address(id))return result;
  const bool local=engine_target(id);const unsigned index=local?target_local(id):morph_index(id);
  const bool opted=local || id<128 || id>=262 || (id<256 && (track.midi_cc_used[(id-128)/8]&(1u<<((id-128)%8)))) || (id>=256 && id<260 && track.nrpn[id-256].enabled) || (id>=260 && id<=261 && (track.expression_used&(1u<<(id-260))));
@@ -23,7 +40,18 @@ inline ParameterValue resolve_target_value(const ProjectState& project,ConstTrac
  }
  for(const auto& lane:track.automation)if(automation_running && lane.enabled && lane.parameter==id){result.value=apply_layer(result.value,lane.values[automation_cell%lane.length],lane.mode);result.sources|=FromAutomation;}
  if(gesture)for(unsigned i=0;i<gesture->count;++i){const auto& e=gesture->points[i];if(e.track==track_index && e.pattern==pattern && e.parameter==id){result.value=e.value;result.sources|=FromGesture;}}
- for(unsigned mi=0;mi<8;++mi){const auto& macro=project.macros[mi];bool overridden=gesture && gesture->macro_active[mi];float macro_value=overridden?gesture->macros[mi]:macro.value;if(macro.active || overridden)for(const auto& route:macro.routes)if(route.enabled && route.parameter==id && macro_target_allowed(id) && (route.tracks&(1u<<track_index))){float drive=macro_value;if(route.source!=ModSource::Macro){if(!mod)continue;drive=route.source==ModSource::Lfo?mod->lfo:route.source==ModSource::Pressure?mod->pressure:route.source==ModSource::Envelope?mod->envelope:mod->velocity;}float position=macro_curve(drive,route.curve);float v=route.mode==LayerMode::Replace?interpolate_target(id,route.low,route.high,position):route.low+(route.high-route.low)*position;result.value=apply_layer(result.value,v,route.mode);result.sources|=FromMacro;}}
+ // Ordered SOUND rows establish the base, then project MACR rows apply their own modes.
+ const auto& sound=sound_routes?*sound_routes:track.mod_routes;
+ if(local && sound.count && macro_target_allowed(id))for(unsigned i=0;i<sound.count;++i){
+  const auto& row=sound.rows[i];
+  if(row.parameter==id)apply_mod_route(result,id,row,0,mod,FromSoundRoute);
+ }
+ for(unsigned mi=0;mi<8;++mi){
+  const auto& macro=project.macros[mi];const bool overridden=gesture && gesture->macro_active[mi];
+  if(!macro.active && !overridden)continue;
+  for(const auto& row:macro.routes)if(row.enabled && row.parameter==id && (row.tracks&(1u<<track_index)) && macro_target_allowed(id))
+   apply_mod_route(result,id,row,overridden?gesture->macros[mi]:macro.value,mod,FromMacro);
+ }
  if(locks)for(unsigned i=0;i<kLocks;++i)if(locks[i].enabled && locks[i].id==id){result.value=locks[i].value;result.sources|=FromLock;}
  if(pad_locks)for(unsigned i=0;i<kLocks;++i)if(pad_locks[i].enabled && pad_locks[i].id==id){result.value=pad_locks[i].value;result.sources|=FromLock;}
  if(control_all && id==control_id){const auto* d=target_descriptor(id);result.value+=control_delta*(d->maximum-d->minimum);result.sources|=FromControlAll;}
@@ -40,13 +68,20 @@ inline ParameterValue resolve_parameter(const ProjectState& project,ConstTrackVi
 // Native blocks use engine ownership and declaration offsets directly. Check
 // shared layers once; when none match, resolution reduces to clamped bases.
 // No cache survives a block, so edits, Sound locks and gestures stay immediate.
-inline bool resolve_unlayered_engine(const ProjectState& project,ConstTrackView track,unsigned track_index,Instrument engine,const ParameterLock* locks,bool automation_running,const GestureOverlay* gesture,unsigned pattern,bool control_all,uint16_t control_id,const float* bases,float* output,ParameterTarget common=0,unsigned common_offset=0,uint32_t* routed_locals=nullptr){
+inline bool resolve_unlayered_engine(const ProjectState& project,ConstTrackView track,unsigned track_index,Instrument engine,const ParameterLock* locks,bool automation_running,const GestureOverlay* gesture,unsigned pattern,bool control_all,uint16_t control_id,const float* bases,float* output,ParameterTarget common=0,unsigned common_offset=0,uint32_t* routed_locals=nullptr,const SoundModRoutes* sound_routes=nullptr){
  if(routed_locals)*routed_locals=0;
  const auto* descriptor=engine_descriptor(unsigned(engine));if(!descriptor)return false;
  auto inside=[&](ParameterTarget target){return (engine_target(target) && !unavailable_target(target) && target_engine(target)==engine) || (common && target==common);};
  if(project.morph_enabled || (gesture && gesture->morph_active) || (control_all && inside(control_id)))return false;
  if(automation_running)for(const auto& lane:track.automation)if(lane.enabled && inside(lane.parameter))return false;
  if(gesture)for(unsigned i=0;i<gesture->count;++i){const auto& e=gesture->points[i];if(e.track==track_index && e.pattern==pattern && inside(e.parameter))return false;}
+ const auto& sound=sound_routes?*sound_routes:track.mod_routes;
+ for(unsigned i=0;i<sound.count;++i){
+  const auto id=sound.rows[i].parameter;
+  if(!inside(id) || !macro_target_allowed(id))continue;
+  if(!routed_locals)return false;
+  *routed_locals|=uint32_t(1)<<target_local(id);
+ }
  for(unsigned mi=0;mi<8;++mi)if(project.macros[mi].active || (gesture && gesture->macro_active[mi]))for(const auto& route:project.macros[mi].routes)if(route.enabled && inside(route.parameter) && (route.tracks&(1u<<track_index))){
   // Render-ahead callers require a wholly static bank. The audio owner can
   // instead resolve just these destinations through the full matrix below.

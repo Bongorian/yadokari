@@ -34,6 +34,15 @@ void Engine::render_ports(float* output,float* cue,const float* input,size_t fra
   if(engine_target(route.parameter) && target_engine(route.parameter)==Instrument::Wavetable)continue;
   control_refresh_mask_|=route.tracks;
  }
+ for(unsigned t=0;t<kTracks;++t){
+  const auto& state=track(t);const auto& voice=voices_[t];
+  if((state.mod_routes.count && state.instrument!=Instrument::Wavetable) ||
+     (voice.sound_locked && voice.locked_routes.count && voice.instrument!=unsigned(Instrument::Wavetable)))
+   control_refresh_mask_|=uint16_t(1u<<t);
+ }
+ for(const auto& slot:poly_voices_)if(slot.owner<kTracks && slot.voice.sound_locked &&
+    slot.voice.locked_routes.count && slot.voice.instrument!=unsigned(Instrument::Wavetable))
+  control_refresh_mask_|=uint16_t(1u<<slot.owner);
  for(unsigned budget=0;budget<2 && control_refresh_mask_;++budget){
   unsigned t=control_refresh_cursor_;
   while(!(control_refresh_mask_&(1u<<t)))t=(t+1)&15;

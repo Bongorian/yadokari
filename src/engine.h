@@ -295,6 +295,8 @@ private:
   StepPitchSlide step_pitch{};bool step_mono=false,step_accent=false,tie_pending=false;uint16_t step_sound=kNoPreset;
   float a=0,env=0,frequency=261.6256f,pitch_bend=0,acid_low=0,acid_band=0;
   TextureState texture_state{};float texture_values[15]{};ResonatorState resonator_state{};float resonator_values[8]{};
+  SoundModRoutes locked_routes{};
+  const SoundModRoutes* route_override()const{return sound_locked?&locked_routes:nullptr;}
   bool sound_locked=false; float base_parameters[5]={0.5f,0.5f,0.5f,0.5f,0.5f};
   float targets[5]={0.5f,0.5f,0.5f,0.5f,0.5f};float parameters[5]={0.5f,0.5f,0.5f,0.5f,0.5f};
   AdditiveState additive_base{};AdditiveVoice additive;PhaseDistState phase_dist_base{};PhaseDistVoice phase_dist;FormantState formant_base{};FormantVoice formant;GranularState granular_base{};ChimeraState chimera_base{};SoundFontState soundfont_base{};SoundFontVoice soundfont;Fm6State fm6_base{};Fm6Voice fm6;
@@ -361,7 +363,7 @@ private:
  bool release_note(unsigned track,uint8_t note,uint16_t channel);void release_midi_channel(unsigned track,uint16_t channel,bool immediate);void clear_poly(unsigned track); bool admit_native(unsigned t,Instrument engine,const float* values);
  uint64_t native_retry_sample_[16]{};NativeBudget native_budget_;float native_values_[16][15]{};unsigned native_refused_=0,native_active_=0;
 bool plain_visual_parameters(unsigned track);
-void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,float* values);
+void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,float* values,const SoundModRoutes* routes=nullptr);
  void render_sampler_voice(Voice& voice,float& left,float& right);
  void render_non_sampler_voice(unsigned track,Voice& voice,float& left,float& right,bool poly,unsigned voice_key);
  void advance_legacy_voice(Voice& voice);
