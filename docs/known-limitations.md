@@ -48,7 +48,7 @@ story, kept current per release.
 
 ## Display
 
-- On Pi 5, a full-screen transition from SETTINGS to ROUTING can leave just over 100 ms between completed LCD updates. The delay occurs while the new page is arriving on the controller.
+- On Pi 5, switching from SETTINGS to ROUTING produced a 104–116 ms gap between completed updates on the slower LCD in three development-build runs. One FX page transition also reached 100 ms. All steady-display intervals stayed below 100 ms, with zero lost audio blocks in those runs.
 
 ## Updates and signing
 
