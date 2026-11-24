@@ -110,7 +110,7 @@ auto Performance::top_slot(unsigned index)const -> unsigned{
   if(audio_page()){static const uint8_t normal[]={0,1,8,8,2,3,4,7},shift[]={0,8,8,8,2,6,5,1};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Clip){static const uint8_t slots[]={4,5,8,8,0,1,2,3};return slots[index];}
   if(mode_==UiMode::Scene){static const uint8_t slots[]={1,2,4,8,0,3,5,8};return slots[index];}
-  if(mode_==UiMode::Song){if(index==2)return 6;if(index<4)return 8;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
+  if(mode_==UiMode::Song){if(index<4)return 8;if(shifted() && index==5 && !scene_take_requested_)return 6;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
   if(mode_==UiMode::Mixer){static const uint8_t normal[]={8,8,8,8,0,1,5,7},shift[]={8,8,8,8,5,1,6,7};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Synth && !source_select_ && track_const(selected_).instrument==Instrument::Layer){const uint8_t slots[]={0,1,uint8_t(layer_page()?2:8),uint8_t(layer_page()?3:8),4,5,6,7};return slots[index];}
   if(mode_==UiMode::Synth && wave_profile()){static const uint8_t slots[]={0,1,8,8,4,5,2,3};return slots[index];}

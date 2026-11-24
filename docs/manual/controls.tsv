@@ -657,7 +657,7 @@ clip	CLIP	0	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip	CLIP	0	knob	8	NOTE	1	arrangement	value	7	60.000000	0	30	0
 clip	CLIP	1	button	1	FOLLOW EDIT	1	arrangement	selection	4		0	94	0
 clip	CLIP	1	knob	1	TEMPO	1	arrangement	value	0	120.000000	0	38	0
-clip	CLIP	1	button	2	BLOCK EDIT	1	arrangement	execute	5		0	67	0
+clip	CLIP	1	button	2	BLOCK EDIT	1	arrangement	selection	5		0	67	0
 clip	CLIP	1	knob	2	SOUND LOCK	1	arrangement	value	1	65535.000000	0	71	0
 clip	CLIP	1	button	3		0	arrangement	empty	8		0	0	0
 clip	CLIP	1	knob	3	RATIO	1	arrangement	value	2	0.500000	0	34	0
@@ -689,7 +689,7 @@ clip-copy-scope	CLIP	0	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip-copy-scope	CLIP	0	knob	8	NOTE	1	arrangement	value	7	60.000000	0	30	0
 clip-copy-scope	CLIP	1	button	1	FOLLOW EDIT	1	arrangement	selection	4		0	94	0
 clip-copy-scope	CLIP	1	knob	1	TEMPO	1	arrangement	value	0	120.000000	0	38	0
-clip-copy-scope	CLIP	1	button	2	BLOCK EDIT	1	arrangement	execute	5		0	67	0
+clip-copy-scope	CLIP	1	button	2	BLOCK EDIT	1	arrangement	selection	5		0	67	0
 clip-copy-scope	CLIP	1	knob	2	SOUND LOCK	1	arrangement	value	1	65535.000000	0	71	0
 clip-copy-scope	CLIP	1	button	3		0	arrangement	empty	8		0	0	0
 clip-copy-scope	CLIP	1	knob	3	RATIO	1	arrangement	value	2	0.500000	0	34	0
@@ -753,7 +753,7 @@ clip-follow	CLIP	0	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip-follow	CLIP	0	knob	8		0	arrangement	value	7	0.000000	0	0	0
 clip-follow	CLIP	1	button	1	DONE FOLLOW	1	arrangement	selection	4		0	98	0
 clip-follow	CLIP	1	knob	1	ACTION	1	arrangement	value	0	0.000000	0	42	0
-clip-follow	CLIP	1	button	2	BLOCK EDIT	1	arrangement	execute	5		0	67	0
+clip-follow	CLIP	1	button	2	BLOCK EDIT	1	arrangement	selection	5		0	67	0
 clip-follow	CLIP	1	knob	2	LOOPS	1	arrangement	value	1	1.000000	0	37	0
 clip-follow	CLIP	1	button	3		0	arrangement	empty	8		0	0	0
 clip-follow	CLIP	1	knob	3	TARGET	1	arrangement	value	2	1.000000	0	44	0
@@ -867,7 +867,7 @@ song	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song	SONG	0	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song	SONG	0	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -883,13 +883,13 @@ song	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song	SONG	1	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song	SONG	1	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
 song	SONG	1	button	5	REC ARRANGE	1	arrangement	execute	4		0	97	0
 song	SONG	1	knob	5	SCENE	1	arrangement	value	4	1.000000	0	37	0
-song	SONG	1	button	6	SKELETON	1	arrangement	execute	5		0	59	0
+song	SONG	1	button	6	DUP SECTION	0	arrangement	execute	6		0	75	0
 song	SONG	1	knob	6	BARS	1	arrangement	value	5	0.000000	0	30	0
 song	SONG	1	button	7	IMPORT	0	arrangement	execute	2		0	60	0
 song	SONG	1	knob	7	REPEATS	1	arrangement	value	6	0.000000	0	51	0
@@ -899,7 +899,7 @@ song-empty	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song-empty	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-empty	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song-empty	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-empty	SONG	0	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song-empty	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song-empty	SONG	0	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song-empty	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song-empty	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -915,13 +915,13 @@ song-empty	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song-empty	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-empty	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song-empty	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-empty	SONG	1	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song-empty	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song-empty	SONG	1	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song-empty	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song-empty	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
 song-empty	SONG	1	button	5	REC ARRANGE	1	arrangement	execute	4		0	97	0
 song-empty	SONG	1	knob	5	SCENE	1	arrangement	value	4	1.000000	0	37	0
-song-empty	SONG	1	button	6	SKELETON	1	arrangement	execute	5		0	59	0
+song-empty	SONG	1	button	6	DUP SECTION	0	arrangement	execute	6		0	75	0
 song-empty	SONG	1	knob	6	BARS	1	arrangement	value	5	0.000000	0	30	0
 song-empty	SONG	1	button	7	IMPORT	0	arrangement	execute	2		0	60	0
 song-empty	SONG	1	knob	7	REPEATS	1	arrangement	value	6	0.000000	0	51	0
@@ -931,7 +931,7 @@ song-skeleton	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-skeleton	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-skeleton	SONG	0	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-skeleton	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	0	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-skeleton	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -947,13 +947,13 @@ song-skeleton	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-skeleton	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-skeleton	SONG	1	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-skeleton	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	1	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-skeleton	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song-skeleton	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
 song-skeleton	SONG	1	button	5	REC ARRANGE	1	arrangement	execute	4		0	97	0
 song-skeleton	SONG	1	knob	5	SCENE	1	arrangement	value	4	1.000000	0	37	0
-song-skeleton	SONG	1	button	6	SKELETON	1	arrangement	execute	5		0	59	0
+song-skeleton	SONG	1	button	6	DUP SECTION	1	arrangement	execute	6		0	75	0
 song-skeleton	SONG	1	knob	6	BARS	1	arrangement	value	5	4.000000	0	30	0
 song-skeleton	SONG	1	button	7	IMPORT	0	arrangement	execute	2		0	60	0
 song-skeleton	SONG	1	knob	7	REPEATS	1	arrangement	value	6	4.000000	0	51	0
@@ -963,7 +963,7 @@ song-sections	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song-sections	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-sections	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song-sections	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-sections	SONG	0	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-sections	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song-sections	SONG	0	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-sections	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song-sections	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -979,13 +979,13 @@ song-sections	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song-sections	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-sections	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song-sections	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-sections	SONG	1	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-sections	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song-sections	SONG	1	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-sections	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song-sections	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
 song-sections	SONG	1	button	5	REC ARRANGE	1	arrangement	execute	4		0	97	0
 song-sections	SONG	1	knob	5	SCENE	1	arrangement	value	4	1.000000	0	37	0
-song-sections	SONG	1	button	6	SKELETON	1	arrangement	execute	5		0	59	0
+song-sections	SONG	1	button	6	DUP SECTION	1	arrangement	execute	6		0	75	0
 song-sections	SONG	1	knob	6	BARS	1	arrangement	value	5	2.000000	0	30	0
 song-sections	SONG	1	button	7	IMPORT	0	arrangement	execute	2		0	60	0
 song-sections	SONG	1	knob	7	REPEATS	1	arrangement	value	6	2.000000	0	51	0
@@ -995,7 +995,7 @@ song-snapshot	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-snapshot	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-snapshot	SONG	0	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-snapshot	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	0	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-snapshot	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -1011,13 +1011,13 @@ song-snapshot	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-snapshot	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-snapshot	SONG	1	button	3	DUP SECTION	1	arrangement	execute	6		0	75	0
+song-snapshot	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	1	knob	3	ENABLE	1	arrangement	value	2	1.000000	0	45	0
 song-snapshot	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song-snapshot	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
 song-snapshot	SONG	1	button	5	REC ARRANGE	1	arrangement	execute	4		0	97	0
 song-snapshot	SONG	1	knob	5	TRACK	1	arrangement	value	4	5.000000	0	38	0
-song-snapshot	SONG	1	button	6	SKELETON	1	arrangement	execute	5		0	59	0
+song-snapshot	SONG	1	button	6	DUP SECTION	1	arrangement	execute	6		0	75	0
 song-snapshot	SONG	1	knob	6	TICKS	1	arrangement	value	5	7680.000000	0	34	0
 song-snapshot	SONG	1	button	7	IMPORT	0	arrangement	execute	2		0	60	0
 song-snapshot	SONG	1	knob	7	PATTERN	1	arrangement	value	6	1.000000	0	51	0
@@ -1027,7 +1027,7 @@ song-take	SONG	0	button	1		0	arrangement	empty	8		0	0	0
 song-take	SONG	0	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-take	SONG	0	button	2		0	arrangement	empty	8		0	0	0
 song-take	SONG	0	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-take	SONG	0	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song-take	SONG	0	button	3		0	arrangement	empty	8		0	0	0
 song-take	SONG	0	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song-take	SONG	0	button	4		0	arrangement	empty	8		0	0	0
 song-take	SONG	0	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -1043,7 +1043,7 @@ song-take	SONG	1	button	1		0	arrangement	empty	8		0	0	0
 song-take	SONG	1	knob	1	SECTION	1	arrangement	value	0	1.000000	0	49	0
 song-take	SONG	1	button	2		0	arrangement	empty	8		0	0	0
 song-take	SONG	1	knob	2	LOOP	1	arrangement	value	1	1.000000	0	30	0
-song-take	SONG	1	button	3	DUP SECTION	0	arrangement	execute	6		0	75	0
+song-take	SONG	1	button	3		0	arrangement	empty	8		0	0	0
 song-take	SONG	1	knob	3	ENABLE	1	arrangement	value	2	0.000000	0	45	0
 song-take	SONG	1	button	4		0	arrangement	empty	8		0	0	0
 song-take	SONG	1	knob	4	MOVE TO	1	arrangement	value	3	1.000000	0	49	0
@@ -3057,7 +3057,7 @@ clip-kit	CLIP	0	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip-kit	CLIP	0	knob	8	NOTE	1	arrangement	value	7	60.000000	0	30	0
 clip-kit	CLIP	1	button	1	FOLLOW EDIT	1	arrangement	selection	4		0	94	0
 clip-kit	CLIP	1	knob	1	TEMPO	1	arrangement	value	0	120.000000	0	38	0
-clip-kit	CLIP	1	button	2	BLOCK EDIT	1	arrangement	execute	5		0	67	0
+clip-kit	CLIP	1	button	2	BLOCK EDIT	1	arrangement	selection	5		0	67	0
 clip-kit	CLIP	1	knob	2	SOUND LOCK	1	arrangement	value	1	65535.000000	0	71	0
 clip-kit	CLIP	1	button	3		0	arrangement	empty	8		0	0	0
 clip-kit	CLIP	1	knob	3		0	arrangement	value	2	0.500000	0	0	0
@@ -4273,7 +4273,7 @@ clip-pending	CLIP	0	button	8	STOP	1	arrangement	execute	3		0	47	0
 clip-pending	CLIP	0	knob	8	NOTE	1	arrangement	value	7	60.000000	0	30	0
 clip-pending	CLIP	1	button	1	FOLLOW EDIT	1	arrangement	selection	4		0	94	0
 clip-pending	CLIP	1	knob	1	TEMPO	1	arrangement	value	0	120.000000	0	38	0
-clip-pending	CLIP	1	button	2	BLOCK EDIT	1	arrangement	execute	5		0	67	0
+clip-pending	CLIP	1	button	2	BLOCK EDIT	1	arrangement	selection	5		0	67	0
 clip-pending	CLIP	1	knob	2	SOUND LOCK	1	arrangement	value	1	65535.000000	0	71	0
 clip-pending	CLIP	1	button	3		0	arrangement	empty	8		0	0	0
 clip-pending	CLIP	1	knob	3		0	arrangement	value	2	0.500000	0	0	0

@@ -3,7 +3,7 @@
 #include "ui/control_descriptor.h"
 namespace groove {
 enum class ClipControlAction:uint8_t { None,Copy,Double,Paste,Launch,Stop,Follow,NextPattern,Undo,Redo,Action,Cycles,Target,Probability,Variation,Block };
-constexpr ui::TopWork top_work(ClipControlAction a){switch(a){case ClipControlAction::None:return ui::TopWork::Empty;case ClipControlAction::Follow:case ClipControlAction::NextPattern:return ui::TopWork::Selection;default:return ui::TopWork::Execute;}}
+constexpr ui::TopWork top_work(ClipControlAction a){switch(a){case ClipControlAction::None:return ui::TopWork::Empty;case ClipControlAction::Block:case ClipControlAction::Follow:case ClipControlAction::NextPattern:return ui::TopWork::Selection;default:return ui::TopWork::Execute;}}
 constexpr uint8_t icon_for(ClipControlAction action){switch(action){case ClipControlAction::Variation:case ClipControlAction::Copy:return ui::icons::Copy;case ClipControlAction::Paste:return ui::icons::Paste;case ClipControlAction::Launch:return ui::icons::Play;case ClipControlAction::Stop:return ui::icons::Stop;case ClipControlAction::Follow:return ui::icons::Follow;case ClipControlAction::Undo:return ui::icons::Undo;case ClipControlAction::Redo:return ui::icons::Redo;default:return ui::icons::None;}}
 
 using ClipControl=ui::ControlDescriptor<ClipControlAction>;

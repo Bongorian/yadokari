@@ -109,7 +109,7 @@ int main() {
   assert(project.song.enabled && project.song.loop);
   // Move preserves the full section, and duplicate inserts immediately after it.
   assert(ui.knob(3,1000));assert(ui.song_cursor()==1 && project.song.sections[0].scene==1 && project.song.sections[1].bars==2);
-  assert(ui.soft_key(2));assert(ui.song_cursor()==2 && project.song.length==3 && project.song.sections[2].bars==2);
+  ui.set_shift(true);assert(ui.soft_key(5));ui.set_shift(false);assert(ui.song_cursor()==2 && project.song.length==3 && project.song.sections[2].bars==2);
   assert(ui.undo() && project.song.length==2 && ui.song_cursor()==1);
   assert(ui.undo() && project.song.sections[0].scene==0);
   // ADD appends a third section; CLEAR is armed too.

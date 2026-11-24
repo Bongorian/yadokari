@@ -284,7 +284,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song.png",
-      "sha256": "8ee1af131b53a633eb5cab46b731c1f129544d185af1fe199e7f4bf24522265d"
+      "sha256": "ce29d9a23a074b6fb3dd510ff1927da212041a25cd51431d0d0c3d20acdaf085"
     },
     {
       "page": "song-empty",
@@ -294,7 +294,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-empty.png",
-      "sha256": "8ee1af131b53a633eb5cab46b731c1f129544d185af1fe199e7f4bf24522265d"
+      "sha256": "ce29d9a23a074b6fb3dd510ff1927da212041a25cd51431d0d0c3d20acdaf085"
     },
     {
       "page": "song-skeleton",
@@ -304,7 +304,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-skeleton.png",
-      "sha256": "01a927483ca49c265937e5927477aa53a2d7200c18811853850ac28586b3b8de"
+      "sha256": "a4e2c7ad813e4f815652d52bd73c4c3bedb653ddd8a135de5ba5b63da86abd52"
     },
     {
       "page": "song-sections",
@@ -314,7 +314,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-sections.png",
-      "sha256": "07bdbc8268ca4dbd14e6bab01dc076aeb51e17d14f4c5f0074d286ec301085ef"
+      "sha256": "647fc2c7bcf43b34031f9cb76a9537c852d3a2f367740be78fec8106fa9e309c"
     },
     {
       "page": "song-snapshot",
@@ -324,7 +324,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-snapshot.png",
-      "sha256": "f7ee443adb6836f7704c4091f7a449850cb4d64e55dec34444ababcb9f26e059"
+      "sha256": "d1ae6e3baae972c31f2189dd66e95caac5d551b42aab3e3e8f1b59beadcfd1fa"
     },
     {
       "page": "song-take",
@@ -334,7 +334,7 @@
       "title": "SONG",
       "theme": "cyber-2",
       "file": "song-take.png",
-      "sha256": "86c7fa5e9f4ac7c824193a08f65def7ca6e1a52ac159f05cdbd3de08297cd8a6"
+      "sha256": "c34c2d1e931893b767a6771a7abfbbc0592c150634336f2b7ecc1502154086bc"
     },
     {
       "page": "mixer",

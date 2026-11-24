@@ -397,7 +397,7 @@ The left of CLIP is the <strong>Pattern list of the selected Track</strong>. The
 
 ### Building a Song by hand
 
-Select a section with K1, then turn K4 MOVE TO to reposition it. Top3 DUP SECTION inserts a copy immediately after the selection. Both operations preserve the duration, mute and restart information of a recorded section. K2 LOOP and K3 ENABLE preserve your position during playback. Turn LOOP off to finish the current pass, or turn it on before the last section ends to play another pass.
+Select a section with K1, then turn K4 MOVE TO to reposition it. SHIFT + Top6 DUP SECTION inserts a copy immediately after the selection. Both operations preserve the duration, mute and restart information of a recorded section. K2 LOOP and K3 ENABLE preserve your position during playback. Turn LOOP off to finish the current pass, or turn it on before the last section ends to play another pass.
 
 In an empty SONG, pressing <strong>Top6 SKELETON</strong> once places 5 sections referencing Scene1–5, of **4 / 8 / 8 / 8 / 4 bars**, and turns LOOP ON. Scenes, bar counts, and transposition can be edited with the existing knobs. If you are using 3 kinds of Scene, swap the references. If sections already exist, it refuses to overwrite, and the whole skeleton can be undone with a single UNDO.
 
