@@ -577,7 +577,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
   if(updater->TakeSaveTestRequest()){
    if(audio)audio->SetTimingPhase(groove::AudioPhaseTiming::Save);
    bool ok=!updater->active() && !file_transfer->active() && files.project_save_available() && !files.project_save_busy();
-   if(ok){save_input_start=CTimer::GetClockTicks64();save_input_gap=0;unsigned started=CTimer::GetClockTicks();ok=FreshProbeSong(m_Storage,save_probe_path,"PROJECTS") && files.start_project_save(save_probe_path,true);save_snapshot_us=uint32_t(CTimer::GetClockTicks()-started);save_service_max_us=0;}
+   if(ok){save_input_start=CTimer::GetClockTicks64();save_input_gap=0;unsigned started=CTimer::GetClockTicks();ok=FreshProbeSong(m_Storage,save_probe_path,"PROJECTS") && files.start_project_save(save_probe_path,true,groove::SessionFiles::ProbeFile::KeepForReadback);save_snapshot_us=uint32_t(CTimer::GetClockTicks()-started);save_service_max_us=0;}
    if(ok)save_probe_started_ms=CTimer::GetClockTicks64()/1000;else save_input_start=0;
    m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"Project save probe started ok %u",unsigned(ok));
   }

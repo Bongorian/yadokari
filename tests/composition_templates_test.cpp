@@ -55,5 +55,16 @@ int main(){
  assert(ui->soft_key(0) && files->service() && ui->mode()==UiMode::Generate && ui->generate_page()==2);
  assert(ui->soft_key(5));flush();assert(t.groove.timing[0]==-21 && t.groove.velocity[0]==15 && t.groove.amount==100);
  assert(fs.write("GROOVES/Bad.grv",0,"YGR1",4,true) && !read_groove_template(fs,"GROOVES/Bad.grv",exported));
+ // A hardware diagnostic must retain its probe until the browser readback,
+ // while transient probes still clean themselves and neither changes the locator.
+ ProjectEncodeSlot save_worker;files->set_project_save_worker(&save_worker);
+ const std::string current=ui->project_path();
+ for(auto cleanup:{SessionFiles::ProbeFile::Remove,SessionFiles::ProbeFile::KeepForReadback}){
+  const char* path="PROJECTS/CHECK-001.mgxs";
+  assert(files->start_project_save(path,true,cleanup));
+  for(unsigned poll=0;files->project_save_busy() && poll<10000;++poll){save_worker.process_one();files->service_project_save();}
+  bool success=false,probe=false;assert(files->take_project_save_result(success,probe) && success && probe);
+  assert(fs.exists(path)==(cleanup==SessionFiles::ProbeFile::KeepForReadback) && current==ui->project_path());
+ }
  files.reset();ui.reset();e.reset();std::filesystem::current_path(old);std::filesystem::remove_all(root);puts("composition templates PASS: zero-template fallback; 70-file paging; ContentKind filter; unnamed Save As; factory source kept; cancel");
 }
