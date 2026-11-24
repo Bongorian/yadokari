@@ -63,12 +63,34 @@ struct MidiOutputSource {
  unsigned midi_boundary()const{return engine.midi_boundary();}
  bool midi_at_boundary(unsigned boundary)const{return engine.midi_at_boundary(boundary);}
 };
-static bool FreshProbeSong(groove::IFileAccess& fs,char (&path)[96]){
- for(unsigned i=1;i<1000;++i){groove::copy_text(path,sizeof path,"GROOVE/CHECK-000.mgxs");path[13]=char('0'+i/100);path[14]=char('0'+i/10%10);path[15]=char('0'+i%10);
+static bool FreshProbeSong(groove::IFileAccess& fs,char (&path)[96],const char* directory="GROOVE"){
+ for(unsigned i=1;i<1000;++i){
+  char name[]="CHECK-000.mgxs";name[6]=char('0'+i/100);name[7]=char('0'+i/10%10);name[8]=char('0'+i%10);
+  if(!groove::join_path(path,sizeof path,directory,name))return false;
   bool used=fs.exists(path);const char* suffixes[]={".tmp",".new",".bak"};for(const char* suffix:suffixes){char other[112];groove::copy_text(other,sizeof other,path);unsigned n=0;while(other[n])++n;groove::copy_text(other+n,sizeof other-n,suffix);used|=fs.exists(other);}if(!used)return true;
  }path[0]=0;return false;
 }
 static bool RemoveProbeSong(groove::IFileAccess& fs,const char* path){if(!path[0])return true;bool ok=fs.remove(path);const char* suffixes[]={".tmp",".new",".bak"};for(const char* suffix:suffixes){char other[112];groove::copy_text(other,sizeof other,path);unsigned n=0;while(other[n])++n;groove::copy_text(other+n,sizeof other-n,suffix);ok=fs.remove(other) && ok;}return ok;}
+
+// SAVETEST owns this newly saved file. Exercise the physical card and the
+// browser's real resolution/decoder without changing the playing project.
+static bool CheckStagedProbeSong(groove::IFileAccess& fs,const char* path){
+ char staged[112];
+ if(!groove::copy_text(staged,sizeof staged,path))return false;
+ size_t end=__builtin_strlen(staged);
+ if(!groove::copy_text(staged+end,sizeof staged-end,".tmp") || fs.exists(staged) || !fs.move(path,staged))return false;
+ const char* name=groove::filename(path);
+ groove::BrowserFolder folder;
+ if(!folder.read(fs,"PROJECTS",[&](groove::FileEntry& entry){
+  if(entry.directory || !groove::data_equal(entry.name,groove::filename(staged)))return false;
+  return groove::resolve_browser_entry(fs,"PROJECTS",entry);
+ }) || folder.count!=1 || !folder.entry(0).orphan_song || !groove::data_equal(folder.entry(0).name,name))return false;
+ char canonical[112];if(!groove::join_path(canonical,sizeof canonical,"PROJECTS",folder.entry(0).name))return false;
+ groove::ProjectState* candidate=nullptr;groove::RecoverySource source;
+ bool opened=groove::load_recoverable_candidate_checked(fs,canonical,candidate,nullptr,&source,[](groove::ProjectState&,unsigned){return true;});
+ delete candidate;
+ return opened && source.kind==groove::RecoveryKind::Temporary && !fs.exists(canonical) && fs.exists(staged);
+}
 
 struct KitProbePhases{CMk3Audio** audio;unsigned last_us=0,last_missing=0;};
 
@@ -555,7 +577,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
   if(updater->TakeSaveTestRequest()){
    if(audio)audio->SetTimingPhase(groove::AudioPhaseTiming::Save);
    bool ok=!updater->active() && !file_transfer->active() && files.project_save_available() && !files.project_save_busy();
-   if(ok){save_input_start=CTimer::GetClockTicks64();save_input_gap=0;unsigned started=CTimer::GetClockTicks();ok=FreshProbeSong(m_Storage,save_probe_path) && files.start_project_save(save_probe_path,true);save_snapshot_us=uint32_t(CTimer::GetClockTicks()-started);save_service_max_us=0;}
+   if(ok){save_input_start=CTimer::GetClockTicks64();save_input_gap=0;unsigned started=CTimer::GetClockTicks();ok=FreshProbeSong(m_Storage,save_probe_path,"PROJECTS") && files.start_project_save(save_probe_path,true);save_snapshot_us=uint32_t(CTimer::GetClockTicks()-started);save_service_max_us=0;}
    if(ok)save_probe_started_ms=CTimer::GetClockTicks64()/1000;else save_input_start=0;
    m_Logger.Write(FromKernel,ok?LogNotice:LogWarning,"Project save probe started ok %u",unsigned(ok));
   }
@@ -660,7 +682,7 @@ __attribute__((noinline,optimize("Os"))) TShutdownMode CKernel::Run() {
    if(!ok){performance.notify(groove::UiNotice::Failed);m_Logger.Write(FromKernel,LogWarning,"Project action failed; previous project retained");}delete candidate;
   }
   if(performance.take_save_request()) {if(files.project_save_busy())performance.request_save();else if(files.project_save_available()){unsigned started=CTimer::GetClockTicks();bool queued=files.start_project_save(performance.project_path());save_snapshot_us=uint32_t(CTimer::GetClockTicks()-started);save_service_max_us=0;if(!queued)performance.notify(groove::UiNotice::SaveFailed);}else{performance.sync_ui_settings();files.copy_preserved_to(m_Storage.preserved());bool saved=files.save(performance.project_path());if(saved)performance.notify(groove::UiNotice::Saved);else if(performance.require_project_save_safe())performance.notify(groove::UiNotice::SaveFailed);if(saved)m_Logger.Write(FromKernel,LogNotice,"Project saved");else m_Logger.Write(FromKernel,LogWarning,"Project save failed; inspect SD");}}
-  {bool saved=false,probe=false;if(files.take_project_save_result(saved,probe)){if(save_input_start){unsigned tail=unsigned(CTimer::GetClockTicks64()-save_input_start);m_Logger.Write(FromKernel,LogNotice,"Project save input-service-gap-us %u",save_input_gap>tail?save_input_gap:tail);save_input_start=0;}if(efficiency_probe && efficiency_probe->save_result(saved,probe)){save_stages={};}else{if(probe)m_Logger.Write(FromKernel,saved?LogNotice:LogWarning,"Project save probe completed ok %u elapsed-ms %u snapshot-us %u service-max-us %u",unsigned(saved),unsigned(CTimer::GetClockTicks64()/1000-save_probe_started_ms),save_snapshot_us,save_service_max_us);if(probe){for(unsigned phase=1;phase<7;++phase)m_Logger.Write(FromKernel,LogNotice,"Save phase %u max-us %u total-us %u ui-us %u",phase,save_stages.max[phase],save_stages.total[phase],save_stages.ui[phase]);save_stages={};}if(probe && save_probe_path[0]){bool readback=saved;bool cleaned=RemoveProbeSong(m_Storage,save_probe_path);m_Logger.Write(FromKernel,LogNotice,"Project probe byte-readback %u cleaned %u path %s",unsigned(readback),unsigned(cleaned),save_probe_path);save_probe_path[0]=0;}else m_Logger.Write(FromKernel,saved?LogNotice:LogWarning,saved?"Project saved":"Project save failed; inspect SD");}}}
+  {bool saved=false,probe=false;if(files.take_project_save_result(saved,probe)){if(save_input_start){unsigned tail=unsigned(CTimer::GetClockTicks64()-save_input_start);m_Logger.Write(FromKernel,LogNotice,"Project save input-service-gap-us %u",save_input_gap>tail?save_input_gap:tail);save_input_start=0;}if(efficiency_probe && efficiency_probe->save_result(saved,probe)){save_stages={};}else{if(probe)m_Logger.Write(FromKernel,saved?LogNotice:LogWarning,"Project save probe completed ok %u elapsed-ms %u snapshot-us %u service-max-us %u",unsigned(saved),unsigned(CTimer::GetClockTicks64()/1000-save_probe_started_ms),save_snapshot_us,save_service_max_us);if(probe){for(unsigned phase=1;phase<7;++phase)m_Logger.Write(FromKernel,LogNotice,"Save phase %u max-us %u total-us %u ui-us %u",phase,save_stages.max[phase],save_stages.total[phase],save_stages.ui[phase]);save_stages={};}if(probe && save_probe_path[0]){bool readback=saved;if(saved && groove::data_under(save_probe_path,"PROJECTS")){readback=CheckStagedProbeSong(m_Storage,save_probe_path);m_Logger.Write(FromKernel,readback?LogNotice:LogWarning,"FILES staged Song visible and reopened from temporary %u",unsigned(readback));}bool cleaned=RemoveProbeSong(m_Storage,save_probe_path);m_Logger.Write(FromKernel,LogNotice,"Project probe byte-readback %u cleaned %u path %s",unsigned(readback),unsigned(cleaned),save_probe_path);save_probe_path[0]=0;}else m_Logger.Write(FromKernel,saved?LogNotice:LogWarning,saved?"Project saved":"Project save failed; inspect SD");}}}
   if(performance.take_transfer_request()){
    bool idle=!updater->diagnostic_busy() && !ui_probe.busy() && !deployment_check.busy() && !(efficiency_probe && efficiency_probe->busy()) && !display_calibration.busy() && !fluid_probe.busy() && !updater->active() && !files.transfer_busy() && !(dsp_probe && dsp_probe->busy()) && !preset_check.busy() && !kit_check.busy() && !wave4_original && !native_running && !fx_stress_running && !(final_check && final_check->busy());
    bool opened=idle && QuiesceAudio(audio,*engine,performance,false) && file_transfer->Open(false);

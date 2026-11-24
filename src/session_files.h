@@ -1,5 +1,6 @@
 #pragma once
 #include "browser_folder.h"
+#include "browser_song.h"
 #include "twin_prepare.h"
 #include "preset_assets.h"
 #include "content_shelf.h"
@@ -757,15 +758,7 @@ public:
   copy_text(folder_directory_,sizeof folder_directory_,b.directory);folder_favorites_=b.favorites_only;
   if(!reset && b.folder_delta){int next=int(cursor)+b.folder_delta;cursor=unsigned(next<0?0:next);}b.folder_delta=0;
   BrowserFolder folder;bool ok=folder.read(fs_,b.directory,[&](FileEntry& entry){
-   if(!entry.directory && data_suffix(entry.name,".mgxs.tmp")){
-    char temp[192],main[192];
-    if(!join_path(temp,sizeof temp,b.directory,entry.name))return false;
-    entry.name[__builtin_strlen(entry.name)-4]=0;
-    if(!data_browser_entry(b.directory,entry.name,false) || !join_path(main,sizeof main,b.directory,entry.name) ||
-       fs_.exists(main) || data_content_kind(fs_,temp)!=unsigned(ContentKind::Song) || !valid_project_file(fs_,temp))return false;
-    entry.orphan_song=true;
-   }
-   if(!data_browser_entry(b.directory,entry.name,entry.directory))return false;
+   if(!resolve_browser_entry(fs_,b.directory,entry))return false;
    if(!b.favorites_only || entry.directory)return true;
    char path[160];if(join_path(path,sizeof path,b.directory,entry.name))for(const auto& asset:project_.assets)if(asset.metadata.favorite && !__builtin_strcmp(asset.path,path))return true;return false;
   });

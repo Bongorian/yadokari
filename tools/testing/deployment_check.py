@@ -14,7 +14,7 @@ MARKERS = {
     'DEPLOYCHECK': r'Deploy functional completed passed (\d+) ok 1 restored 1',
     'UITEST': r'UI-only diagnostic completed idle 1; no DSP or Fluid chaining',
     'PRESETCHECK': r'Preset functional check saved mounted 12/12 restored cleaned ok 1',
-    'SAVETEST': r'Project probe byte-readback 1 cleaned 1 path GROOVE/CHECK-\d+\.mgxs',
+    'SAVETEST': r'Project probe byte-readback 1 cleaned 1 path (?:PROJECTS|GROOVE)/CHECK-\d+\.mgxs',
 }
 
 
