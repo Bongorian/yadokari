@@ -4,7 +4,7 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
-## 1.0.25
+## 1.0.27
 
 - The factory synth library is swapped: 23 Wavetable sounds join -
   the ten audition presets and thirteen built on seven new morph
