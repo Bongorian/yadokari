@@ -794,8 +794,9 @@ auto UiRenderer::composition_panel(const ProjectState& p,const Performance& perf
   label_band(0,24,214,432,19,perf.notice_error()?perf.notice_text():"TOP 1 APPLY / TOP 2 CANCEL",perf.notice_error()?theme.warn:theme.secondary,Font::Small);
   label_band(1,24,214,432,19,action==BlockAction::Move?"MOVE":action==BlockAction::Clear?"CLEAR":"COPY",theme.text,Font::Body);return;
  }
+ for(unsigned side=0;side<2;++side)relief(side,12,76,456,137,theme.surface);
  label(0,24,85,perf.composition_dialog()==2?"DUPLICATE SCENE":"DUPLICATE + VARIATION",theme.text,Font::Heading,430);
- for(unsigned i=0;i<(perf.composition_dialog()==2?1u:2u);++i){auto shown=formatted_knob(p,perf,i);value_row(0,24,122+int(i)*34,430,30,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar});}
+ for(unsigned i=0;i<(perf.composition_dialog()==2?1u:2u);++i){auto shown=formatted_knob(p,perf,i);relief(0,19,120+int(i)*34,442,32,theme.raised);value_row(0,24,122+int(i)*34,430,28,{perf.knob_label(i),shown.text,perf.knob_normalized(i),ui::ValueShape::Bar});}
  label(1,24,85,perf.composition_dialog()==2?"SELECTED SCENE > EMPTY SLOT":"EDITED PATTERN > NEXT EMPTY",theme.secondary,Font::Small,430);
  value(1,24,112,70,perf.composition_dialog()==2?perf.scene_duplicate_source()+1:p.active_pattern+1,theme.text,Font::Number,0);
  label(1,24,155,"SOURCE KEPT / ONE UNDO",theme.secondary,Font::Body,430);
