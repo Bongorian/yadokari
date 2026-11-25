@@ -4,6 +4,23 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.0.25
+
+- The factory synth library is swapped: 23 Wavetable sounds join -
+  the ten audition presets and thirteen built on seven new morph
+  tables (Vowel, Harmbuild, Pwm, Stack, Digistep, Submorph and
+  Metallic, staged as card sample assets), every one carrying
+  sound-local modulation routes - plus the first four CHIMERA
+  factory sounds. Eight overlapping presets retire (JP-8000
+  Hypersaw, K5000+CZ Glass Duo, Psytrance Kick, FM Rimshot,
+  FM Clave, Frozen Cathedral, Alien Choir and Funk Chops 104).
+  Factory sounds now total 182.
+- The composed Startup demo song ships in FACTORY/DEMOS.
+- Display work is cheaper: LCD scan and packet preparation are
+  reduced, pad edges survive repeated pressure, and MK3 LED
+  brightness is corrected. The MK3 transport and the measured
+  Pi 5 display limits are documented.
+
 ## 1.0.23
 
 - WAVETABLE covers the full extended voice: warp modes (Bend, Sync,
