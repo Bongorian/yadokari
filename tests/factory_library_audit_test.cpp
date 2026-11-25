@@ -17,7 +17,7 @@ int main(int argc,char** argv){
  auto engine=std::make_unique<Engine>(48000);auto ui=std::make_unique<Performance>(*engine,*project);SessionFiles files(fs,library,*engine,*project,*ui);
  assert(engine->stage_project(*project));ui->project_loaded();float output[128];engine->render(output,64);ui->poll();
  auto browser=std::make_unique<BrowserState>(ui->browser());const auto report=audit_factory_library(files,fs,*ui);
- assert(report.complete && report.presets==163 && report.kits==24 && report.representative && !report.old_name && !report.old_formats);
+ assert(report.complete && report.presets==182 && report.kits==24 && report.representative && !report.old_name && !report.old_formats);
  assert(!__builtin_memcmp(browser.get(),&ui->browser(),sizeof *browser));assert(project->tracks[0].instrument==Instrument::Empty);
  // Follow the actual shared Browser LOAD action for the representative.
  auto& b=ui->browser();b.library_list=true;b.library_originals=true;b.library_kits=false;b.library_instrument=Instrument::Fm6;ui->set_mode(UiMode::Library);
@@ -28,5 +28,5 @@ int main(int argc,char** argv){
  uint8_t actual[3]{};unsigned got=0;assert(fs.read("PROJECTS/User.mgxs",0,actual,sizeof actual,got) && got==3 && !__builtin_memcmp(actual,user,3));
  assert(fs.write("FACTORY/PRESETS/LIBRARY/DX7 Lately Bass.mgxp",0,user,sizeof user,true));auto bad=audit_factory_library(files,fs,*ui);assert(bad.old_name && bad.old_formats==1);
  std::filesystem::current_path(cwd);std::filesystem::remove_all(root);
- std::puts("Factory Browser:163 presets+24 kits, pagination/engine filters, original state retained, TX81z LOAD/mount, stale factory detection and user bytes preserved passed");
+ std::puts("Factory Browser:182 presets+24 kits, pagination/engine filters, original state retained, TX81z LOAD/mount, stale factory detection and user bytes preserved passed");
 }

@@ -3,7 +3,7 @@
   "origin": "MGXC13 Factory normalization content/factory-normalization 2f1ab70d: 182 exact replacements (158 Preset + 24 Kit), 5 Presets unchanged; shared assets unchanged.",
   "format": 13,
   "codec_commit": "eda8742fa151b04d9891c1bdaf0d1aa466141e7f",
-  "presets": 163,
+  "presets": 182,
   "kits": 24,
   "files": [
     {
@@ -150,11 +150,6 @@
       "path": "PRESETS/Additive Bell.mgxp",
       "bytes": 7669,
       "sha256": "a04752913ea487625e3d8a997bedd63b3488f48819a176d82f710eb360102e9f"
-    },
-    {
-      "path": "PRESETS/Alien Choir.mgxp",
-      "bytes": 7662,
-      "sha256": "a97aad03bab332f5e298e07a1acb246a266ea0bb7e9cc01fb982171217b8536f"
     },
     {
       "path": "PRESETS/Alpha Juno Hoover.mgxp",
@@ -312,19 +307,9 @@
       "sha256": "8acf9a82855958139d54317d7b3509c2dd66bdb741fbd37d9469f916ee636053"
     },
     {
-      "path": "PRESETS/FM Clave.mgxp",
-      "bytes": 7580,
-      "sha256": "b5f650a5148db8254f3f2a0a8f90a928eef0f284f219ff3558b0a4143ed47dbe"
-    },
-    {
       "path": "PRESETS/FM Cowbell.mgxp",
       "bytes": 7582,
       "sha256": "d62daad0c24bbfcef21e6449fc87f9af7ea3a174dff1e2e2659fa29de5644661"
-    },
-    {
-      "path": "PRESETS/FM Rimshot.mgxp",
-      "bytes": 7582,
-      "sha256": "50c56e18678df2d63fa679a415a888c501c868ee194891018097d514fd5e449a"
     },
     {
       "path": "PRESETS/FM Rubber Bass.mgxp",
@@ -372,19 +357,9 @@
       "sha256": "46f3d1692b65f32fe1f49f6b609582ad1cdddb5edb05cab43c57dff456211708"
     },
     {
-      "path": "PRESETS/Frozen Cathedral.mgxp",
-      "bytes": 7853,
-      "sha256": "005743af8ca0442fb31b0d773d2726c83a838a223ef5cb407f8c34f7e44b06c5"
-    },
-    {
       "path": "PRESETS/Frozen Choir.mgxp",
       "bytes": 7663,
       "sha256": "350fe8ce71fe20e43afcce319a0eba148db9d7c37c80f03794b91c0b4f79d91f"
-    },
-    {
-      "path": "PRESETS/Funk Chops 104.mgxp",
-      "bytes": 8012,
-      "sha256": "9528ab6dd28d24715740d7bc212441f0523a8b3f88aaa97d18647c2db5be597d"
     },
     {
       "path": "PRESETS/GM Choir Aahs.mgxp",
@@ -512,11 +487,6 @@
       "sha256": "00e3ba4f902383c196138a68082a1ee38481d5d75a99f30c1488efca7781f962"
     },
     {
-      "path": "PRESETS/JP-8000 Hypersaw.mgxp",
-      "bytes": 7874,
-      "sha256": "5a527d2249d6bb753a3fb3e71a874069df63b9500239d536b34ab62c1954d285"
-    },
-    {
       "path": "PRESETS/JP-8000 Supersaw.mgxp",
       "bytes": 7874,
       "sha256": "4b6563bcd4d374e923b0e1d1bafd150de120464ebd65a4f43062cf980b274633"
@@ -540,11 +510,6 @@
       "path": "PRESETS/Jupiter-8 Pad.mgxp",
       "bytes": 7871,
       "sha256": "0f75e9bced6b68b9baa9a876c27b02eb8d4dcefdc0b601cc1dac491946f3a47d"
-    },
-    {
-      "path": "PRESETS/K5000+CZ Glass Duo.mgxp",
-      "bytes": 7808,
-      "sha256": "e04f09524d01cda02292c48e429e9a537f75532d6f1c7c1948ef06ee7c8e1e20"
     },
     {
       "path": "PRESETS/Kalimba.mgxp",
@@ -715,11 +680,6 @@
       "path": "PRESETS/Psytrance Bass.mgxp",
       "bytes": 7673,
       "sha256": "da45dd28bc72b0d7e5c04215f03f39a4da166857396da77fa3eddde0960a45dd"
-    },
-    {
-      "path": "PRESETS/Psytrance Kick.mgxp",
-      "bytes": 7596,
-      "sha256": "08e334b775edff3368c5ff145c505d2952e7287b9913811c895deec1ecc8e24c"
     },
     {
       "path": "PRESETS/Pure Sub.mgxp",
@@ -940,6 +900,141 @@
       "path": "PRESETS/Wobble Bass.mgxp",
       "bytes": 7723,
       "sha256": "2f52dc466a019c7dc337c2038261c2849f7f39b0ae8f0ce887f62b60af72512f"
+    },
+    {
+      "path": "PRESETS/Asym Growl Bass.mgxp",
+      "bytes": 7679,
+      "sha256": "bf667b0c1c1ced2e3cbc91fe1e50e58edb5997a2872b23030c5d80646debf80a"
+    },
+    {
+      "path": "PRESETS/Bend Bass.mgxp",
+      "bytes": 7673,
+      "sha256": "b83bb8bbfee43d7a52c613174cbf915787a962d778d0f190e7e4a28c61c0de61"
+    },
+    {
+      "path": "PRESETS/JP Supersaw.mgxp",
+      "bytes": 7671,
+      "sha256": "5639dd80dbf37c204fb2b316a28ac8387413177aaf38894c3d8b0dbfd57672da"
+    },
+    {
+      "path": "PRESETS/PM Bell.mgxp",
+      "bytes": 7671,
+      "sha256": "00302959ed60bc283481576ec1556b86fa2802bcc738e9c8ed677d3de2948722"
+    },
+    {
+      "path": "PRESETS/PM Sub Bass.mgxp",
+      "bytes": 7675,
+      "sha256": "433bd6f80c33274c6573fd72fcb3278a7a866bafbce1e8961a27b8e16bffd900"
+    },
+    {
+      "path": "PRESETS/PPG Sync Lead.mgxp",
+      "bytes": 7677,
+      "sha256": "c701174def663f1626022291c0eb33beb1a626729d91a41ab1c19d36272c4ea6"
+    },
+    {
+      "path": "PRESETS/PWM String Pad.mgxp",
+      "bytes": 7702,
+      "sha256": "0ee20c34a10f5b0a94d7cc5ab3532c100a7b8be6677874db57f1ff43dda1530c"
+    },
+    {
+      "path": "PRESETS/Prism Keys.mgxp",
+      "bytes": 7662,
+      "sha256": "f3526d713a4ffcf9a31ce2cad1b7a892916deb74fe20fd14750cdbe5f56c60a7"
+    },
+    {
+      "path": "PRESETS/Reed Morph Pad.mgxp",
+      "bytes": 7690,
+      "sha256": "a30cc4d188dc5856fff3f8e18bfc9307155a0e6533838fb75094ff87d2ee5011"
+    },
+    {
+      "path": "PRESETS/Unison Pluck.mgxp",
+      "bytes": 7672,
+      "sha256": "cc884bc77a882c41d8d6be5e7720c921f11693be26e4588cd2a547b88e9fe407"
+    },
+    {
+      "path": "PRESETS/Analog Stack Bass.mgxp",
+      "bytes": 7669,
+      "sha256": "00f4321b40281ac49775ceebcf6215c809d16ee12d10a6b0a7e379050ab13a8e"
+    },
+    {
+      "path": "PRESETS/Digital Crush Bass.mgxp",
+      "bytes": 7698,
+      "sha256": "6d7bd570a6d6ff699d40bf68ab9bf9712f78c6259d4e40fdf46bfeedc15be2fa"
+    },
+    {
+      "path": "PRESETS/Digital Step Keys.mgxp",
+      "bytes": 7693,
+      "sha256": "65557526e1c2c7efbffad7756571f0799cdb563497611e59930e4d71ced74225"
+    },
+    {
+      "path": "PRESETS/Harmonic Build Keys.mgxp",
+      "bytes": 7695,
+      "sha256": "2bfb59f4bf700d7d00100af4715de10b5ec8d684985ff4ad11d5e25d6870c890"
+    },
+    {
+      "path": "PRESETS/Metallic Bell Keys.mgxp",
+      "bytes": 7698,
+      "sha256": "fa61222074f93e6ea79e3a6b29d4dcb86e6da213ec02aa8c9f3f402e595eeed2"
+    },
+    {
+      "path": "PRESETS/Metallic Shimmer Pad.mgxp",
+      "bytes": 7696,
+      "sha256": "331ba29c2bd634e0e3a4606a26dd73c32e67845e7d58c4144dfd8e1ce42f6f03"
+    },
+    {
+      "path": "PRESETS/PWM Solo Lead.mgxp",
+      "bytes": 7689,
+      "sha256": "0b168b01eebcd5a09fad8068b94951846c3a9760d4695d4ccbf3be0422a4f6c2"
+    },
+    {
+      "path": "PRESETS/PWM String Machine.mgxp",
+      "bytes": 7694,
+      "sha256": "51c390127a025a6649ef8f32b67c17f84874a4f1ed3d7692c4f815a02f626616"
+    },
+    {
+      "path": "PRESETS/Spectral Sweep Pad.mgxp",
+      "bytes": 7694,
+      "sha256": "5cd32a6fde4a9680fd497a5bfb5d37ac922002936c1c325742ab0f58d8b81270"
+    },
+    {
+      "path": "PRESETS/Stack Supersaw Lead.mgxp",
+      "bytes": 7695,
+      "sha256": "c05df1b0130b36a70eb3fc4f23cfb9dcc3fd99116a84669fa7131702f3928fb5"
+    },
+    {
+      "path": "PRESETS/Sub Morph Bass.mgxp",
+      "bytes": 7666,
+      "sha256": "419f83a32f4f92358c895062bdb4be767cf1bbd5eb0b794994f9ac3fa5b228b2"
+    },
+    {
+      "path": "PRESETS/Vowel Growl Bass.mgxp",
+      "bytes": 7668,
+      "sha256": "09fdde7b89a8ac357139f4c6b50a0766631eef3b53ececa498d005d9d6e4d406"
+    },
+    {
+      "path": "PRESETS/Vowel Talk Pad.mgxp",
+      "bytes": 7690,
+      "sha256": "5e6fb9df0747dee701d39d1da26ab0905eb15b6392068e8b68597e1759affec3"
+    },
+    {
+      "path": "PRESETS/Chimera Beast Bass.mgxp",
+      "bytes": 7683,
+      "sha256": "396b235ee22dfc935d527c38a0a236e572e559a51de64c2a2706604b93013765"
+    },
+    {
+      "path": "PRESETS/Chimera Child Lead.mgxp",
+      "bytes": 7711,
+      "sha256": "e413dc94f7d38df02e9ab2da4e7bfde5696b561c270f7334c9819daf84af9d87"
+    },
+    {
+      "path": "PRESETS/Chimera Choir.mgxp",
+      "bytes": 7706,
+      "sha256": "53f3e7848f820720530a572e5c325ee60addab5c3bac89194a7f250c79b9ad77"
+    },
+    {
+      "path": "PRESETS/Chimera Solo Voice.mgxp",
+      "bytes": 7683,
+      "sha256": "6cb761cef246555002d8fc05fd3f3aa8fee76decce087e191c9b5e7e7aa703cc"
     }
   ],
   "assets": [
@@ -1796,6 +1891,55 @@
       "crc32": 166052699,
       "sha256": "b32bf691707d2497726a2acb06ca3e5042b275d3384c122a26d63bf6d4f68189",
       "source": "assets/factory-library/sampler/M-Vibraphone.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Vowel.wav",
+      "bytes": 58356,
+      "crc32": 2957687827,
+      "sha256": "5686aea9e505da880e0085bdc32089ee39d89e98da6d18307c52fce439758686",
+      "source": "assets/factory/wavetables/WT-Vowel.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Harmbuild.wav",
+      "bytes": 58356,
+      "crc32": 3165445294,
+      "sha256": "414b3f47fd9800da6b710fde7fc9f3b002f248710fae3c85be39a7de82e9624b",
+      "source": "assets/factory/wavetables/WT-Harmbuild.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Pwm.wav",
+      "bytes": 58356,
+      "crc32": 124475030,
+      "sha256": "2eb8d01cf0fbd1c8933e196a598a1b44fa28c81d8197c58fa3700eb4c9de9b1a",
+      "source": "assets/factory/wavetables/WT-Pwm.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Stack.wav",
+      "bytes": 58356,
+      "crc32": 1405951343,
+      "sha256": "6448240540c19ba239a9956b9b778811330b0acc8f49b468727b98255d83474b",
+      "source": "assets/factory/wavetables/WT-Stack.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Digistep.wav",
+      "bytes": 58356,
+      "crc32": 2078014890,
+      "sha256": "0b6592b8b0207ecea9ac6e9f2ba9234854c1c7a6c111d2055f8fef1aeb501ee4",
+      "source": "assets/factory/wavetables/WT-Digistep.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Submorph.wav",
+      "bytes": 58356,
+      "crc32": 574047777,
+      "sha256": "d58c3e8a0ccd41bbb588c5332ded1755f22f0041209a2fc3389d85e36fbbc5ac",
+      "source": "assets/factory/wavetables/WT-Submorph.wav"
+    },
+    {
+      "path": "ASSETS/SAMPLES/WT-Metallic.wav",
+      "bytes": 58356,
+      "crc32": 2444604619,
+      "sha256": "54ae7be27102deaef9cea079fe2f5cfe4a1c83b41b51789b66bfb9d754ae5313",
+      "source": "assets/factory/wavetables/WT-Metallic.wav"
     }
   ],
   "soundfont_source": "Existing DATA FluidR3 GM.sf2; set FACTORY_SOUNDFONT to this exact file when staging a fresh SD; SF2 audio is not embedded in firmware",

@@ -348,14 +348,6 @@
       "parent_revision": 0
     },
     {
-      "master": "PRESETS/FM Clave.mgxp",
-      "guid": "f0e8158973e63d9ebd3ea4f208c23501",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
       "master": "PRESETS/FM Cowbell.mgxp",
       "guid": "f0b7f6684d0f17ea35ae4c7c71d574b8",
       "revision": 2,
@@ -468,14 +460,6 @@
       "parent_revision": 0
     },
     {
-      "master": "PRESETS/JP-8000 Hypersaw.mgxp",
-      "guid": "f029531897b517dfcf638198e1a98ba0",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
       "master": "PRESETS/JP-8000 Supersaw.mgxp",
       "guid": "f0ee841f570cb8f87591fabcc488a0fb",
       "revision": 2,
@@ -502,14 +486,6 @@
     {
       "master": "PRESETS/Jupiter-8 Pad.mgxp",
       "guid": "f08a12ad5bf7f6ff17c1604b2dbd50dc",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
-      "master": "PRESETS/K5000+CZ Glass Duo.mgxp",
-      "guid": "f095b5204f8768bf994622206cd4914b",
       "revision": 2,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
@@ -630,14 +606,6 @@
     {
       "master": "PRESETS/Psytrance Bass.mgxp",
       "guid": "f078050267dd594be40ff23287384ed4",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
-      "master": "PRESETS/Psytrance Kick.mgxp",
-      "guid": "f000e8a384b6b0d6fd651f9881a1a50f",
       "revision": 2,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
@@ -844,14 +812,6 @@
       "parent_revision": 0
     },
     {
-      "master": "PRESETS/Funk Chops 104.mgxp",
-      "guid": "fbdb9c38bf115a85b840139f891fa931",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
       "master": "PRESETS/House Loop 124.mgxp",
       "guid": "9f1ffe7fc1f756348deb5dd7c760a80c",
       "revision": 2,
@@ -988,14 +948,6 @@
       "parent_revision": 0
     },
     {
-      "master": "PRESETS/Alien Choir.mgxp",
-      "guid": "f807a3e80f6f5d88972a1030bd8bc4dc",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
       "master": "PRESETS/VOSIM Chant.mgxp",
       "guid": "5379a4d022015d71975e875a4cf6b4a0",
       "revision": 2,
@@ -1095,14 +1047,6 @@
       "master": "PRESETS/Screech Lead.mgxp",
       "guid": "b75740ccaa2b546f9e93f1224b587912",
       "revision": 1,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
-      "master": "PRESETS/Frozen Cathedral.mgxp",
-      "guid": "c93412a3c4ff5ab6a22f190964c9f1c9",
-      "revision": 2,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -1238,14 +1182,6 @@
     {
       "master": "PRESETS/Metallic Ride.mgxp",
       "guid": "55145abe28b850cd9dd42f1f1866f0cc",
-      "revision": 2,
-      "origin": "Factory",
-      "parent_guid": "00000000000000000000000000000000",
-      "parent_revision": 0
-    },
-    {
-      "master": "PRESETS/FM Rimshot.mgxp",
-      "guid": "e34b779a253c520783a2051d8417350e",
       "revision": 2,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
@@ -1495,6 +1431,222 @@
       "master": "PRESETS/Harmonic Morph Bell.mgxp",
       "guid": "c92b48ee2ade50689ca0fab0bdc164bf",
       "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Asym Growl Bass.mgxp",
+      "guid": "75ab31ca6a605bc2b66a1da88f97f429",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Bend Bass.mgxp",
+      "guid": "4b39a93da85657bf82ee71bc82371ce1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/JP Supersaw.mgxp",
+      "guid": "da08b21153a25ee59108a9750de7ae6b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PM Bell.mgxp",
+      "guid": "fcaf1d3f28ae5bc2ba2584107381474a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PM Sub Bass.mgxp",
+      "guid": "e3d1d7a5a83d5b72a9ebbd97dbba474b",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PPG Sync Lead.mgxp",
+      "guid": "79297a5f051652039f3676d24e904fd8",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PWM String Pad.mgxp",
+      "guid": "e420ec7cc27e5ca49275056ed1d258c9",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Prism Keys.mgxp",
+      "guid": "84db879d3aa5546fa3fbbd23f60ca0c1",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Reed Morph Pad.mgxp",
+      "guid": "ebbd4efd73b55a07ab203c0acaab287a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Unison Pluck.mgxp",
+      "guid": "9b91ea57bb345fbf805eeeaaad944f24",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Analog Stack Bass.mgxp",
+      "guid": "7af03de4ed385a38a8cd2f0158f9cb33",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Digital Crush Bass.mgxp",
+      "guid": "1142c1b0aa605dfa811ff88e7ea6af3a",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Digital Step Keys.mgxp",
+      "guid": "2bf0fc8a408b59feaf0505e408b22f31",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Harmonic Build Keys.mgxp",
+      "guid": "d522243f9bf7572a90b74627f1efc033",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Metallic Bell Keys.mgxp",
+      "guid": "35a8656d37655e0e9f014325c37125d2",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Metallic Shimmer Pad.mgxp",
+      "guid": "600c3b1dfa19539cb36ed8e5d94fa87f",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PWM Solo Lead.mgxp",
+      "guid": "1a0b5b69a7da5d7aa7d1e386b2337dcc",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/PWM String Machine.mgxp",
+      "guid": "4ef080586d505f32b82dcdddbaeee17e",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Spectral Sweep Pad.mgxp",
+      "guid": "fb7731a401c35461b5cd4ec0dd8a409c",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Stack Supersaw Lead.mgxp",
+      "guid": "829dd4787f3d534981a1ba8b852dedd3",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Sub Morph Bass.mgxp",
+      "guid": "fb552e075da45d54b57b7dc7da8c04ff",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Vowel Growl Bass.mgxp",
+      "guid": "ac6eaceea0c65e949bfe964d1969e13d",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Vowel Talk Pad.mgxp",
+      "guid": "b90d2b6050715b0e981bf86bf56d772d",
+      "revision": 2,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chimera Beast Bass.mgxp",
+      "guid": "58f88c9bc70650a5b0208cf94deba43e",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chimera Child Lead.mgxp",
+      "guid": "f5d81f172a345d339e7a68f56b7428a8",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chimera Choir.mgxp",
+      "guid": "fec4f63c52a55c1283e5224ee1ace52c",
+      "revision": 1,
+      "origin": "Factory",
+      "parent_guid": "00000000000000000000000000000000",
+      "parent_revision": 0
+    },
+    {
+      "master": "PRESETS/Chimera Solo Voice.mgxp",
+      "guid": "bbb0065ea9165ef0a7becd0d2dd90213",
+      "revision": 1,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
