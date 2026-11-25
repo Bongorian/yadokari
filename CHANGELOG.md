@@ -4,6 +4,33 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.0.23
+
+- WAVETABLE covers the full extended voice: warp modes (Bend, Sync,
+  PWM, Asym), an internal two-operator phase modulator, stereo unison
+  up to 7 voices with band-limited rendering, modulation routing for
+  POSITION, WARP AMT, PM AMT and DETUNE, and morph-table assets (YWT1)
+  that the converter builds from single-cycle waveforms. Admission
+  accounts oscillators per rendering path at measured costs, including
+  notes held while modulation moves them into the extended path.
+- Song arranging grows up: sections move and duplicate from the
+  arranger action bank, a rectangle of steps moves across tracks and
+  patterns as one undoable edit, and groove templates travel with the
+  Song. Files lists orphaned staged Song saves under their canonical
+  names so an interrupted save can be opened and recovered.
+- Sounds can carry up to four sound-local modulation routes from the
+  LFO, envelope, pressure and velocity. Project routes override them,
+  and they stay dormant while the sound is a Layer leaf.
+- Instrument screens are refreshed across both LCDs: layered
+  instrument surfaces, unified controls, calibrated mixer meters and
+  a screen atlas checked against all nine themes. Full-page display
+  latency on Pi 5 is measured and documented.
+- Factory kits are revision 3: pad levels are restored to the source
+  material and lifted uniformly, keeping the pad balance of each kit.
+- The sampler idle screen labels its input REC SOURCE.
+- Pi 5 only: the Pi 4 build waits for the extended Wavetable
+  mixed-load qualification; Pi 4 units stay on 1.0.5 for now.
+
 ## 1.0.5
 
 - Added Ethernet Network MIDI (RTP-MIDI / AppleMIDI). Enable NETWORK MIDI
