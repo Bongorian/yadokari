@@ -1,6 +1,6 @@
 {
-  "revision": 14,
-  "sha256": "097ca32fdff16d9f53a2b014cbe1d44dd80568864d8a0f9463b7741d6bafbf37",
+  "revision": 15,
+  "sha256": "6c46b2327f03649f139ffbfdd4153d9eeb6d80321ebaae9547b5a55b1589c9b0",
   "files": [
     {
       "path": "FACTORY/DRUMS/Circuit-Clap.wav",
@@ -135,122 +135,122 @@
     {
       "path": "FACTORY/KITS/LIBRARY/606 Acid.mgxk",
       "size": 13243,
-      "sha256": "ebe8eeb07cd11ab8eba3200a6b80505d1d06052839e5108923823c34fa19657f"
+      "sha256": "a406dd4c491a9f1d485eb3293c237f15f87ab678eea4009e75003a20a1be9b91"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/707 House.mgxk",
       "size": 13244,
-      "sha256": "4c71556705baf44b38565540d2a1677bfa240c56bca0e698b70e216163b354ad"
+      "sha256": "e3bf47ab253af369e5ed23e465e3830afeefaf0e1a7125db40bae25f6496430c"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/727 Latin.mgxk",
       "size": 13244,
-      "sha256": "8f7bf415d4240a0905c49cd4bfa17b97bc15c3d46cfb23be4cc26c6ce0f2d82c"
+      "sha256": "f7b8446f0cca337e04a5d7a70ef9bf3618ac7968d04840c3610f1d40de702c3c"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/808 Classic.mgxk",
       "size": 13246,
-      "sha256": "f9a0ee9e8ab9729928c217319e2d70ff89155cc9f6469624c2f67887608cdaec"
+      "sha256": "71d2b23987057993bcef631562365d047e448cbcc575fb600e09ece171edeeeb"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/909 Classic.mgxk",
       "size": 13246,
-      "sha256": "3986e559e46f2a5a3ef80ebc88968d71ef8137088b5246e0530ab747e3c0f115"
+      "sha256": "b29384ade8e60f35bc40d0b1d916d31eec2ec6f405bc07f07600ab2fff54109a"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Acoustic Jazz.mgxk",
       "size": 13248,
-      "sha256": "bc60749427ff692fc08e59b13881e91dfd8c94c0519e0c349d774d164323529a"
+      "sha256": "e6b7f4644f19258eaf0f205ff630f51b428cc6ded56649695d5fe1bd237fb35d"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Acoustic Studio.mgxk",
       "size": 13250,
-      "sha256": "cba7d4747cdb37683b03941a1cb2dec26ef8b2e113518ed950eb394984c8bf68"
+      "sha256": "a1826bcded8ca795c78eb8b145c4e20aab3f77b18e919dca55ac9ea140dbb997"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Ambient Percussion.mgxk",
       "size": 13253,
-      "sha256": "efe44c136a8def0c721b41cf8dfaff1637c6d1ab08665135de381ab486351bc3"
+      "sha256": "445ead9287b788d43b5c6c4e09155070f7a68bbdf08a6aacaee7c938db762b10"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Boom Bap.mgxk",
       "size": 13243,
-      "sha256": "abb7aabb2d7acf258d6e38200bfc8149ae16ea8c27fdf6473ffbe2ba73b88c39"
+      "sha256": "4c6bd28ca37121898ca8778eddf7e2fd023ccae0a2860de90d375edb085ec5c1"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Breakbeat Jungle.mgxk",
       "size": 13251,
-      "sha256": "b918b1ea136e4102642537940d350130c95589a08ee516ff7d2a86cb672c6979"
+      "sha256": "5a1685d12db2af2c834428689095798fc539fe49f68e9599ab361b17dd4fc556"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/CR-78 Vintage.mgxk",
       "size": 13248,
-      "sha256": "176f72d08d85f8021f62a077bb44f55721d758608ba0237b05f00e7a171e00c6"
+      "sha256": "2cf1cf28771f3e8451031bab0b1a8bbb0486f4c3f0946e6ecdecd57ef3484fb8"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/DMX Drumtraks.mgxk",
       "size": 13248,
-      "sha256": "20333d98823e6179ba54dc90dc0b57254ba407d33b7425908b60fa56637ab1f0"
+      "sha256": "ef08d8d154f7535a5debdbe2a5c86fe72ea77f1e027e5aa2f8a5d03c5c5f459c"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Deep House.mgxk",
       "size": 13245,
-      "sha256": "a2d009f8864e306f5f090c184106d38c12d9ca128ab9cbdec98033342207f1ce"
+      "sha256": "db01099dc86a7c9d0bdb8a9ecb222ec9a3ceb90e40f8acb0e86de106ec139e6e"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Disco Funk.mgxk",
       "size": 13245,
-      "sha256": "31527a4a35ffa84d5671a2c843400f29d887dd8d366f37f3382832ce7fd70ce1"
+      "sha256": "aa66471513feb7fc05fe65858f20768a3c7f0ef92146757ef4286f3da96cff04"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Electro.mgxk",
       "size": 13242,
-      "sha256": "afc70c4969f3b1861d398ca51957dad06e23f704f41142c7f8173cd63a214033"
+      "sha256": "d70d2cb2c13df47382d2d8527da734d72b15b5c644f38e9f14caf92ff43edef8"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Glitch Experimental.mgxk",
       "size": 13254,
-      "sha256": "63e65ae6c0e656d4519441cc257fe6b53a2ebf062f35281751ccee700fd0c9df"
+      "sha256": "5e657417d11a9cab753499d62d03bf67e8ef50a8a4ef808c44c05c24ba3d58e4"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Hard Techno.mgxk",
       "size": 13246,
-      "sha256": "4cf358246ff6dd2a834982c8c0b2c857098422e944004a5e7a43fee263ef57ca"
+      "sha256": "fe86335d4b9500caf3749d191a14f756df3164ea6f9af5603dd69275452a8177"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Industrial Techno.mgxk",
       "size": 13252,
-      "sha256": "6d164a35aa380f4a9add7bab9a9e4f38aeb5093ccaa1f4d2d46bac58f4dde953"
+      "sha256": "2eb91e1e661ca4894e41c0af9a3408c4d71f39ec3c8b031d8abc2f1ab5ca25dc"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/LinnDrum LM-2.mgxk",
       "size": 13248,
-      "sha256": "e594347cf4b03becc18cd14a795625d55a9552ebb404a159043429284f6401b6"
+      "sha256": "ab7626237bec07e1245ec2fc041da011ba00907c9b6b7724599a0f4bfa9a6eb0"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Lo-fi Hip-Hop.mgxk",
       "size": 13248,
-      "sha256": "967acae27148476a4ffaba7cb65724789f447e565bd7493f91981cc0d1152d0f"
+      "sha256": "b162f2022fe47fbcf204361097a334ae79e6c674795621e93f8ce8a4a168589b"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Melodic Techno.mgxk",
       "size": 13249,
-      "sha256": "d5b8b6f1f81ebfaf9432d2bf0201db738b84cabe40dcfa1330008d041e26a343"
+      "sha256": "a3e68a4ea6130d9b92128cb21ee23d1163a6635c9a59f866708cddc8e2e37c19"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Minimal Techno.mgxk",
       "size": 13249,
-      "sha256": "66c0fead4d35bc053dd09fc31ef33a8d94cf361aa7ab5fed78bc1e472483bcfb"
+      "sha256": "6d35ab85c50422c0d54f213321c8f9c474974d105607f93817ba2a373b8e7ec5"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Psytrance.mgxk",
       "size": 13244,
-      "sha256": "c8b70ac050cec89819092b4527c541653c552d50472d71eb02a737f0d65c5e8d"
+      "sha256": "5a803cfae8a6d7dd130c68c40ea4d79713bbcc91e57fc22db16ff38a8185d419"
     },
     {
       "path": "FACTORY/KITS/LIBRARY/Trap Drill.mgxk",
       "size": 13245,
-      "sha256": "997aa10ddbc36abae220d794166935c4d11ed1517c42db13b06862758ef7b5d0"
+      "sha256": "e7743f7ba7dd9703bddbd97f5f18251b0208f0ae968bedc319f5516c1844d805"
     },
     {
       "path": "FACTORY/KITS/Wood.mgxk",

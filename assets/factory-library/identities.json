@@ -6,7 +6,7 @@
     {
       "master": "KITS/606 Acid.mgxk",
       "guid": "f0c9dcb0db4e4cd0417129bca4388d35",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -14,7 +14,7 @@
     {
       "master": "KITS/707 House.mgxk",
       "guid": "f09b0008e313f85ec90087ccd4e752de",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -22,7 +22,7 @@
     {
       "master": "KITS/727 Latin.mgxk",
       "guid": "f008b343603908180b34a27bb8f44f9e",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -30,7 +30,7 @@
     {
       "master": "KITS/808 Classic.mgxk",
       "guid": "f00046c5aa4b6a684f6b3d735feec079",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -38,7 +38,7 @@
     {
       "master": "KITS/909 Classic.mgxk",
       "guid": "f0900c401c9084eba54c4b9e5388c55c",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -46,7 +46,7 @@
     {
       "master": "KITS/Acoustic Jazz.mgxk",
       "guid": "f00b547c6cd06e2df20c9f326177597e",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -54,7 +54,7 @@
     {
       "master": "KITS/Acoustic Studio.mgxk",
       "guid": "f0b204bfef51a055371af6dbc6a164f0",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -62,7 +62,7 @@
     {
       "master": "KITS/Ambient Percussion.mgxk",
       "guid": "f02487d9ba76604ab1194a716de2d4fc",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -70,7 +70,7 @@
     {
       "master": "KITS/Boom Bap.mgxk",
       "guid": "f017d6a5f6486f25a1e70ca16ae8afec",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -78,7 +78,7 @@
     {
       "master": "KITS/Breakbeat Jungle.mgxk",
       "guid": "f04056dd07e6462c2974cb0a0fcc2173",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -86,7 +86,7 @@
     {
       "master": "KITS/CR-78 Vintage.mgxk",
       "guid": "f018a5e2af8d6ba6a59bb2aa5c67d3c4",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -94,7 +94,7 @@
     {
       "master": "KITS/DMX Drumtraks.mgxk",
       "guid": "f03667b6fa988f6ea0c440f2169b0bd0",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -102,7 +102,7 @@
     {
       "master": "KITS/Deep House.mgxk",
       "guid": "f092a157ec7fcfdb671d39dac486176b",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -110,7 +110,7 @@
     {
       "master": "KITS/Disco Funk.mgxk",
       "guid": "f05cccac3d971b1c843f0295563c66e6",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -118,7 +118,7 @@
     {
       "master": "KITS/Electro.mgxk",
       "guid": "f07dfd245c92a0751ac1f46b662e988d",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -126,7 +126,7 @@
     {
       "master": "KITS/Glitch Experimental.mgxk",
       "guid": "f0ffa959c671df94c818465ae4fddbb5",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -134,7 +134,7 @@
     {
       "master": "KITS/Hard Techno.mgxk",
       "guid": "f0ad41f64365a6139699805bdad2aef4",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -142,7 +142,7 @@
     {
       "master": "KITS/Industrial Techno.mgxk",
       "guid": "f08db5731eea231334d07c6dda1ce569",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -150,7 +150,7 @@
     {
       "master": "KITS/LinnDrum LM-2.mgxk",
       "guid": "f0a4d563c95b214093ff71ce800dc15b",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -158,7 +158,7 @@
     {
       "master": "KITS/Lo-fi Hip-Hop.mgxk",
       "guid": "f0e5e2fcc39a2703c540f074db6d0fc2",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -166,7 +166,7 @@
     {
       "master": "KITS/Melodic Techno.mgxk",
       "guid": "f01633bde71270bdcab63e7cdf7acedc",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -174,7 +174,7 @@
     {
       "master": "KITS/Minimal Techno.mgxk",
       "guid": "f0a4f1b6c5d9e7f679027b95453fc63a",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -182,7 +182,7 @@
     {
       "master": "KITS/Psytrance.mgxk",
       "guid": "f0ef48dbb41bbd70d2948ee052abcff2",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
@@ -190,7 +190,7 @@
     {
       "master": "KITS/Trap Drill.mgxk",
       "guid": "f067d63e73a816146b3138f244b53685",
-      "revision": 2,
+      "revision": 3,
       "origin": "Factory",
       "parent_guid": "00000000000000000000000000000000",
       "parent_revision": 0
