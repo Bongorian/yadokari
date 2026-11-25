@@ -13,12 +13,21 @@ struct PreparedDisplayRect {
 struct DisplayScanPlan {
  int left[17]{},right[17]{};
  void scan(const uint32_t* pixels,const uint16_t* shadow,const bool valid[17],ui::PixelOrder order){
-  for(unsigned band=0;band<17;++band){left[band]=480;right[band]=-1;
-   for(unsigned y=band*16;y<(band+1)*16;++y)for(unsigned x=0;x<480;++x)
-    if(!valid[band] || ui::pack565(pixels[y*480+x],order)!=shadow[y*480+x]){
-     if(int(x)<left[band])left[band]=int(x);
-     if(int(x)>right[band])right[band]=int(x);
+  for(unsigned band=0;band<17;++band){
+   if(!valid[band]){left[band]=0;right[band]=479;continue;}
+   int lo=480,hi=-1;
+   for(unsigned y=band*16;y<(band+1)*16 && (lo>0 || hi<479);++y){
+    const unsigned row=y*480;
+    int x=0;
+    while(x<lo && ui::pack565(pixels[row+x],order)==shadow[row+x])++x;
+    // Until the first difference the prefix already covers the entire row.
+    if(x==480)continue;
+    lo=x;
+    for(x=479;x>hi && x>=lo;--x){
+     if(ui::pack565(pixels[row+x],order)!=shadow[row+x]){hi=x;break;}
     }
+   }
+   left[band]=lo;right[band]=hi;
   }
  }
  void acknowledged(unsigned first,unsigned rows){if(first>=17 || rows%16 || rows/16>17-first)return;for(unsigned b=first;b<first+rows/16;++b){left[b]=480;right[b]=-1;}}

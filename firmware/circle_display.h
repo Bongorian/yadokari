@@ -150,6 +150,7 @@ public:
   if(next_packet){auto* page=m_Packets[side];m_Packets[side]=m_NextPackets[side];m_NextPackets[side]=page;}
   auto* transfer=new Mk3DisplayTransfer{};if(!transfer){Invalidate();return false;}
   unsigned started=CTimer::GetClockTicks();
+  transfer->count_commands=m_TraceCapturing;
   if(!m_Device->Submit(m_Packets[side],rect.bytes,transfer)){delete transfer;Invalidate();return false;}
   ++m_Submitted;m_Bytes+=rect.bytes;m_PendingBytes[side]=rect.bytes;
   m_Pending[side]={transfer,m_Worker?m_WorkPixels[side]:nullptr,started,m_Epoch,prepared_frame,rect.first,rect.y,rect.rows,rect.left,rect.width,rect.last,false};m_Pending[side].job=m_JobId[side];return true;

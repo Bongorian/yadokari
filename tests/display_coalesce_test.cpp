@@ -31,6 +31,24 @@ static unsigned render(bool combined,unsigned pattern,ui::PixelOrder order,unsig
  return count;
 }
 int main(){
+ // Four equal pixel pairs straddle two strided rows. The neighboring sentinel
+ // pixels must never reach the wire. An undersized packet stays in bounds.
+ {
+  uint32_t pixels[2*480];for(auto& pixel:pixels)pixel=0xffffff;
+  for(unsigned y=0;y<2;++y)for(unsigned x=4;x<8;++x)pixels[y*480+x]=0x7f8000;
+  uint8_t packet[32]{};packet[23]=0x55;
+  assert(!pack_display_pairs(pixels,0,4,4,2,ui::PixelOrder::RGB,packet,23) && packet[23]==0x55);
+  assert(pack_display_pairs(pixels,0,4,4,2,ui::PixelOrder::RGB,packet,24)==24);
+  assert(packet[16]==1 && packet[17]==0 && packet[18]==0 && packet[19]==4);
+  for(unsigned i:{20u,22u})assert((unsigned(packet[i])<<8|packet[i+1])==ui::pack565(0x7f8000));
+ }
+ {
+  // A four-pair run surrounded by two literal pairs stays in one command.
+  uint32_t pixels[12]{};pixels[0]=0xff0000;pixels[11]=0x00ff00;
+  uint8_t packet[44]{};
+  assert(pack_display_pairs(pixels,0,0,12,1,ui::PixelOrder::RGB,packet,sizeof(packet))==44);
+  assert(packet[16]==0 && packet[19]==6);
+ }
  for(auto order:{ui::PixelOrder::RGB,ui::PixelOrder::BGR})for(unsigned side=0;side<2;++side)for(unsigned pattern=0;pattern<3;++pattern){unsigned old=render(false,pattern,order,side),now=render(true,pattern,order,side);if(pattern==0)assert(old==2 && now==1);if(pattern==2)assert(old==2 && now==2);}
  uint8_t packet[8192]{};unsigned a=display_probe_packet(0,0,0,128,0x1234,1,packet);auto literal=display_wire_facts(packet,a);PreparedDisplayRect r;r.width=128;r.rows=16;r.bytes=a;uint16_t pixels[480*16]{};decode(packet,r,pixels);
  unsigned b=display_probe_packet(0,0,0,128,0x1234,2,packet);auto mixed=display_wire_facts(packet,b);assert(a==b && literal.commands==1 && mixed.commands==16 && literal.literal_pairs==mixed.literal_pairs+mixed.repeated_pairs);decode(packet,r,pixels);for(unsigned y=0;y<16;++y)for(unsigned x=0;x<128;++x)assert(pixels[y*480+x]==0x1234);

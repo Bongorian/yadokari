@@ -58,6 +58,9 @@ int main(){
  delete d;assert(request_delete==0 && endpoint_delete==0);CTimer::ticks=500;last->finish();assert(right->audio_callbacks==2 && right->audio_gap==200);assert(right->state==1 && request_new==allocated && request_delete==0);Mk3DisplayRelease(right);assert(request_delete==2 && endpoint_delete==1);
  {CMk3Display normal;auto* p=new Mk3DisplayTransfer;assert(normal.Submit(bytes.data(),700,p));normal.host.queued.back()->finish(true,true);assert(p->state==2);Mk3DisplayRelease(p);}
  {CMk3Display reject;reject.host.reject_at=0;Mk3DisplayTransfer p;assert(!reject.Submit(bytes.data(),bytes.size(),&p));assert(!reject.m_Lifetime->busy());}
+ {CMk3Display d;u8 packet[32]{};packet[16]=1;packet[19]=4;packet[24]=3;packet[28]=0x40;
+  for(bool trace:{false,true}){auto* t=new Mk3DisplayTransfer;t->count_commands=trace;assert(d.Submit(packet,sizeof packet,t));d.host.queued.back()->finish();assert(t->state==1 && t->commands==unsigned(trace));Mk3DisplayRelease(t);}
+ }
  groove::LatestLedState latest;u8 a[2]={1,2},b[2]={3,4},packet[81]{};unsigned kind=0,length=0;
  assert(latest.update(0,a,2) && latest.prepare(packet,kind,length));latest.complete(true);
  assert(latest.update(0,b,2) && latest.prepare(packet,kind,length));assert(latest.update(0,a,2));latest.complete(false);assert(latest.prepare(packet,kind,length) && packet[0]==1);latest.complete(true);assert(!latest.pending());

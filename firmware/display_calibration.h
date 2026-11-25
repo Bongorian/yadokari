@@ -26,6 +26,7 @@ public:
    unsigned mode=variant_<6?variant_%3:1;mask_=variant_<3?1:variant_<6?2:3;case_at_=CTimer::GetClockTicks();
    for(unsigned n=0;n<2;++n){unsigned side=variant_==7?1-n:n;if(!(mask_&(1u<<side)))continue;
     unsigned bytes=groove::display_probe_packet(side,x_[side],y_[side],width_,color_[side],mode,packet_[side]);transfer_[side]=new Mk3DisplayTransfer{};
+    if(transfer_[side])transfer_[side]->count_commands=true;
     if(!bytes || !transfer_[side] || !device_->Submit(packet_[side],bytes,transfer_[side])){delete transfer_[side];transfer_[side]=nullptr;finish(false);return;}
    }
   }

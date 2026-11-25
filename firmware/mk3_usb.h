@@ -42,7 +42,7 @@ private:
  groove::SyncOutputGuard m_OutputGuard;groove::SpscQueue<groove::DiagnosticEvent,32> m_Diagnostics;groove::Mk3InputQueue m_Events; unsigned m_InvalidKnobs=0,m_PadReportBytes=0,m_ButtonReportBytes=0,m_ControlReportBytes=0,m_PadInputReportBytes=0,m_PollState=0,m_PollProgress=0,m_InputRecoveryFailures=0,m_InputFailureProgress=0; bool m_Registered=false; u8 m_LastButtons[2]={}; u8 m_LastRaw[10]={}; u16 m_Knobs[8]={}; u16 m_Strip=0; u8 m_Encoder=0; bool m_InputInitialized=false; u8* m_LedBuffer=nullptr;
 };
 struct Mk3DisplayOwner;
-struct Mk3DisplayTransfer { unsigned state=0,expected=0,completed_at=0,submitted_at=0,sequence=0,predecessor=0,queue_us=0,commands=0,progress_token=0,audio_callbacks=0,audio_gap=0,accepted_at=0; Mk3DisplayOwner* owner=nullptr; };
+struct Mk3DisplayTransfer { unsigned state=0,expected=0,completed_at=0,submitted_at=0,sequence=0,predecessor=0,queue_us=0,commands=0,progress_token=0,audio_callbacks=0,audio_gap=0,accepted_at=0; bool count_commands=false; Mk3DisplayOwner* owner=nullptr; };
 struct Mk3DisplayRequest { CUSBRequest* request=nullptr;Mk3DisplayTransfer* active=nullptr; };
 struct Mk3DisplayOwner { unsigned submitted=0,last_sequence=0,last_completed_at=0;CUSBEndpoint* endpoint=nullptr;bool detached=false;Mk3DisplayRequest requests[2]{};bool busy()const{return requests[0].active || requests[1].active;} };
 void Mk3DisplayRelease(Mk3DisplayTransfer*);

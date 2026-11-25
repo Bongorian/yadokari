@@ -166,7 +166,10 @@ bool CMk3Display::Submit(const void* data,unsigned size,Mk3DisplayTransfer* tran
  for(auto& slot:m_Lifetime->requests){
   if(slot.active)continue;
   transfer->owner=m_Lifetime;transfer->expected=size;transfer->sequence=++m_Lifetime->submitted;
-  const auto facts=groove::display_wire_facts(static_cast<const uint8_t*>(data),size);transfer->commands=facts.valid?facts.commands:0;
+  if(transfer->count_commands){
+   const auto facts=groove::display_wire_facts(static_cast<const uint8_t*>(data),size);
+   transfer->commands=facts.valid?facts.commands:0;
+  }
   for(const auto& previous:m_Lifetime->requests)if(previous.active && !__atomic_load_n(&previous.active->state,__ATOMIC_ACQUIRE))transfer->predecessor=previous.active->sequence;
   transfer->submitted_at=CTimer::GetClockTicks();transfer->progress_token=groove::display_usb_progress.open(transfer->submitted_at);__atomic_store_n(&transfer->state,0u,__ATOMIC_RELAXED);
   slot.request->Reuse(const_cast<void*>(data),size);slot.request->SetCompletionRoutine(Completed,transfer,nullptr);
