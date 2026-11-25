@@ -35,5 +35,9 @@ int main(int argc,char** argv){
   ++count;
  }
  std::printf("Factory originals mounted from staged DATA: %u\n",count);
- return count==187?0:1;
+ if(!count || count!=kFactoryLibraryCount){
+  std::fprintf(stderr,"Factory mount count mismatch: mounted %u, expected %u (nonempty library required)\n",count,kFactoryLibraryCount);
+  return 1;
+ }
+ return 0;
 }
