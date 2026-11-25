@@ -48,7 +48,7 @@ story, kept current per release.
 
 ## Display
 
-- A full-page change can span several 30 Hz display periods on Pi 5. In two runs of the current dual-LCD workload the largest gap between completed updates was 79–83 ms during a page change. Other projects, page sequences and USB conditions can have different timings.
+- A full-page change can span several 30 Hz display periods on Pi 5. In two runs of the current dual-LCD workload the largest gap between completed updates was 83.5–85.2 ms during a page change. Other projects, page sequences and USB conditions can have different timings.
 
 ## Updates and signing
 

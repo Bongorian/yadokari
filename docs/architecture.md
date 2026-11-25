@@ -86,7 +86,9 @@ The current song's path is runtime UI state; the startup song is `GROOVE/CURRENT
 
 The hardware and Desktop use the same Performance/UiRenderer. Audio snapshots are asynchronous; audio is never made to wait even if the display falls behind. The scope does not display mismatches of instrument/model/pattern. Static body text is retained and updated on changes to values, context, dialogs, and the like.
 
-[display_rectangle.h](../src/display_rectangle.h) builds 4px-aligned packets of at most 32 lines and compares the transfer sizes of 16/32 lines. The shadow is not updated until success. The lifetime of transfer packets and worker slots is maintained until asynchronous completion.
+The LCD worker finds the changed horizontal extent of each 16-line band, merges bands into rectangles on a four-pixel horizontal grid, and encodes repeated pairs of RGB565 pixels in a single pass. The raw fallback and compressed packets share a 61,468-byte limit. The USB owner advances the device shadow only after a full asynchronous acknowledgement. [Rectangle preparation](../src/display_rectangle.h) and [pixel-pair encoding](../src/display_rle.h).
+
+The MK3 HID input queue suppresses successive identical 12-bit pressure samples of the same tag per pad. A strike, release or input resynchronization clears the corresponding comparison state. Empty three-byte slots may occur between valid events on the hardware, so both 64-byte sets are scanned to the end. Monochrome button brightness uses the linear seven-bit range. Indexed pad and direction lights keep separate hue and intensity bits. [Pad input](../src/mk3_input_queue.h) and [MK3 surface](../src/mk3_surface.h).
 
 The UI has three axes — Focus/PadMode/StripMode — and three layers: pages with history, dialogs under a single owner, and displays with no input. There is no OverlayStack; Note Repeat and the like belong to their actual owning pages/pad grammar. See [UI pages](ui-pages.md).
 
