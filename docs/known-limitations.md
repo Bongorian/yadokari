@@ -48,7 +48,7 @@ story, kept current per release.
 
 ## Display
 
-- On Pi 5, switching from SETTINGS to ROUTING produced a 104–116 ms gap between completed updates on the slower LCD in three development-build runs. One FX page transition also reached 100 ms. All steady-display intervals stayed below 100 ms, with zero lost audio blocks in those runs.
+- A full-page change can span several 30 Hz display periods on Pi 5. In two runs of the current dual-LCD workload the largest gap between completed updates was 79–83 ms during a page change. Other projects, page sequences and USB conditions can have different timings.
 
 ## Updates and signing
 
