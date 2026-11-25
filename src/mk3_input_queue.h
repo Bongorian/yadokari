@@ -36,6 +36,19 @@ inline bool mk3_input_report_length_valid(uint8_t id,unsigned size,unsigned cont
 class Mk3InputQueue {
 public:
  bool push(const Mk3Pad& event){if(queue_.push(event))return true;__atomic_add_fetch(&dropped_,1,__ATOMIC_RELEASE);return false;}
+ // Repeated 12-bit pressure samples consume queue space needed by strike and
+ // release edges. Compare only samples from the same pad and the same tag.
+ bool push_pad(uint8_t pad,uint8_t tag,uint16_t pressure){
+  if(pad>=16 || pressure>4095)return false;
+  const uint16_t bit=uint16_t(1u<<pad);
+  const uint16_t sample=uint16_t((unsigned(tag)<<8)|pressure);
+  const bool continuous=tag==0x40 || tag==0;
+  if(continuous && (sample_valid_&bit) && samples_[pad]==sample)return true;
+  sample_valid_&=uint16_t(~bit);
+  if(!push({Mk3EventType::Pad,pad,tag,pressure}))return false;
+  if(continuous){samples_[pad]=sample;sample_valid_|=bit;}
+  return true;
+ }
  void mark_loss(){__atomic_add_fetch(&dropped_,1,__ATOMIC_RELEASE);}
  bool pop(Mk3Pad& event){return queue_.pop(event);}
  unsigned dropped()const{return __atomic_load_n(&dropped_,__ATOMIC_ACQUIRE);}
@@ -49,10 +62,11 @@ public:
   if(!has_control_snapshot || queue_.free_space()<11)return false;
   queue_.push({Mk3EventType::Resync,0,0,0,generation});
   for(unsigned i=0;i<10;++i)queue_.push({Mk3EventType::ControlBaseline,uint8_t(i+1),raw[i],0,generation});
-  published_=generation;resynced=true;return true;
+  sample_valid_=0;published_=generation;resynced=true;return true;
  }
 private:
  SpscQueue<Mk3Pad,128> queue_;
+ uint16_t samples_[16]{},sample_valid_=0;
  unsigned dropped_=0;
  uint32_t requested_=0,published_=0;
 };

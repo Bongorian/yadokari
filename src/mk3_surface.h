@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 namespace groove { namespace mk3 {
-// Source-profile facts: pinned encdr 5e7821c.
+// Source profile: encdr daf8288, ni_maschine_mk3.json.
 // Protocol hypotheses, not measurements on the user's controller.
 enum class LedKind:uint8_t { None, SingleColor, Indexed, Uncertain };
 struct Button { const char* name; uint8_t report_byte,mask; int8_t led_offset; LedKind led; };
@@ -81,6 +81,6 @@ constexpr unsigned pad_logical(unsigned hardware){return (3-hardware/4)*4+hardwa
 constexpr const char* palette_names[]={"OFF","RED","ORANGE RED","ORANGE","AMBER","YELLOW","LIME","GREEN","MINT","CYAN","SKY","BLUE","INDIGO","VIOLET","MAGENTA","ROSE","CRIMSON","WHITE"};
 constexpr uint32_t palette_preview[]={0xff09121c,0xffff0000,0xffff3f00,0xffff7f00,0xffffcf00,0xffffff00,0xff7fff00,0xff00ff00,0xff00ff7f,0xff00ffff,0xff007fff,0xff0000ff,0xff3f00ff,0xff7f00ff,0xffff00ff,0xffff007f,0xffff003f,0xffffffff};
 constexpr uint8_t indexed(unsigned color,unsigned level){return color>0&&color<=17&&level<=3?uint8_t((color<<2)|level):0;}
-// Keep existing encdr mono profile until physical calibration selects a profile.
-constexpr uint8_t mono_active=0x9e,mono_dim=0xe4;
+// The MK3 monochrome button group uses linear 7-bit brightness.
+constexpr uint8_t mono_active=0x7f,mono_dim=0x22;
 }}

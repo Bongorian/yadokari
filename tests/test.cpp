@@ -61,6 +61,22 @@ int main() {
  {SpscQueue<int,5> q;assert(q.push(1)&&q.push(2)&&q.push(3));unsigned fence=q.consumer_boundary();assert(!q.consumer_at_boundary(fence));assert(q.pop(v)&&v==1);assert(q.pop(v)&&v==2);assert(q.push(4)&&q.push(5));assert(q.pop(v)&&v==3);assert(q.consumer_at_boundary(fence));assert(q.pop(v)&&v==4);assert(!q.consumer_at_boundary(fence));assert(q.pop(v)&&v==5);}
  assert(mk3_input_report_length_valid(1,42,42,64) && mk3_input_report_length_valid(2,64,42,64));assert(!mk3_input_report_length_valid(1,32,42,64) && !mk3_input_report_length_valid(2,63,42,64));assert(mk3_input_report_length_valid(0x20,33,42,64) && !mk3_input_report_length_valid(0,0,42,64));
  {Mk3InputObservation seen;assert(!seen.first({Mk3EventType::ControlBaseline,1,0,0}));assert(!seen.first({Mk3EventType::Resync,0,0,0}));assert(seen.first({Mk3EventType::Pad,0,0x10,100}));assert(!seen.first({Mk3EventType::Pad,1,0x10,300}));assert(seen.first({Mk3EventType::Pad,0,0x40,200}));assert(seen.first({Mk3EventType::Pad,0,0x20,0}));assert(!seen.first({Mk3EventType::Pad,1,0x30,0}));assert(seen.first({Mk3EventType::Knob,0,0,1}));assert(seen.first({Mk3EventType::ControlByte,1,1,0}));assert(seen.first({Mk3EventType::Strip,0,0,500}));assert(seen.first({Mk3EventType::MainEncoder,0,0,1}));seen.reset();assert(seen.first({Mk3EventType::Pad,0,0x10,100}));}
+ {
+  Mk3InputQueue queue;Mk3Pad event{};
+  for(unsigned i=0;i<256;++i)for(uint8_t pad=0;pad<16;++pad)
+   assert(queue.push_pad(pad,0x40,1000+pad));
+  assert(queue.push_pad(0,0x40,1001)); // retain even a single ADC step
+  assert(queue.push_pad(0,0,1001));    // distinct tag at the same pressure
+  assert(queue.push_pad(0,0x30,0) && queue.push_pad(0,0x10,3000));
+  assert(queue.push_pad(0,0x40,1001));
+  for(uint8_t pad=0;pad<16;++pad)assert(queue.pop(event) && event.index==pad && event.pressure==1000+pad);
+  for(int tag:{0x40,0,0x30,0x10,0x40})assert(queue.pop(event) && event.tag==tag);
+  assert(!queue.pop(event) && !queue.dropped());
+  queue.request_resync();bool synced=false;uint8_t raw[10]{};
+  assert(queue.prepare(raw,synced) && synced);
+  while(queue.pop(event)){}
+  assert(queue.push_pad(0,0x40,1001) && queue.pop(event));
+ }
  {Mk3InputQueue input;Mk3Pad event{};uint8_t raw[10]={0x40,2,3,4,5,0x20,7,8,9,10};for(unsigned i=0;i<127;++i)assert(input.push({Mk3EventType::Pad,0,0x10,3000}));assert(!input.push({Mk3EventType::Pad,0,0x20,0}) && input.dropped()==1);uint32_t generation=input.request_resync();bool synced=false;assert(!input.prepare(raw,synced,false) && !synced);assert(!input.prepare(raw,synced) && !synced);for(unsigned i=0;i<11;++i)assert(input.pop(event));assert(!input.prepare(raw,synced,false) && !synced);assert(input.prepare(raw,synced,true) && synced);for(unsigned i=0;i<116;++i)assert(input.pop(event) && event.type==Mk3EventType::Pad);assert(input.pop(event) && event.type==Mk3EventType::Resync && event.generation==generation);for(unsigned i=0;i<10;++i)assert(input.pop(event) && event.type==Mk3EventType::ControlBaseline && event.index==i+1 && event.tag==raw[i]);assert(!input.pop(event));assert(input.prepare(raw,synced) && !synced);input.mark_loss();assert(input.dropped()==2);assert(input.request_resync()!=generation);assert(input.prepare(raw,synced) && synced);}
  Engine one, chunks; for(Engine* e: {&one,&chunks}) { assert(e->submit({CommandType::SetInstrument,0,0,uint16_t(Instrument::DaisyAnalogDrums)}));assert(e->submit({CommandType::SetInstrument,1,0,uint16_t(Instrument::DaisyAnalogDrums)})); for(unsigned t=0;t<2;++t){Command voice{CommandType::SetEngineParameter,uint8_t(t),0,0};voice.parameter=0;voice.scalar=0;assert(e->submit(voice));} assert(e->submit({CommandType::SetStep,0,0,1})); assert(e->submit({CommandType::SetStep,1,1,1})); assert(e->submit({CommandType::SetLength,1,0,3})); assert(e->submit({CommandType::Start,0,0,0})); }
  const unsigned frames=48000; std::vector<float> a(frames*2), b(frames*2); one.render(a.data(),frames); for(unsigned i=0;i<frames;i+=100) chunks.render(b.data()+2*i,100); assert(a==b); assert(a[0]!=0 && one.samples_rendered()==frames); for(float x:a) assert(std::isfinite(x) && x>=-1 && x<=1);

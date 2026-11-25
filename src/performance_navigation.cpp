@@ -652,11 +652,10 @@ auto Performance::keyboard_pad_state(unsigned n)const -> ui::LedState{
  }
 auto Performance::base_button_leds(uint8_t out[62]) const  -> void{
   for(unsigned i=0;i<62;++i)out[i]=0;
-  // NHL2 bright 0x9e follows encdr's encoding, pending physical calibration.
-  out[41]=playing_?0x9e:0;out[43]=playing_?0:0x9e;out[44]=(controls_[0]&0x40)?0x9e:0;
-  out[47]=mode_==UiMode::Keyboard?0x9e:0;out[48]=mode_==UiMode::Chord?0x9e:0;out[5]=mode_==UiMode::Sampler?0x9e:0;
-  out[46]=mode_==UiMode::Pad?0x9e:0;out[49]=mode_==UiMode::Step?0x9e:0;out[50]=mode_==UiMode::Scene?0x9e:0;out[51]=mode_==UiMode::Clip?0x9e:0;
-  out[3]=mode_==UiMode::Mixer?0x9e:0;out[1]=mode_==UiMode::Synth?0x9e:0;out[0]=(mode_==UiMode::Effects || mode_==UiMode::Routing)?0x9e:0;out[27]=mode_==UiMode::Perform?0x9e:0;out[53]=mode_==UiMode::Generate?0x9e:0;out[29+selected_%8]=31;
+  out[41]=playing_?mk3::mono_active:0;out[43]=playing_?0:mk3::mono_active;out[44]=(controls_[0]&0x40)?mk3::mono_active:0;
+  out[47]=mode_==UiMode::Keyboard?mk3::mono_active:0;out[48]=mode_==UiMode::Chord?mk3::mono_active:0;out[5]=mode_==UiMode::Sampler?mk3::mono_active:0;
+  out[46]=mode_==UiMode::Pad?mk3::mono_active:0;out[49]=mode_==UiMode::Step?mk3::mono_active:0;out[50]=mode_==UiMode::Scene?mk3::mono_active:0;out[51]=mode_==UiMode::Clip?mk3::mono_active:0;
+  out[3]=mode_==UiMode::Mixer?mk3::mono_active:0;out[1]=mode_==UiMode::Synth?mk3::mono_active:0;out[0]=(mode_==UiMode::Effects || mode_==UiMode::Routing)?mk3::mono_active:0;out[27]=mode_==UiMode::Perform?mk3::mono_active:0;out[53]=mode_==UiMode::Generate?mk3::mono_active:0;out[29+selected_%8]=31;
   out[56]=(controls_[4]&0x10)?mk3::mono_active:0;out[57]=(controls_[4]&0x20)?mk3::mono_active:0;
   for(unsigned i=0;i<8;++i)out[12+i]=soft_enabled(i)?(soft_selected(i)?mk3::mono_active:mk3::mono_dim):0;
   if(mode_==UiMode::Mixer && !modal_active()){auto twin=twin_status();out[17]=twin_queued()?((now_ms_/180)%2?mk3::mono_active:0):twin==TwinStatus::Active?mk3::mono_active:twin==TwinStatus::Ready?mk3::mono_dim:twin==TwinStatus::Stale?((now_ms_/500)%2?mk3::mono_dim:0):0;}

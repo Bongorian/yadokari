@@ -94,6 +94,16 @@ int main(){
  // SETTINGS: arrows page categories, turn/up/down selects within the category.
  ui.set_mode(UiMode::Settings);ui.soft_key(0);ui.led_frame(frame);
  assert(!frame.buttons[59] && frame.buttons[60]);
+ const uint8_t arrow=frame.buttons[60];
+ auto device=ui.device_settings();assert(device.led==3 && frame.buttons[9]==0x7f);
+ device.led=1;assert(ui.set_device_settings(device));ui.led_frame(frame);
+ assert(frame.buttons[9]==0x7f/3 && frame.buttons[60]==uint8_t((arrow&~3u)|1));
+ ui.set_mode(UiMode::Diagnostics);assert(ui.soft_key(4) && ui.diagnostic_test()==1);
+ ui.led_frame(frame);
+ for(unsigned i:{29u,30u,58u,59u})if(frame.buttons[i])assert(frame.buttons[i]==mk3::indexed(17,1));
+ assert(frame.buttons[29] || frame.buttons[30]);assert(frame.buttons[58] || frame.buttons[59]);
+ ui.set_mode(UiMode::Settings);
+ device.led=3;assert(ui.set_device_settings(device));
  assert(ui.encoder_direction(0x08) && ui.settings_page()==1);
  assert(ui.encoder_direction(0x08) && ui.settings_page()==2);
  for(unsigned page=3;page<7;++page)assert(ui.encoder_direction(0x08) && ui.settings_page()==page);

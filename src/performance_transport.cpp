@@ -628,8 +628,18 @@ auto Performance::led_frame(ui::LedFrame& out)const -> void{
    if(playing_ && settings_.motion==ui::Motion::Full){out.strip_level[(head+24)%25]=2;out.strip_level[(head+23)%25]=1;out.strip_level[(head+22)%25]=1;}
   }
   for(unsigned i=0;i<25;++i)out.strip[i]=settings_.strip==ui::StripProfile::Uncalibrated?0:!out.strip_level[i]?0:settings_.strip==ui::StripProfile::PaletteHypothesis?mk3::indexed(ui::LedStateEngine::token_hue(ui::Theme::by_index(settings_.theme).mod,ui::Theme::by_index(settings_.theme)),out.strip_level[i]):ui::LedStateEngine::mono(true,out.strip_level[i]<3);
-  if(mode_==UiMode::Diagnostics && diagnostic_test_==1){for(unsigned i=0;i<16;++i)out.pads[i]=mk3::indexed(unsigned(((settings_.motion==ui::Motion::Off?0:now_ms_/500)+i)%16)+1,2);for(unsigned i=0;i<62;++i)out.buttons[i]=ui::LedStateEngine::mono((i+(settings_.motion==ui::Motion::Off?0:now_ms_/500))%2==0);}
-  if(device_.led<3){for(unsigned i=0;i<16;++i){auto& code=out.pads[i];if(code){unsigned level=code&3;bool pulse=out.pad_state[i]==ui::LedState::Queued || out.pad_state[i]==ui::LedState::Armed || out.pad_state[i]==ui::LedState::Warning;code=device_.led==1 && level==1 && pulse?0:uint8_t((code&~3u)|(level<device_.led?level:device_.led));}}for(unsigned i=0;i<62;++i)if((i<29 || i>36) && out.buttons[i])out.buttons[i]=uint8_t(unsigned(out.buttons[i])*device_.led/3);for(unsigned i=0;i<25;++i){if(out.strip_level[i]>device_.led)out.strip_level[i]=device_.led;if(out.strip[i])out.strip[i]=settings_.strip==ui::StripProfile::PaletteHypothesis?mk3::indexed(ui::LedStateEngine::token_hue(ui::Theme::by_index(settings_.theme).mod,ui::Theme::by_index(settings_.theme)),out.strip_level[i]):uint8_t(unsigned(out.strip[i])*device_.led/3);}}
+  if(mode_==UiMode::Diagnostics && diagnostic_test_==1){
+   const unsigned phase=settings_.motion==ui::Motion::Off?0:unsigned(now_ms_/500);
+   for(unsigned i=0;i<16;++i)out.pads[i]=mk3::indexed((phase+i)%16+1,2);
+   for(unsigned i=0;i<62;++i){
+    const bool on=(phase+i)%2==0;
+    const bool indexed=(i>=29 && i<=36) || i>=58;
+    out.buttons[i]=on && indexed?mk3::indexed(17,device_.led):ui::LedStateEngine::mono(on);
+   }
+  }
+  if(device_.led<3){for(unsigned i=0;i<16;++i){auto& code=out.pads[i];if(code){unsigned level=code&3;bool pulse=out.pad_state[i]==ui::LedState::Queued || out.pad_state[i]==ui::LedState::Armed || out.pad_state[i]==ui::LedState::Warning;code=device_.led==1 && level==1 && pulse?0:uint8_t((code&~3u)|(level<device_.led?level:device_.led));}}for(unsigned i=0;i<58;++i)if((i<29 || i>36) && out.buttons[i])out.buttons[i]=uint8_t(unsigned(out.buttons[i])*device_.led/3);
+   for(unsigned i=58;i<62;++i){unsigned level=out.buttons[i]&3;if(level>device_.led)out.buttons[i]=uint8_t((out.buttons[i]&~3u)|device_.led);}
+   for(unsigned i=0;i<25;++i){if(out.strip_level[i]>device_.led)out.strip_level[i]=device_.led;if(out.strip[i])out.strip[i]=settings_.strip==ui::StripProfile::PaletteHypothesis?mk3::indexed(ui::LedStateEngine::token_hue(ui::Theme::by_index(settings_.theme).mod,ui::Theme::by_index(settings_.theme)),out.strip_level[i]):uint8_t(unsigned(out.strip[i])*device_.led/3);}}
   const auto& tokens=ui::Theme::by_index(settings_.theme);
   for(unsigned i=0;i<16;++i)out.pad_rgb[i]=ui::LedStateEngine::preview(out.pads[i],tokens);
   for(unsigned i=0;i<62;++i)if(out.buttons[i]){uint32_t color=i==42?tokens.danger:i==41?tokens.motion:i==43 && warning()?tokens.warn:tokens.accent;if(i>=29 && i<=36){unsigned track=track_bank_*8+i-29;bool group=mode_==UiMode::Routing && routing_fx_page_;color=(!group && audible_muted(track))?tokens.dim:(group?i-29==group_cursor_:track==selected_)?tokens.accent:tokens.secondary;if((group?ui::LedState::Off:recording_track_led(track))!=ui::LedState::Off)color=tokens.danger;}out.button_rgb[i]=color;}

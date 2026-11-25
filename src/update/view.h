@@ -8,7 +8,7 @@ namespace groove { namespace update {
 inline void controller_leds(const Manager& manager,bool busy,bool can_confirm,uint8_t pads[16],uint8_t buttons[62],const ui::Theme& theme=ui::Theme::by_index(ui::Theme::kDefault)){
  for(unsigned i=0;i<16;++i)pads[i]=0;
  for(unsigned i=0;i<62;++i)buttons[i]=0;
- buttons[43]=0x9e;
+ buttons[43]=mk3::mono_active;
  uint16_t enabled=1u<<15;
  if(manager.loaded()&&manager.armed()&&!busy){enabled|=15;const auto& state=manager.state();if(state.phase==Phase::Ready)enabled|=1u<<5;if(state.phase==Phase::Trial&&can_confirm)enabled|=1u<<6;if(state.phase==Phase::Stable||state.phase==Phase::Recovery){if(state.slots[state.active].size)enabled|=1u<<7;const auto& previous=state.slots[1-state.active];if(previous.version&&previous.version<=state.highest)enabled|=1u<<8;}}
  for(unsigned pad=0;pad<16;++pad)if(enabled&(1u<<pad))pads[(3-pad/4)*4+pad%4]=ui::LedStateEngine::encode({manager.error()==Error::None?ui::LedState::Assigned:ui::LedState::Warning,uint8_t(pad)},0,0,ui::Motion::Off,theme);

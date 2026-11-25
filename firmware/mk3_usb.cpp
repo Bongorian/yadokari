@@ -82,7 +82,7 @@ void CMk3Hid::ReportHandler(const u8* data,unsigned size) {
  groove::DiagnosticEvent report;report.size=u16(size);report.timestamp=CTimer::GetClockTicks64();for(unsigned i=0;i<32 && i<size;++i)report.data[i]=data[i];m_Diagnostics.push(report);
  if((size==64 || size==128) && data[0]==2) {
   if(!groove::decode_pads(data,size,[this](groove::PadEvent e) {
-   m_Events.push(Mk3Pad{Mk3EventType::Pad,e.pad,e.tag,e.pressure});
+   m_Events.push_pad(e.pad,e.tag,e.pressure);
   }))m_Events.mark_loss();
  } else if(size>=32 && data[0]==1) {
   // encdr descriptor mapping; must be verified against physical reports.
