@@ -28,8 +28,10 @@ semver numbering described in the release notes
 - Factory kits are revision 3: pad levels are restored to the source
   material and lifted uniformly, keeping the pad balance of each kit.
 - The sampler idle screen labels its input REC SOURCE.
-- Pi 5 only: the Pi 4 build waits for the extended Wavetable
-  mixed-load qualification; Pi 4 units stay on 1.0.5 for now.
+- The Pi 4 build is included with extended Wavetable admission
+  limits derived from the Pi 5 measurements; the Pi 4 mixed-load
+  qualification has not been run yet, so those limits are derived,
+  not measured, as the known limitations describe.
 
 ## 1.0.5
 
