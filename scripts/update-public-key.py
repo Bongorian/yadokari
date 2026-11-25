@@ -50,11 +50,11 @@ text += '#define GROOVE_FW_VERSION ' + str(version) + '\n'
 text += '#define GROOVE_UPDATE_WIFI_BUILD ' + ('1' if os.environ.get('ENABLE_UPDATE_WIFI', '1') == '1' else '0') + '\n'
 identity = b'GBX-FW-ID-v1\0\0\0\0' + version.to_bytes(4, 'little') + key
 # A suffix on the retained identity follows the actual binary, even if renamed.
-# Remove the Pi 4 hold after its mixed-load admission limits are measured on hardware.
-text += '#if defined(RASPPI) && RASPPI == 4\n'
-suffix = b'GBX-DEV-ONLY-v1\0'
-text += '#define GROOVE_RELEASE_SUFFIX ,' + ','.join(str(b) for b in suffix) + '\n'
-text += '#else\n#define GROOVE_RELEASE_SUFFIX\n#endif\n'
+# The former Pi 4 DEV-ONLY hold was lifted by owner decision on 2026-11-25:
+# Pi 4 releases ship with mixed-load admission limits derived from the Pi 5
+# measurements until they are measured on Pi 4 hardware (see the known
+# limitations). No board carries a release suffix.
+text += '#define GROOVE_RELEASE_SUFFIX\n'
 text += '#ifdef GROOVE_RECOVERY\n#define GROOVE_IMAGE_KIND 2\n#else\n#define GROOVE_IMAGE_KIND 1\n#endif\n'
 text += 'extern "C" const unsigned char GrooveUpdateIdentity[] __attribute__((used))={' + ','.join(str(b) for b in identity) + ',GROOVE_IMAGE_KIND,0,0,0 GROOVE_RELEASE_SUFFIX};\n'
 if not target.exists() or target.read_text() != text:
