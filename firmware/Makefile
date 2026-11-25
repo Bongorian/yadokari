@@ -19,7 +19,14 @@ $(CHIMERA_ARCHIVE): $(CHIMERA_DIR)/Cargo.toml $(CHIMERA_DIR)/Cargo.lock $(CHIMER
 # Retain compiler-measured frames for the boot/reset stack budget.
 kernel.o file_transfer.o project_storage.o: CFLAGS += -fstack-usage
 # Engine and kernel units use the shared Circle target profile.
-# The third-party DSP units below are the one deliberate exception:
+# These owners dispatch panel edits, maintain history, or service storage/updates.
+# Keep the display rasterizer, USB/audio drivers and synthesis on their tuned profiles.
+CONTROL_SIZE_OBJECTS := performance_navigation.o performance_files.o performance_transport.o \
+    performance_sequence.o performance_parameters.o performance_history.o performance_composition.o \
+    project_storage.o file_transfer.o update_runtime.o
+$(CONTROL_SIZE_OBJECTS): CPPFLAGS += -Os
+$(CONTROL_SIZE_OBJECTS): Makefile
+# The third-party DSP units below preserve the qualified audio build:
 # they are pinned to -O2, the profile the shipped firmware was
 # qualified with on hardware. The shared profile's aggressive
 # inline limits (tuned for the control path's code-cache budget)
