@@ -40,6 +40,8 @@ public:
  static constexpr unsigned width=480,height=272;
  uint32_t pixels[2][width*height]{};
  ui::Theme theme=ui::Theme::by_index(ui::Theme::kDefault);
+ void relief(unsigned side,int x,int y,int w,int h,uint32_t face,int depth=3);
+ void number_band(unsigned side,int x,int y,int w,int h,float v,uint32_t color,ui::FontRole role,unsigned precision=0);
  void fill(unsigned side,int x,int y,int w,int h,uint32_t color);
  __attribute__((always_inline)) void blend(unsigned side,int x,int y,uint32_t color,unsigned alpha){color=lit(color);if(side>1 || x<0 || x>=480 || y<clip_top_ || y>=clip_bottom_ || !alpha)return;auto& p=pixels[side][y*480+x];p=alpha>=255?color:ui::mix(p,color,alpha);}
  static float rounded_coverage(float x,float y,float w,float h,float r);

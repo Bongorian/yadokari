@@ -3,7 +3,7 @@
  void wire(unsigned side,int x,int y,int to,uint32_t color){line(side,x,y,to,y,color,2);line(side,to-5,y-3,to,y,color);line(side,to-5,y+3,to,y,color);}
  void junction(unsigned side,int x,int y,uint32_t color){rounded(side,x-3,y-3,6,6,3,color);}
  void flow_stage(unsigned side,int x,int y,const char* name,const char* detail,uint32_t color,bool selected=false){
-  rounded(side,x-12,y-12,24,24,12,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x-12,y-12,24,24);wire(side,x-6,y,x+6,color);
+  relief(side,x-12,y-12,24,24,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x-12,y-12,24,24);wire(side,x-6,y,x+6,color);
   centered_label(side,x-55,y-36,110,20,name,theme.secondary,Font::Small);
   centered_label(side,x-55,y+18,110,25,detail,color,Font::Small);
   if(selected)line(side,x-32,y+45,x+32,y+45,color,2);
@@ -15,13 +15,18 @@
   else{data=ui::response_visual(declaration.model,a,b,float(rate));data.live=measured && !bypass;data.level=meter_amount(activity);data.label=declaration.caption;}
   label(side,24,82,effect->name,bypass?theme.dim:theme.text,Font::Heading,310);if(bypass)label(side,355,88,"BYPASSED",theme.dim,Font::Small,100);
   if(type==20 || type==21){uint32_t color=bypass?theme.dim:theme.accent;wire(side,24,154,74,color);junction(side,74,154,color);
-   if(type==20){line(side,74,154,102,124,color);wire(side,102,124,174,color);label(side,180,109,"SHIFT",theme.secondary,Font::Small,70);value(side,246,105,64,int(fx_choice_index(a,25))-12,color,Font::Body,0);label(side,318,109,"st",theme.secondary,Font::Small,35);wire(side,345,124,390,color);line(side,390,124,418,154,color);line(side,74,154,102,182,theme.dim);wire(side,102,182,390,theme.dim);line(side,390,182,418,154,theme.dim);label(side,180,164,"DRY / WET",theme.secondary,Font::Small,140);value(side,318,161,60,wet*100,color,Font::Small,0);}
+   if(type==20){line(side,74,154,102,124,color);wire(side,102,124,174,color);label_band(side,180,106,70,16,"SHIFT",theme.secondary,Font::Small);number_band(side,246,106,64,16,int(fx_choice_index(a,25))-12,color,Font::Body,0);label(side,318,109,"st",theme.secondary,Font::Small,35);wire(side,345,124,390,color);line(side,390,124,418,154,color);line(side,74,154,102,182,theme.dim);wire(side,102,182,390,theme.dim);line(side,390,182,418,154,theme.dim);label_band(side,180,161,140,16,"DRY / WET",theme.secondary,Font::Small);number_band(side,318,161,60,16,wet*100,color,Font::Small,0);}
    else{line(side,74,154,104,124,color);wire(side,104,124,190,color);line(side,74,154,104,177,theme.blue);wire(side,104,177,190,theme.blue);outline(side,196,111,26,26,13,color,2);outline(side,196,164,26,26,13,theme.blue,2);line(side,201,124,217,124,color,2);line(side,209,116,209,132,color,2);line(side,201,177,217,177,theme.blue,2);label(side,112,106,"HORN",theme.secondary,Font::Small,80);label(side,112,158,"DRUM",theme.secondary,Font::Small,80);wire(side,230,124,376,color);wire(side,230,177,376,theme.blue);line(side,376,124,410,144,color);line(side,376,177,410,164,theme.blue);label(side,278,131,fx_descriptor(21)->controls[0].values[fx_choice_index(a,3)],color,Font::Small,100);label(side,258,154,"RAMPED SPEED",theme.secondary,Font::Small,140);}
    junction(side,418,154,color);wire(side,418,154,454,color);if(measured && !bypass)level_meter(side,24,198,430,2,meter_amount(activity),meter_source?meter_source:theme.teal);return;}
   if(perf && perf->analysis() && (declaration.model==ResponseModel::LowPass || declaration.model==ResponseModel::HighPass || declaration.model==ResponseModel::BandPass || declaration.model==ResponseModel::Notch)){auto fft=filter_spectrum(*perf,rate);visual_spectrum(side,24,131,430,53,fft,theme.dim);data.label="RESPONSE MODEL + POST-BUS FFT";}
   if(perf)draw_visual(side,declaration,data,*perf,perf->visual().sample,24,108,430,91);else visual_element(side,24,108,430,91,declaration,data,bypass?theme.dim:theme.accent);if(measured && !bypass)level_meter(side,24,198,430,2,meter_amount(activity),meter_source?meter_source:theme.teal);(void)wet;
  }
 
+ // The endpoint faces share a centre line with their connected cable.
+ void route_module(unsigned side,int x,int y,int w,const char* name,uint32_t ink){
+  relief(side,x,y,w,21,theme.raised,4);
+  centered_label(side,x+5,y+2,w-11,17,name,ink,Font::Small);
+ }
  void routing(const ProjectState& p,const Performance& perf){
   const auto& r=p.routing;const auto t=track_at(p,p.active_pattern,perf.selected_track());const auto& g=r.groups[perf.group_cursor()];
   static const char* buses[]={"OFF","MAIN 1-2","CUE 3-4","MAIN + CUE"};
@@ -46,14 +51,35 @@
   }
   label(0,24,83,"OUTPUT / MONITOR PATHS",theme.secondary,Font::Small,420);
   const char* inputs[]={"TRACK MIX","PREVIEW","INPUT 1-2"};const char* outputs[]={"MAIN 1-2","CUE 3-4",buses[r.monitor_bus]};float levels[]={r.main,r.preview*r.cue,r.monitor_bus?r.monitor:0};
-  for(unsigned n=0;n<3;++n){int y=118+int(n)*32;uint32_t c=levels[n]>0?(n==1?theme.blue:theme.teal):theme.disabled;label(0,24,y-7,inputs[n],theme.text,Font::Small,100);wire(0,122,y,202,c);outline(0,211,y-9,18,18,9,c);wire(0,238,y,347,c);label(0,358,y-7,outputs[n],c,Font::Small,100);progress(0,253,y+7,70,2,levels[n],c);}
+  for(unsigned n=0;n<3;++n){
+   const int top=103+int(n)*30,cy=top+11;
+   const uint32_t ink=levels[n]>0?(n==1?theme.blue:theme.teal):theme.disabled;
+   route_module(0,22,top,116,inputs[n],theme.text);
+   route_module(0,312,top,142,outputs[n],ink);
+   const int cable_x[]={136,158,177,249,269,312};
+   const int cable_y[]={cy,cy,cy+6,cy+6,cy,cy};
+   for(unsigned i=1;i<6;++i){
+    line(0,cable_x[i-1],cable_y[i-1]+2,cable_x[i],cable_y[i]+2,theme.border,3);
+    line(0,cable_x[i-1],cable_y[i-1],cable_x[i],cable_y[i],ink,2);
+   }
+   junction(0,136,cy,ink);junction(0,312,cy,ink);
+   progress(0,174,top,84,2,levels[n],ink);
+  }
   label(0,24,194,"Lines show connections / rails show gain",theme.secondary,Font::Small,430);
   unsigned assigned=8;for(unsigned n=0;n<8;++n)if(r.groups[n].members&(1u<<perf.selected_track())){assigned=n;break;}
   label(1,24,83,"SELECTED TRACK",theme.secondary,Font::Small,160);value(1,180,78,32,perf.selected_track()+1,theme.text,Font::Body,0);if(perf.shifted()){char selected_group[]="EDIT GROUP A";selected_group[11]=char('A'+perf.group_cursor());label(1,282,83,selected_group,theme.amber,Font::Small,165);}
-  wire(1,24,132,107,t.output_bus?theme.teal:theme.disabled);flow_stage(1,120,132,"TRACK",t.output_bus?"POST FADER":"OUTPUT OFF",t.output_bus?theme.teal:theme.disabled);
-  wire(1,134,132,259,t.output_bus?theme.teal:theme.disabled);
-  char group_name[]="GROUP A";group_name[6]=char('A'+(assigned<8?assigned:0));flow_stage(1,272,132,assigned<8?group_name:"DIRECT",buses[assigned<8?r.groups[assigned].output:t.output_bus],t.output_bus?theme.teal:theme.disabled);wire(1,286,132,450,t.output_bus?theme.teal:theme.disabled);
-  const auto take=perf.resample_view();auto destination=perf.recording_origin()!=RecordingOrigin::None?perf.recording_target():take.target;label(1,24,177,"CAPTURE",theme.secondary,Font::Small,75);label(1,104,177,capture_name(perf.recording_source()),theme.blue,Font::Small,90);unsigned ct=capture_track(perf.recording_source());if(ct<16 || perf.recording_source()>=53)value(1,196,172,24,ct<16?ct+1:perf.recording_source()-52,theme.blue,Font::Small,0);wire(1,228,184,279,theme.blue);label(1,292,177,"TAKE T",theme.secondary,Font::Small,58);value(1,352,172,30,destination.track+1,theme.text,Font::Small,0);label(1,390,177,perf.recording_origin()!=RecordingOrigin::None && !perf.resampling()?(perf.recording_quantized()?"BAR":"FREE"):resample_bar_label(take.bars),theme.secondary,Font::Small,70);
+  const char* route_output=buses[assigned<8?r.groups[assigned].output:t.output_bus];
+  char group_name[]="GROUP A";group_name[6]=char('A'+(assigned<8?assigned:0));
+  const uint32_t ink=t.output_bus?theme.teal:theme.disabled;
+  route_module(1,24,135,108,"TRACK",ink);
+  route_module(1,171,124,113,assigned<8?group_name:"DIRECT",ink);
+  route_module(1,328,113,126,route_output,ink);
+  for(unsigned i=0;i<2;++i){
+   const int from=i?284:132,to=i?328:171,cy=i?135:146;
+   line(1,from,cy,from+10,cy,ink);line(1,from+10,cy,from+24,cy-11,ink);wire(1,from+24,cy-11,to,ink);
+  }
+  label_band(1,31,157,104,12,t.output_bus?"POST FADER":"OUTPUT OFF",theme.secondary,Font::Small);
+  const auto take=perf.resample_view();auto destination=perf.recording_origin()!=RecordingOrigin::None?perf.recording_target():take.target;label(1,24,177,"CAPTURE",theme.secondary,Font::Small,75);label(1,104,177,capture_name(perf.recording_source()),theme.blue,Font::Small,90);unsigned ct=capture_track(perf.recording_source());if(ct<16 || perf.recording_source()>=53)value(1,196,172,24,ct<16?ct+1:perf.recording_source()-52,theme.blue,Font::Small,0);wire(1,228,184,279,theme.blue);label_band(1,292,174,58,16,"TAKE T",theme.secondary,Font::Small);number_band(1,352,174,30,16,destination.track+1,theme.text,Font::Small,0);label(1,390,177,perf.recording_origin()!=RecordingOrigin::None && !perf.resampling()?(perf.recording_quantized()?"BAR":"FREE"):resample_bar_label(take.bars),theme.secondary,Font::Small,70);
   label(1,24,194,perf.recording_status(),perf.live_recording()?theme.red:theme.secondary,Font::Small,430);
  }
  void effects(const ProjectState& p,const Performance& perf){
@@ -75,7 +101,7 @@
   if(perf.fx_page()==1 || perf.fx_page()==2){bool track=perf.fx_page()==2;const float* c=track?(live?perf.visual().track_compressor[perf.selected_track()]:t.compressor):(perf.visual().sample?perf.visual().effects+6:p.effects.compressor);
    label(0,24,83,track?"TRACK / LINKED STEREO COMPRESSOR":"MASTER / LINKED STEREO COMPRESSOR",theme.secondary,Font::Small,430);
    wire(0,24,119,303,theme.teal);junction(0,84,119,theme.teal);outline(0,304,107,24,24,12,theme.teal);wire(0,310,119,322,theme.teal);wire(0,330,119,451,theme.teal);label(0,346,95,"AUDIO OUT",theme.secondary,Font::Small,105);
-   if(c[6]>0){label(0,24,169,"KEY T",theme.blue,Font::Small,48);value(0,70,164,32,c[6],theme.blue,Font::Small,0);}else line(0,84,119,84,176,theme.blue);
+   if(c[6]>0){label_band(0,24,166,48,16,"KEY T",theme.blue,Font::Small);number_band(0,70,166,32,16,c[6],theme.blue,Font::Small,0);}else line(0,84,119,84,176,theme.blue);
    wire(0,102,176,183,theme.blue);outline(0,184,164,24,24,12,theme.blue);label(0,145,144,"DETECTOR",theme.secondary,Font::Small,100);wire(0,210,176,316,theme.blue);line(0,316,176,316,132,theme.blue);label(0,331,163,"GAIN CONTROL",theme.blue,Font::Small,120);
    label(0,24,194,"Audio path above / sidechain below",theme.secondary,Font::Small,430);compressor_picture(1,c,track?(live?perf.visual().track_compressor_reduction[perf.selected_track()]:0):perf.visual().compressor_reduction,perf.visual_fresh() && (!track || live)?(track?perf.visual().track_compressor_input[perf.selected_track()]:perf.visual().compressor_input):-1);return;
   }

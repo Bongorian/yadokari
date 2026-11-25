@@ -8,6 +8,10 @@ The two 480×272 LCDs, the on-screen Top1–8 and the K1–8 below are treated a
 
 Soft keys use one slot per physical button. An unassigned slot stays blank. LIVE FX uses the physical 4 × 4 pad order with pad 1 at the bottom left. Its two banks share the performance input mapping and pad feedback, including the three A/B morph positions. CLIP shows event positions in sixteen equal time intervals. SCENE uses the same strip for its sixteen track mute states.
 
+Top keys and knob legends share four 120-pixel columns on each LCD. The body uses a recessed work area. Pads, signal modules, list rows and editable sections have a shallow upper face and a right edge inside their allocated rectangle. Press, focus, launch and mute indicators stay on the front face. Mixed-size labels, quantities and units share a line box in parameter rows. Long numeric values are clipped inside their own field.
+
+ROUTING draws cables between module endpoints. The selected track, group or direct path, and hardware output occupy successive planes. The looper shows cycle position on an elliptical dial; its front wall has fixed thickness, and its inner ring indicates an available undo layer. An empty loop has tick marks and no recorded arc. Sample views project the upper edge of the measured peak envelope while keeping the time and amplitude of each foreground column aligned with its markers.
+
 A scope carries a zero reference and a response curve uses a quiet reference axis. The compressor shows its transfer model against unity gain, with a detector marker and a separate gain-reduction reading in dB when measurement is available. Mixer strips give level and pan separate rails. BLOCK EDIT shows the current source and destination contents over the selected track range, up to the first sixteen steps, and shows the full numerical range above each grid. CLEAR displays its source only.
 
 

@@ -13,8 +13,8 @@ public:
  void centered_label(unsigned side,int x,int y,int w,int h,const char* text,uint32_t color,FontRole role=FontRole::Small){aligned_band(side,x,y,w,h,text,color,role,TextAlign::Center);}
 
  void selected_mark(unsigned side,int x,int y,int w,int h){fill(side,x+2,y+h-2,w-4,2,theme.accent);}
- void panel(unsigned side,int x,int y,int w,int h,bool selected=false,uint32_t=0){fill(side,x,y,w,h,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x,y,w,h);}
- void badge(unsigned side,int x,int y,int w,const char* text,uint32_t color,bool active=true){fill(side,x,y,w,20,active?theme.raised:theme.surface);centered_label(side,x+7,y,w-14,20,text,active?color:theme.secondary);}
+ void panel(unsigned side,int x,int y,int w,int h,bool selected=false,uint32_t=0){relief(side,x,y,w,h,selected?theme.raised:theme.surface);if(selected)selected_mark(side,x,y,w,h);}
+ void badge(unsigned side,int x,int y,int w,const char* text,uint32_t color,bool active=true){relief(side,x,y,w,20,active?theme.raised:theme.surface,2);centered_label(side,x+7,y,w-14,20,text,active?color:theme.secondary);}
  void button(unsigned side,int x,int y,int w,const char* text,bool selected,bool enabled=true);
  void progress(unsigned side,int x,int y,int w,int h,float amount,uint32_t color){h=h>=6?6:h>=3?3:2;rounded(side,x,y,w,h,0,theme.raised);int filled=int(clamp01(amount)*w+0.5f);if(filled)rounded(side,x,y,filled,h,0,color);}
  void level_meter(unsigned side,int x,int y,int w,int h,float amount,uint32_t source){progress(side,x,y,w,h,amount,meter_level_color(theme,source,amount));}

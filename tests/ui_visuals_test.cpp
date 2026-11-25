@@ -26,7 +26,7 @@ int main(){
  auto widgets=std::make_unique<ui::Widgets>();for(unsigned theme=0;theme<ui::Theme::kCount;++theme){widgets->theme=ui::Theme::by_index(theme);for(unsigned kind=1;kind<=6;++kind){VisualDeclaration decl;decl.element=VisualElement(kind);VisualData value;value.available=true;value.count=128;value.recorded=.6f;value.layers=2;value.point=true;value.phase=value.position=.25f;value.label="REAL DATA";for(unsigned i=0;i<128;++i){value.values[i]=.4f*sinf(float(i)*.12f);value.low[i]=-value.values[i];}widgets->fill(0,0,0,480,272,widgets->theme.background);widgets->visual_element(0,24,82,430,118,decl,value,widgets->theme.accent);auto first=roi(*widgets,0);widgets->fill(0,0,0,480,272,widgets->theme.background);widgets->visual_element(0,24,82,430,118,decl,value,widgets->theme.accent);assert(first==roi(*widgets,0));}}
 
  // A full-scale endpoint and a dense 128-bin profile must stay in their field.
- for(unsigned kind=0;kind<4;++kind){
+ for(unsigned kind=0;kind<5;++kind){
   constexpr int x=17,y=21,w=48,h=30;
   auto& canvas=*widgets;
   canvas.fill(0,0,0,480,272,canvas.theme.background);
@@ -37,6 +37,7 @@ int main(){
   if(kind==1)canvas.visual_curve(0,x,y,w,h,signal,canvas.theme.text);
   if(kind==2)canvas.visual_bars(0,x,y,w,h,signal,canvas.theme.text);
   if(kind==3)canvas.visual_spectrum(0,x,y,w,h,signal,canvas.theme.text);
+  if(kind==4)canvas.visual_ring(0,x,y,w,h,signal,canvas.theme.text,true);
   unsigned ink=0;
   for(int row=y-2;row<=y+h+2;++row)for(int col=x-2;col<=x+w+2;++col){
    if(canvas.pixels[0][row*480+col]==untouched)continue;

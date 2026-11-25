@@ -1,6 +1,21 @@
 // Shared UI implementation: ordinary translation-unit boundaries, uniform -O3.
 #include "software_canvas.h"
 namespace groove {
+// The projections stay inside the caller's box, including under a mapped body.
+void SoftwareCanvas::relief(unsigned side,int x,int y,int w,int h,uint32_t face,int depth){
+ if(w<=0 || h<=0)return;
+ fill(side,x,y,w,h,face);
+ if(w<2*depth+2 || h<2*depth+2)return;
+ const uint32_t light=ui::mix(face,theme.secondary,64),shadow=ui::mix(face,theme.background,145);
+ for(int i=0;i<depth;++i){
+  fill(side,x+depth-i,y+i,w-depth,1,light);
+  fill(side,x+w-1-i,y+i,1,h-depth,shadow);
+ }
+}
+void SoftwareCanvas::number_band(unsigned side,int x,int y,int w,int h,float v,uint32_t color,ui::FontRole role,unsigned precision){
+ char digits[24];format_value(digits,v,precision);
+ aligned_band(side,x,y,w,h,digits,color,role,ui::TextAlign::Right,ui::TextKind::ValueNumber,true);
+}
 auto SoftwareCanvas::marquee_offset(int overflow,uint64_t elapsed) -> int{
   if(overflow<=0)return 0;
   const uint64_t travel=(uint64_t(overflow)*1000+27)/28,phase=elapsed%(2400+2*travel);
@@ -34,5 +49,5 @@ auto SoftwareCanvas::aligned_band(unsigned side,int x,int y,int w,int h,const ch
  }
 auto SoftwareCanvas::number(unsigned side,unsigned x,unsigned y,unsigned value,uint32_t color,unsigned scale) -> void{char digits[12];unsigned n=0;do{digits[n++]=char('0'+value%10);value/=10;}while(value && n<11);char text[12];for(unsigned i=0;i<n;++i)text[i]=digits[n-i-1];text[n]=0;label(side,int(x),int(y),text,color,scale>1?ui::FontRole::Heading:ui::FontRole::Body,480-int(x),true);}
 auto SoftwareCanvas::format_value(char out[24],float value,unsigned precision) -> void{if(!(value>=-10000000 && value<=10000000))value=0;if(precision>6)precision=6;unsigned n=0;if(value<0){out[n++]='-';value=-value;}uint64_t factor=1;for(unsigned i=0;i<precision;++i)factor*=10;uint64_t raw=uint64_t(double(value)*factor+.5),integer=raw/factor,fraction=raw%factor;char digits[20];unsigned count=0;do{digits[count++]=char('0'+integer%10);integer/=10;}while(integer && count<20);while(count)out[n++]=digits[--count];if(precision){out[n++]='.';for(uint64_t divisor=factor/10;divisor;divisor/=10)out[n++]=char('0'+fraction/divisor%10);}out[n]=0;}
-auto SoftwareCanvas::value(unsigned side,int x,int y,int w,float v,uint32_t color,ui::FontRole role,unsigned precision) -> void{char text[24];format_value(text,v,precision);if(layout_active_ && y>=75 && y<=90){aligned_band(side,x,82,w,18,text,color,role,ui::TextAlign::Right,ui::TextKind::ValueNumber,true);return;}int tw=ui::text_width(text,role,true);int ox=field_x_,ow=field_w_;auto oa=field_align_;auto ok=field_kind_;field_x_=x;field_w_=w;field_align_=ui::TextAlign::Right;field_kind_=ui::TextKind::ValueNumber;label(side,x+w-tw,y,text,color,role,w,true);field_x_=ox;field_w_=ow;field_align_=oa;field_kind_=ok;}
+auto SoftwareCanvas::value(unsigned side,int x,int y,int w,float v,uint32_t color,ui::FontRole role,unsigned precision) -> void{char text[24];format_value(text,v,precision);if(layout_active_ && y>=75 && y<=90){aligned_band(side,x,82,w,18,text,color,role,ui::TextAlign::Right,ui::TextKind::ValueNumber,true);return;}int tw=ui::text_width(text,role,true);int ox=field_x_,ow=field_w_;auto oa=field_align_;auto ok=field_kind_;field_x_=x;field_w_=w;field_align_=ui::TextAlign::Right;field_kind_=ui::TextKind::ValueNumber;label(side,x+(tw<w?w-tw:0),y,text,color,role,tw<w?tw:w,true);field_x_=ox;field_w_=ow;field_align_=oa;field_kind_=ok;}
 }
