@@ -4,6 +4,30 @@ YADOKARI's public releases start here. Versions use the packed
 semver numbering described in the release notes
 (0.9.0 → 900, 1.0.0 → 10000, monotonic).
 
+## 1.1.0
+
+- ACID separates its envelopes: the amplifier holds while a note is
+  gated and only the filter envelope decays, so held acid lines
+  sustain instead of fading to silence. DECAY now sets the filter
+  time constant (20 ms–1.5 s); ACCENT raises gain and cutoff and
+  halves the decay; a slide carries the filter envelope into the
+  next note.
+- Monophonic SLIDE: a step whose GATE ends early now holds until
+  the next valid SLIDE step instead of cutting off.
+- CHIMERA admission is priced from the measured per-tract cost
+  (400 µs per tract slot, tail included) inside the same deadline
+  budget as the other engines, and TALK inserts — track and group
+  inserts, sounding kit pads and Layer parts — share the
+  reservation. On Pi 5 at 48 kHz one tract plays with up to four
+  TALK inserts, and UNISON above one is refused as a whole. On
+  Pi 4 the derived price leaves no room for a tract inside the
+  deadline, so CHIMERA notes are refused there. Refusals name
+  their reason on screen.
+- The known-limitations page catches up with the releases: the
+  Startup demo has shipped since 1.0.27, and Pi 4 images have
+  been distributed since 1.0.23 (the Pi 4 extended Wavetable
+  limits remain derived from Pi 5 measurement, not measured).
+
 ## 1.0.27
 
 - The factory synth library is swapped: 23 Wavetable sounds join -
