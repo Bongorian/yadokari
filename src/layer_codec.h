@@ -16,6 +16,21 @@ inline const char* layer_leaf_exclusion(Instrument i){
 }
 inline bool layer_leaf_supported(Instrument i){return layer_leaf_exclusion(i)==nullptr;}
 inline bool layer_part_matches(const LayerPart& p,unsigned key,unsigned velocity){return key>=p.key_low && key<=p.key_high && velocity>=p.velocity_low && velocity<=p.velocity_high;}
+inline unsigned layer_talk_slots(const PresetFxSnapshot& fx){
+ unsigned count=0;
+ if(fx.present)for(unsigned slot=0;slot<2;++slot)
+  count+=!(fx.disabled&(1u<<slot)) && unsigned(fx.inserts[4*slot])==kTalkFx;
+ return count;
+}
+inline unsigned layer_chimera_tracts(const LayerState& layer,unsigned mask,unsigned& talk){
+ unsigned tracts=0;
+ for(unsigned i=0;i<layer.count;++i)if(mask&(1u<<i)){
+  const auto& part=layer.parts[i];
+  if(part.sound.instrument==Instrument::Chimera)tracts+=chimera_unison(part.sound.chimera);
+  talk+=layer_talk_slots(part.fx);
+ }
+ return tracts;
+}
 inline unsigned layer_part_cost(const LayerPart& p){unsigned cost=p.sound.instrument==Instrument::Wavetable?wavetable_load(p.sound.wavetable.values).cost():engine_voice_cost(p.sound.instrument,p.sound.instrument==Instrument::Chimera?chimera_model(p.sound.chimera):p.sound.model);if(p.sound.instrument==Instrument::Chimera)cost*=chimera_unison(p.sound.chimera);if(p.fx.present)for(unsigned i=0;i<2;++i)if(!(p.fx.disabled&(1u<<i))){unsigned type=unsigned(p.fx.inserts[i*4]);if(type){const auto* fx=fx_descriptor(type);if(fx)cost+=fx->cost;}}return cost;}
 inline unsigned layer_note_cost(const LayerState& s,unsigned key,unsigned velocity,uint8_t* selected=nullptr){unsigned cost=0;uint8_t mask=0;for(unsigned i=0;i<s.count;++i)if(layer_part_matches(s.parts[i],key,velocity)){mask|=uint8_t(1u<<i);cost+=layer_part_cost(s.parts[i]);}if(selected)*selected=mask;return cost;}
 enum class LayerReason:uint8_t {Ready,Empty,Missing,Unknown,Unsupported,Cost,Voices,Assets};

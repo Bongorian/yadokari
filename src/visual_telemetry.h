@@ -1,13 +1,19 @@
 #pragma once
 #include <stdint.h>
 #include "chimera_geometry.h"
+#include "chimera_budget.h"
 #include "live_visual_analysis.h"
 #include "wavetable_warp.h"
 namespace groove {
 // Bounded audio-to-UI snapshots. Visual consumers may miss frames; audio never waits.
+struct ControlOrigin {
+ uint8_t sources=0,step=0,track=0;
+ uint32_t key()const{return sources? sources | (uint32_t(step)<<8) | (uint32_t(track)<<16):0;}
+};
 struct AudioVisualFrame {
+ ChimeraMix chimera_mix{};
  ChimeraGeometry chimera{};bool chimera_available=false,chimera_live=false;
- uint32_t controls_target[8]{};float controls_value[8]{};
+ uint32_t controls_target[8]{};float controls_value[8]{};ControlOrigin controls_origin[8]{},effects_origin[13]{};
  WavetablePhaseMap wavetable_map[16]{};
  float engine_envelope[16][4]{},wavetable_controls[16][3]{};uint32_t preview_ticket=0;
  float delay_input=0,performance_fx_phase=0,compressor_input=0,track_compressor_input[16]{},node_activity[16][6]{};uint8_t performance_fx_actual_mode=0;

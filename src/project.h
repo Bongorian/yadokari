@@ -99,7 +99,7 @@ struct ProjectState {TwinState twins[kTracks]{};ChimeraIpaText chimera_ipa[kTrac
  uint8_t morph_set=0; ParameterSnapshot morph_extra_a[3][kTracks]{},morph_extra_b[3][kTracks]{};
  };
 inline bool twin_material(const ProjectState& p,unsigned asset){for(const auto& twin:p.twins)if(twin.prepared() && p.sounds[twin.sampled].sample_slot==asset)return true;return false;}
-inline float parameter_base(const ProjectState&,ConstTrackView,uint16_t);
+inline float parameter_base(const ProjectState&,const ConstTrackView&,uint16_t);
 inline bool morph_project_parameter(uint16_t);
 inline void capture_track_morph(TrackMorphState&,const ProjectState&,unsigned);
 inline void restore_track_morph(ProjectState&,unsigned,const TrackMorphState&);
@@ -130,14 +130,15 @@ public:
  TrackView& at(unsigned p,unsigned t){return *reinterpret_cast<TrackView*>(storage_+sizeof(TrackView)*(p*kTracks+t));}
  const TrackView& at(unsigned p,unsigned t)const{return *reinterpret_cast<const TrackView*>(storage_+sizeof(TrackView)*(p*kTracks+t));}
 };
-inline void snapshot_leaf(SoundLeaf& s,ConstTrackView t){
+inline void snapshot_leaf(SoundLeaf& s,ConstTrackView t,bool copy_kit=true){
  s.mod_routes=t.mod_routes;s.chimera=t.chimera;s.chimera_phrase=t.chimera_phrase;
  s.definition_cookie=t.definition_cookie;copy_track_field(s.preset_name,t.preset_name);s.instrument=t.instrument;s.model=t.plaits_model;copy_track_field(s.parameters,t.engine_parameters);copy_track_field(s.daisy_adsr,t.daisy_adsr);
- s.additive=t.additive;s.phase_dist=t.phase_dist;s.formant=t.formant;s.granular=t.granular;s.soundfont=t.soundfont;s.fm6=t.fm6;s.virtual_analog=t.virtual_analog;s.wavetable=t.wavetable;s.sample_edit=t.sample_edit;s.sample_slot=t.sample_slot;s.sample_slice=t.sample_slice;s.sample_slices=t.sample_slices;s.sample_loop=t.sample_loop;s.sample_reverse=t.sample_reverse;s.creative=t.creative;s.texture=t.texture;s.texture.values[12]=1;s.resonator=t.resonator;s.kit=t.kit.definition();
+ s.additive=t.additive;s.phase_dist=t.phase_dist;s.formant=t.formant;s.granular=t.granular;s.soundfont=t.soundfont;s.fm6=t.fm6;s.virtual_analog=t.virtual_analog;s.wavetable=t.wavetable;s.sample_edit=t.sample_edit;s.sample_slot=t.sample_slot;s.sample_slice=t.sample_slice;s.sample_slices=t.sample_slices;s.sample_loop=t.sample_loop;s.sample_reverse=t.sample_reverse;s.creative=t.creative;s.texture=t.texture;s.texture.values[12]=1;s.resonator=t.resonator;if(copy_kit)copy_normal_record(s.kit,t.kit.definition());
  s.midi_program=128;for(auto& cc:s.midi_cc)cc=0;for(auto& used:s.midi_cc_used)used=0;
  if(t.instrument==Instrument::ExternalMidi){s.midi_program=t.midi_program;copy_track_field(s.midi_cc,t.midi_cc);copy_track_field(s.midi_cc_used,t.midi_cc_used);}
 }
-inline void snapshot_sound(SoundState& s,ConstTrackView t){snapshot_leaf(s,t);s.layer=t.layer;s.identity=t.preset_identity;s.output_trim=t.output_trim;s.fx=t.preset_fx;if(s.fx.present)s.fx.capture(t);}
+inline void snapshot_sound(SoundState& s,ConstTrackView t,bool copy_layer=true,bool copy_kit=true){
+ snapshot_leaf(s,t,copy_kit);if(copy_layer)copy_normal_record(s.layer,t.layer);s.identity=t.preset_identity;s.output_trim=t.output_trim;s.fx=t.preset_fx;if(s.fx.present)s.fx.capture(t);}
 inline SoundState snapshot_sound(ConstTrackView t){SoundState s;snapshot_sound(s,t);return s;}
 inline bool valid_leaf(const SoundLeaf& s){
  if(!valid_sound_routes(s.mod_routes,s.instrument))return false;
@@ -152,12 +153,13 @@ inline bool valid_layer(const LayerState& s){if(!valid_layer_shape(s))return fal
 inline bool valid_sound(const SoundState& s){return valid_leaf(s) && valid_chimera(s.chimera) && valid_layer(s.layer) && s.identity.valid() && s.fx.valid() && valid_output_trim(s.output_trim);}
 // Mount copies sound values; edits to the pool never mutate an attached track.
 // One shared mount body: avoid per-translation-unit IPA clones of this large copy.
-__attribute__((noinline,noclone)) inline void mount_sound(const TrackView& t,const SoundState& s){
+__attribute__((noinline,noclone)) inline void mount_sound(const TrackView& t,const SoundState& s,bool copy_layer=true,bool copy_kit=true){
  t.mod_routes=s.mod_routes;t.chimera_phrase=s.chimera_phrase;
- t.definition_cookie=s.definition_cookie;copy_normal_record(t.layer,s.layer);t.preset_identity=s.identity;t.output_trim=s.output_trim;t.preset_fx=s.fx;s.fx.apply(t);
+ t.definition_cookie=s.definition_cookie;if(copy_layer)copy_normal_record(t.layer,s.layer);t.preset_identity=s.identity;t.output_trim=s.output_trim;t.preset_fx=s.fx;s.fx.apply(t);
  copy_track_field(t.preset_name,s.preset_name);t.instrument=s.instrument;t.plaits_model=s.model;for(unsigned i=0;i<5;++i)t.engine_parameters[i]=s.parameters[i];
  t.additive=s.additive;t.phase_dist=s.phase_dist;t.formant=s.formant;t.granular=s.granular;t.chimera=s.chimera;t.soundfont=s.soundfont;t.fm6=s.fm6;t.virtual_analog=s.virtual_analog;t.wavetable=s.wavetable;t.sample_edit=s.sample_edit;t.sample_slot=s.sample_slot;t.sample_slice=s.sample_slice;t.sample_slices=s.sample_slices;t.sample_loop=s.sample_loop;t.sample_reverse=s.sample_reverse;
- copy_normal_record(t.kit.definition(),s.kit);copy_track_field(t.daisy_adsr,s.daisy_adsr);if(s.instrument==Instrument::ExternalMidi){t.midi_program=s.midi_program;copy_track_field(t.midi_cc,s.midi_cc);copy_track_field(t.midi_cc_used,s.midi_cc_used);}
+ if(copy_kit){copy_normal_record(t.kit.definition(),s.kit);}
+ copy_track_field(t.daisy_adsr,s.daisy_adsr);if(s.instrument==Instrument::ExternalMidi){t.midi_program=s.midi_program;copy_track_field(t.midi_cc,s.midi_cc);copy_track_field(t.midi_cc_used,s.midi_cc_used);}
  t.creative=s.creative;t.resonator=s.resonator;float input=t.texture.values[12];t.texture=s.texture;t.texture.values[12]=input;
 }
 // Preset attachment copies engine state, root output trim and optional FX/MIDI snapshots.
@@ -307,7 +309,7 @@ inline bool valid_project(const ProjectState& p) {
 }
 
 namespace groove {
-inline float track_parameter(ConstTrackView  t,uint16_t id) {
+inline float track_parameter(const ConstTrackView& t,uint16_t id) {
  if(id>=620 && id<635)return t.texture.values[id-620];
  if(id>=600 && id<608)return t.resonator.values[id-600];
  if(id>=474 && id<554){const auto& p=t.kit.pads[(id-474)/5];switch((id-474)%5){case 0:return p.level;case 1:return p.pan;case 2:return p.filter;case 3:return p.delay_send;default:return p.reverb_send;}}
@@ -409,7 +411,7 @@ inline bool edit_engine_parameter(ProjectState& p,TrackView t,unsigned track,uns
 }
 
 namespace groove {
-inline float parameter_base(const ProjectState& p,ConstTrackView  t,uint16_t id){if(engine_target(id)){const auto* d=target_descriptor(id);return target_engine(id)==t.instrument?engine_parameter_value(t,target_local(id)):d?d->initial:0;}return id==472?p.effects.live_fx_type:id==473?p.effects.live_fx_amount:id>=464 && id<472?p.routing.groups[id-464].parallel:id>=448 && id<464?p.routing.groups[(id-448)/2].send[(id-448)%2]:id>=384 && id<448?p.routing.groups[group_fx_group(id)].insert_fx[group_fx_field(id)]:id>=70 && id<=76?p.effects.compressor[id-70]:id==64?p.effects.delay_mix:id==65?p.effects.delay_feedback:id==66?float(p.effects.delay_ms):id==67?p.effects.reverb_mix:id==68?p.effects.reverb_decay:id==69?p.effects.reverb_damp:track_parameter(t,id);}
+inline float parameter_base(const ProjectState& p,const ConstTrackView& t,uint16_t id){if(engine_target(id)){const auto* d=target_descriptor(id);return target_engine(id)==t.instrument?engine_parameter_value(t,target_local(id)):d?d->initial:0;}return id==472?p.effects.live_fx_type:id==473?p.effects.live_fx_amount:id>=464 && id<472?p.routing.groups[id-464].parallel:id>=448 && id<464?p.routing.groups[(id-448)/2].send[(id-448)%2]:id>=384 && id<448?p.routing.groups[group_fx_group(id)].insert_fx[group_fx_field(id)]:id>=70 && id<=76?p.effects.compressor[id-70]:id==64?p.effects.delay_mix:id==65?p.effects.delay_feedback:id==66?float(p.effects.delay_ms):id==67?p.effects.reverb_mix:id==68?p.effects.reverb_decay:id==69?p.effects.reverb_damp:track_parameter(t,id);}
 inline bool set_parameter_base(ProjectState& p,TrackView  t,uint16_t id,float value){if(!valid_parameter(id,value))return false;if(id==472)p.effects.live_fx_type=clamp_parameter(id,value);else if(id==473)p.effects.live_fx_amount=value;else if(id>=464 && id<472)p.routing.groups[id-464].parallel=value;else if(id>=448 && id<464)p.routing.groups[(id-448)/2].send[(id-448)%2]=value;else if(id>=384 && id<448)p.routing.groups[group_fx_group(id)].insert_fx[group_fx_field(id)]=clamp_parameter(id,value);else if(id>=70 && id<=76)p.effects.compressor[id-70]=clamp_parameter(id,value);else if(id==64)p.effects.delay_mix=value;else if(id==65)p.effects.delay_feedback=value;else if(id==66)p.effects.delay_ms=uint16_t(value);else if(id==67)p.effects.reverb_mix=value;else if(id==68)p.effects.reverb_decay=value;else if(id==69)p.effects.reverb_damp=value;else return set_track_parameter(t,id,value);return true;}
 // Control/file-service data reset. Reconstruct in place: a SoundState is
 // ~62 KiB, so a fresh automatic copy can overflow Circle's 128 KiB stack.

@@ -70,13 +70,14 @@
     },
     {
       "name": "TB-303 Acid",
+      "output_trim": 1.496235966682434,
       "guid": "mk3.acid",
       "signature": "RESONANCE 0.88 with ENV AMT 0.72 on the saw (WAVE 0); slide/accent are step attributes and intentionally not in the preset",
       "params": {
         "CUTOFF": 0.58,
         "RESONANCE": 0.88,
         "ENV AMT": 0.72,
-        "DECAY": 0.42,
+        "DECAY": 0.47,
         "WAVE": 0
       }
     },
@@ -1610,13 +1611,14 @@
     },
     {
       "name": "Psy Squelch",
+      "output_trim": 1.496235966682434,
       "guid": "mk3.acid",
       "signature": "RESONANCE 0.96 with ENV AMT 0.92: beyond the 303 recipe (0.88/0.72) on both axes",
       "params": {
         "CUTOFF": 0.66,
         "RESONANCE": 0.96,
         "ENV AMT": 0.92,
-        "DECAY": 0.55,
+        "DECAY": 0.64,
         "WAVE": 0.15
       }
     },

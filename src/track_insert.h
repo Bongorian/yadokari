@@ -32,6 +32,7 @@ public:
  float activity()const{return idle()?0:activity_;}
  void talk_pressure(float pressure){talk_pressure_=pressure;}
  void vocoder_levels(float* out)const{if(mode_==19 && wet_>.00001f)vocoder_.levels(out);else for(unsigned i=0;i<16;++i)out[i]=0;}
+ bool reserves_talk(unsigned requested)const{return requested==kTalkFx || mode_==kTalkFx;}
  bool idle()const{return mode_==0 && wet_<0.0001f;}
  __attribute__((always_inline)) inline void process(float& left,float& right,unsigned requested,float a,float b,float mix,float input_l=0,float input_r=0){
   // Exact dry bypass: no coefficient, fade, validation or DSP work.

@@ -17,9 +17,58 @@ auto Performance::commit_composition_phrase(unsigned track_index,const PhraseSta
  unsigned pattern=project_.active_pattern;if(!engine_.replace_track_phrase(pattern,track_index,*after)){delete before;delete after;return composition_notice("PHRASE EDIT BUSY / ORIGINAL KEPT",true);}
  Command c{CommandType::ApplyPattern,uint8_t(track_index),1,uint16_t(pattern)};c.parameter=uint16_t(1u<<track_index);push_history(c,c,nullptr,nullptr,before,after);install_track_phrase(track_views_.at(pattern,track_index),*after);clear_record_ids(pattern,c.parameter);refresh_steps();return true;
 }
+unsigned Performance::unused_pattern(unsigned source)const{
+ uint16_t used=uint16_t(1u<<source);
+ for(const auto& clip:project_.clips)used|=uint16_t(1u<<clip.pattern);
+ for(const auto& scene:project_.scenes)for(auto pattern:scene.pattern_for_track)used|=uint16_t(1u<<pattern);
+ for(unsigned i=0;i<project_.song.length;++i){
+  const auto& section=project_.song.sections[i];
+  if(section.ticks)for(auto pattern:section.patterns)used|=uint16_t(1u<<pattern);
+ }
+ for(auto pattern:pending_)if(pattern>=0)used|=uint16_t(1u<<pattern);
+ for(unsigned offset=1;offset<kPatterns;++offset){
+  const unsigned slot=(source+offset)%kPatterns;
+  if(!(used&(1u<<slot)) && pattern_is_empty(slot))return slot;
+ }
+ return kPatterns;
+}
+bool Performance::make_section_unique(){
+ if(scene_take_requested_ || song_cursor_>=project_.song.length)return false;
+ auto section=project_.song.sections[song_cursor_];
+ auto scene=project_.scenes[section.scene];
+ const unsigned source=section.ticks?section.patterns[selected_]:scene.pattern_for_track[selected_];
+ const unsigned target=unused_pattern(source);
+ if(target==kPatterns)return composition_notice("NO UNREFERENCED PATTERN",true);
+ unsigned scene_slot=0;
+ if(!section.ticks){
+  while(scene_slot<kScenes && !scene_empty(scene_slot))++scene_slot;
+  if(scene_slot==kScenes)return composition_notice("NO UNREFERENCED SCENE",true);
+ }
+ if(engine_.command_space()<3)return composition_notice("SECTION EDIT BUSY",true);
+ if(!allocation_admitted(sizeof(PatternState),2))return memory_refused();
+ auto* before=alloc_new<PatternState>(project_,target);
+ auto* after=before?alloc_new<PatternState>(project_,source):nullptr;
+ if(!after){delete before;return memory_refused();}
+ before->include_settings=after->include_settings=false;
+ if(!engine_.replace_pattern(target,*after,0xffff,true)){delete before;delete after;return composition_notice("PATTERN BUSY",true);}
+ EditGroup group(*this);
+ Command pattern{CommandType::ApplyPattern,0,1,uint16_t(target)};
+ push_history(pattern,pattern,before,after);install_pattern(project_,target,*after);
+ if(section.ticks)section.patterns[selected_]=uint8_t(target);
+ else{
+  Command next{CommandType::SetScene,0,0,uint16_t(scene_slot)},old=next;
+  scene.pattern_for_track[selected_]=uint8_t(target);
+  next.scene=scene;old.scene=project_.scenes[scene_slot];
+  if(!edit(next,old))return group.finish(false);
+  section.scene=uint8_t(scene_slot);
+ }
+ if(!group.finish(song_section_send(song_cursor_,section)))return false;
+ select_pattern(target);set_mode(UiMode::Step);
+ return composition_notice("EDIT THIS SECTION / PAGE BACK TO SONG");
+}
 auto Performance::duplicate_variation() -> bool{
  if(!variation_valid(variation_))return composition_notice("SELECT THIN / +/-1-12 ST / DROP TRACK",true);
- unsigned from=project_.active_pattern,target=kPatterns;for(unsigned offset=1;offset<kPatterns;++offset){unsigned i=(from+offset)%kPatterns;bool live=false;for(const auto& clip:project_.clips)live|=clip.playing && clip.pattern==i;if(!live && pattern_is_empty(i)){target=i;break;}}
+ unsigned from=project_.active_pattern,target=unused_pattern(from);
  if(target>=kPatterns)return composition_notice("NO UNUSED EMPTY PATTERN / SOURCE KEPT",true);
  if(!allocation_admitted(sizeof(PatternState),2))return memory_refused();
  auto* before=alloc_new<PatternState>(project_,target);auto* after=before?alloc_new<PatternState>():nullptr;if(!after){delete before;return memory_refused();}

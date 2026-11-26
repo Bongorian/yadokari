@@ -59,6 +59,8 @@ auto UiRenderer::diagnostics(const Performance& perf) -> void{
   advice("TURN: LOG SCROLL / EVENTS: UNDO");
  }
 auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) -> void{
+ // These surfaces use the full LCD body, including the final rows above the knob legend.
+ layout_reset();
  const unsigned track_index=perf.selected_track();
  const auto t=track_at(p,p.active_pattern,track_index);
  auto amount=[&](unsigned side,int x,int y,const char* name,float level){
@@ -70,8 +72,7 @@ auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) 
   progress(side,x+197,y+6,234,4,level,theme.teal);
  };
  if(perf.on_perform_page(PerformFxMap)){
-  unsigned group=8;
-  for(unsigned i=0;i<8;++i)if(p.routing.groups[i].members&(1u<<track_index)){group=i;break;}
+  const unsigned group=perf.selected_group();
   const float* ins=t.insert_fx;
   char group_name[]="GROUP A";
   if(group<8)group_name[6]=char('A'+group);
@@ -106,17 +107,40 @@ auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) 
   return;
  }
  if(perf.vowel_page()){
-  label(0,24,83,perf.vowel_voice()?"CHIMERA":perf.vowel_ready()?"TALK":"CHOOSE A TALK INSERT",theme.text,Font::Bold,430);
-  label(0,24,123,"PADS: VOWEL   PRESSURE: INTENSITY",theme.secondary,Font::Small,430);
-  label(0,24,151,"REC + PLAY: WRITE STEP LOCKS",theme.secondary,Font::Small,430);
-  label(1,60,88,"U",theme.text,Font::Bold,32);label(1,370,88,"I",theme.text,Font::Bold,32);
-  label(1,85,181,"O",theme.text,Font::Bold,32);label(1,326,181,"A",theme.text,Font::Bold,32);
-  label(1,365,140,"E",theme.secondary,Font::Small,32);
-  line(1,82,111,360,111,theme.border,1);line(1,360,111,324,174,theme.border,1);
-  line(1,324,174,103,174,theme.border,1);line(1,103,174,82,111,theme.border,1);
-  if(perf.vowel_ready()){float x=ui::clamp01(perf.vowel_value(0)),y=ui::clamp01(perf.vowel_value(1));
-   int px=int(103-21*y+x*(221+57*y)),py=int(174-63*y);
-   rounded(1,px-5,py-5,10,10,5,theme.teal,255);}
+  const bool animal=perf.vowel_voice() && chimera_model(t.chimera)>=3;
+  if(!perf.vowel_ready()){
+   label(0,24,91,"CHOOSE A TALK INSERT",theme.text,Font::Bold,430);
+   label(0,24,125,"TOP 5 / TOP 6: SELECT INSERT 1 / 2",theme.secondary,Font::Small,430);
+   return;
+  }
+  const char* target=animal?kChimeraSpecies[chimera_model(t.chimera)-3]:perf.vowel_voice()?"CHIMERA":"TALK";
+  label(0,24,84,target,theme.text,Font::Bold,430);
+  label(0,24,111,"X",theme.accent,Font::Small,20);
+  label(0,48,110,perf.knob_label(0),theme.text,Font::Body,178);
+  label(0,245,111,"Y",theme.accent,Font::Small,20);
+  label(0,269,110,perf.knob_label(1),theme.text,Font::Body,175);
+  label(0,24,143,"PAD PRESSURE",theme.secondary,Font::Small,130);
+  progress(0,156,146,279,5,perf.knob_normalized(2),theme.teal);
+  label(0,24,179,"REC + PLAY: WRITE STEP LOCKS",theme.secondary,Font::Small,430);
+  auto px=[&](float x,float y){return int(100+(animal?0:-21*y)+x*(animal?242:224+57*y));};
+  auto py=[](float y){return int(177-66*y);};
+  for(unsigned i=0;i<4;++i){
+   const float v=float(i)/3;
+   line(1,px(0,v),py(v),px(1,v),py(v),theme.border,1);
+   line(1,px(v,0),py(0),px(v,1),py(1),theme.border,1);
+  }
+  for(unsigned row=0;row<4;++row)for(unsigned col=0;col<4;++col){
+   const float v=float(row)/3;
+   rounded(1,px(float(col)/3,v)-2,py(v)-2,5,5,2,theme.secondary);
+  }
+  if(!animal){
+   label(1,57,97,"U",theme.text,Font::Bold,24);label(1,372,97,"I",theme.text,Font::Bold,24);
+   label(1,77,180,"O",theme.text,Font::Bold,24);label(1,335,180,"A",theme.text,Font::Bold,24);
+   label(1,357,138,"E",theme.secondary,Font::Small,24);
+  }
+  const float x=perf.knob_normalized(0),y=perf.knob_normalized(1);
+  rounded(1,px(x,y)-5,py(y)-5,11,11,5,theme.teal);
+  rounded(1,px(x,y)-2,py(y)-2,5,5,2,theme.text);
   return;
  }
  if(perf.vocoder_page()){
@@ -148,9 +172,25 @@ auto UiRenderer::live_tools_page(const ProjectState& p,const Performance& perf) 
   label(1,24,216,perf.multitimbral()?"EXIT RELEASES MIDI NOTES / USE PLAY TO RESUME":"ENTER STOPS THE SEQUENCER AND RELEASES HELD NOTES",theme.warn,Font::Small,436);
   return;
  }
- label(0,24,84,"AUDIO RECORDING AND CAPTURE",theme.text,Font::Body,430);
- label(0,24,111,"TRACK, GROUP, MASTER, LIVE AND PRESET FX",theme.secondary,Font::Small,436);
- label(0,24,138,"MIDI MODULE ROUTES CHANNELS DIRECTLY TO TRACKS",theme.secondary,Font::Small,436);
+ KnobValue track_name;track_name.append("TRACK");track_name.number(track_index+1,0);
+ const unsigned group=perf.selected_group();char group_name[]="GROUP A";
+ if(group<8)group_name[6]=char('A'+group);
+ static const char* const buses[]={"OFF","MAIN","CUE","MAIN + CUE"};
+ const unsigned bus=group<8 && t.output_bus?p.routing.groups[group].output:t.output_bus;
+ const char* nodes[]={track_name.text,group<8?group_name:"DIRECT",buses[bus&3]};
+ label(0,24,82,"OUTPUT PATH",theme.text,Font::Heading,430);
+ for(unsigned i=0;i<3;++i){
+  int x=22+int(i)*150;
+  relief(0,x,120,120,38,i==0?theme.raised:theme.surface,3);
+  centered_label(0,x,120,120,38,nodes[i],i==0?theme.accent:theme.text,Font::Body);
+  if(i<2)wire(0,x+122,138,x+148,theme.secondary);
+ }
+ label(1,24,82,"RECORD SOURCE",theme.text,Font::Heading,430);
+ char source[32];label(1,24,112,audio_input_name(perf.capture_source(),source),theme.teal,Font::Body,430);
+ label(1,24,143,perf.record_quantized()?"NEXT BAR":"IMMEDIATE",theme.secondary,Font::Small,430);
+ label(1,24,170,recording_hint(perf.recording_controls(),perf.record_state()),theme.text,Font::Small,432);
+ level_meter(1,24,201,427,4,meter_amount(perf.visual().input_lr[0]),theme.teal);
+ level_meter(1,24,209,427,4,meter_amount(perf.visual().input_lr[1]),theme.teal);
 }
 #if defined(__GNUC__) && !defined(__clang__)
 __attribute__((optimize("Os"),noinline))
@@ -198,7 +238,7 @@ auto UiRenderer::audio_lane_page(const ProjectState& p,const Performance& perf) 
   label(1,18,82,perf.live_recording()?recording_hint(perf.recording_controls(),perf.record_state()):!a.enabled?"STOPPED":clip.asset>=64?"EMPTY / RECORD OR BROWSER LOAD":"READY / REAL-TIME AUDIO",perf.live_recording()?theme.red:theme.teal,Font::Small,440);
   scrolling_label(1,18,106,clip.asset<64?filename(p.assets[clip.asset].path):"No audio asset",theme.text,Font::Body,440);
   auto signal=ui::pcm_visual(perf,VisualSource::CapturePcm);draw_visual(1,kCaptureVisual,signal,perf,perf.analysis()?perf.analysis()->sample:perf.visual().sample,18,127,440,64);
-  advice("PADS: TRACK / SHIFT Top2: SONG");
+  advice("PAGE LEFT: RETURN TO PREVIOUS PAGE");
  }
 auto UiRenderer::mutation(const ProjectState& p,const Performance& perf) -> void{const auto t=track_at(p,p.active_pattern,perf.selected_track());panel(0,10,79,460,128);label(0,24,85,"Original / live mutation",theme.secondary,Font::Small,320);label(0,360,85,"Page",theme.secondary,Font::Small,40);value(0,409,81,35,perf.page()+1,theme.text,Font::Body,0);for(unsigned i=0;i<16;++i){unsigned cell=perf.page()*16+i;auto step=mutation_step(t,cell);int x=24+int(i)*27;relief(0,x,111,22,26,cell>=t.length?theme.border:t.steps[cell].enabled?theme.blue:theme.raised);relief(0,x,146,22,26,cell>=t.length?theme.border:step.enabled?theme.teal:theme.raised);}label(0,24,183,"Blue: source    Teal: transformed",theme.secondary,Font::Small,420);panel(1,10,79,460,128);label(1,24,85,t.mutation.frozen?"Frozen mutation target":"Seeded pattern mutation",t.mutation.frozen?theme.amber:theme.secondary,Font::Small,400);value(1,24,108,110,t.mutation.amount,theme.text,Font::Number,0);label(1,138,126,"%",theme.secondary,Font::Small,25);progress(1,24,156,430,6,float(t.mutation.amount)/100,theme.teal);advice("Strip: amount   Shift + Generate: Freeze");}
 auto UiRenderer::module_picture(const ProjectState& p,const Performance& perf) -> void{
@@ -313,22 +353,92 @@ auto UiRenderer::source_detail(const ProjectState& p,const Performance& perf) ->
 auto UiRenderer::draw_visual(unsigned side,const VisualDeclaration& declaration,const VisualData& data,const Performance& perf,uint64_t token,int x,int y,int w,int h) -> void{unsigned key=(unsigned(declaration.element)<<12)|(unsigned(declaration.source)<<6)|unsigned(declaration.model);key^=(perf.selected_track()<<16)^unsigned(perf.visual().generation*16777619u)^(perf.editing_pattern()<<24);key^=perf.visual_source()<<20;auto shown=visual_motion_[side].update(key,token,perf.ui_time(),data,perf.visual_settings().motion!=ui::Motion::Off && data.live,declaration.element==VisualElement::Ring || declaration.source==VisualSource::WavetableScan);visual_element(side,x,y,w,h,declaration,shown,theme.accent);}
 auto UiRenderer::toast(const char* text,uint32_t color) -> void{rounded(1,14,74,452,34,ui::Geometry::button,theme.background,250);outline(1,14,74,452,34,ui::Geometry::button,theme.border);fill(1,19,81,3,20,color);label(1,30,ui::centered_text_y(Font::Small,74,34),text,color,Font::Small,424);}
 auto UiRenderer::hints(const Performance& perf,const SoundModRoutes& routes) -> void{
-  ui::PageAdvice lines;lines.add(perf.encoder_hint());
+  ui::PageAdvice lines;
+  lines.add(perf.encoder_hint());lines.add(perf.pad_hint());
+  if(perf.mode()==UiMode::Scene)lines.add("Tap the queued Scene pad again to cancel before the bar");
+  if(perf.keyboard_pinned()){
+   KnobValue pinned;pinned.append("Keyboard plays track");pinned.number(perf.keyboard_track()+1,0);lines.add(pinned.text);
+  }
+  if(perf.on_perform_page(PerformTools)){
+   lines.add("RECORDING: Set the source and capture audio");
+   lines.add("FX MAP: Inspect this track's path and edit its effects");
+   lines.add("MIDI MODULE: Open external control settings");
+  }
+  if(perf.audio_page() || perf.recording_page())lines.add("FILE: Show recordings or clip source / PAGE LEFT: Return");
+  if(perf.mode()==UiMode::Song)lines.add(perf.scene_take_requested()?"SHIFT + TOP 5: Keep the take and continue playing":"SHIFT + TOP 5: Edit this track in this section only");
   if(perf.mode()==UiMode::Synth && routes.count){
    KnobValue heading;heading.append("SOUND MOD ROUTES");heading.number(routes.count,0);lines.add(heading.text);
    for(unsigned i=0;i<routes.count;++i){
-    const auto& row=routes.rows[i];const auto* target=target_descriptor(row.parameter);
-    KnobValue line;line.number(i+1,0);line.append(mod_source_name(row.source));line.append(">");line.append(target?target->name:"?");lines.add(line.text);
+    const auto& route=routes.rows[i];const auto* target=target_descriptor(route.parameter);
+    KnobValue line;line.number(i+1,0);line.append(mod_source_name(route.source));line.append(">");line.append(target?target->name:"?");lines.add(line.text);
    }
   }
   for(unsigned i=0;i<page_advice.count;++i)lines.add(page_advice.lines[i]);
-  if(perf.mode()==UiMode::Routing && perf.routing_fx_page())lines.add("A-H: Select group bus");
-  else{lines.add("A-H: Select track / SHIFT + A-H: Switch sticky layer");lines.add("MUTE / SOLO + A-H: Mute / solo track");lines.add("HOLD A-H: Mixer peek / RELEASE: Return");}
-  lines.add("EVENTS: Undo / SHIFT + EVENTS: Redo");
-  bool reset=false;for(unsigned i=0;i<8;++i)reset|=perf.knob_reset_available(i);if(reset)lines.add("TOUCH KNOB + ERASE: Reset / EVENTS: Undo reset");
-  lines.add("HOLD BOTH PAGE ARROWS: Home / return");
-  for(unsigned side=0;side<2;++side){rounded(side,6,68,468,174,ui::Geometry::dialog,theme.background,250);outline(side,6,68,468,174,ui::Geometry::dialog,theme.border);label(side,20,73,"PAGE HELP",theme.text,Font::Heading,190);label(side,210,77,"RELEASE PAGE BUTTON TO RETURN",theme.secondary,Font::Small,250);}
-  unsigned row=0;for(unsigned item=0;item<lines.count && row<20;++item){const char* src=lines.lines[item];while(*src && row<20){char line[160]{};unsigned n=0,last_space=0;while(src[n] && n<150){line[n]=src[n];line[n+1]=0;if(ui::text_width(line,Font::Small)>438){line[n]=0;break;}if(src[n]==' ')last_space=n;++n;}if(src[n] && last_space>8){n=last_space;line[n]=0;}if(!n)break;label(row/10,20,103+int(row%10)*14,line,theme.secondary,Font::Small,438);src+=n;while(*src==' ')++src;++row;}}
+  const auto wrap=[&](int first){
+   unsigned row=0;
+   for(unsigned item=0;item<lines.count;++item){
+    const char* src=lines.lines[item];
+    while(*src){
+     char line[160]{};unsigned n=0,last_space=0;
+     while(src[n] && n<sizeof(line)-1){
+      line[n]=src[n];
+      if(ui::text_width(line,Font::Small)>430){line[n]=0;break;}
+      if(src[n]==' ')last_space=n;
+      ++n;
+     }
+     if(src[n] && last_space){n=last_space;line[n]=0;}
+     if(!n)break;
+     if(first>=0 && row>=unsigned(first) && row<unsigned(first)+9){
+      unsigned local=row-unsigned(first);
+      label(0,22,100+int(local)*15,line,theme.text,Font::Small,434);
+     }
+     src+=n;while(*src==' ')++src;++row;
+    }
+   }
+   return row;
+  };
+  const unsigned rows=wrap(-1);
+  const int total=1+int((rows+8)/9);
+  int page=perf.help_page()%total;if(page<0)page+=total;
+  const bool controls=page==total-1;
+  for(unsigned side=0;side<2;++side){
+   rounded(side,6,68,468,174,ui::Geometry::dialog,theme.background,255);
+   outline(side,6,68,468,174,ui::Geometry::dialog,theme.border);
+   label(side,20,73,side?(controls?"KNOBS":"SHORTCUTS"):(controls?"TOP BUTTONS":"PAGE HELP"),theme.text,Font::Heading,170);
+   KnobValue where;where.append("TURN 4-D");where.append("/");where.number(page+1,0);where.append("/");where.number(total,0);
+   aligned_band(side,190,72,262,22,where.text,theme.secondary,Font::Small,ui::TextAlign::Right,ui::TextKind::Cell);
+  }
+  if(!controls){
+   wrap(page*9);
+   const bool groups=perf.mode()==UiMode::Routing && perf.routing_fx_page();
+   KnobValue history;history.append("EVENTS: UNDO");history.append(perf.undo_target());history.append("/ SHIFT: REDO");
+   const char* shortcuts[]={
+    groups?"A-H: Select group bus":"A-H: Select track / hold for Mixer Peek",
+    groups?"":"Release A-H: Return to original track and page",
+    groups?"":"MUTE / SOLO + A-H: Mute / solo track",
+    "SELECT + KEYBOARD: Pin / release playing track",
+    "PAGE LEFT / RIGHT: Back / forward",
+    "Hold both PAGE arrows: Home / return",
+    history.text,
+    "SELECT + EVENTS: Undo take / add SHIFT: Redo",
+    "Turn 4-D: Inspect Top buttons and knobs"
+   };
+   unsigned row=0;
+   for(auto shortcut:shortcuts)if(*shortcut)label(1,22,100+int(row++)*15,shortcut,theme.text,Font::Small,434);
+   return;
+  }
+  bool any_knob=false;
+  for(unsigned i=0;i<8;++i){
+   const auto button=perf.soft_presentation(i);int y=100+int(i)*15;
+   if(*button.label)number_band(0,20,y,26,15,i+1,theme.secondary,Font::Small,0);
+   label_band(0,54,y,392,15,button.label,perf.soft_enabled(i)?theme.text:theme.disabled,Font::Small);
+   if(!*perf.knob_label(i))continue;
+   any_knob=true;number_band(1,20,y,26,15,i+1,theme.secondary,Font::Small,0);
+   label_band(1,54,y,392,15,perf.knob_label(i),theme.text,Font::Small);
+  }
+  if(!any_knob)label(1,22,100,"No knobs assigned on this page",theme.secondary,Font::Small,434);
+  label(0,20,222,"TURN 4-D: PAGE GUIDE",theme.accent,Font::Small,438);
+  label(1,20,222,"RELEASE HELP KEY TO RETURN",theme.secondary,Font::Small,438);
  }
 auto UiRenderer::soft_keys(const Performance& perf) -> void{
  for(unsigned i=0;i<8;++i){
@@ -378,7 +488,30 @@ auto UiRenderer::knobs(const ProjectState& p,const Performance& perf,uint64_t no
    float live=smooth_[i];if(pd && perf.visual().sample && ((parameter>=64 && parameter<=66) || perf.visual().pattern[perf.selected_track()]==p.active_pattern))live=perf.knob_display_normalized(i);
    fill(side,x,ui::Layout::overlay_y,112,ui::Layout::overlay_h,theme.surface);
    centered_label(side,x+2,ui::Layout::overlay_y,108,13,perf.knob_label(i),theme.secondary,Font::Small);
-   auto shown=formatted_knob(p,perf,i);const bool numeric=shown.digits[0];const char* value=numeric?shown.digits:shown.text;Font face=numeric?Font::Knob:Font::Body;
+   auto shown=formatted_knob(p,perf,i);
+   const auto origin=perf.knob_origin(i);
+   if(origin.sources){
+    auto edited=formatted_knob(p,perf,i,true);
+    KnobValue base_line;base_line.append("SET");base_line.append(edited.text);
+    KnobValue live_line;
+    if(origin.sources&FromControlAll)live_line.append("CTRL ALL");
+    else if(origin.sources&FromLock){
+     if(origin.track!=perf.selected_track()){
+      live_line.append("T");live_line.number(float(origin.track+1),0);
+      live_line.append("L");live_line.number(float(origin.step+1),0);
+     }else{live_line.append("LOCK");live_line.number(float(origin.step+1),0);}
+    }
+    else if(origin.sources&FromMacro)live_line.append("MACRO");
+    else if(origin.sources&FromSoundRoute)live_line.append("MOD");
+    else if(origin.sources&FromGesture)live_line.append("GEST");
+    else if(origin.sources&FromAutomation)live_line.append("AUTO");
+    else live_line.append("MORPH");
+    live_line.append(shown.text);
+    aligned_band(side,x+2,ui::Layout::overlay_y+14,108,14,base_line.text,theme.secondary,Font::Small,ui::TextAlign::Center,ui::TextKind::Cell,false,true);
+    aligned_band(side,x+2,ui::Layout::overlay_y+29,108,15,live_line.text,theme.accent,Font::Small,ui::TextAlign::Center,ui::TextKind::Cell,false,true);
+    continue;
+   }
+   const bool numeric=shown.digits[0];const char* value=numeric?shown.digits:shown.text;Font face=numeric?Font::Knob:Font::Body;
    int width=ui::text_width(value,face);if(!numeric && width>77)width=77;Font unit_face=Font::Body;int unit_width=numeric?ui::text_width(shown.unit,unit_face):0;
    int radius=12;if(width+unit_width+31>108){unit_face=Font::Small;unit_width=numeric?ui::text_width(shown.unit,unit_face):0;}if(width+unit_width+31>108)unit_width=0;
    if(width+29>108)radius=width+19<=108?8:5;
@@ -411,7 +544,8 @@ auto UiRenderer::composite_transition(uint64_t now) -> void{
 auto UiRenderer::knobs_active(const Performance& perf,uint64_t now) const  -> bool{
   for(unsigned i=0;i<8;++i){
    if(!(perf.knob_overlay_mask()&(1u<<i)))continue;
-   if(perf.knob_value(i)!=previous_[i]) return true;
+   if(perf.knob_value(i)!=previous_[i] || perf.knob_origin(i).key()!=previous_origin_[i] ||
+      perf.knob_display_value(i)!=previous_live_[i])return true;
    if(smooth_[i]!=perf.knob_normalized(i)) return true;
 
   }
@@ -514,7 +648,7 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   const bool attributes_changed=attributes!=phrase_attributes_;phrase_attributes_=attributes;
   const bool static_body=(perf.mode()==UiMode::Settings && perf.settings_page()!=4 && perf.settings_page()!=6) || perf.mode()==UiMode::Project || (perf.mode()==UiMode::Synth && perf.source_select());
   const bool live_body=!static_body && (perf.playing() || perf.live_recording() || perf.mode()==UiMode::Diagnostics || meters || perf.visual().master_peak>0.001f || perf.visual().input_peak>0.001f);
-  repaint_body_=attributes_changed || overlay_changed || scrolling_due(64,272) || (pad_body && pad_changed) || controls_changed || !initialized_ || !context_matches_ || theme_changed || dialog_up || prev_dialog_ || help_was_!=perf.help_visible() || toast_changed || live_body || body_invalidated_;
+  repaint_body_=attributes_changed || overlay_changed || scrolling_due(64,272) || (pad_body && pad_changed) || controls_changed || !initialized_ || !context_matches_ || theme_changed || dialog_up || prev_dialog_ || help_was_!=perf.help_visible() || (perf.help_visible() && last_help_page_!=perf.help_page()) || toast_changed || live_body || body_invalidated_;
   body_invalidated_=false;
 
   repaint_knobs_=overlay && (repaint_body_ || scrolling_due(207,272) || !initialized_ || !context_matches_ || theme_changed || knobs_active(perf,now));
@@ -580,10 +714,10 @@ auto UiRenderer::draw(const ProjectState& p,const Performance& perf,unsigned pea
   if(repaint_body_ && overlay)repaint_knobs_=true;
   knob_legend(p,perf);
   if(repaint_body_)for(unsigned side=0;side<2;++side)for(int y=0;y<ui::Layout::overlay_h;++y)for(int x=0;x<480;++x)overlay_underlay_[side][y*480+x]=pixels[side][(ui::Layout::overlay_y+y)*480+x];
-  if(repaint_knobs_){for(unsigned i=0;i<8;++i)if(overlay_mask&(1u<<i)){unsigned side=i/4;int x=int(i%4)*120+4;for(int y=ui::Layout::overlay_y;y<ui::Layout::overlay_y+ui::Layout::overlay_h;++y)for(int j=x;j<x+112;++j)pixels[side][y*480+j]=overlay_underlay_[side][(y-ui::Layout::overlay_y)*480+j];}clip_y(ui::Layout::overlay_y,ui::Layout::overlay_y+ui::Layout::overlay_h);knobs(p,perf,now);clip_y();}if(perf.help_visible() && repaint_body_)hints(perf,t.mod_routes);help_was_=perf.help_visible();if(toast_active && !perf.modal_active() && !perf.help_visible() && repaint_body_)toast(toast_text,perf.notice_error()?theme.red:theme.secondary);toast_was_=toast_active;toast_hash_=toast_hash;if(perf.modal_active() && !perf.twin_dialog() && !perf.composition_dialog() && !perf.browser_editing() && !perf.stretch_modal() && !perf.freeze_modal() && perf.pending_project()==Performance::ProjectAction::None)dialog(0,perf.confirmation_heading(),"Top1: Confirm / Top2: Cancel",-1);if(perf.pending_project()!=Performance::ProjectAction::None)dialog(0,perf.pending_project()==Performance::ProjectAction::New?"Create empty project?":"Load saved project?","Unsaved edits will be replaced. Confirm / Cancel",-1);if(perf.stretch_modal())dialog(0,"TIME STRETCH",perf.stretch_text(),perf.stretch_modal()==2?perf.stretch_progress_pct()/100.0f:-1.0f);if(perf.freeze_modal())dialog(0,"TRACK FREEZE",perf.freeze_text(),perf.freeze_progress_pct()/100.0f);for(unsigned i=0;i<8;++i)previous_[i]=perf.knob_value(i);overlay_mask_was_=overlay_mask;turning_mask_was_=perf.knob_turning_mask();initialized_=true;prev_dialog_=dialog_up;last_ms_=now;last_mode_=int(perf.mode());last_track_=int(perf.selected_track());last_context_=context;
+  if(repaint_knobs_){for(unsigned i=0;i<8;++i)if(overlay_mask&(1u<<i)){unsigned side=i/4;int x=int(i%4)*120+4;for(int y=ui::Layout::overlay_y;y<ui::Layout::overlay_y+ui::Layout::overlay_h;++y)for(int j=x;j<x+112;++j)pixels[side][y*480+j]=overlay_underlay_[side][(y-ui::Layout::overlay_y)*480+j];}clip_y(ui::Layout::overlay_y,ui::Layout::overlay_y+ui::Layout::overlay_h);knobs(p,perf,now);clip_y();}if(perf.help_visible() && repaint_body_)hints(perf,t.mod_routes);help_was_=perf.help_visible();last_help_page_=perf.help_page();if(toast_active && !perf.modal_active() && !perf.help_visible() && repaint_body_)toast(toast_text,perf.notice_error()?theme.red:theme.secondary);toast_was_=toast_active;toast_hash_=toast_hash;if(perf.modal_active() && !perf.twin_dialog() && !perf.composition_dialog() && !perf.browser_editing() && !perf.stretch_modal() && !perf.freeze_modal() && perf.pending_project()==Performance::ProjectAction::None)dialog(0,perf.confirmation_heading(),"Top1: Confirm / Top2: Cancel",-1);if(perf.pending_project()!=Performance::ProjectAction::None)dialog(0,perf.pending_project()==Performance::ProjectAction::New?"Create empty project?":"Load saved project?","Unsaved edits will be replaced. Confirm / Cancel",-1);if(perf.stretch_modal())dialog(0,"TIME STRETCH",perf.stretch_text(),perf.stretch_modal()==2?perf.stretch_progress_pct()/100.0f:-1.0f);if(perf.freeze_modal())dialog(0,"TRACK FREEZE",perf.freeze_text(),perf.freeze_progress_pct()/100.0f);for(unsigned i=0;i<8;++i){previous_[i]=perf.knob_value(i);if(overlay_mask&(1u<<i)){previous_origin_[i]=perf.knob_origin(i).key();previous_live_[i]=perf.knob_display_value(i);}}overlay_mask_was_=overlay_mask;turning_mask_was_=perf.knob_turning_mask();initialized_=true;prev_dialog_=dialog_up;last_ms_=now;last_mode_=int(perf.mode());last_track_=int(perf.selected_track());last_context_=context;
  }
-auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,unsigned i) -> KnobValue{
-  KnobValue out;const char* name=perf.knob_label(i);float raw=perf.knob_display_value(i);uint16_t parameter=perf.knob_parameter(i);
+auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,unsigned i,bool base) -> KnobValue{
+  KnobValue out;const char* name=perf.knob_label(i);float raw=base?perf.knob_value(i):perf.knob_display_value(i);uint16_t parameter=perf.knob_parameter(i);
   if(parameter==engine_target(Instrument::Wavetable,WavetableTable)){
    unsigned table=unsigned(raw);
    if(table<kWavetableFirstAsset){constexpr const char* names[]={"AKWF","REED","PRISM"};out.append(names[table]);}
@@ -608,12 +742,12 @@ auto UiRenderer::formatted_knob(const ProjectState& p,const Performance& perf,un
   if(perf.input_values()){if(i==4 && !perf.step_chord_editor()){out.number(raw*100,0);out.append("%");return out;}if(i==1){char pitch[12];pitch_name(unsigned(raw),pitch);out.append(pitch);}else if(i==2)out.append(scale_name(unsigned(raw)));else if(i==6)out.append(chord_shape_definition(unsigned(raw)).name);else if(i==7){static const char* inversions[]={"ROOT","INV 1","INV 2","INV 3"};out.append(inversions[unsigned(raw)%4]);}else{out.number(raw,0);if(i==0)out.append("bpm");if(i==5)out.append("t");}return out;}
   if(perf.mode()==UiMode::Settings){out.append(perf.setting_text(perf.settings_cursor()));return out;}
   if(perf.vowel_page() && i<3){
-   char value[24];const bool percent=i<2;
-   format_value(value,perf.knob_value(i)*(percent?100:1),i==2 && perf.vowel_voice()?1:0);
+   char value[24];const bool percent=i<2 || perf.vowel_target(i)==engine_target(Instrument::Chimera,ChimeraBreath);
+   format_value(value,raw*(percent?100:1),!percent && perf.vowel_voice()?1:0);
    out.append(value);if(percent)out.append("%");return out;
   }
-  if(perf.vocoder_page() && i<2){if(const char* choice=fx_choice_name(19,i+1,perf.knob_value(i)))out.append(choice);return out;}
-  if(perf.vocoder_page() && i==2){char mix[24];format_value(mix,perf.knob_value(i)*100,0);out.append(mix);out.append("%");return out;}
+  if(perf.vocoder_page() && i<2){if(const char* choice=fx_choice_name(19,i+1,raw))out.append(choice);return out;}
+  if(perf.vocoder_page() && i==2){char mix[24];format_value(mix,raw*100,0);out.append(mix);out.append("%");return out;}
   if(perf.recording_page() && i==0){char name[32];out.append(audio_input_name(perf.capture_source(),name));return out;}
   if(perf.browser_editing()){if(perf.preset_fx_editing() && (i==2 || i==3)){out.append((i==2?perf.browser().edit.include_fx:perf.browser().edit.duplicate)?"ON":"OFF");return out;}const auto& edit=perf.browser().edit;if(!i)out.number(edit.cursor+1,0);else{char ch[2]={edit.name[edit.cursor],0};out.append(!ch[0]?"End":ch[0]==' '?"Space":ch);}return out;}
    if(parameter==engine_target(Instrument::Chimera,ChimeraSceneSpeak)){out.append(raw>=.5f?"ON":"OFF");return out;}

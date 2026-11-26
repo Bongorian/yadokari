@@ -101,6 +101,11 @@ static Result take(unsigned local,bool edit,int creature=-1,bool condition=true,
   assert(engine->submit({CommandType::LaunchScene,0,0,0}));
  }else if(setup)note(*engine,60);
  if(local==ChimeraVoiceMode || local==ChimeraGlide){render(*engine,25);note(*engine,67);}
+ if(local==ChimeraVoiceMode){
+  // MONO recalls the previous held key; POLY has already stolen that tract.
+  render(*engine,25);
+  Command off{CommandType::MidiInput,0,67,0x80};assert(engine->submit(off));
+ }
  if(local==ChimeraTalkOutput){
   Command carrier{CommandType::Trigger,1,0,100};carrier.parameter=1;carrier.scalar=48;assert(engine->submit(carrier));
  }
@@ -121,8 +126,9 @@ static bool compare(unsigned local,int creature=-1){
   creature<0?"STANDARD":kChimeraSpecies[creature],base.setting,edited.setting,std::sqrt(sum/base.samples.size()),
   changed,base.tracts,edited.tracts,base.follower,edited.follower);
  std::fflush(stdout);
- if(local==ChimeraVoiceMode)assert(base.tracts==2 && edited.tracts==1);
- if(local==ChimeraUnison)assert(base.tracts==1 && edited.tracts==4);
+ if(local==ChimeraVoiceMode)assert(edited.tracts==1);
+ if(local==ChimeraUnison)assert(base.tracts==1 && edited.tracts==0);
+ if(local==ChimeraSpread)return base.tracts==0 && edited.tracts==0 && !changed;
  if(local==ChimeraTalkOutput)assert(!base.follower && edited.follower);
  // Reject a rounding-only difference or a single mismatching sample.
  return std::sqrt(sum/base.samples.size())>1.0/32767 && changed>base.samples.size()/100;

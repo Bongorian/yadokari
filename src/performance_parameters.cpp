@@ -66,7 +66,37 @@ auto Performance::layer_knob(unsigned i,int change) -> bool{
  return edit(after,before);
 }
 auto Performance::snap_parameter(uint16_t id,float value)const -> float{if(center_snap_){const auto* d=target_descriptor(id);if(d && d->minimum<0 && d->maximum>0 && fabsf(d->initial-(d->minimum+d->maximum)*.5f)<.000001f){float old=editing_parameter(id);if(old!=d->initial && (old-d->initial)*(value-d->initial)<=0)value=d->initial;}}return value;}
-auto Performance::set_parameter(uint16_t id,float value)  -> bool{
+unsigned Performance::talk_edit_owner(uint16_t id,float value,bool enable)const{
+ const auto state=track_const(selected_);
+ unsigned index=selected_,bit=0;
+ if((id==94 || id==98) && value==kTalkFx){
+  const unsigned slot=(id-94)/4;
+  if((!enable && (state.insert_disabled&(1u<<slot))) || state.frozen_asset<kSampleAssets)return kTracks;
+  bit=6+slot;
+ }else if((id==102 || id==103) && value>.5f && state.insert_fx[4*(id-102)]==kTalkFx && state.frozen_asset>=kSampleAssets){
+  bit=6+id-102;
+ }else if(id>=384 && id<448 && group_fx_field(id)%4==0 && value==kTalkFx){
+  index=group_fx_group(id);bit=8+group_fx_field(id)/4;
+ }else if(id>=320 && id<384 && (id-320)%4==0 && value==kTalkFx){
+  bit=10+(id-320)/4;
+ }else return kTracks;
+ const uint32_t guard=engine_.live_talk_guard(index);
+ return guard&(1u<<bit)?(guard&31u)-1:kTracks;
+}
+bool Performance::confirm_talk(uint16_t id,float value,unsigned owner,unsigned vowel_slot){
+ if(!confirm_erase(UiErase::TalkChange))return false;
+ pending_talk_parameter_=id;pending_talk_value_=value;pending_talk_owner_=uint8_t(owner);
+ pending_vowel_slot_=uint8_t(vowel_slot);
+ copy_text(talk_prompt_,sizeof talk_prompt_,(engine_.live_talk_guard(0)&32u)?"TALK STOPS T00 LAYER. APPLY?":"TALK STOPS T00 CHIMERA. APPLY?");
+ talk_prompt_[12]=char('0'+(owner+1)/10);talk_prompt_[13]=char('0'+(owner+1)%10);
+ return true;
+}
+auto Performance::set_parameter(uint16_t id,float value) -> bool{
+ const unsigned owner=talk_edit_owner(id,value);
+ if(owner<kTracks){confirm_talk(id,value,owner);return false;}
+ return apply_parameter(id,value);
+}
+auto Performance::apply_parameter(uint16_t id,float value) -> bool{
   if(unavailable_target(id))return false;
   value=snap_parameter(id,value);
   if(engine_target(id)){if(target_engine(id)!=track_const(selected_).instrument || !valid_target_value(id,value))return false;Command after{CommandType::SetEngineParameter,selected_,0,0},before=after;after.parameter=before.parameter=uint16_t(target_local(id));after.scalar=value;before.scalar=engine_parameter_value(track_const(selected_),target_local(id));if(project_.morph_enabled && !sound_attribute_target(id)){after.step=before.step=1;after.scalar2=after.scalar3=value;const auto& a=project_.morph_a[selected_];const auto& b=project_.morph_b[selected_];before.scalar2=a.engine==target_engine(id)?a.engine_values[target_local(id)]:before.scalar;before.scalar3=b.engine==target_engine(id)?b.engine_values[target_local(id)]:before.scalar;}return edit(after,before);}if(!valid_parameter(id,value)) return false;
@@ -168,7 +198,10 @@ auto Performance::knob_label(unsigned index) const  -> const char*{if(mode_==UiM
   bool shift=controls_[0]&0x40;const auto& t=track_const(selected_);
   if(mode_==UiMode::Synth && wave_clock() && index==1)return "REF MHz";
   if(mode_==UiMode::Synth && !wave_profile() && instrument_view_==0 && shift && index==0)return "POOL SLOT";
-  if(vowel_page())return index==0?"VOWEL X":index==1?"VOWEL Y":index==2?"PRESSURE":"";
+  if(vowel_page()){
+   if(index<2 && vowel_voice())return parameter_name(vowel_target(index));
+   return index==0?"VOWEL X":index==1?"VOWEL Y":index==2?"PRESSURE":"";
+  }
   if(vocoder_page()){
    static const char* names[]={"MODULATOR","CARRIER","MIX"};
    return vocoder_ready() && index<3?names[index]:"";
@@ -293,7 +326,10 @@ auto Performance::knob_normalized(unsigned index)const  -> float{if(composition_
   if(index>=8)return 0;
 
   if(source_select_ && mode_==UiMode::Synth){if(index==6)return ui::clamp01((knob_value(index)+1)*0.5f);const float hi[]={8,float(instrument_count()-1),float(browser_.library_total?browser_.library_total:1),1,127,1,1,1};return ui::clamp01(knob_value(index)/hi[index]);}
-  if(vowel_page())return index<3?(index==2?(vowel_voice()?(vowel_value(2)+4)/12:vowel_value(2)/127):vowel_value(index)):0;
+  if(vowel_page()){
+   const auto* range=index<3?target_descriptor(vowel_target(index)):nullptr;
+   return range?ui::clamp01((vowel_value(index)-range->minimum)/(range->maximum-range->minimum)):0;
+  }
   if(vocoder_page())return index<3?ui::clamp01(knob_value(index)):0;
   if(recording_page()){const float limits[]={float(kCaptureMax),1,4,16};return index<4?knob_value(index)/limits[index]:0;}
   if(mode_==UiMode::Perform && performance_page_==4 && index<7){const float hi[]={1,1,1,13,1,float(kSteps),16};return ui::clamp01(knob_value(index)/hi[index]);}
@@ -356,7 +392,7 @@ auto Performance::reset_touched_knobs() -> bool{bool touched=false,ok=true;EditG
 #if defined(__GNUC__) && !defined(__clang__)
 __attribute__((optimize("Os"),noinline))
 #endif
-auto Performance::knob(unsigned index,int16_t delta)  -> bool{if(transfer_view_.active)return false;NavigationScope navigation_scope(*this);
+auto Performance::knob(unsigned index,int16_t delta)  -> bool{if(help_chord_)return true;if(transfer_view_.active)return false;NavigationScope navigation_scope(*this);
   if(index>=8 || !*knob_label(index)) return false;
   if(composition_modal_)return composition_knob(index,delta);
   if(twin_modal_==1){int change=delta/1000;if(!change && delta)change=delta>0?1:-1;if(!change)return false;switch(index){case 0:twin_config_.low=uint8_t(bounded(int(twin_config_.low)+change,0,127));break;case 1:twin_config_.high=uint8_t(bounded(int(twin_config_.high)+change,0,127));break;case 2:twin_config_.interval=uint8_t(bounded(int(twin_config_.interval)+change,1,127));break;case 3:twin_config_.velocity=uint8_t(bounded(int(twin_config_.velocity)+change,1,127));break;case 4:twin_config_.hold_ms=uint16_t(bounded(int(twin_config_.hold_ms)+change*50,50,4000));break;case 5:twin_config_.max_ms=uint16_t(bounded(int(twin_config_.max_ms)+change*250,250,10000));break;default:return false;}dirty_=true;return true;}
@@ -484,7 +520,15 @@ auto Performance::erase_parameter_data(uint16_t id) -> bool{id=bind_parameter_ta
 __attribute__((optimize("Os"),noinline))
 #endif
 auto Performance::knob_parameter(unsigned i)const -> uint16_t{if(composition_modal_ || (mode_==UiMode::Generate && gen_page_==5) || (mode_==UiMode::Clip && !clip_follow_page_ && shifted() && i==7))return 0;if(twin_modal_)return 0;if(mode_==UiMode::Library)return 0;if(browser_editing())return 0;if(input_values())return 0;if(mode_==UiMode::Mixer && audio_lane().kind!=TrackKind::Instrument && i<2)return 0;if(synth_core_page())return core_parameter(i);if(layer_page())return 0;if(auto target=held_model_target(i))return target;if(audio_page())return 0;if(i==1 && !shifted() && (mode_==UiMode::Synth || mode_==UiMode::Pad || mode_==UiMode::Keyboard || mode_==UiMode::Chord || step_hold_edit()) && !source_select_ && !wave_profile() && instrument_view_==0){int local=engine_model_parameter(track_const(selected_).instrument);if(local>=0 && track_const(selected_).instrument==Instrument::PlaitsMacro)return engine_target(track_const(selected_).instrument,unsigned(local));}if(native_synth_page())return core_parameter(i);if(mode_==UiMode::Clip && clip_follow_page_)return 0;if(i>=8 || repeat_mode_)return 0;if(mode_==UiMode::Song)return 0;if(source_select_ && mode_==UiMode::Synth)return i==5?1:i==6?2:0;if(mode_==UiMode::Perform && performance_page_==4 && i<7)return 0;if(track_const(selected_).instrument==Instrument::DrumKit && (mode_==UiMode::Pad || kit_edit_page()) && i>=2 && i<=6)return kit_mix_parameter_id(selected_kit_pad_,i-2);if(track_const(selected_).instrument==Instrument::DrumKit && (mode_==UiMode::Pad || mode_==UiMode::Step || mode_==UiMode::Sampler))return 0;if(mode_==UiMode::Synth && instrument_view_==3 && (unsigned(track_const(selected_).instrument)>=unsigned(Instrument::WaveSequence) && unsigned(track_const(selected_).instrument)<=unsigned(Instrument::SpectralFreeze))){const auto* d=engine_page_descriptor(unsigned(track_const(selected_).instrument));return i==7 && !shifted() && d && d->lab_tail==LabTail::Fold?32:0;}if(mode_==UiMode::Perform && !performance_page_ && shifted()){if(control_all_ && i==0)return 0;}if(synth_parameter(i))return synth_parameter(i);if(core_parameter(i))return core_parameter(i);if(mode_==UiMode::Synth && !wave_profile() && instrument_view_==2)return 0;if(mode_==UiMode::Effects && fx_page_==4)return i>=1 && i<=4?uint16_t(320+selected_kit_pad_*4+i-1):0;if(mode_==UiMode::Effects && fx_page_==5)return i==4?chain_key_parameter():0;if(mode_==UiMode::Effects && fx_page_==3)return uint16_t(94+i);if(mode_==UiMode::Effects)return fx_page_?(i<7?uint16_t((fx_page_==2?87:70)+i):0):i<6?uint16_t(64+i):i==6?10:5;if(mode_==UiMode::Mixer || (mode_==UiMode::Perform && (performance_page_==0 || performance_page_==2)))return channel_parameter(i);if(mode_==UiMode::Modulation){if(!modulation_page_){uint16_t ids[8];for(unsigned n=0;n<8;++n)ids[n]=modulation_parameter_id(n,track_const(selected_).lfo_sync>=.5f);return ids[i];}if(modulation_page_==3 && i==2)return uint16_t(128+midi_cc_cursor_);if(modulation_page_==4 && (i==3 || i==4))return uint16_t(256+nrpn_slot_);return 0;}if(mode_==UiMode::Sampler){if(sampler_page_>=3)return 0;if(sampler_page_==1){static const uint16_t ids[]={81,82,80,83,84,85,86,0};return ids[i];}if(sampler_page_==2)return 0;static const uint16_t ids[]={0,0,0,0,0,1,3,4};return ids[i];}if(((mode_==UiMode::Synth || mode_==UiMode::Pad || mode_==UiMode::Keyboard || mode_==UiMode::Chord) || step_hold_edit()) && i>=2 && i<=6 && !wave_profile() && i-2<instrument_descriptor(unsigned(track_const(selected_).instrument))->macro_controls)return uint16_t(32+i-2);return 0;}
-auto Performance::knob_display_value(unsigned i)const -> float{uint16_t id=knob_parameter(i);if(id>=64 && id<=76 && visual_fresh())return visual_.effects[id-64];if(id && !lock_path() && visual_fresh() && visual_.expression_pattern[selected_]==project_.active_pattern && visual_.controls_target[i]==((uint32_t(selected_)<<16)|id))return visual_.controls_value[i];return knob_value(i);}
+auto Performance::knob_origin(unsigned i)const -> ControlOrigin{
+ if(i>=8 || lock_path() || !visual_fresh())return {};
+ const uint16_t id=knob_parameter(i);
+ if(id>=64 && id<=76)return visual_.effects_origin[id-64];
+ if(!id || visual_.controls_target[i]!=((uint32_t(selected_)<<16)|id) ||
+    visual_.expression_pattern[selected_]!=project_.active_pattern)return {};
+ return visual_.controls_origin[i];
+}
+auto Performance::knob_display_value(unsigned i)const -> float{uint16_t id=knob_parameter(i);if(id>=64 && id<=76 && !lock_path() && visual_fresh())return visual_.effects[id-64];if(id && !lock_path() && visual_fresh() && visual_.expression_pattern[selected_]==project_.active_pattern && visual_.controls_target[i]==((uint32_t(selected_)<<16)|id))return visual_.controls_value[i];return knob_value(i);}
 auto Performance::knob_display_normalized(unsigned i)const -> float{uint16_t id=knob_parameter(i);const auto* d=id?target_descriptor(id):nullptr;return d && d->maximum>d->minimum?ui::clamp01((knob_display_value(i)-d->minimum)/(d->maximum-d->minimum)):knob_normalized(i);}
 auto Performance::effective_parameter(uint16_t id)const -> float{if(engine_target(id)){if(target_engine(id)!=track_const(selected_).instrument)return parameter_base(project_,track_const(selected_),id);const auto* d=engine_parameter(target_engine(id),target_local(id));if(d && visual_.sample && visual_.pattern[selected_]==project_.active_pattern){if(d->target==EngineValueTarget::Macro)return visual_.parameters[selected_][d->offset];if(d->target==EngineValueTarget::Sample)return visual_.sample_values[selected_][d->offset];}return parameter_base(project_,track_const(selected_),id);}if(visual_.sample && visual_.expression_pattern[selected_]==project_.active_pattern){if(id==260)return visual_.pitch_bend[selected_];if(id==261)return visual_.expression_pressure[selected_];}if(id>=64 && id<=76 && visual_.sample)return visual_.effects[id-64];if(visual_.sample && visual_.pattern[selected_]==project_.active_pattern){if(id>=94 && id<=101)return visual_.track_insert[selected_][id-94];if(id>=87 && id<=93)return visual_.track_compressor[selected_][id-87];if(id>=80 && id<=86)return visual_.sample_values[selected_][id-80];if(id==9)return visual_.pressure_depth[selected_];if(id==10)return visual_.reverb_send[selected_];if(id>=1 && id<=8)return visual_.track_parameters[selected_][id-1];if(id>=32 && id<=36)return visual_.parameters[selected_][id-32];}return parameter_base(project_,track_const(selected_),id);}
 #if defined(__GNUC__) && !defined(__clang__)

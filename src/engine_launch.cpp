@@ -57,7 +57,9 @@ void Engine::service_step_anticipation(unsigned t){
  }
 }
 void Engine::cancel_step_anticipation(unsigned t){
- for(auto& poly:poly_voices_)if(poly.owner==t && poly.voice.score_before_step){
+ for(uint32_t mask=poly_track_mask_[t];mask;mask&=mask-1){
+  auto& poly=poly_voices_[unsigned(__builtin_ctz(mask))];
+  if(!poly.voice.score_before_step)continue;
   release_poly(poly,true);
   poly.voice.score_before_step=false;
  }
@@ -158,7 +160,20 @@ void Engine::launch_clip(unsigned t,unsigned pattern,bool playing) {
  if(playing && override!=kNoPreset && !mount_override(t,override)){event(EngineEventType::ClipLaunchRejected,uint8_t(t),uint8_t(pattern));return;}
  RenderEventScope audit(render_audit_,event_work_,RenderAudit::ClipReset);
  arrangement_restarts_|=uint16_t(1u<<t);arrangement_dirty_=true;
- note_off(t); runtime_[t].pressure_from_pad=false;runtime_[t].pattern=uint8_t(pattern); runtime_[t].playing=playing; project_->clips[t]={uint8_t(pattern),playing}; reset_track(t,true);
+ auto& rt=runtime_[t];
+ // A stopped, empty lane keeps its strip, voices and insert tails when a
+ // scene selects another stopped phrase. Its static targets are identical.
+ bool reuse=!playing && !rt.playing && !rt.automation_live && !rt.pressure_from_pad &&
+     !poly_track_mask_[t] && track(t).instrument==Instrument::Empty &&
+     voices_[t].instrument==unsigned(Instrument::Empty) && !project_->morph_enabled &&
+     !gesture_overlay_.morph_active && !gesture_overlay_.count && !control_all_ &&
+     !(control_refresh_mask_&(1u<<t)) && live_record_restart_track_!=t;
+ if(reuse){
+  for(const auto& lock:rt.active_locks)reuse&=!lock.enabled;
+  for(unsigned m=0;m<8;++m)reuse&=!project_->macros[m].active && !gesture_overlay_.macro_active[m];
+ }
+ note_off(t);rt.pressure_from_pad=false;rt.pattern=uint8_t(pattern);rt.playing=playing;
+ project_->clips[t]={uint8_t(pattern),playing};reset_track(t,true,!reuse);
  event(EngineEventType::ClipLaunched,uint8_t(t),uint8_t(pattern),uint8_t(playing));
 }
 void Engine::announce_scene(unsigned scene){
@@ -179,8 +194,12 @@ void Engine::announce_scene(unsigned scene){
   if(voice){speaker_=voice;speaker_track_=t;return;}
  }
 }
-void Engine::launch_scene(unsigned scene) {
+void Engine::launch_scene(unsigned scene,bool manual) {
  if(scene>=kScenes) return;
+ if(manual && project_->chain.enabled){
+  project_->chain.enabled=false;
+  event(EngineEventType::ChainFollowChanged,0,0);
+ }
  const auto& state=project_->scenes[scene];
  for(unsigned t=0;t<16;++t) launch_clip(t,state.pattern_for_track[t],!(state.mute_mask&(1u<<t)));
  project_->active_scene=uint8_t(scene);announce_scene(scene); event(EngineEventType::SceneLaunched,0,uint8_t(scene));
@@ -232,7 +251,7 @@ bool Engine::follow_song(bool boundary,bool tick){
  chain_position_=uint8_t(next);launch_scene(chain.scenes[chain_position_]);
 }
 void Engine::apply_launches() {
- if(pending_scene_>=0) { launch_scene(unsigned(pending_scene_)); pending_scene_=-1; }
+ if(pending_scene_>=0) { launch_scene(unsigned(pending_scene_),true); pending_scene_=-1; }
  for(unsigned t=0;t<16;++t) {
   if(pending_pattern_[t]>=0) { launch_clip(t,unsigned(pending_pattern_[t]),true); pending_pattern_[t]=-1; }
   if(pending_stop_&(1u<<t)) { launch_clip(t,runtime_[t].pattern,false); pending_stop_&=uint16_t(~(1u<<t)); }

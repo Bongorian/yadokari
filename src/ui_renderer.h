@@ -18,10 +18,10 @@
 namespace groove {
 class UiRenderer:public ui::Widgets {
  using Font=ui::FontRole;
- uint64_t phrase_attributes_=0,last_ms_=0,page_ms_=0;float previous_[8]{},smooth_[8]{};int last_mode_=-1,last_track_=-1;bool initialized_=false;bool repaint_body_=true,repaint_knobs_=true,body_invalidated_=true,prev_dialog_=false,theme_seen_=false;uint32_t last_theme_bg_=0;unsigned last_brightness_=100;
+ uint64_t phrase_attributes_=0,last_ms_=0,page_ms_=0;float previous_[8]{},previous_live_[8]{},smooth_[8]{};uint32_t previous_origin_[8]{};int last_mode_=-1,last_track_=-1;bool initialized_=false;bool repaint_body_=true,repaint_knobs_=true,body_invalidated_=true,prev_dialog_=false,theme_seen_=false;uint32_t last_theme_bg_=0;unsigned last_brightness_=100;
  ui::VisualMotion visual_motion_[2];uint64_t live_signature_=0;
  bool toast_was_=false;uint32_t toast_hash_=0;
- bool help_was_=false;
+ bool help_was_=false;int last_help_page_=0;
  uint8_t overlay_mask_was_=0,turning_mask_was_=0;uint32_t overlay_underlay_[2][480*ui::Layout::overlay_h]{};uint32_t body_snapshot_[2][480*ui::Layout::body_h]{};uint32_t body_scratch_[480]{};ui::PageTransition transition_;bool transition_pending_=false;uint64_t last_subpage_sig_=0,last_selection_sig_=0;bool signatures_valid_=false;unsigned last_sub_values_[13]{};uint64_t last_context_=~uint64_t(0);bool context_matches_=false;
  ui::SampleWaveCache wave_cache_;ui::MeterBallistics meters_[16]{};uint32_t meter_generation_=~0u;
  static const char* capture_name(unsigned source){static const char* names[]={"Main","Input","Cue","Fader","Dry","Insert","Returns","Perform","Group"};return names[capture_kind(source)];}

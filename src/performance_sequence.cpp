@@ -67,19 +67,29 @@ auto Performance::mutation_set(uint32_t seed,unsigned amount,bool history) -> bo
 auto Performance::mutation_freeze() -> bool{auto* before=new PatternState(project_,project_.active_pattern);auto* after=new PatternState(*before);auto& target=after->tracks[selected_];target.mutation.frozen=!target.mutation.frozen;if(target.mutation.frozen)for(unsigned i=0;i<kSteps;++i)target.mutation_source[i]=target.steps[i];unsigned pattern=project_.active_pattern;uint16_t mask=uint16_t(1u<<selected_);if(!engine_.replace_pattern(pattern,*after,mask,true)){delete before;delete after;return false;}Command c{CommandType::ApplyPattern,0,1,uint16_t(pattern)};c.parameter=mask;push_history(c,c,before,after);install_pattern(project_,pattern,*after,mask);dirty_=true;return true;}
 auto Performance::scene_matches_live(unsigned scene)const -> bool{if(scene>=kScenes)return false;const auto& saved=project_.scenes[scene];for(unsigned t=0;t<kTracks;++t)if(project_.clips[t].pattern!=saved.pattern_for_track[t] || project_.clips[t].playing==bool(saved.mute_mask&(1u<<t)))return false;return true;}
 auto Performance::display_song_tick()const -> float{float tick=float(visual_.song_tick);if(playing_ && visual_.playing && visual_.rate)tick+=float(visual_elapsed_samples())*project_.tempo*kSongTicksPerBeat/(60.f*visual_.rate);return fminf(tick,float(visual_.song_ticks));}
+void Performance::clear_launches(){
+ const bool restore_pattern=queued_scene_>=0 && following_clip_;
+ queued_scene_=-1;queued_stops_=0;
+ for(auto& pending:pending_)pending=-1;
+ if(restore_pattern){select_pattern(project_.clips[selected_].pattern);following_clip_=true;}
+}
 auto Performance::launch_clip(unsigned t,unsigned pattern,bool quantized)  -> bool{
   if(t>=16 || pattern>=kPatterns || !send({CommandType::LaunchClip,uint8_t(t),uint8_t(quantized),uint16_t(pattern)})) return false;
-  if(queued_scene_>=0){clear_launches();}pending_[t]=int8_t(pattern);queued_stops_&=uint16_t(~(1u<<t));if(t==selected_){select_pattern(pattern);following_clip_=true;} dirty_=true; return true;
+  if(queued_scene_>=0){clear_launches();notify(UiNotice::SceneReplaced);}pending_[t]=int8_t(pattern);queued_stops_&=uint16_t(~(1u<<t));if(t==selected_){select_pattern(pattern);following_clip_=true;} dirty_=true; return true;
  }
-auto Performance::stop_clip(unsigned t,bool quantized)  -> bool{ if(t>=16 || !send({CommandType::StopClip,uint8_t(t),uint8_t(quantized),0})) return false;if(queued_scene_>=0){clear_launches();}pending_[t]=-1;queued_stops_|=uint16_t(1u<<t); dirty_=true; return true; }
-auto Performance::launch_scene(unsigned scene,bool quantized)  -> bool{ if(scene>=kScenes || !send({CommandType::LaunchScene,0,uint8_t(quantized),uint16_t(scene)})) return false; clear_launches();queued_scene_=int8_t(scene);project_.chain.enabled=false;for(unsigned t=0;t<16;++t) pending_[t]=int8_t(project_.scenes[scene].pattern_for_track[t]);select_pattern(project_.scenes[scene].pattern_for_track[selected_]);following_clip_=true; dirty_=true; return true; }
+auto Performance::stop_clip(unsigned t,bool quantized)  -> bool{ if(t>=16 || !send({CommandType::StopClip,uint8_t(t),uint8_t(quantized),0})) return false;if(queued_scene_>=0){clear_launches();notify(UiNotice::SceneReplaced);}pending_[t]=-1;queued_stops_|=uint16_t(1u<<t); dirty_=true; return true; }
+auto Performance::launch_scene(unsigned scene,bool quantized)  -> bool{ if(scene>=kScenes || !send({CommandType::LaunchScene,0,uint8_t(quantized),uint16_t(scene)})) return false; clear_launches();queued_scene_=int8_t(scene);for(unsigned t=0;t<16;++t) pending_[t]=int8_t(project_.scenes[scene].pattern_for_track[t]);select_pattern(project_.scenes[scene].pattern_for_track[selected_]);following_clip_=true; dirty_=true; return true; }
 auto Performance::set_clip_follow(const ClipFollow& f) -> bool{if(!valid_clip_follow(f))return false;Command after{CommandType::SetClipFollow,selected_,0,0},before=after;after.clip_follow=f;before.clip_follow=track_const(selected_).clip_follow;return edit(after,before);}
-auto Performance::scene_take_status()const -> const char*{auto state=engine_.scene_take_state();if(scene_take_requested_){if(state==SceneTake::Armed)return "ARMED / starts at next bar";if(state==SceneTake::Recording)return "RECORDING / 960 ticks per beat / END at next bar";if(state==SceneTake::Finishing)return "FINISHING / waiting for bar boundary";return "Arrangement / waiting for audio owner";}return scene_take_message_;}
-auto Performance::scene_take_toggle() -> bool{
-  if(scene_take_requested_)return send({CommandType::SceneTakeControl,0,1,0});
+auto Performance::scene_take_status()const -> const char*{auto state=engine_.scene_take_state();if(scene_take_requested_){if(state==SceneTake::Armed)return "ARMED / starts at next bar";if(state==SceneTake::Recording)return "RECORDING / 960 ticks per beat / END at next bar";if(state==SceneTake::Finishing)return keep_take_playing_?"KEEP at next bar / transport continues":"END at next bar / transport stops";return "Arrangement / waiting for audio owner";}return scene_take_message_;}
+auto Performance::scene_take_toggle(bool keep_playing) -> bool{
+  if(scene_take_requested_){
+   if(!send({CommandType::SceneTakeControl,0,1,0}))return false;
+   keep_take_playing_=keep_playing;return true;
+  }
+  if(keep_playing)return false;
   if(counting_in_ || note_recording_ || recording_configuration_locked(recording_controls()) || multitimbral() || !audio_available_ || !engine_.project_snapshot_safe() || engine_.command_space()<(playing_?1u:2u)){notify(UiNotice::Failed);return false;}
   if(!send({CommandType::SceneTakeControl,0,0,0}) || (!playing_ && !send({CommandType::Start,0,0,0})))return false;
-  scene_take_requested_=true;scene_take_message_[0]=0;playing_=true;seek_ready_=false;launch_quantized_=true;dirty_=true;return true;
+  keep_take_playing_=false;scene_take_requested_=true;scene_take_message_[0]=0;playing_=true;seek_ready_=false;launch_quantized_=true;dirty_=true;return true;
  }
 auto Performance::service_scene_take() -> void{
   if(!scene_take_requested_)return;
@@ -88,11 +98,26 @@ auto Performance::service_scene_take() -> void{
   if(state!=SceneTake::Ready)return;
   if(engine_.project_events_pending())return;
   if(engine_.project_event_loss()){copy_text(scene_take_message_,sizeof scene_take_message_,"Project sync lost / original Song kept");engine_.acknowledge_scene_take();scene_take_requested_=false;notify(UiNotice::RecordLost);return;}
-  if(engine_.command_space()<2)return;
+  if(engine_.command_space()<(keep_take_playing_?1u:2u))return;
   SongState captured;if(!engine_.copy_scene_take(captured) || !valid_song(captured))return;
   Command after{CommandType::SetSong,0,0,0},before=after;after.song_state=captured;before.song_state=project_.song;
-  if(!send({CommandType::Stop,0,0,0}) || !edit(after,before))return;
-  engine_.acknowledge_scene_take();scene_take_requested_=false;playing_=false;song_cursor_=0;copy_text(scene_take_message_,sizeof scene_take_message_,"Arrangement stored / one Undo restores previous Song");notify(UiNotice::Saved);dirty_=true;
+  if(keep_take_playing_){
+   // Keep the captured Song available for explicit playback. The DSP holds
+   // Ready until the replacement has arrived, including across UI stalls.
+   after.song_state.enabled=false;
+   after.pattern=before.pattern=project_.active_pattern;
+   after.step=1; // Install and release the captured snapshot on the same DSP tick.
+   if(!send(after))return;
+   after.step=0; // Undo/redo are ordinary Song edits.
+   mirror(after);
+   push_history(before,after);
+  }else{
+   if(!send({CommandType::Stop,0,0,0}) || !edit(after,before))return;
+   engine_.acknowledge_scene_take();playing_=false;
+  }
+  scene_take_requested_=false;song_cursor_=0;
+  copy_text(scene_take_message_,sizeof scene_take_message_,keep_take_playing_?"Take kept / live clips continue / enable Song to replay":"Arrangement stored / one Undo restores previous Song");
+  notify(UiNotice::Saved);dirty_=true;
  }
 auto Performance::step_controls()const -> StepContext{return {shifted(),track_const(selected_).instrument==Instrument::DrumKit,project_.ui.click_main,project_.ui.count_in,project_.ui.note_quantized,project_.ui.note_replace,step_copied_,tracker_view_,step_overview_,page_,history_cursor_>0,history_cursor_<history_size_};}
 auto Performance::song_controls()const -> SongControlContext{

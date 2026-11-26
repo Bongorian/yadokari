@@ -53,8 +53,8 @@ struct TwinInstall {
  SoundState source{},sampled{};SampleAssetState material{};WavView view{};TwinState twin{};
  uint32_t generation=0,revision=0;unsigned track=0,asset=64,status=0,cancel=0;
 };
-enum class EngineEventType : uint8_t { Step, ClipLaunched, SceneLaunched, Note, ParameterChanged, TempoChanged, GesturePoint, GestureState, CaptureReady, RecordedNote, RecordedGate, RecordCapacity, RecordErase, RecordStopped, CountInState, Transport, SongPosition, ProgramChanged, RecordedKitHit, SoundAttached, ClipLaunchRejected, EngineParameterChanged, TwinRejected };
-struct QueuedEngineEvent { EngineEventType type; uint64_t sample; uint8_t track,value,flags=0; uint16_t parameter=0; float scalar=0; uint32_t generation=0;uint16_t tick=0;uint32_t recording_id=0,pattern_revision=0; };
+enum class EngineEventType : uint8_t { Step, ClipLaunched, SceneLaunched, Note, ParameterChanged, TempoChanged, GesturePoint, GestureState, CaptureReady, RecordedNote, RecordedGate, RecordCapacity, RecordErase, RecordStopped, CountInState, Transport, SongPosition, ProgramChanged, RecordedKitHit, SoundAttached, ClipLaunchRejected, EngineParameterChanged, TwinRejected, ChainFollowChanged };
+struct QueuedEngineEvent { EngineEventType type; uint64_t sample; uint8_t track,value,flags=0; uint16_t parameter=0; float scalar=0; uint32_t generation=0;uint16_t tick=0;uint32_t recording_id=0,pattern_revision=0,recording_take=0; };
 // attached_sound is consumer scratch, valid until the next pop_event call.
 struct EngineEvent:QueuedEngineEvent {StepState prior_step{};const SoundState* attached_sound=nullptr;};
 enum class LaunchQuantization : uint8_t { Immediate, Bar };
@@ -91,6 +91,9 @@ public:
  bool talk_following(unsigned t)const{return t<kTracks && talk_pose_[t].until>sample_count_;}
  float chimera_sing_time()const{float time=-1;for(unsigned i=0;i<chimera_slots_;++i){float next=chimeras_[i].sing_time();if(next>=0)time=next;}return time;}
 #endif
+ // Each word describes one track, its live pads and the same-index group.
+ // A control edit can read it between audio callbacks without waiting for LCD telemetry.
+ uint32_t live_talk_guard(unsigned track)const{return __atomic_load_n(&talk_guard_[track],__ATOMIC_ACQUIRE);}
  bool stage_chimera_speech(unsigned track,const char* text,size_t bytes){return chimera_slots_ && !__atomic_load_n(&snapshot_pending_,__ATOMIC_ACQUIRE) && chimera_speech_.prepare(track,text,bytes);}
  unsigned active_tracts()const{
   unsigned count=0;for(unsigned i=0;i<chimera_slots_;++i)count+=chimeras_[i].active();return count;
@@ -249,6 +252,10 @@ public:
  }
  // Called by the single task-side command producer, never by the audio owner.
  uint32_t next_preview_ticket(){preview_serial_=(preview_serial_+1)&0x7fffffffu;if(!preview_serial_)preview_serial_=1;return preview_serial_;}
+ uint32_t preview_refusal(uint32_t ticket=0)const{
+  const uint64_t result=__atomic_load_n(&preview_result_,__ATOMIC_ACQUIRE);
+  return !ticket || uint32_t(result>>32)==ticket?uint32_t(result):0;
+ }
  uint32_t preview_state()const{return __atomic_load_n(&preview_state_,__ATOMIC_ACQUIRE);}
  void request_stop(){__atomic_store_n(&stop_requested_,1,__ATOMIC_RELEASE);}
  void request_panic() { __atomic_store_n(&panic_requested_,1,__ATOMIC_RELEASE); }
@@ -280,6 +287,7 @@ private:
  VirtualAnalogTriggerBank va_triggers_{};
  void process_profiled_insert(TrackInsertSlot&,float&,float&,unsigned,float,float,float,float,float,unsigned);
  float group_gain_[8]={1,1,1,1,1,1,1,1};
+ ControlOrigin effects_origin_[13]{},group_origin_[88]{},performance_fx_origin_[2]{};
  TrackInsertSlot group_inserts_[8][2];float group_fx_current_[8][11]{},group_fx_target_[8][11]{};
  struct LayerVoiceRuntime {CreativeVoice creative;TrackInsertSlot inserts[2];PresetFxSnapshot fx{};};
  LayerVoiceRuntime* leaf_runtime_=nullptr;
@@ -294,6 +302,7 @@ private:
   CreativeState creative_state{};
   StepPitchSlide step_pitch{};bool step_mono=false,step_accent=false,tie_pending=false;uint16_t step_sound=kNoPreset;
   float a=0,env=0,frequency=261.6256f,pitch_bend=0,acid_low=0,acid_band=0;
+  float acid_filter_env=0;
   TextureState texture_state{};float texture_values[15]{};ResonatorState resonator_state{};float resonator_values[8]{};
   SoundModRoutes locked_routes{};
   const SoundModRoutes* route_override()const{return sound_locked?&locked_routes:nullptr;}
@@ -338,7 +347,15 @@ private:
  public: bool declick_active(unsigned t)const{return t<16 && declick_[t].remaining;} private:
  unsigned oldest_shared(VoiceResource resource,unsigned owner,const Voice* protect,uint32_t excluded)const;
  struct SharedVoicePlan {uint8_t indices[kPolyVoiceCapacity],count=0,slots[4]{};};
- uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims,unsigned units=1)const;
+ bool chimera_load_dirty_=false,talk_guard_active_=false;uint32_t talk_guard_[kTracks]{};
+ void publish_talk_guard(const ChimeraMix& mix);
+ unsigned chimera_talk_slots(uint32_t victims=0,ChimeraMix* detail=nullptr)const;
+ unsigned chimera_tract_limit(unsigned extra_talk=0,uint32_t victims=0)const{return chimera_capacity(extra_talk+chimera_talk_slots(victims));}
+ uint8_t chimera_last_stopped_=255,chimera_last_stop_talk_=0;
+ bool audition_triggering_=false;
+ uint64_t preview_result_=0;
+ void reconcile_chimera_load();
+ uint8_t plan_shared(unsigned track,Instrument engine,unsigned model,bool poly,const Voice* protect,SharedVoicePlan& victims,unsigned units,unsigned tract_limit)const;
  void release_shared(const SharedVoicePlan& victims);
  GestureOverlay gesture_overlay_{};
  void gesture_capture(const CommandState& c);void gesture_tick();
@@ -368,7 +385,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  void render_non_sampler_voice(unsigned track,Voice& voice,float& left,float& right,bool poly,unsigned voice_key);
  void advance_legacy_voice(Voice& voice);
 
- void reset_track(unsigned t,bool reset_position);
+ void reset_track(unsigned t,bool reset_position,bool refresh_controls=true);
  void schedule_step_anticipation(unsigned t);
  void service_step_anticipation(unsigned t);
  bool service_step_events(unsigned t);
@@ -384,7 +401,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  bool mount_override(unsigned t,unsigned slot,bool twin=false);
  struct PresetPreview {PresetFxSnapshot before_fx{};TrackKind before_kind=TrackKind::Instrument;bool before_audio=false;SoundState staged{},before{};WavView staged_views[kSampleAssets]{},before_views[kSampleAssets]{};SampleMetadata staged_metadata[kSampleAssets]{},before_metadata[kSampleAssets]{};uint64_t staged_mask=0,active_mask=0;};
  PresetPreview* preset_preview_=nullptr;uint32_t preset_preview_pending_=0;uint8_t preset_preview_track_=255;
- void start_preset_preview(const CommandState&);void stop_preset_preview();
+ void start_preset_preview(const CommandState&);void stop_preset_preview();void restore_preview_mount(unsigned t);
 
  WavetableBankView wt_assets_[kSampleAssets]{};
  uint64_t wt_ready_mask_=0;
@@ -418,7 +435,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  void refresh_cc(unsigned t);
  void play_step(unsigned t);
  void launch_clip(unsigned t,unsigned pattern,bool playing);
- void launch_scene(unsigned scene);
+ void launch_scene(unsigned scene,bool manual=false);
  void announce_scene(unsigned scene);
  const ChimeraPhrase* announcing_=nullptr;
  Voice* speaker_=nullptr;
@@ -443,16 +460,16 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  uint64_t arrangement_tick_phase_=0,arrangement_tick_=0;uint32_t song_elapsed_ticks_=0,song_duration_ticks_=kSongTicksPerBar;
  uint16_t arrangement_restarts_=0,snapshot_solo_=0;bool arrangement_dirty_=false,song_snapshot_=false;
  bool midi(uint8_t status,uint8_t a=0,uint8_t b=0,uint8_t length=3);
- bool capture_internal(uint8_t status,uint8_t a,uint8_t b,uint8_t length=3);void capture_voice_on(Voice& voice,unsigned track,unsigned velocity);void capture_voice_off(Voice& voice);void capture_pressure(unsigned track,uint8_t value);bool capture_internal_track(unsigned track);bool refresh_expression(unsigned track);ModRuntime mod_runtime(unsigned track) const;
- static bool project_event(EngineEventType type){return type==EngineEventType::SoundAttached || type==EngineEventType::ParameterChanged || type==EngineEventType::ProgramChanged || type==EngineEventType::ClipLaunched || type==EngineEventType::SceneLaunched || type==EngineEventType::GesturePoint || type==EngineEventType::GestureState || type==EngineEventType::TempoChanged || type==EngineEventType::RecordedNote || type==EngineEventType::RecordedKitHit || type==EngineEventType::RecordedGate || type==EngineEventType::RecordErase;}
- void event(EngineEventType type,uint8_t t,uint8_t value,uint8_t flags=0,uint16_t parameter=0,float scalar=0,uint16_t tick=0,uint32_t recording_id=0,uint32_t recording_revision=0) {
+ bool capture_internal(uint8_t status,uint8_t a,uint8_t b,uint8_t length=3);void capture_voice_on(Voice& voice,unsigned track,unsigned velocity);void capture_voice_off(Voice& voice);void capture_pressure(unsigned track,uint8_t value);bool capture_internal_track(unsigned track);bool refresh_expression(unsigned track,bool base_only=false);ModRuntime mod_runtime(unsigned track) const;
+ static bool project_event(EngineEventType type){return type==EngineEventType::ChainFollowChanged || type==EngineEventType::SoundAttached || type==EngineEventType::ParameterChanged || type==EngineEventType::ProgramChanged || type==EngineEventType::ClipLaunched || type==EngineEventType::SceneLaunched || type==EngineEventType::GesturePoint || type==EngineEventType::GestureState || type==EngineEventType::TempoChanged || type==EngineEventType::RecordedNote || type==EngineEventType::RecordedKitHit || type==EngineEventType::RecordedGate || type==EngineEventType::RecordErase;}
+ void event(EngineEventType type,uint8_t t,uint8_t value,uint8_t flags=0,uint16_t parameter=0,float scalar=0,uint16_t tick=0,uint32_t recording_id=0,uint32_t recording_revision=0,uint32_t take=0) {
   // A display flood must not occupy the space needed for recorded notes,
   // external MIDI edits and transport notifications. Never block the DSP.
   const bool visual=type==EngineEventType::Step || type==EngineEventType::Note;
   if(visual && events_.free_space()<=256){__atomic_add_fetch(&visual_event_dropped_,1,__ATOMIC_RELAXED);return;}
   uint32_t revision=type==EngineEventType::RecordedGate?recording_revision:((type==EngineEventType::RecordedNote || type==EngineEventType::RecordedKitHit) && t<kTracks && flags<kPatterns)?pattern_revisions_->audio[flags][t]:0;
   const bool affects_project=project_event(type);if(affects_project)__atomic_add_fetch(&project_events_pending_,1,__ATOMIC_RELEASE);
-  if(!events_.push({type,sample_count_,t,value,flags,parameter,scalar,generation_,tick,recording_id,revision})){
+  if(!events_.push({type,sample_count_,t,value,flags,parameter,scalar,generation_,tick,recording_id,revision,take})){
    __atomic_add_fetch(visual?&visual_event_dropped_:&event_dropped_,1,__ATOMIC_RELAXED);
    if(affects_project){__atomic_store_n(&project_event_loss_,1,__ATOMIC_RELEASE);__atomic_sub_fetch(&project_events_pending_,1,__ATOMIC_RELEASE);}
   }
@@ -470,7 +487,7 @@ void resolve_voice_bank(unsigned track,Instrument engine,const float* bases,floa
  uint32_t clip_follow_seed_[16]{};
  SceneTake scene_take_{};bool scene_take_live_arm_=false;
  uint32_t bpm_=120,random_=0x13579bdf,meta_random_=0x13579bdf; uint64_t event_seed_tick_[16]={};bool event_seed_tick_valid_[16]={};uint8_t event_seed_pitches_[16][16]{};uint8_t event_seed_counts_[16][16]{};uint8_t event_seed_entries_[16]={}; uint64_t clock_phase_=0,bar_phase_=0,sample_count_=0,count_phase_=0,song_phase_=0;uint16_t song_position_=0;uint32_t metro_ticks_=0,click_remaining_=0,click_length_=0;uint8_t count_beat_=0;bool counting_=false;float click_phase_=0,click_increment_=0; bool note_record_armed_=false;uint8_t note_record_track_=0;uint64_t (*record_erased_)[kSteps];SpscQueue<StepState,65>* erase_payload_;bool playing_=false,first_=false,fill_=false;
- struct RecordedHeld {uint64_t start=0,period=0;uint32_t id=0;uint8_t track=0,note=0;uint16_t channel=0;uint8_t pattern=0,step=0;uint32_t pattern_revision=0;};RecordedHeld recorded_held_[64]{};uint32_t recording_serial_=0;
+ struct RecordedHeld {uint64_t start=0,period=0;uint32_t id=0;uint8_t track=0,note=0;uint16_t channel=0;uint8_t pattern=0,step=0;uint32_t pattern_revision=0;};RecordedHeld recorded_held_[64]{};uint32_t recording_serial_=0,recording_take_=0;
  struct VaResolved {uint64_t sample=~uint64_t(0);unsigned generation=0;float values[kVirtualAnalogParameterCount]{};};VaResolved va_resolved_[16]{};
  bool insert_resources_ready_=true;float* modulation_storage_=nullptr;WavView samples_[kSampleAssets]{},staged_samples_[kSampleAssets]{},pattern_samples_[kSampleAssets]{};SampleMetadata pattern_sample_metadata_[kSampleAssets]{};bool pattern_assets_=false,staged_assets_=false; TrackRuntime runtime_[16]{}; Voice voices_[16]{}; uint8_t sample_zone_round_robin_[16]{}; GranularVoice* granular_=nullptr;TextureVoice* textures_=nullptr;bool textures_suspended_=false;TextureStereo texture_previous_[61]{},texture_next_[61]{};ResonatorVoice* resonators_=nullptr;PlaitsVoice* plaits_=nullptr;PlaitsVoice* poly_plaits_=nullptr; DaisyDrumBank* public_drums_=nullptr;
  ParameterSnapshot morph_staging_[2][kTracks]{};uint8_t morph_stage_pending_[2]{};uint16_t control_refresh_mask_=0;uint8_t control_refresh_cursor_=0;uint64_t effects_refresh_due_=0;

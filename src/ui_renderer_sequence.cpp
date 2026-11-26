@@ -33,12 +33,20 @@ auto UiRenderer::scenes(const ProjectState& p,const Performance& perf) -> void{
    label(0,x+39,y+3,queued?"NEXT":active?(perf.playing()?"LIVE":"STOPPED"):focus?"SELECTED":"",queued?theme.amber:theme.secondary,Font::Small,63);
    activity_strip(0,x+39,y+17,sounding,active?theme.teal:theme.secondary);}
   advice(perf.select_held()?"SELECT + PAD: STORE CURRENT":"PAD: LAUNCH   SELECT + PAD: STORE");
-  panel(1,10,79,460,128);label(1,24,85,"SCENE",theme.secondary,Font::Small,55);value(1,80,80,30,selected+1,theme.teal,Font::Body,0);label(1,129,85,"PATTERN FOR EACH TRACK",theme.secondary,Font::Small,220);label(1,350,85,perf.launch_quantized()?"NEXT BAR":"IMMEDIATE",theme.teal,Font::Small,105);
+  panel(1,10,79,460,128);label(1,24,85,"SCENE",theme.secondary,Font::Small,55);value(1,80,80,30,selected+1,theme.teal,Font::Body,0);label(1,129,85,(perf.pending_scene()>=0 && p.chain.enabled)?"FOLLOW UNTIL LAUNCH":"PATTERN FOR EACH TRACK",theme.secondary,Font::Small,220);label(1,350,85,perf.launch_quantized()?"NEXT BAR":"IMMEDIATE",theme.teal,Font::Small,105);
   label(1,24,103,"CELL: TRACK No. -> PATTERN No.   -- = TRACK OFF",theme.secondary,Font::Small,430);
-  const auto& scene=p.scenes[selected];for(unsigned t=0;t<16;++t){int x=24+int(t%8)*53,y=122+int(t/8)*34;bool stopped=(scene.mute_mask&(1u<<t))!=0;bool diff=scene.pattern_for_track[t]!=p.clips[t].pattern;relief(1,x,y,49,29,theme.raised);value(1,x+2,y+1,20,t+1,theme.secondary,Font::Small,0);if(stopped)label(1,x+24,y+3,"--",theme.disabled,Font::Small,23);else value(1,x+24,y+1,23,scene.pattern_for_track[t]+1,theme.text,Font::Small,0);if(diff && !stopped)fill(1,x+24,y+24,20,2,theme.amber);}
-  unsigned diffs=0;for(unsigned t=0;t<16;++t)if(scene.pattern_for_track[t]!=p.clips[t].pattern)++diffs;
+  const auto& scene=p.scenes[selected];for(unsigned t=0;t<16;++t){int x=24+int(t%8)*53,y=122+int(t/8)*34;bool stopped=(scene.mute_mask&(1u<<t))!=0;bool diff=scene.pattern_for_track[t]!=p.clips[t].pattern;relief(1,x,y,49,29,theme.raised);value(1,x+2,y+1,20,t+1,theme.secondary,Font::Small,0);if(stopped)label(1,x+24,y+3,"--",theme.disabled,Font::Small,23);else value(1,x+24,y+1,23,scene.pattern_for_track[t]+1,theme.text,Font::Small,0);if((!stopped)!=p.clips[t].playing || (diff && !stopped))fill(1,x+24,y+24,20,2,theme.amber);}
+  unsigned starts=0,stops=0,changes=0;
+  for(unsigned t=0;t<kTracks;++t){
+   const bool next=(scene.mute_mask&(1u<<t))==0;
+   if(next!=p.clips[t].playing){if(next)++starts;else ++stops;}
+   else if(next && scene.pattern_for_track[t]!=p.clips[t].pattern)++changes;
+  }
   if(selected==p.active_scene && matches)label(1,24,192,"SAME AS LIVE (AMBER LINE = WILL CHANGE)",theme.secondary,Font::Small,430);
-  else {label_band(1,24,189,215,16,"TRACKS CHANGED BY LAUNCH:",theme.secondary,Font::Small);number_band(1,245,189,40,16,diffs,theme.amber,Font::Body,0);label(1,290,192,"/ 16",theme.secondary,Font::Small,50);}
+  else {
+   KnobValue summary;summary.number(starts,0);summary.append("START");summary.number(stops,0);summary.append("STOP");summary.number(changes,0);summary.append("PATTERN");
+   label_band(1,24,189,432,16,summary.text,theme.amber,Font::Body);
+  }
  }
 auto UiRenderer::song(const ProjectState& p,const Performance& perf) -> void{
   const auto& s=p.song;unsigned count=s.length?s.length:p.chain.length,cur=count && perf.song_cursor()<count?perf.song_cursor():0;

@@ -147,7 +147,8 @@ auto UiRenderer::synth_signal(const ProjectState& p,ConstTrackView t,const Perfo
     d && d->interpolation==Interpolation::Discrete?unsigned(d->maximum-d->minimum+1):0u,true,selected});
   }
   if(details)advice("TOP 4: NEXT DETAIL PAGE");
-  if(articulation)advice(view==2?"TOP 3: ARTICULATION 2/2":"TOP 3: ARTICULATION 1/2 / SHIFT: SCENE SPEAK & TALK TO TRACK");
+  if(articulation)advice(view==2?"TOP 3: ARTICULATION 2/2":"TOP 3: PAGE 1/2   SHIFT+K5: SCENE SPEAK   SHIFT+K6: TALK OUT");
+  if(t.instrument==Instrument::Chimera && view==3)advice("K7: MODE   K8: BESTIARY SPECIES   SHIFT+K8: VOICE MODE");
  }
 auto UiRenderer::layer_picture(ConstTrackView t,const Performance& perf) -> void{
   label(0,24,82,"ONE NOTE / PARALLEL CHILD VOICES",theme.secondary,Font::Small,430);
@@ -155,7 +156,9 @@ auto UiRenderer::layer_picture(ConstTrackView t,const Performance& perf) -> void
   for(unsigned i=0;i<4;++i){int y=109+int(i)*23;bool used=i<t.layer.count;relief(0,20,y-4,258,19,i==perf.layer_cursor()?theme.raised:theme.surface,2);auto color=i==perf.layer_cursor()?theme.teal:theme.secondary;value(0,24,y,18,float(i+1),color,Font::Small,0);const char* name=used?(t.layer.parts[i].sound.preset_name[0]?t.layer.parts[i].sound.preset_name:layer_engine_name(t.layer.parts[i].sound.instrument)):"EMPTY / USE CHILD";scrolling_label(0,50,y,name,color,Font::Small,224);line(0,282,y+6,312,y+6,color,1);progress(0,320,y+4,55,4,used?t.layer.parts[i].level:0,color);line(0,380,y+6,408,y+6,color,1);line(0,408,y+6,408,154,color,1);}
   line(0,408,154,453,154,theme.teal,2);label(0,417,167,"SUM",theme.teal,Font::Small,40);
   if(perf.synth_monitor()!=Performance::SynthMonitor::Engine)return;
-  label(1,24,82,layer_reason(reason),reason==LayerReason::Ready?theme.teal:theme.warn,Font::Small,430);
+  char text[64];unsigned talks=0;const auto ch=perf.layer_chimera_warning(&talks);
+  if(ch!=VoiceRefusal::None)voice_refusal_text(text,ch,talks);
+  label(1,24,82,ch!=VoiceRefusal::None?text:layer_reason(reason),reason==LayerReason::Ready?theme.teal:theme.warn,Font::Small,430);
   advice("POOL SLOT / TOP 3: USE CHILD");const auto& candidate=perf.layer_candidate();scrolling_label(1,24,125,candidate.preset_name[0]?candidate.preset_name:layer_engine_name(candidate.instrument),theme.text,Font::Body,430);
   if(perf.layer_cursor()<t.layer.count){const auto& part=t.layer.parts[perf.layer_cursor()];char ranges[96];unsigned n=0;auto append=[&](const char* text){while(*text && n+1<sizeof ranges)ranges[n++]=*text++;ranges[n]=0;};auto number=[&](unsigned v){char text[16];format_value(text,float(v),0);append(text);};append("KEY ");number(part.key_low);append("-");number(part.key_high);append("   VEL ");number(part.velocity_low);append("-");number(part.velocity_high);append(part.fx.present?"   FX ON":"   FX OFF");label(1,24,153,ranges,theme.secondary,Font::Small,430);}
   label(1,24,172,"LEAF FX > SUM > TRACK FX > SENDS",theme.secondary,Font::Small,430);label_band(1,24,184,100,16,"NOTE COST",theme.secondary,Font::Small);number_band(1,132,184,38,16,float(cost),theme.teal,Font::Small,0);label(1,174,187,"/ 12   POOL IS NOT EXPANDED",theme.secondary,Font::Small,275);
@@ -170,25 +173,43 @@ auto UiRenderer::chimera_picture(const Performance& perf) -> void{
   panel(1,10,79,460,128);
   label(1,24,86,"VOCAL TRACT",theme.secondary,Font::Small,130);
   const auto& frame=perf.visual();
-  if(!perf.visual_fresh() || frame.taps.track!=perf.selected_track())return;
-  if(!frame.chimera_available){label(1,24,139,"48 KHZ ENGINE UNAVAILABLE",theme.warn,Font::Small,400);return;}
+  if(!perf.visual_fresh() || frame.taps.track!=perf.selected_track()){
+   label(1,24,139,"WAITING FOR TRACT DATA",theme.secondary,Font::Small,400);return;
+  }
+  const auto& mix=frame.chimera_mix;
+  auto reason=chimera_refusal(perf.selected_chimera_unison(),mix.talk,frame.chimera_available);
+  // Layer leaves are protected from single-note voice stealing.
+  if(reason==VoiceRefusal::None && mix.layer && mix.tracts>=chimera_capacity(mix.talk))reason=VoiceRefusal::Busy;
+  if(reason!=VoiceRefusal::None){char text[64];voice_refusal_text(text,reason,mix.talk);label(1,24,139,text,theme.warn,Font::Small,430);return;}
   const auto& tract=frame.chimera;
   if(tract.model>=3 && tract.model<7){
    label(1,155,86,kChimeraSpecies[tract.model-3],theme.text,Font::Small,130);
+   aligned_band(1,332,81,120,15,frame.chimera_live?"LIVE":"REST SHAPE",theme.secondary,Font::Small,ui::TextAlign::Right);
+   label(1,260,86,"REL. SIZE",theme.secondary,Font::Small,70);
+   float max_length=0,max_radius=0;
+   for(const auto& tube:tract.animal){
+    if(!tube.name[0])break;
+    max_length=fmaxf(max_length,tube.length);
+    for(float radius:tube.radius)max_radius=fmaxf(max_radius,radius);
+   }
+   const float length_scale=max_length>0?326/max_length:0;
+   const float radius_scale=max_radius>0?8/max_radius:0;
    for(unsigned i=0;i<5 && tract.animal[i].name[0];++i){
     const auto& tube=tract.animal[i];
     int y=111+int(i)*20;
     label(1,24,y-5,tube.name,theme.secondary,Font::Small,94);
-    const int width=bounded(int(30+sqrtf(tube.length)*23),35,320);
+    const int width=bounded(int(tube.length*length_scale+.5f),2,326);
     int previous=0;
     for(unsigned j=0;j<ChimeraGeometry::sections;++j){
      int x=120+int(j)*width/int(ChimeraGeometry::sections-1);
-     int radius=bounded(int(1+sqrtf(tube.radius[j])*3.2f),1,8);
+     int radius=bounded(int(tube.radius[j]*radius_scale+.5f),1,8);
      unsigned strength=unsigned(ui::clamp01(fabsf(tube.pressure[j]))*255);
      auto ink=ui::mix(theme.border,tube.pressure[j]<0?theme.teal:theme.warn,strength);
      line(1,x,y-radius,x,y+radius,ink,2);
      if(j){
       int back=120+int(j-1)*width/int(ChimeraGeometry::sections-1);
+      const int interior=radius<previous?radius:previous;
+      fill(1,back,y-interior,x-back,2*interior+1,ink);
       line(1,back,y-previous,x,y-radius,theme.text,1);
       line(1,back,y+previous,x,y+radius,theme.text,1);
      }
@@ -258,33 +279,58 @@ auto UiRenderer::chimera_picture(const Performance& perf) -> void{
   const auto nasal_ink=ui::mix(theme.blue,theme.text,90);
   stroke(tract.nasal,n,nasal_ink,2);stroke(tract.velum,n,nasal_ink,1);stroke(tract.tongue,n,theme.teal,2);
   stroke(tract.outer+n-3,3,theme.warn,2);stroke(tract.inner+n-3,3,theme.warn,2);
-  auto tag=[&](Point p,int row,const char* name,uint32_t color){
+  // Link the focused physical knob to the structure it directly controls.
+  enum class Landmark {None,Nasal,Tongue,Lips,Glottis};
+  Landmark focus=Landmark::None;
+  const unsigned knobs=perf.mode()==UiMode::Synth?synth_edit_knobs(perf):0;
+  if(knobs && !(knobs&(knobs-1))){
+   const auto id=perf.knob_parameter(unsigned(__builtin_ctz(knobs)));
+   if(engine_target(id) && target_engine(id)==Instrument::Chimera)switch(target_local(id)){
+    case ChimeraVelum:focus=Landmark::Nasal;break;
+    case ChimeraTongueX:case ChimeraTongueY:case ChimeraTipX:case ChimeraTipY:
+    case ChimeraTipCurl:case ChimeraRoot:case ChimeraDorsum:focus=Landmark::Tongue;break;
+    case ChimeraLipRound:case ChimeraLipAperture:case ChimeraLipProtrusion:
+    case ChimeraLipWidth:case ChimeraLabiodental:focus=Landmark::Lips;break;
+    case ChimeraLarynx:focus=Landmark::Glottis;break;
+   }
+  }
+  auto tag=[&](Point p,int row,const char* name,uint32_t color,Landmark landmark){
    int px=x(p),py=y(p);
-   line(1,px,py,242,row,theme.border,1);line(1,242,row,249,row,color,1);
+   const bool focused=landmark==focus;
+   if(focused)rounded(1,px-5,py-5,11,10,5,theme.accent);
+   line(1,px,py,242,row,focused?theme.accent:theme.border,1);line(1,242,row,249,row,color,1);
    rounded(1,px-2,py-2,5,4,2,color);label(1,254,row-4,name,color,Font::Small,85);
   };
-  tag(tract.nasal[21],105,"NASAL",nasal_ink);
-  tag(tract.tongue[17],129,"TONGUE",theme.teal);
-  tag(upper,151,"LIPS",theme.warn);
-  tag(tract.glottis,184,"GLOTTIS",theme.text);
+  tag(tract.nasal[21],105,"NASAL",nasal_ink,Landmark::Nasal);
+  tag(tract.tongue[17],129,"TONGUE",theme.teal,Landmark::Tongue);
+  tag(upper,151,"LIPS",theme.warn,Landmark::Lips);
+  tag(tract.glottis,184,"GLOTTIS",theme.text,Landmark::Glottis);
   label(1,254,84,frame.chimera_live?"LIVE":"REST SHAPE",theme.secondary,Font::Small,90);
   aligned_band(1,350,81,102,15,kChimeraBodies[tract.model<3?tract.model:0],theme.secondary,Font::Small,ui::TextAlign::Right);
-  label(1,347,111,"AIR PRESSURE",theme.secondary,Font::Small,107);
-  const int axis=148;
-  line(1,348,axis,451,axis,theme.border,1);
-  for(unsigned i=0;i<ChimeraGeometry::sections;++i){
-   int height=int(22*tract.pressure[i]);int px=349+int(i)*6;
-   if(height)line(1,px,axis,px,axis-height,height>0?theme.warn:theme.teal,3);
-  }
-  label(1,347,175,"THROAT > LIPS",theme.secondary,Font::Small,108);
+  label(1,347,101,"AIRWAY GAP",theme.secondary,Font::Small,110);
+  label(1,347,140,"AIR PRESSURE",theme.secondary,Font::Small,110);
+  constexpr int left=349,right=451,gap_base=133,pressure_axis=164;
+  line(1,left,gap_base,right,gap_base,theme.border,1);
+  line(1,left,pressure_axis,right,pressure_axis,theme.border,1);
+  bool contact=false;
+  int previous_x=left,previous_y=gap_base;
   for(unsigned i=0;i<ChimeraGeometry::sections;++i){
    const Point a=tract.section_inner[i],b=tract.section_outer[i];
-   const float dx=a.x-b.x,dy=a.y-b.y;
-   if(dx*dx+dy*dy>0.02f*0.02f)continue;
-   fill(1,x(a)-2,y(a)-2,5,5,theme.warn);
-   label(1,347,192,"CONTACT",theme.warn,Font::Small,108);
-   break;
+   const float dx=a.x-b.x,dy=a.y-b.y,gap=sqrtf(dx*dx+dy*dy);
+   const int px=left+int(i)*(right-left)/int(ChimeraGeometry::sections-1);
+   const int gap_y=gap_base-bounded(int(5*gap),0,18);
+   if(i)line(1,previous_x,previous_y,px,gap_y,theme.teal,2);
+   previous_x=px;previous_y=gap_y;
+   const int h=bounded(int(13*tract.pressure[i]),-13,13);
+   if(h)line(1,px,pressure_axis,px,pressure_axis-h,h>0?theme.warn:theme.teal,3);
+   if(gap<=.02f){
+    fill(1,px-1,gap_base-1,3,3,theme.warn);
+    if(!contact)fill(1,x(a)-2,y(a)-2,5,5,theme.warn);
+    contact=true;
+   }
   }
+  label(1,347,178,"THROAT > LIPS",theme.secondary,Font::Small,108);
+  if(contact)label(1,347,192,"CONTACT",theme.warn,Font::Small,108);
  }
 void UiRenderer::synth_monitor_picture(const Performance& perf){
  const bool scope=perf.synth_monitor()==Performance::SynthMonitor::Scope;

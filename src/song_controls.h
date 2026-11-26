@@ -4,7 +4,7 @@
 namespace groove {
 // Shared Song / captured Arrangement grammar. Labels, dispatch and limits
 // come from the same descriptor on Desktop and Circle.
-enum class SongAction:uint8_t { None,Add,Delete,Import,Clear,Record,Cancel,Section,Loop,Enable,Scene,Bars,Repeats,Transpose,Track,Ticks,Pattern,Skeleton,Move,Copy };
+enum class SongAction:uint8_t { None,Add,Delete,Import,Clear,Record,Keep,Cancel,Section,Loop,Enable,Scene,Bars,Repeats,Transpose,Track,Ticks,Pattern,Skeleton,Move,Copy,Unique };
 constexpr uint8_t icon_for(SongAction action){switch(action){case SongAction::Delete:return ui::icons::Erase;case SongAction::Import:return ui::icons::Open;case SongAction::Clear:return ui::icons::Erase;case SongAction::Record:return ui::icons::Record;case SongAction::Cancel:return ui::icons::Cancel;default:return ui::icons::None;}}
 
 using SongControl=ui::ControlDescriptor<SongAction>;
@@ -21,6 +21,7 @@ inline SongControl song_button_control(unsigned index,const SongControlContext& 
   case 4:return {c.recording?"END TAKE":"REC ARRANGE",SongAction::Record,c.recording || !c.counting_in};
   case 6:return {"DUP SECTION",SongAction::Copy,!c.recording && c.cursor<c.length && c.length<32};
   case 5:return c.recording?SongControl{"CANCEL TAKE",SongAction::Cancel,true}:SongControl{"SKELETON",SongAction::Skeleton,true};
+  case 7:return c.recording?SongControl{"KEEP TAKE",SongAction::Keep,true}:SongControl{"EDIT UNIQUE",SongAction::Unique,c.cursor<c.length};
   default:return {};
  }
 }

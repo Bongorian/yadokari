@@ -88,7 +88,10 @@
   if(perf.fx_page()==3 || perf.fx_page()==5){
    bool chain=perf.fx_page()==5;label(0,24,83,"TRACK / SIGNAL ORDER",theme.secondary,Font::Small,420);
    static const char* names[]={"TONE","INSERT 1","INSERT 2","COMP"};static const unsigned order[]={0,3,1,2};ui::ContentNode nodes[4];for(unsigned i=0;i<4;++i){unsigned n=order[i];bool selected=chain?perf.chain_node()==n:n==perf.fx_focus_slot()+1;bool enabled=n==0 || (n==3?t.compressor[5]>.000001f:!(t.insert_disabled&(1u<<(n-1))) && fx[(n-1)*4]>0);float activity=n==0?perf.visual().node_activity[perf.selected_track()][2]:n==3?perf.visual().node_activity[perf.selected_track()][3]:perf.visual().insert_activity[perf.selected_track()][n-1];nodes[i]={names[n],enabled?"ON":"PASS",meter_amount(activity),selected,enabled};}signal_chain(0,24,110,430,nodes,4,ui::track_color(p,perf.selected_track(),theme));
-   label(0,24,199,chain?"TURN: STAGE   PUSH: EDIT   TOP: BYPASS / SWAP":"TURN: SLOT   PUSH: EDIT   SHIFT + INSERTS: SWAP",theme.secondary,Font::Small,430);
+   if(perf.visual().chimera_mix.last_stopped<kTracks){
+    const auto& mix=perf.visual().chimera_mix;KnobValue text;text.append("LAST STOP / TRACK");text.number(mix.last_stopped+1,0);text.append("/ TALK SLOTS");text.number(mix.last_stop_talk,0);
+    label(0,24,199,text.text,theme.warn,Font::Small,430);
+   }else label(0,24,199,chain?"TURN: STAGE   PUSH: EDIT   TOP: BYPASS / SWAP":"TURN: SLOT   PUSH: EDIT   SHIFT + INSERTS: SWAP",theme.secondary,Font::Small,430);
    unsigned node=chain?perf.chain_node():perf.fx_focus_slot()+1;
    if(node==0)tone_picture(1,t,rate,&perf);
    else if(node<3){unsigned slot=(node-1)*4;insert_picture(1,unsigned(fx[slot]),fx[slot+1],fx[slot+2],fx[slot+3],(t.insert_disabled>>(node-1))&1,rate,perf.visual().vocoder_bands[perf.selected_track()][node-1],perf.visual().insert_activity[perf.selected_track()][node-1],perf.visual_fresh(),&perf,ui::track_color(p,perf.selected_track(),theme));}

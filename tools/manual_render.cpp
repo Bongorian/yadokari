@@ -83,6 +83,10 @@ int main(int argc,char** argv) {
  ui.set_shift(true);ui.soft_key(7);ui.set_shift(false);
  if(!ui.on_perform_page(PerformTools))return 1;
  shot("live-tools");const auto tools=ui.navigation();
+ ui.set_shift(true);ui.control(7,4);ui.set_shift(false);
+ if(!ui.help_visible())throw std::runtime_error("LIVE TOOLS help unavailable");
+ shot("live-tools-help");ui.encoder(-1);shot("live-tools-help-controls");
+ ui.control(7,0);
  for(const auto& face: {std::pair<unsigned,PerformPage>{4,PerformRecording},{5,PerformFxMap},{6,PerformModule}}){
   ui.restore_navigation(tools);ui.soft_key(face.first);
   if(!ui.on_perform_page(face.second))return 1;

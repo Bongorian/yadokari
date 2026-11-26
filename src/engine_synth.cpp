@@ -47,6 +47,8 @@ __attribute__((noinline)) void Engine::render_sampler_voice(Voice& v,float& l,fl
  }else sample();
 }
 void Engine::present_chimera(AudioVisualFrame& frame){
+ auto& mix=frame.chimera_mix;mix={};mix.talk=uint8_t(chimera_talk_slots(0,&mix));publish_talk_guard(mix);
+ mix.last_stopped=chimera_last_stopped_;mix.last_stop_talk=chimera_last_stop_talk_;
  frame.chimera_available=chimera_slots_!=0;
  frame.chimera_live=false;
  if(!chimera_slots_)return;
@@ -224,13 +226,21 @@ __attribute__((noinline)) void Engine::render_non_sampler_voice(unsigned t,Voice
     else if(v.instrument==unsigned(Instrument::FM)) { v.fm.SetFrequency(v.frequency);v.fm.SetRatio(fm_ratio(v.parameters[0]));v.fm.SetIndex(fm_index(v.parameters[1])*0.7957747f*v.env);x=v.fm.Process()*v.a; }
     else if(v.instrument==unsigned(Instrument::Acid)) {
      float saw=v.saw.process(),pulse=saw>=0?1.0f:-1.0f;float input=(saw+(pulse-saw)*v.parameters[4])*v.a;
-     float cutoff=acid_cutoff(v.parameters,v.env);if(v.step_accent)cutoff+=600+2500*v.env;
+     float cutoff=acid_cutoff(v.parameters,v.acid_filter_env);
+     if(v.step_accent)cutoff+=600+2500*v.acid_filter_env;
+     v.acid_filter_env*=acid_filter_decay(v.parameters[3],v.step_accent,inverse_rate_);
      float f=2*sine_table(3.14159265f*cutoff/(float(rate_)*2));if(f>0.7f)f=0.7f;float damping=acid_damping(v.parameters[1]);
-     for(unsigned oversample=0;oversample<2;++oversample){v.acid_low+=f*v.acid_band;float high=input-v.acid_low-damping*v.acid_band;v.acid_band+=f*high;v.acid_band=soft_clip(v.acid_band,0.3f);}
+     for(unsigned oversample=0;oversample<2;++oversample){
+      v.acid_low+=f*v.acid_band;
+      const float high=input-v.acid_low-damping*v.acid_band;
+      v.acid_band+=f*high;
+      // A feedback limiter needs unity small-signal gain to preserve the pole damping.
+      v.acid_band/=1.0f+0.3f*__builtin_fabsf(v.acid_band);
+     }
      x=v.acid_low;if(v.step_accent)x*=1.6f;
     }
     float gain=v.instrument==unsigned(Instrument::Acid)?0.15f:0.035f;
-    l=rr=x*v.env*gain;if(v.released)v.env*=0.99f;else if(v.instrument==unsigned(Instrument::Acid))v.env*=acid_decay(v.parameters[3]);else if(!poly)v.env*=0.9994f;
+    l=rr=x*v.env*gain;if(v.released)v.env*=0.99f;else if(!poly && v.instrument!=unsigned(Instrument::Acid))v.env*=0.9994f;
    }
 }
 void Engine::publish_voice_visual(AudioVisualFrame& frame,unsigned t,Voice& v){

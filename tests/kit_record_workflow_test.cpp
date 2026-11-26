@@ -81,7 +81,9 @@ int main(){
  for(unsigned i=0;i<4;++i)assert(kit.pads[i].sample[0]==result.slot);
  for(unsigned i=4;i<16;++i)assert(kit.pads[i].sample[0]==255);
  assert(ui.request_file(FileAction::SaveKit) && ui.browser_editing());assert(copy_text(ui.browser().edit.name,96,"Recorded Kit"));assert(ui.browser_edit_key(0) && files.service());
- assert(fs.exists("KITS/Recorded Kit.mgxk"));
+ assert(fs.exists("KITS/Recorded Kit.mgxk") && ui.mode()==UiMode::Sampler);
+ // Saving returns to the sampler. Enter FILE explicitly to load the saved kit.
+ ui.set_mode(UiMode::Browser);
  assert(ui.select_track(1));
  assert(ui.play());engine->render(output,0);ui.poll();
  // Keep an already-sounding pad on track 0 alive while a kit is installed on

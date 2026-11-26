@@ -73,6 +73,102 @@ static void talking_kit(){
  auto plain=playback(*copy);double delta=0;for(unsigned i=0;i<plain.size();++i){assert(std::isfinite(recorded[i]));delta+=std::fabs(plain[i]-recorded[i]);}
  assert(delta>1);std::printf("TALK kit: four performed steps replayed bit-identically after save, lock/no-lock PCM difference %.3f\n",delta);
 }
+// Compare the actual stereo stream, including the release, with an identical
+// pass in which the performer never pressed PREVIEW.
+static void denied_preview_pcm(){
+ auto song=std::make_unique<ProjectState>();
+ make_empty_project(*song);
+ song->tracks[0].instrument=Instrument::Acid;
+ for(unsigned t=1;t<=4;++t)song->tracks[t].insert_fx[0]=kTalkFx;
+ auto preset=std::make_unique<SoundState>();
+ preset->instrument=Instrument::Chimera;
+ WavView views[kSampleAssets]{};
+ auto play=[&](bool audition){
+  auto engine=std::make_unique<Engine>();
+  assert(engine->stage_project(*song));
+  float frame[48]{};
+  engine->render(frame,0);
+  assert(engine->submit({CommandType::Start,0,0,0}));
+  note(*engine,0,49,true);
+  std::vector<float> output;float peak=0;
+  for(unsigned block=0;block<160;++block){
+   if(audition && (block==32 || block==64)){
+    preset->chimera.values[ChimeraUnison-kChimeraMacroCount]=block==32?2:1;
+    preset->fx.present=block==64;
+    preset->fx.inserts[0]=kTalkFx;
+    assert(engine->preview_preset(0,*preset,views,song->assets,0,block));
+   }
+   if(block==120)note(*engine,0,49,false);
+   engine->render(frame,24);
+   if(audition && (block==32 || block==64)){
+    assert(engine->preview_state()==2*block);
+    assert(engine->preview_refusal()==(block==32?(4u<<8)|unsigned(VoiceRefusal::Unison):(5u<<8)|unsigned(VoiceRefusal::Talk)));
+   }
+   for(float x:frame)peak=std::fmax(peak,std::fabs(x));
+   output.insert(output.end(),frame,frame+48);
+  }
+  assert(peak>.001f);return output;
+ };
+ const auto reference=play(false);assert(reference==play(true));
+ std::puts("Refused UNISON 2 and fifth TALK preset: 3840 frames match uninterrupted playback");
+}
+static void manual_talk_guard(){
+ auto song=std::make_unique<ProjectState>();make_empty_project(*song);
+ auto& layer=song->tracks[0];layer.instrument=Instrument::Layer;layer.layer.count=2;
+ layer.layer.parts[0].sound.instrument=Instrument::Chimera;
+ layer.layer.parts[1].sound.instrument=Instrument::Acid;
+ for(unsigned t=1;t<=4;++t)song->tracks[t].insert_fx[0]=kTalkFx;
+ auto engine=std::make_unique<Engine>();assert(engine->stage_project(*song));
+ float block[48];engine->render(block,0);
+ auto ui=std::make_unique<Performance>(*engine,*song);
+ auto pump=[&](){for(unsigned i=0;i<210;++i){engine->render(block,24);ui->poll();}};
+ assert(ui->select_track(1));note(*engine,0,60,true);pump();
+ assert(ui->visual().chimera_mix.tracts==1 && ui->visual().chimera_mix.talk==4);
+ assert(!ui->set_parameter(group_fx_id(2,4),kTalkFx));
+ assert(ui->erase_confirmation() && ui->modal_cancel());
+ assert(song->routing.groups[2].insert_fx[4]==0 && engine->active_tracts()==1);
+ for(bool accept:{false,true}){
+  assert(!ui->set_parameter(98,kTalkFx));
+  assert(ui->erase_confirmation() && !std::strcmp(ui->erase_title(),"TALK STOPS T01 LAYER. APPLY?"));
+  assert(song->tracks[1].insert_fx[4]==0 && engine->active_tracts()==1);
+  assert(accept?ui->modal_accept():ui->modal_cancel());pump();
+  assert(engine->active_tracts()==(accept?0u:1u));
+ }
+ const auto& mix=ui->visual().chimera_mix;
+ assert(mix.last_stopped==0 && mix.last_stop_talk==5);
+ // The VOWELS shortcut installs a type, two controls, wet level and enable
+ // in one edit. Cancellation must leave the entire bypassed strip untouched.
+ auto& carrier=song->tracks[1];carrier.insert_disabled=2;
+ carrier.insert_fx[4]=0;carrier.insert_fx[5]=.17f;carrier.insert_fx[6]=.21f;carrier.insert_fx[7]=0;
+ assert(engine->stage_project(*song));ui->project_loaded();pump();
+ ui->set_mode(UiMode::Perform);ui->set_shift(true);assert(ui->soft_key(7));ui->set_shift(false);
+ assert(ui->soft_key(3) && ui->vowel_page());assert(ui->select_track(1));
+ note(*engine,0,60,true);pump();
+ assert(ui->use_vocoder(1) && ui->erase_confirmation() && ui->modal_cancel());
+ assert(carrier.insert_fx[4]==0 && carrier.insert_fx[5]==.17f && carrier.insert_disabled==2);
+ assert(ui->use_vocoder(1) && ui->erase_confirmation() && ui->modal_accept());pump();
+ assert(carrier.insert_fx[4]==kTalkFx && carrier.insert_fx[5]==.5f && carrier.insert_fx[6]==.5f &&
+        carrier.insert_fx[7]==1 && !carrier.insert_disabled && engine->active_tracts()==0);
+ std::puts("Fifth manual TALK on another track: cancel preserves Layer; accept retires whole Layer and records cause");
+}
+static void mixed_admission(){
+ auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+ auto& layer=p->tracks[0];layer.instrument=Instrument::Layer;layer.layer.count=2;
+ auto& voice=layer.layer.parts[0];voice.sound.instrument=Instrument::Chimera;
+ voice.fx.present=true;voice.fx.inserts[0]=kTalkFx;voice.fx.inserts[3]=.8f;
+ layer.layer.parts[1].sound.instrument=Instrument::Acid;
+ auto& group=p->routing.groups[0];group.insert_fx[0]=group.insert_fx[4]=kTalkFx;
+ p->tracks[1].insert_fx[0]=kTalkFx;
+ auto e=std::make_unique<Engine>();AudioVisualFrame frame{};
+ assert(e->stage_project(*p));render(*e,240,frame);
+ note(*e,0,60,true);assert(render(*e,2400,frame)>.001f && e->active_tracts()==1);
+ Command change{CommandType::SetParameter,1,0,0};change.parameter=98;change.scalar=kTalkFx;
+ assert(e->submit(change));render(*e,2400,frame);
+ assert(!e->active_tracts() && render(*e,2400,frame)==0);
+ note(*e,0,67,true);assert(render(*e,2400,frame)==0 && !e->active_tracts());
+ change.scalar=0;assert(e->submit(change));render(*e,480,frame);
+ note(*e,0,67,true);assert(render(*e,2400,frame)>.001f && e->active_tracts()==1);
+}
 static void wave_two(){
  const auto original_profile=hardware::active_profile;
  auto song=std::make_unique<ProjectState>();make_empty_project(*song);
@@ -102,12 +198,15 @@ static void wave_two(){
    note(*engine,2,60,true);render(*engine,240,visual);assert(engine->active_tracts()==0);
    part.sound.chimera.values[ChimeraUnison-kChimeraMacroCount]=1;
    assert(engine->stage_project(*song));render(*engine,24,visual);
-   note(*engine,2,60,true);assert(render(*engine,2400,visual)>.001f && engine->active_tracts()==2);
+   note(*engine,2,60,true);assert(render(*engine,2400,visual)==0 && engine->active_tracts()==0);
    track.instrument=Instrument::Empty;continue;
   }
-  assert(engine->active_tracts()==4 && peak>.001f && engine->talk_following(1));
+  assert(engine->active_tracts()==0 && peak==0);
+  ensemble=1;
+  assert(engine->stage_project(*song));render(*engine,24,visual);
+  note(*engine,0,60,true);assert(render(*engine,2400,visual)>.001f && engine->talk_following(1));
   note(*engine,0,64,true);render(*engine,240,visual);
-  assert(engine->active_tracts()==4);
+  assert(engine->active_tracts()==1);
   ensemble=1;
   auto ui=std::make_unique<Performance>(*engine,*song);
   ui->set_mode(UiMode::Perform);assert(ui->open_vocoder() && ui->soft_key(6) && ui->vowel_voice());
@@ -117,6 +216,20 @@ static void wave_two(){
   auto& locks=song->patterns[0].tracks[0].steps[ui->selected_step()].locks;
   assert(locks[0].enabled && locks[0].id==engine_target(Instrument::Chimera,0) && locks[0].value==1);
   assert(locks[1].enabled && locks[1].value==0 && locks[2].enabled && locks[2].value==8);
+  auto& program=source.chimera.values[ChimeraProgram-kChimeraMacroCount];
+  const auto original=program;
+  program=ChimeraBestiary;
+  assert(!std::strcmp(ui->knob_label(0),"DRIVE") && !std::strcmp(ui->knob_label(1),"TENSION"));
+  assert(ui->vowel_target(2)==engine_target(Instrument::Chimera,ChimeraBreath));
+  assert(ui->pad(5,0x10,2048) && ui->pad(5,0x20,0));
+  assert(std::fabs(source.engine_parameters[4]-2048.f/4095)<.001f);
+  assert(std::fabs(ui->knob_normalized(2)-source.engine_parameters[4])<.001f);
+  ui->set_shift(true);assert(ui->pad(15,0x10,3072) && ui->pad(15,0x20,0));ui->set_shift(false);
+  bool pressure_lock=false;
+  for(const auto& lock:locks)if(lock.enabled && lock.id==engine_target(Instrument::Chimera,ChimeraBreath))
+   pressure_lock=std::fabs(lock.value-3072.f/4095)<.001f;
+  assert(pressure_lock && locks[2].value==8);
+  program=original;
   assert(ui->select_track(1));assert(ui->soft_key(4) && ui->vowel_ready() && !ui->vowel_voice());
   assert(ui->pad(3,0x10,4095) && ui->pad(3,0x20,0));
   assert(song->tracks[1].insert_fx[0]==kTalkFx && song->tracks[1].insert_fx[1]==1 && song->tracks[1].insert_fx[2]==1);
@@ -130,10 +243,12 @@ static void wave_two(){
   render(*engine,48000,visual);assert(engine->active_tracts()==0 && engine->scene_duck_gain()==1);
  }
  hardware::set_active_profile(original_profile);
- std::puts("Wave 2: physical vowel controls and locks, shared 4-tract admission, follow, scene speech and duck release passed");
+ std::puts("Wave 2: physical vowel controls and locks, calibrated tract admission, follow, scene speech and duck release passed");
 }
 int main(){
  talking_kit();wave_two();
+ hardware::set_active_profile(hardware::decode((1u<<23)|(0x17u<<4)));
+ denied_preview_pcm();manual_talk_guard();mixed_admission();
  auto project=std::make_unique<ProjectState>();
  make_empty_project(*project);
  project->tracks[0].instrument=project->tracks[1].instrument=Instrument::Chimera;
@@ -196,6 +311,11 @@ int main(){
  for(unsigned i=0;i<300;++i){engine->render(pcm,24);ui->poll();}
  assert(ui->visual_fresh() && !ui->visual().chimera_live && ui->visual().chimera.gate==0);
  for(unsigned i=0;i<5;++i)assert(draw_cutaway(views[i])!=sounding[i]);
+ const auto idle=draw_cutaway(UiMode::Synth);
+ assert(ui->dispatch({ControllerInput::Type::KnobTouch,0,1}));
+ display->draw(*restored,*ui);
+ assert(cutaway_pixels(*display)!=idle);
+ assert(ui->dispatch({ControllerInput::Type::KnobTouch,0,0}));
 
  note(*engine,0,57,true);
  assert(render(*engine,4800,visual)>.001f);

@@ -49,7 +49,7 @@
 #include "ui/toast.h"
 #include "overlay_controls.h"
 namespace groove {
-enum class UiNotice:uint8_t { None, PartialApplied, Saved, SavedLocationFailed, SampleRecorded, MidiSaved, MidiImported, SaveFailed, HostUpdateTools, HostFileTools, FilesBusy, Loaded, KitLoaded, NewProject, Failed, Copied, LocksFull, GestureFull, GestureClear, LoopConfirm, LoopReady, LoopInvalid, OverdubDone, OverdubFailed, ChordFull, ChordMono, RecordLost, ChordRepeat, ChordLiveMono, GrooveClipped, ScaleRequired, LoopImported, LoopUnsupported, LoopPrecision, ProjectUnsynced, ProjectPending, SaveQueued, Saving, SnapshotSaved, Recovered, SnRefConfirm, SnRefQueued, StripUnavailable, StepCopied, StepPasted, StepRhythmPasted, ChopPhrase, KitPadSwapped, ExtendConfirm, Extended, SceneStored, SceneWait , MemoryFull, AssetReload, RestartQueued, HintAvailable, ChordVoiceLimit, ControllerReconnect, ModuleEntered, ModuleExited, ModuleTransport, LayerRefused, TwinChanged, TwinFailed, CompositionChanged, CompositionFailed, HistoryTrimmed};
+enum class UiNotice:uint8_t { None, SceneReplaced, PartialApplied, Saved, SavedLocationFailed, SampleRecorded, MidiSaved, MidiImported, SaveFailed, HostUpdateTools, HostFileTools, FilesBusy, Loaded, KitLoaded, NewProject, Failed, Copied, LocksFull, GestureFull, GestureClear, LoopConfirm, LoopReady, LoopInvalid, OverdubDone, OverdubFailed, ChordFull, ChordMono, RecordLost, ChordRepeat, ChordLiveMono, GrooveClipped, ScaleRequired, LoopImported, LoopUnsupported, LoopPrecision, ProjectUnsynced, ProjectPending, SaveQueued, Saving, SnapshotSaved, Recovered, SnRefConfirm, SnRefQueued, StripUnavailable, StepCopied, StepPasted, StepRhythmPasted, ChopPhrase, KitPadSwapped, ExtendConfirm, Extended, SceneStored, SceneWait , MemoryFull, AssetReload, RestartQueued, HintAvailable, ChordVoiceLimit, ControllerReconnect, ModuleEntered, ModuleExited, ModuleTransport, LayerRefused, TwinChanged, TwinFailed, CompositionChanged, CompositionFailed, HistoryTrimmed};
 enum class UiMode : uint8_t { Pad, Step, Clip, Scene, Mixer, Synth, Effects, Perform, Generate, Keyboard, Sampler, Project, Settings, Modulation, Browser, Routing, Diagnostics, Chord, Song, Library };
 inline const char* mode_name(UiMode mode) { static const char* names[]={"PAD","STEP","CLIP","SCENE","MIXER","SYNTH","FX","PERFORM","GENERATE","KEYBOARD","SAMPLER","PROJECT","SETTINGS","MODULATION","FILES","ROUTING","DIAGNOSTICS","CHORDS","SONG","PRESETS"}; return names[unsigned(mode)]; }
 // Single UI producer. Accepted commands and project edits move together.
@@ -57,6 +57,8 @@ class Performance {
  LayerReason notice_layer_reason_=LayerReason::Ready;
  ModalState modal_;
  ui::FileToast file_notice_;
+ uint8_t pinned_keyboard_=kTracks;
+ bool help_chord_=false;int help_page_=0;
  bool help_down_=false,help_shown_=false;UiMode help_mode_=UiMode::Pad;uint64_t help_since_=0;uint32_t help_seen_=0;
  MidiImportRequest midi_import_request_{};uint32_t midi_loss_approval_=0;uint32_t midi_import_ticket_=0,midi_import_cancel_ticket_=0;
  ModalField<uint8_t> stretch_modal_{modal_,ModalOwner::Stretch};
@@ -70,11 +72,11 @@ class Performance {
  ModalField<bool> extend_pending_{modal_,ModalOwner::Extend};
  ModalField<bool> loop_confirm_{modal_,ModalOwner::Loop};
  ModalField<bool> update_confirm_{modal_,ModalOwner::Update};
- UiMode track_name_return_mode_=UiMode::Pad;uint8_t track_name_target_=0;uint32_t track_name_generation_=0;
+ NavigationLocation naming_origin_{};uint8_t track_name_target_=0;uint32_t track_name_generation_=0;
  PresetGuidIssuer preset_guids_;uint64_t asset_clone_pending_=0;uint8_t asset_clone_alias_[kSampleAssets]{};
  void mirror_track_install(const TrackInstall&,unsigned);
  struct TrackHistory : TrackState {TrackInstall install{};TrackMorphState morph{};bool phrase_only=false;explicit TrackHistory(const ConstTrackView& t):TrackState(t){}};
- struct History {Command before{},after{};uint32_t group=0;PatternState* pattern_before=nullptr;PatternState* pattern_after=nullptr;TrackHistory* track_before=nullptr;TrackHistory* track_after=nullptr;BlockEdit* block=nullptr;};
+ struct History {Command before{},after{};uint32_t group=0;PatternState* pattern_before=nullptr;PatternState* pattern_after=nullptr;TrackHistory* track_before=nullptr;TrackHistory* track_after=nullptr;BlockEdit* block=nullptr;uint32_t take=0,note_id=0;bool incomplete_take=false;};
  struct RotationRevision {uint32_t from=0,to=0;uint16_t length=0;uint8_t pattern=0,track=0;int8_t direction=0;};
  static constexpr uint32_t kRotationHistory=0x524f5441u;
  struct NavigationScope {Performance& ui;explicit NavigationScope(Performance& p):ui(p){if(!ui.navigation_depth_++)ui.save_navigation();}~NavigationScope(){if(!--ui.navigation_depth_)ui.record_navigation();}};
@@ -82,7 +84,14 @@ class Performance {
  TransferView transfer_view_{};bool transfer_request_=false,transfer_close_=false,transfer_start_=false,transfer_browse_=false;
  unsigned navigation_depth_=0;bool home_navigation_pending_=false;
 public:
- enum class UiErase:uint8_t {SongDelete=1,AudioDelete,AudioClear,MapPads,ChopSteps,AutoChop,LayerRemove,GestureClear,ZonesClear,FileLoop};
+ enum class UiErase:uint8_t {SongDelete=1,AudioDelete,AudioClear,MapPads,ChopSteps,AutoChop,LayerRemove,GestureClear,ZonesClear,FileLoop,TalkChange};
+ uint16_t pending_talk_parameter_=0;float pending_talk_value_=0;
+ uint8_t pending_talk_owner_=255,pending_vowel_slot_=255;char talk_prompt_[48]{};
+ unsigned talk_edit_owner(uint16_t id,float value,bool enable=false)const;
+ bool confirm_talk(uint16_t id,float value,unsigned owner,unsigned vowel_slot=255);
+ bool apply_parameter(uint16_t id,float value);
+ VoiceRefusal layer_chimera_warning(unsigned* talk_slots=nullptr)const;
+ unsigned selected_chimera_unison()const{return chimera_unison(track_const(selected_).chimera);}
  bool confirm_erase(UiErase action);
  const char* confirmation_heading()const;
  bool erase_confirmation()const{return modal_.owner==ModalOwner::UiCommand;}
@@ -199,7 +208,7 @@ public:
  AudioControl audio_control(unsigned index)const;
  bool enter_audio_surface(PerformPage page);
  bool prepare_looper_track();
- bool use_vocoder(unsigned slot);
+ bool use_vocoder(unsigned slot,bool confirmed=false);
  bool open_vocoder();
  bool toggle_record_monitor();
  unsigned audio_clip_cursor()const{return audio_clip_cursor_;}
@@ -217,7 +226,9 @@ public:
  bool input_values()const{return !repeat_mode_ && !browser_editing() && !modal_active() && (mode_==UiMode::Keyboard || mode_==UiMode::Chord);}
  bool input_top(unsigned i)const;
  bool step_chord_editor()const{return step_chord_edit_ || (mode_==UiMode::Keyboard && shifted());}
- int keyboard_note(unsigned pad)const{return keyboard_input(track_const(selected_),pad,project_.ui.keyboard_octave[selected_]);}
+ bool keyboard_pinned()const{return pinned_keyboard_<kTracks && !modal_active() && !transfer_view_.active;}
+ unsigned keyboard_track()const{return keyboard_pinned()?pinned_keyboard_:selected_;}
+ int keyboard_note(unsigned pad)const{unsigned t=keyboard_track();return keyboard_input(keyboard_pinned()?track_views_.at(project_.clips[t].pattern,t):track_const(t),pad,project_.ui.keyboard_octave[t]);}
  int keyboard_octave()const{return project_.ui.keyboard_octave[selected_];}
  bool input_scale(int delta);
  bool input_root(int note);
@@ -357,7 +368,11 @@ public:
  unsigned preset_save_track()const{return preset_save_track_;}
  void confirm_preset_overwrite(const char* path);
  bool browser_confirmation()const{return browser_.edit.operation==BrowserOperation::Delete || browser_.edit.operation==BrowserOperation::OverwritePreset;}
- void cancel_browser_edit(){bool naming=browser_.edit.operation==BrowserOperation::RenameTrack;browser_.edit.operation=BrowserOperation::None;axes_.modal=ModalKind::None;main_encoder_mode_=0;dirty_=true;if(naming)set_mode(track_name_return_mode_);}
+ void cancel_browser_edit(){
+  bool restore=browser_.edit.operation==BrowserOperation::RenameTrack || preset_fx_editing();
+  browser_.edit.operation=BrowserOperation::None;axes_.modal=ModalKind::None;main_encoder_mode_=0;dirty_=true;
+  if(restore){restore_navigation(naming_origin_);record_navigation();}
+ }
  bool begin_browser_edit(BrowserOperation operation);
  bool browser_edit_character(int delta);
  bool browser_edit_key(unsigned index);
@@ -409,7 +424,8 @@ public:
  const char* help_button()const;
  bool help_button_down()const{const auto* b=mk3::button(help_button());return b && (controls_[b->report_byte-1]&b->mask);}
  const char* file_notice_text()const{return file_notice_.active(now_ms_)?file_notice_.text:"";}
- bool help_visible()const{return !modal_active() && help_down_ && help_mode_==mode_ && help_button_down() && now_ms_-help_since_>=kPageHomeMs;}
+ bool help_visible()const{return !transfer_view_.active && !modal_active() && (help_chord_ || (help_down_ && help_mode_==mode_ && help_button_down() && now_ms_-help_since_>=kPageHomeMs));}
+ int help_page()const{return help_page_;}
  void service_help();
  unsigned asset_cursor()const{return asset_cursor_;}
  uint64_t ui_time()const{return now_ms_;}
@@ -442,7 +458,7 @@ public:
  void service_visual_analysis();
  void poll_visual();
  void poll() ;
- void clear_launches(){queued_scene_=-1;queued_stops_=0;for(auto& pending:pending_)pending=-1;}
+ void clear_launches();
  bool launch_clip(unsigned t,unsigned pattern,bool quantized=true) ;
  bool stop_clip(unsigned t,bool quantized=true) ;
  bool launch_scene(unsigned scene,bool quantized=true) ;
@@ -452,7 +468,7 @@ public:
  bool audible_muted(unsigned t)const{return arrangement_ui_active_?bool((arrangement_ui_mute_&(1u<<t)) || (arrangement_ui_solo_ && !(arrangement_ui_solo_&(1u<<t)))):track_muted(project_,t);}
  bool scene_take_requested()const{return scene_take_requested_;}
  const char* scene_take_status()const;
- bool scene_take_toggle();
+ bool scene_take_toggle(bool keep_playing=false);
  bool scene_take_cancel(){return scene_take_requested_ && send({CommandType::SceneTakeControl,0,2,0});}
  void service_scene_take();
  ClipControlContext clip_controls()const{return {shifted(),clip_follow_page_,pattern_copied_,track_const(selected_).length<=kSteps/2,history_cursor_>0,history_cursor_<history_size_};}
@@ -462,6 +478,10 @@ public:
  SamplerContext sampler_controls()const{return {shifted(),sampler_page_,track_const(selected_).instrument==Instrument::DrumKit,recording_controls(),sample_auditioning(),page_,history_cursor_,history_size_};}
  EffectsContext effects_controls()const;
  RoutingFxContext routing_fx_controls()const{return {shifted(),live_recording_,group_send_page_,group_fx_slot_,project_.routing.monitor>0,record_quantized_};}
+ unsigned selected_group()const{
+  for(unsigned g=0;g<8;++g)if(project_.routing.groups[g].members&(1u<<selected_))return g;
+  return 8;
+ }
  PerformContext perform_controls()const;
  BrowserEditContext browser_edit_controls()const{return {browser_.edit.operation,browser_confirmation()};}
  SongControlContext song_controls()const;
@@ -542,8 +562,9 @@ public:
  bool capture_quantized_=true;
  bool morph_select_set(unsigned n){if(n>3 || n==project_.morph_set)return false;if(!send({CommandType::SetMorphSet,0,0,uint16_t(n)}))return false;morph_swap_sets(project_,n);dirty_=true;return true;}
  bool store_morph(unsigned side) ;
- bool undo();
- bool redo();
+ const char* undo_target()const;
+ bool undo(bool whole_take=false);
+ bool redo(bool whole_take=false);
  bool euclidean(unsigned pulses,unsigned rotation=0) ;
  void release_all();
  void project_loaded() ;
@@ -709,6 +730,8 @@ public:
  const VariationOptions& variation_options()const{return variation_;}VariationOptions& variation_options(){return variation_;}
  unsigned harmony_source()const{return harmony_source_;}HarmonyMode harmony_mode()const{return harmony_mode_;}
  bool copy_track_only()const{return copy_track_only_;}
+ unsigned unused_pattern(unsigned source)const;
+ bool make_section_unique();
  bool pattern_is_empty(unsigned p)const{for(const auto& t:project_.patterns[p].tracks)if(!sequence_empty(t))return false;return true;}
  bool duplicate_pattern();
  bool duplicate_step();
@@ -722,6 +745,7 @@ public:
  // track carries an enabled lock for this parameter. DrumKit
  // steps use their own lock fields and report false here.
  uint16_t knob_parameter(unsigned i)const;
+ ControlOrigin knob_origin(unsigned i)const;
  float knob_display_value(unsigned i)const;
  float knob_display_normalized(unsigned i)const;
  float effective_parameter(uint16_t id)const;
@@ -748,12 +772,15 @@ private:
  bool set_step(unsigned step,bool enabled) ;
  bool edit(Command after,Command before) ;
  void dispose(History& h);
- void clear_history(){history_trim_notice_=HistoryTrimNotice::Unused;if(notice_==UiNotice::HistoryTrimmed)notice_=UiNotice::None;for(unsigned i=0;i<64;++i)dispose(history_[i]);history_size_=history_cursor_=0;}
+ void clear_history(){trimmed_take_=0;history_trim_notice_=HistoryTrimNotice::Unused;if(notice_==UiNotice::HistoryTrimmed)notice_=UiNotice::None;for(unsigned i=0;i<64;++i)dispose(history_[i]);history_size_=history_cursor_=0;}
  void note_assignment_changes(unsigned pattern,const PatternState& before,const PatternState& after,uint16_t mask);
  void note_assignment_changes(unsigned pattern,const PatternState& after,uint16_t mask);
  void push_history(Command before,Command after,PatternState* pbefore=nullptr,PatternState* pafter=nullptr,TrackHistory* tbefore=nullptr,TrackHistory* tafter=nullptr);
  void install_single_track(unsigned pattern,unsigned t,const TrackState& state,bool rebound);
  bool apply_history(History& h,bool redo);
+ bool take_bounds(unsigned index,unsigned& first,unsigned& end);
+ void finish_note_gate(const EngineEvent& event);
+ uint32_t trimmed_take_=0;
 
  struct RecordIdentity {uint32_t id=0;uint8_t pattern=0,track=0,step=0;};
  bool has_record_ids()const{for(const auto& r:record_ids_)if(r.id)return true;return false;}
@@ -785,7 +812,7 @@ private:
  bool stems_active_=false,resampling_=false,resample_cancel_pending_=false,resample_cancel_request_=false,recording_file_busy_=false;uint8_t resample_bars_=1;ResampleRequest queued_resample_{},active_resample_{};LiveRecordRequest queued_record_{},queued_take_{};RecordingTarget active_record_target_{};RecordingOrigin active_record_origin_=RecordingOrigin::None;bool live_record_quantized_=false,record_stop_pending_=false,record_stop_request_=false;
  bool clip_follow_page_=false;
  bool arrangement_ui_active_=false;uint16_t arrangement_ui_mute_=0,arrangement_ui_solo_=0;
- bool scene_take_requested_=false;char scene_take_message_[96]{};
+ bool scene_take_requested_=false,keep_take_playing_=false;char scene_take_message_[96]{};
  uint16_t song_position_=0;bool seek_ready_=false;
  uint8_t looper_track_=255,timeline_track_=255,vocoder_slot_=0;bool vowel_voice_=false;
  bool performance_fx_tail_=true;uint8_t fx_page_=0,fx_focus_slot_=0,performance_fx_quantize_=0,live_repeat_rate_=1,performance_fx_bank_=0;uint8_t repeat_mode_=0,repeat_rate_=2;bool repeat_release_pending_=false,repeat_latch_=false,repeat_ignore_release_=false;

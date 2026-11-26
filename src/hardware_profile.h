@@ -18,6 +18,8 @@ namespace groove { namespace hardware {
 // accepted and documented as a known constraint -- the same class as the
 // shared-budget scaling -- rather than pinning admission to the floor.
 
+inline constexpr unsigned kPi5BudgetScale=2984;
+
 enum class Board:uint8_t { Unknown, Pi4B, Pi5 };
 
 struct HardwareProfile {
@@ -57,7 +59,7 @@ inline HardwareProfile decode(uint32_t revision){
  // binding input: Plaits model 18 per-voice cost). Derivation:
  // PI5_PERF_PROFILE.md S9-S10. Pi 4 keeps 1000 (baseline definition).
  p.budget_scale_permille=1000;
- if(p.board==Board::Pi5)p.budget_scale_permille=2984;
+ if(p.board==Board::Pi5)p.budget_scale_permille=kPi5BudgetScale;
  // RAM-scaled arena (perf port; verified on device 2026-11-15:
  // cpu_ram_mb=2048, heap headroom 1979 MB): Pi 5 / 8 GB carves 2 GiB;
  // the 4 GB floor and all Pi 4 profiles keep the 960 MiB baseline. The

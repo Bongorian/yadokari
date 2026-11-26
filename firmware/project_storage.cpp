@@ -229,7 +229,23 @@ bool CProjectStorage::ReadSoundFont(const char* name,uint64_t offset,void* data,
 void CProjectStorage::ServiceSoundFont(){if(!m_SoundFontWorker)return;StorageUiWait::Scope responsive;SoundFontFiles input(*this);m_SoundFontWorker->service(input);if(m_PendingLoad.phase!=LoadPhase::SoundFont){groove::WavView discarded;bool ok=false;if(m_SoundFontWorker->collect(discarded,ok))CloseSoundFontRead();}}
 void CProjectStorage::service(){ServiceSoundFont();if(m_RecordOpen && !m_RecordReserved && CTimer::GetClockTicks64()/1000-m_RecordWriteMs>1250)CloseRecordingWrite();StorageUiWait::Scope responsive;for(unsigned i=0;i<m_Count;++i)if(m_Cache[i].stream)m_Cache[i].stream->service();}
 void CProjectStorage::TraceStreams(){for(unsigned i=0;i<m_Count;++i)if(m_Cache[i].stream)CLogger::Get()->Write("stream",LogNotice,"Stream path %s misses %u current %u",m_Cache[i].path,m_Cache[i].stream->underruns(),unsigned(m_Cache[i].stream->current()));}
-bool CProjectStorage::Load(groove::ProjectState& p,groove::RecoverySource* source){groove::read_project_location(*this,"GROOVE/CURRENT.TXT",m_CurrentProject,sizeof m_CurrentProject);unsigned version=0;groove::RecoverySource found;groove::AssetCatalog assets;groove::PresetLibrary presets;char error[96]{};bool indexed=presets.refresh(*this);auto* candidate=groove::alloc_new<groove::ProjectState>();auto validate=[&](groove::ProjectState& attempt,unsigned,const groove::PreservedStore& store){return !store.dropped_unknown && indexed && attempt.content_kind==groove::ContentKind::Song && groove::project_paths(attempt,m_CurrentProject,true,true) && assets.resolve_project(*this,attempt,error,sizeof error) && groove::resolve_pinned_content(*this,presets,assets,attempt,error,sizeof error,&store) && groove::verify_project_assets(*this,attempt);};if(!candidate)return false;bool ok=groove::load_recoverable_checked(*this,m_CurrentProject,*candidate,&version,&found,validate,&m_Preserved);if(!ok && strcmp(m_CurrentProject,groove::kFactoryStartupProject)){strcpy(m_CurrentProject,groove::kFactoryStartupProject);ok=groove::load_recoverable_checked(*this,m_CurrentProject,*candidate,&version,&found,validate,&m_Preserved);}if(ok){p=*candidate;if(source)*source=found;}else if(source)*source={};delete candidate;return ok;}
+bool CProjectStorage::Load(groove::ProjectState& project,groove::RecoverySource* source){
+ groove::read_project_location(*this,"GROOVE/CURRENT.TXT",m_CurrentProject,sizeof m_CurrentProject);
+ groove::AssetCatalog assets;groove::PresetLibrary presets;char error[96]{};
+ const bool indexed=presets.refresh(*this);
+ auto validate=[&](groove::ProjectState& attempt,unsigned,const groove::PreservedStore& store){
+  return !store.dropped_unknown && indexed && attempt.content_kind==groove::ContentKind::Song
+      && groove::project_paths(attempt,m_CurrentProject,true,true)
+      && assets.resolve_project(*this,attempt,error,sizeof error)
+      && groove::resolve_pinned_content(*this,presets,assets,attempt,error,sizeof error,&store)
+      && groove::verify_project_assets(*this,attempt);
+ };
+ auto load=[&](){return groove::load_recoverable_checked(*this,m_CurrentProject,project,nullptr,source,validate,&m_Preserved);};
+ if(load())return true;
+ if(!strcmp(m_CurrentProject,groove::kFactoryStartupProject))return false;
+ strcpy(m_CurrentProject,groove::kFactoryStartupProject);
+ return load();
+}
 bool CProjectStorage::SaveUpdateSnapshot(const groove::ProjectState& p,const groove::Engine& engine){return groove::update::save_update_snapshot(*this,p,engine,&m_Preserved);}
 
 // DATA only. Paths are generated from FatFs directory entries, never supplied

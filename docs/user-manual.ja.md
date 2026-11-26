@@ -105,7 +105,9 @@ MASCHINE MK3を単体グルーヴボックスにする、Raspberry Pi 4／5用�
 | 実ボタン | 動作 | 併用操作・注意 |
 |---|---|---|
 | PAD MODE / KEYBOARD / CHORDS / STEP | Track／Kit演奏、音階演奏、和音演奏、ステップ入力 | PADでKit選択中は16パッドがKitの音。通常TrackではパッドがTrackを鳴らす |
-| A–H | 現在層のTrackを選ぶ | SHIFT+A–Hで層を切替え、その層を保持。約400ms保持でMIXERをPeek、離すと元の編集画面へ。Track選択は維持 |
+| A–H | 現在層のTrackを選ぶ | SHIFT+A–Hで層を切替え、その層を保持。約400ms保持でMIXERをPeek、離すと元の編集画面と元のTrackへ戻る |
+| SHIFT + PAGE RIGHT を保持 | 現在の画面のHELPを開く | 4-Dを回すと説明とTop・ノブの割り当てを表示。SHIFTを離すと通常の割り当てを確認できる。PAGE RIGHTを離して復帰 |
+| SELECT + KEYBOARD | パッドで弾くTrackを固定 | 他のTrackの音やFXを編集しながら弾ける。左画面に演奏先を表示。同じ組み合わせか物理パッドモードボタンで解除 |
 | MUTE / SOLO / SELECT + A–H | TrackのMute／Solo／選択してCLIPへ | KitでもTrack単位。CHANNELのGroup系ページではGroup bus 1–8選択を優先 |
 | STEP再押下／長押し | 短い再押下で16 STEP → 64 STEP → TRACKER | 約400ms保持でノート編集。SHIFT+Top4も同じ表示循環 |
 | PLUG-IN | SYNTHを開く | SYNTHで再押下するとENGINE。SHIFT+PLUG-INは音源を順送り |
@@ -209,7 +211,7 @@ ORIGINのMY VERSIONSはUser優先で、User版のない音色はFactoryを表示
 3. 必要なら<strong>SHIFT+TAP</strong>でクリック、<strong>STEP + SHIFT + Top2</strong>で`CLICK: CUE`または`MAIN`、<strong>SHIFT+Top3</strong>で`COUNT: 1 BAR`。
 4. <strong>KEYBOARD</strong>または<strong>PAD MODE</strong>へ移り、<strong>REC → PLAY</strong>。または停止中に<strong>SHIFT+REC</strong>でCount-inつき記録開始。
 5. 1小節弾いて<strong>REC</strong>を再度押し、記録を解除。<strong>STOP → PLAY</strong>で聴き直します。
-6. 必要ならSTEPへ戻り、EVENTS／SHIFT+EVENTS。ノート開始と長さ更新などは複数のUndoになる場合があります。
+6. EVENTSで直前の一打を録音した音長ごと取り消し、SHIFT+EVENTSで戻せます。テイク全体の取消はSELECT+EVENTS、やり直しはSELECT+SHIFT+EVENTSです。テイク操作には、その録音の編集が履歴に連続して残っている必要があります。音を押さえている間にフレーズを回転・置換した場合、音長の確定は独立した編集になることがあります。HELPには次のUndo対象を表示します。
 
 このRECは<strong>音符の記録</strong>です。SAMPLER画面のRECは音声録音に切り替わります。Count-in中は弾けますがノートは記録されません。外部Clock追従中はCount-inを使いません。
 
@@ -413,6 +415,10 @@ SONGのタイトルは常にSONG。Chainだけを覗いている場合は **CHAI
 
 Chainから取り込む場合は空のSongで<strong>SHIFT+Top7「IMPORT」→ Top1 CONFIRM／4-D押込み</strong>。既存Songを消すSHIFT+Top8 `CLEAR` → Top1 CONFIRMも二段階です。パッドはセクションのMute編集で、Scene launchではありません。
 
+SCENEの予告には、次に開始・停止・Pattern変更するTrackの数が出ます。予約したSceneのパッドを小節境界の前にもう一度押すと予約を取り消せます。個別のClipを起動・停止すると、その操作がScene予約に優先します。手動Sceneが実際に起動するとFOLLOWがオフになります。予約を取り消すと、Chainはそれまでの位置と小節数から進み続けます。
+
+SONGの一箇所だけフレーズを変えるには、K1で区間を選び、対象Trackを選んで **SHIFT + Top5 EDIT UNIQUE** を押します。独立したコピーがSTEPで開き、同じSceneを使う別の区間では元のフレーズが鳴ります。EVENTSを一度押すと共有状態に戻ります。
+
 ### 実演をArrangementへ記録する
 
 ![REC ARRANGE開始後のSONG](manual/song-take.png)
@@ -422,6 +428,10 @@ Chainから取り込む場合は空のSongで<strong>SHIFT+Top7「IMPORT」→ T
 3. <strong>SCENE</strong>や<strong>PATTERN</strong>へ移って演奏します。Clip／Scene切替、停止、Mute、Followによる構成変化を記録します。
 4. <strong>ARRANGERへ戻る → Top5「END TAKE」</strong>。次の小節境界まで待ち、`Arrangement stored / one Undo restores previous Song`を確認。
 5. <strong>PLAY</strong>で先頭から聴き直し、<strong>SHIFT+FILE</strong>でディスクへ保存。取り消すなら記録中のTop6 `CANCEL TAKE`。完了後はEVENTSで前のSongへ戻せます。
+
+RECORDINGでFILEを押すと録音フォルダーが開きます。LOOPERとTIMELINEでは、素材が割り当てられていればそのファイルを選択して開きます。PAGE LEFTで元の録音画面とTrackに戻ります。
+
+演奏を続ける場合は **SHIFT + Top5 KEEP TAKE** を押します。次の小節頭でSongを確定し、K3 ENABLEをオフにしたまま現在のClipが鳴り続けます。記録した構成を聴き直すときはENABLEをオンにします。
 
 記録後はセクションのK5/K6/K7が<strong>TRACK / TICKS / PATTERN</strong>になります。960 ticks＝4分音符、4/4の1小節は3840 ticks。混在Clipの位相と再始動情報を保持しますが、<strong>選択セクションからの途中再生・捕捉位相へのSPP/Continueは未対応</strong>です。これは音声ファイルの録音ではなく、ノブ操作すべてを録る機能でもありません。32区間を超えるtakeは失敗として元のSongを保持します。
 
@@ -456,7 +466,7 @@ MIXERのTop5はFREEZE、Top6はTWINです（上図の凡例とは異なります
 
 ![A/B MORPH](manual/perform.png)
 ![MACROS](manual/macros.png)
-K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定です。LIVE FX を離れると、パッドでラッチしたエフェクトが解除されます。
+K4 **SONG FX TYPE** と K5 **SONG FX AMT** はソングに保存する設定です。ラッチしたエフェクトは、別画面の編集やMixer Peekの間もかかり続けます。解除するときはLIVE FXに戻り、SHIFTを押しながら同じエフェクトのパッドを押します。
 
 左の図は実機と同じ並びで、左下がパッド1です。1は REPEAT、2は FILL、14・15・16は両バンクともモーフの A・中間・B です。バンク2の3・4は PITCH DIVE・PITCH RISE です。
 
@@ -872,13 +882,13 @@ Factory LibraryはMGXC13形式の187件（Preset 163＋Kit 24）です。KINDと
 
 ### CHIMERA の声道を演奏する
 
-**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz で発音し、CHIMERA の各トラックと LAYER の子音色でボイスを共有します。この版の共有プールは Pi 4 で2声道、Pi 5 で4声道です。Pi 5 の4声道は実機負荷の検証中です。同時に使える声数はモデルごとの DSP コストにもよります。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
+**SYNTH → ENGINE → PHYSICAL** で CHIMERA を選び、Top5 **DEFAULT SOUND** で確定します。48 kHz の Pi 5 では、各トラック、シーン読み上げ、LAYER の子音色が1声道を共有します。UNISON は1で発音できます。TALK は4スロットまで併用でき、5つ目を有効にすると発音中の CHIMERA と同じ LAYER の子音色が停止します。手動の TALK 編集で発音が止まる場合は、確認画面に対象トラックが表示されます。記録済みのロックやシーンは演奏中にそのまま反映されます。FX の INSERTS または CHAIN で、最後に停止したトラックと TALK 数を確認できます。CHIMERA プリセットの試聴が上限を超える場合は、演奏を続けたままブラウザに理由を表示します。Pi 4 は換算予算で1声道に届かず、物理モデルの発音を受け付けません。TALK は利用できます。PAD では CHIMERA を割り当てたトラックのパッドを押します。KEYBOARD、CHORD、STEP からも発音します。SYNTH と各演奏面の右画面に声道断面と空気圧が表示されます。
 
 - **GENERATOR** の K1〜K5 は従来どおり TONGUE X、TONGUE Y、JAW、LIP ROUND、BREATH です。
 - **ARTICULATION**（Top3）は2ページです。同じボタンで切り替え、舌先の位置と反り、舌根、唇、唇と歯の接触、軟口蓋、喉頭、喉頭蓋側、仮声帯、舌の側面と背面を調整します。
 - **VOICE**（Top4）では BODY（成人男性・成人女性・子ども）、ビブラートの深さと速さ、グライド、圧力、息漏れ、MODE、SPECIES を設定します。圧力と息漏れは BREATH への追加調整です。ボディと詳細設定は音色に保存します。ボディ切替時はいったん消音し、声道を作り直します。
 
-右画面は右向きの頭部断面です。NASAL は鼻腔、TONGUE は舌、LIPS は唇、GLOTTIS は声門を指します。REST SHAPE はモデルの安静形状、LIVE は発音中の形状です。AIR PRESSURE は左から喉、右に向かって唇までの瞬時の圧力を示します。CONTACT の点は表示中の断面で壁同士がほぼ接した場所です。PLAY で舌を大きく上げると、鍵盤を押したままでも気道が閉じて音が小さくなることがあります。
+右画面は右向きの頭部断面です。NASAL は鼻腔、TONGUE は舌、LIPS は唇、GLOTTIS は声門を指します。SYNTH で対応するノブを一つタッチすると、調整する部位の引き出し線が点灯します。REST SHAPE はモデルの安静形状、LIVE は発音中の形状です。AIRWAY GAP は声道の16か所で測った内壁と外壁の間隔を表します。その下の AIR PRESSURE は左から喉、右に向かって唇までの瞬時の圧力を示します。CONTACT の点は表示中の断面で壁同士がほぼ接した場所です。PLAY で舌を大きく上げると、鍵盤を押したままでも気道が閉じて音が小さくなることがあります。
 
 GENERATOR の5つのノブは、鍵盤を押したままでも音に反映されます。MODE と BESTIARY の SPECIES の変更は次の発音から有効です。人声では VIBRATO RATE は DEPTH を上げると聞き取れます。LATERAL は舌先で口の中央を塞いだときの側面の通り道を調整します。SPREAD は UNISON が2以上のときに効きます。BESTIARY では種ごとの GENERATOR ノブを使います。人声用の舌・唇・喉頭の設定は、人間のモデルで発音するときに効きます。ゾウの TRUNK FINE と TRUNK MIX は同じ口・鼻の配分を調整し、可動幅はそれぞれ全体の25%と75%です。
 
@@ -890,7 +900,7 @@ VOICE の K7 **MODE** で次の演奏を切り替えます。MODE、SPECIES、VO
 - **BEATBOX** は半音4つごとにキック、スネア、クローズドハイハット、オープンハイハットです。C4〜D♯4 がその順で鳴ります。クロマチックの KEYBOARD パッドで弾くか、STEP に同じノートを入力します。STEP のスウィングとクロック設定が使えます。
 - **SPEAK** はノート番号に割り当てた IPA フレーズを一定の速さで発話します。
 - **SING** は同じ割り当てを使い、STEP の発音位置に最初の母音ターゲットを合わせます。前に再生時間があるときは子音が先行し、そのステップから再生を始めた場合は母音から入ります。音程はノート、発音時刻はテンポに従います。同じ音程・同じフレーズのステップが続くと、歌唱中のフレーズはそのまま進みます。
-- **BESTIARY** は VOICE の K8 **SPECIES** で鳴禽、アザラシ、アリゲーター、ゾウを選びます。GENERATOR のノブは種ごとの音を調整し、右画面に各モデルの気道断面と空気圧を表示します。
+- **BESTIARY** は VOICE の K8 **SPECIES** で鳴禽、アザラシ、アリゲーター、ゾウを選びます。GENERATOR のノブは種ごとの音を調整し、右画面にモデル内での相対的な気道の長さ・太さと、各部の圧力を示す色を表示します。
 
 #### Speak／Sing のファイルを取り込む
 
@@ -933,7 +943,7 @@ LEVEL／PAN／CUTOFF等は音源を跨ぐ共通対象です。MODELもautomation
 
 **PERFORM → SHIFT+Top8 LIVE TOOLS → Top4 VOWELS** を開きます。CHIMERA トラックでは声を直接操作できます。キットなどのトラックでは Top5 または Top6 で TALK を入れるインサートを選びます。そのスロットの既存 FX を置換します。TALK はトラックの音をひとつの声道に通します。
 
-16 パッドの左下がオ、右下がア、左上がウ、右上がイ、右辺の中央がエです。ノブ1・2で中間の位置も指定できます。圧力は CHIMERA の声圧、TALK ではトラックの PRESSURE で励起の強さを変えます。REC＋PLAY で動きを演奏中のステップへ記録します。各ステップが X・Y・圧力の3つのロックを使います。
+16 パッドの左下がオ、右下がア、左上がウ、右上がイ、右辺の中央がエです。画面の16個の点が実際のパッドに対応します。BESTIARY では四角い格子の横軸・縦軸で左画面に表示した種別固有のマクロ1・2を、押圧でマクロ5を操作します。ノブ1・2で中間の位置も指定できます。圧力は CHIMERA の声圧、TALK ではトラックの PRESSURE で励起の強さを変えます。REC＋PLAY で動きを演奏中のステップへ記録します。各ステップが X・Y・圧力の3つのロックを使います。
 
 CHIMERA の **ARTICULATION** の2ページ目では、K7 が UNISON、K8 が SPREAD です。1音が UNISON 個の声道を使います。SHIFT+K6 の TALK TO TRACK を送り先のトラック番号に設定すると、発音中の舌の動きで送り先の TALK を操作できます。0 で解除します。SHIFT+K5 の SCENE SPEAK をオンにすると、シーン起動時にそのトラックの IPA を読み上げます。シーン1〜16は MIDI ノート60〜75の行を使い、対応行がなければ先頭のフレーズを使います。複数のトラックで有効なら、再生可能な先頭のトラックが読み上げ、ほかのトラックの音量が一時的に下がります。
 
@@ -969,6 +979,8 @@ CHIMERA の **ARTICULATION** の2ページ目では、K7 が UNISON、K8 が SPR
 ### 拡張画面とノブ一覧
 
 ![TRACKER：9行固定の現行画面。](manual/tracker.png)
+
+ノブに触れている間、変調のかかった項目ではSETに編集値、その下に作用中の要因と実効値を表示します。LOCKの数字は1から数えたステップ番号です。
 
 ![TRACKER：K1だけをtouch。本文を動かさずARC＋値を表示。](manual/tracker-overlay.png)
 
@@ -1028,7 +1040,7 @@ PLAITS等の無音generatorは宣言済みパラメータの名前・値・静�
 
 左Top1–4は同じ対象の面・範囲、右Top5–8は処理と出口です。FILES／PROJECTの文書操作は既存位置を維持する例外です。Layerの左Top3 USE CHILD／Top4 REMOVEも、面固有ページの無い枠で面内操作を行う例外です。音色一覧PRESETS／KITSは左Topが絞り込み・選択、右TopがPREVIEW／LOAD／FILES／BACK。ENGINEは右Top5 DEFAULT SOUND／Top8 BACK、4-D押下で音色一覧へ降ります。確認はTop1 CONFIRM／Top2 CANCEL、4-D押下／左も同じ役割です。名前入力は全保存先で共通です。両ページボタンを約400ms同時に押すとHOME／RETURNします。
 
-Track選択は、対象Trackのボタン（A–H）を押します。SHIFTを押しながら選ぶと上層を保持したまま対象を切り替えます。MUTE／SOLO／SELECTを押しながらTrackを選ぶと、その操作の対象として指定します。Trackを長押しすると一時表示（Peek）になり、離すと元の画面へ戻ります。CHANNELのGroup系ではA–Hがbus選択です。
+Track選択は、対象Trackのボタン（A–H）を押します。SHIFTを押しながら選ぶと上層を保持したまま対象を切り替えます。MUTE／SOLO／SELECTを押しながらTrackを選ぶと、その操作の対象として指定します。Trackを長押しすると一時表示（Peek）になり、離すと元の画面と元のTrackに戻ります。CHANNELのGroup系ではA–Hがbus選択です。
 
 SHIFT+RESTARTは小節頭での再開を予約し、RESTART単独は即時に再開します。
 
@@ -1066,7 +1078,7 @@ TRACKERへはSTEP再押下の表示循環、またはSHIFT＋Top4の表示切替
 
 ![TRACKERの属性](manual/tracker-attributes.png)
 
-SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまたはFMの単音が前から続く場合、前のGATEが短くても次の到着までつなぎ、envelopeと発振位相を保って80msで音程を移します。最初の音、前のgateが切れた後、和音／arp／ratchet／Layer、別音源・別SOUND LOCKへ移る場合は通常発音です。SLIDE連続中も音源のDECAYは進み、自然に減衰しても再発音し直しません。長くつなぐときはDECAYを長めに設定してください。ACCENTはACID BASSで音量とfilter-envelope応答を強めます。VELOCITY値は変えません。他音源ではACCENTの音への効果はなく、データと印は保存します。MIDI OUT／SMFへ自動pitch bendやaccentのvelocity変換は出しません。
+SLIDEは滑り込む先のstepへ付けます。同じACID BASS、POLY SAWまたはFMの単音が前から続く場合、前のGATEが短くても次の到着までつなぎ、envelopeと発振位相を保って80msで音程を移します。最初の音、前のgateが切れた後、和音／arp／ratchet／Layer、別音源・別SOUND LOCKへ移る場合は通常発音です。ACID BASSではGATEを開いている間は音量が持続し、DECAYでフィルターが閉じる速さを調整できます。SLIDEはその途中の明るさから次の音へつなぎます。ACCENTを付けると音量とカットオフが上がり、フィルターエンベロープは通常の2倍の速さで減衰します。VELOCITY値は変えません。他音源ではACCENTの音への効果はなく、データと印は保存します。MIDI OUT／SMFへ自動pitch bendやaccentのvelocity変換は出しません。
 
 保存はPROJECT → SAVE／SAVE ASの通常操作です。MGXC13／PSEQ4で属性を保持し、旧MGXC12以前は移行せず拒否します。
 

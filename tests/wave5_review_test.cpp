@@ -19,10 +19,10 @@ int main(){
  assert(ui.selected_track()==selection && p->active_pattern==pattern && ui.mode()==UiMode::Project && !ui.playing());
  assert(ui.encoder_direction(0x20) && !ui.modal_active());
  // Release during a confirmation must restore Peek only after the owner closes.
- ui.set_mode(UiMode::Synth);assert(ui.control(2,2));ui.animate(ui.ui_time()+401);assert(ui.mode()==UiMode::Mixer);
+ ui.set_mode(UiMode::Synth);assert(ui.control(2,2));ui.animate(ui.ui_time()+401);assert(ui.mode()==UiMode::Mixer && ui.selected_track()==1);
  ui.request_project(Performance::ProjectAction::New);assert(ui.modal_active());assert(ui.control(2,0));ui.animate(ui.ui_time()+500);
  assert(ui.modal_active() && ui.mode()==UiMode::Project);assert(ui.encoder_direction(0x20));ui.animate(ui.ui_time()+1);
- assert(ui.mode()==UiMode::Synth && ui.selected_track()==1);
+ assert(ui.mode()==UiMode::Synth && ui.selected_track()==selection);
  // A modal must cancel the pending STEP gesture, including its release action.
  ui.set_mode(UiMode::Step);auto step_page=ui.navigation().key;
  ui.control(4,8);ui.request_project(Performance::ProjectAction::New);assert(ui.modal_active());ui.animate(ui.ui_time()+500);

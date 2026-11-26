@@ -31,7 +31,27 @@ static void block_move_playback(){
  assert(panel->redo());panel.reset(); // Audio still owns the queued edit after history disposal.
  assert(channels()==2);
 }
+static void record_history_boundaries(){
+ auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+ p->tracks[0].instrument=Instrument::ExternalMidi;
+ auto e=std::make_unique<Engine>();assert(e->stage_project(*p));
+ Performance ui(*e,*p);float audio[2]{};e->render(audio,0);
+ auto record=[&](unsigned cell,unsigned take){
+  EngineEvent note{};note.type=EngineEventType::RecordedNote;note.parameter=60;
+  note.scalar=100;note.value=uint8_t(cell);note.recording_id=1+take*256+cell;note.recording_take=take;
+  note.generation=e->staged_generation();note.pattern_revision=e->pattern_revision(0,0);
+  ui.accept_event(note);e->render(audio,0);
+ };
+ record(0,1);assert(ui.set_parameter(1,.42f));record(1,1);
+ assert(!ui.undo(true) && p->patterns[0].tracks[0].steps[0].enabled && p->patterns[0].tracks[0].steps[1].enabled);
+ record(2,2);record(3,2);assert(ui.undo());
+ assert(ui.set_parameter(1,.52f));assert(ui.undo());
+ assert(!ui.undo(true) && p->patterns[0].tracks[0].steps[2].enabled);
+ for(unsigned i=0;i<65;++i)record(i,3);
+ assert(!ui.undo(true) && ui.undo() && !p->patterns[0].tracks[0].steps[64].enabled);
+}
 int main(){
+ record_history_boundaries();
  std::setvbuf(stdout,nullptr,_IONBF,0);
  block_move_playback();
  auto p=std::make_unique<ProjectState>();make_empty_project(*p);p->random_seed=412;

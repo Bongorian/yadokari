@@ -19,7 +19,7 @@ struct PerformContext {
  bool shift=false;uint8_t page=0,fx_quantize=0;bool fx_tail=false,fx_bank=false;
  bool mutation_frozen=false,gesture_recording=false,gesture_playing=false,control_all=false;
  bool can_undo=false,can_redo=false,module=false;
- RecordingContext record{};
+ RecordingContext record{};unsigned group=8;
 };
 inline PerformControl perform_button_control(unsigned index,const PerformContext& c){
  using A=PerformAction;
@@ -51,7 +51,11 @@ inline PerformControl perform_button_control(unsigned index,const PerformContext
  }
  if(c.page==PerformFxMap){
   static const PerformControl links[]={{"TRACK FX",A::MapTrack,true},{"GROUP FX",A::MapGroup,true},
-   {"MASTER FX",A::MapMain,true},{"LIVE FX",A::MapLive,true},{"PRESET FX",A::MapPreset,true}};
+   {"MASTER FX",A::MapMain,true},{"LIVE FX",A::MapLive,true},{"SAVE PRESET",A::MapPreset,true}};
+  if(index==4){
+   static constexpr const char* names[]={"GROUP A FX","GROUP B FX","GROUP C FX","GROUP D FX","GROUP E FX","GROUP F FX","GROUP G FX","GROUP H FX"};
+   return {c.group<8?names[c.group]:"ROUTING",A::MapGroup,true};
+  }
   if(index==0)return links[0];
   if(index>=4 && index<8)return links[index-3];
   return {};

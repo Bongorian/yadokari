@@ -3,9 +3,15 @@
 namespace groove {
 auto Performance::confirm_erase(UiErase action) -> bool{if(modal_active())return false;erase_track_=selected_;erase_pattern_=project_.active_pattern;erase_generation_=generation_;modal_.owner=ModalOwner::UiCommand;modal_.value=uint8_t(action);modal_.sync();dirty_=true;return true;}
 auto Performance::confirmation_heading()const -> const char*{switch(modal_.owner){case ModalOwner::UiCommand:return erase_title();case ModalOwner::Update:return "Firmware update?";case ModalOwner::SongImport:return "Import chain into Song?";case ModalOwner::SongClear:return "Clear Song?";case ModalOwner::SourceDiscard:return "Replace unknown source?";case ModalOwner::Extend:return "Extend pattern?";case ModalOwner::Loop:return "Replace loop take?";case ModalOwner::Reference:return "Write reference?";default:return "Confirm operation?";}}
-auto Performance::erase_title()const -> const char*{static const char* names[]={"","Delete song section?","Delete audio clip?","Clear audio track?","Replace all 16 tracks?","Replace track steps?","Replace slice markers?","Remove layer?","Clear gesture?","Clear zones?","Import WAV loop?"};return erase_confirmation() && modal_.value<11?names[modal_.value]:"";}
+auto Performance::erase_title()const -> const char*{if(erase_confirmation() && modal_.value==unsigned(UiErase::TalkChange))return talk_prompt_;static const char* names[]={"","Delete song section?","Delete audio clip?","Clear audio track?","Replace all 16 tracks?","Replace track steps?","Replace slice markers?","Remove layer?","Clear gesture?","Clear zones?","Import WAV loop?"};return erase_confirmation() && modal_.value<11?names[modal_.value]:"";}
 auto Performance::accept_erase() -> bool{if(!erase_confirmation())return false;auto action=UiErase(modal_.value);modal_.owner=ModalOwner::None;modal_.value=0;modal_.sync();if(erase_track_!=selected_ || erase_pattern_!=project_.active_pattern || erase_generation_!=generation_)return false;
- switch(action){case UiErase::SongDelete:return song_delete();case UiErase::AudioDelete:return erase_audio(false);case UiErase::AudioClear:return erase_audio(true);case UiErase::MapPads:return request_file(FileAction::MapPads);case UiErase::ChopSteps:return chop_to_steps();case UiErase::AutoChop:return request_file(FileAction::AutoSlice);case UiErase::FileLoop:return request_file(FileAction::ImportWavLoop);case UiErase::LayerRemove:return layer_use(true);case UiErase::ZonesClear:{auto e=track_const(selected_).instrument==Instrument::DrumKit?track_const(selected_).kit.pads[selected_kit_pad_].edit:track_const(selected_).sample_edit;e.zone_count=0;return sample_edit(e);}
+ switch(action){case UiErase::TalkChange:{
+  const bool install=pending_vowel_slot_<2;
+  const unsigned owner=talk_edit_owner(pending_talk_parameter_,pending_talk_value_,install);
+  if(owner<kTracks && owner!=pending_talk_owner_)return confirm_talk(pending_talk_parameter_,pending_talk_value_,owner,pending_vowel_slot_);
+  return install?use_vocoder(pending_vowel_slot_,true):apply_parameter(pending_talk_parameter_,pending_talk_value_);
+ }
+ case UiErase::SongDelete:return song_delete();case UiErase::AudioDelete:return erase_audio(false);case UiErase::AudioClear:return erase_audio(true);case UiErase::MapPads:return request_file(FileAction::MapPads);case UiErase::ChopSteps:return chop_to_steps();case UiErase::AutoChop:return request_file(FileAction::AutoSlice);case UiErase::FileLoop:return request_file(FileAction::ImportWavLoop);case UiErase::LayerRemove:return layer_use(true);case UiErase::ZonesClear:{auto e=track_const(selected_).instrument==Instrument::DrumKit?track_const(selected_).kit.pads[selected_kit_pad_].edit:track_const(selected_).sample_edit;e.zone_count=0;return sample_edit(e);}
  case UiErase::GestureClear:if(!send({CommandType::GestureClear,0,0,0}))return false;project_.gesture.count=0;return true;}return false;}
 auto Performance::dispatch(const ControllerInput& input)  -> bool{
   if(transfer_view_.active && input.type!=ControllerInput::Type::Control && input.type!=ControllerInput::Type::SoftKey)return false;
@@ -41,7 +47,7 @@ auto Performance::dispatch(const ControllerInput& input)  -> bool{
    case ControllerInput::Type::Panic:return panic();
    case ControllerInput::Type::Control:if(input.value<0 || input.value>255)return false;return control(input.index,uint8_t(input.value));
    case ControllerInput::Type::Encoder:return encoder(bounded(input.value,-16,16));
-   case ControllerInput::Type::Undo:return undo(); case ControllerInput::Type::Redo:return redo();
+   case ControllerInput::Type::Undo:return undo(select_held()); case ControllerInput::Type::Redo:return redo(select_held());
   } return false;
  }
 auto Performance::set_multitimbral(bool on) -> bool{if(live_recording_ || resampling_ || recording_file_busy_)return false;if(!send({CommandType::SetMultitimbral,0,0,uint16_t(on)}))return false;playing_=counting_in_=note_recording_=false;seek_ready_=false;clear_pad_feedback();clear_launches();notify(on?UiNotice::ModuleEntered:UiNotice::ModuleExited);dirty_=true;return true;}
@@ -110,7 +116,7 @@ auto Performance::top_slot(unsigned index)const -> unsigned{
   if(audio_page()){static const uint8_t normal[]={0,1,8,8,2,3,4,7},shift[]={0,8,8,8,2,6,5,1};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Clip){static const uint8_t slots[]={4,5,8,8,0,1,2,3};return slots[index];}
   if(mode_==UiMode::Scene){static const uint8_t slots[]={1,2,4,8,0,3,5,8};return slots[index];}
-  if(mode_==UiMode::Song){if(index<4)return 8;if(shifted() && index==5 && !scene_take_requested_)return 6;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
+  if(mode_==UiMode::Song){if(index<4)return 8;if(shifted() && index==4)return 7;if(shifted() && index==5 && !scene_take_requested_)return 6;static const uint8_t slots[]={4,5,0,1};return shifted() && index>=6?index-4:slots[index-4];}
   if(mode_==UiMode::Mixer){static const uint8_t normal[]={8,8,8,8,0,1,5,7},shift[]={8,8,8,8,5,1,6,7};return (shifted()?shift:normal)[index];}
   if(mode_==UiMode::Synth && !source_select_ && track_const(selected_).instrument==Instrument::Layer){const uint8_t slots[]={0,1,uint8_t(layer_page()?2:8),uint8_t(layer_page()?3:8),4,5,6,7};return slots[index];}
   if(mode_==UiMode::Synth && wave_profile()){static const uint8_t slots[]={0,1,8,8,4,5,2,3};return slots[index];}
@@ -144,13 +150,13 @@ auto Performance::accept_event(const EngineEvent& input)  -> void{
   EngineEvent adjusted=input;const bool chromatic=input.type==EngineEventType::RecordedNote && (input.parameter&128);const bool native_drum=input.type==EngineEventType::RecordedNote && (input.parameter&256);if(input.type==EngineEventType::RecordedNote)adjusted.parameter&=127;const EngineEvent& event=adjusted;
   if(event.generation!=generation_)return;
   if((event.type==EngineEventType::RecordedNote || event.type==EngineEventType::RecordedKitHit || event.type==EngineEventType::RecordedGate || event.type==EngineEventType::RecordErase) && event.track<kTracks && event.flags<kPatterns && !rebase_record(adjusted)){notify(UiNotice::RecordLost);return;}
-  if(event.type==EngineEventType::RecordErase && event.track<16 && event.flags<kPatterns){auto& step=track_views_.at(event.flags,event.track).steps[event.value];if(!same_step(step,event.prior_step)){notify(UiNotice::RecordLost);return;}Command after{CommandType::SetRecordedStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.recorded_step=step;after.recorded_step.enabled=false;before.recorded_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
-  if(event.type==EngineEventType::RecordedKitHit && event.track<16 && event.flags<kPatterns && event.parameter<16){auto track=track_views_.at(event.flags,event.track);if(track.instrument!=Instrument::DrumKit){notify(UiNotice::RecordLost);return;}auto& step=track.kit.steps[event.parameter][event.value];auto next=step;next.enabled=1;next.velocity=uint8_t(bounded(int(event.scalar),1,127));int micro=event.tick?int(event.tick)-193:0;next.microtiming=int8_t(bounded((micro+(micro>=0?2:-2))/4,-48,48));Command after{CommandType::SetKitStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.parameter=before.parameter=event.parameter;after.kit_step=next;before.kit_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
-  if(event.type==EngineEventType::RecordedNote && event.track<16 && event.flags<kPatterns && event.parameter<128){auto& step=track_views_.at(event.flags,event.track).steps[event.value];StepState next=step;next.chromatic=chromatic || next.chromatic;next.native_drum=native_drum || next.native_drum;if(!next.enabled){next.enabled=true;next.note=uint8_t(event.parameter);for(auto& note:next.chord)note=255;}else if(next.note!=event.parameter){bool found=false;for(uint8_t note:next.chord)found|=note==event.parameter;if(!found){unsigned slot=0;while(slot<kChordTones && next.chord[slot]!=255)++slot;if(slot==kChordTones){notify(UiNotice::ChordFull);return;}next.chord[slot]=uint8_t(event.parameter);}}next.velocity=uint8_t(bounded(int(event.scalar),1,127));if(event.tick)next.microtiming=int16_t(int(event.tick)-193);Command after{CommandType::SetRecordedStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.recorded_step=next;before.recorded_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}if(event.recording_id)remember_record(event.flags,event.track,event.value,event.recording_id);if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
+  if(event.type==EngineEventType::RecordErase && event.track<16 && event.flags<kPatterns){auto& step=track_views_.at(event.flags,event.track).steps[event.value];if(!same_step(step,event.prior_step)){notify(UiNotice::RecordLost);return;}Command after{CommandType::SetRecordedStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.recorded_step=step;after.recorded_step.enabled=false;before.recorded_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}history_[history_cursor_-1].take=event.recording_take;if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
+  if(event.type==EngineEventType::RecordedKitHit && event.track<16 && event.flags<kPatterns && event.parameter<16){auto track=track_views_.at(event.flags,event.track);if(track.instrument!=Instrument::DrumKit){notify(UiNotice::RecordLost);return;}auto& step=track.kit.steps[event.parameter][event.value];auto next=step;next.enabled=1;next.velocity=uint8_t(bounded(int(event.scalar),1,127));int micro=event.tick?int(event.tick)-193:0;next.microtiming=int8_t(bounded((micro+(micro>=0?2:-2))/4,-48,48));Command after{CommandType::SetKitStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.parameter=before.parameter=event.parameter;after.kit_step=next;before.kit_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}history_[history_cursor_-1].take=event.recording_take;if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
+  if(event.type==EngineEventType::RecordedNote && event.track<16 && event.flags<kPatterns && event.parameter<128){auto& step=track_views_.at(event.flags,event.track).steps[event.value];StepState next=step;next.chromatic=chromatic || next.chromatic;next.native_drum=native_drum || next.native_drum;if(!next.enabled){next.enabled=true;next.note=uint8_t(event.parameter);for(auto& note:next.chord)note=255;}else if(next.note!=event.parameter){bool found=false;for(uint8_t note:next.chord)found|=note==event.parameter;if(!found){unsigned slot=0;while(slot<kChordTones && next.chord[slot]!=255)++slot;if(slot==kChordTones){notify(UiNotice::ChordFull);return;}next.chord[slot]=uint8_t(event.parameter);}}next.velocity=uint8_t(bounded(int(event.scalar),1,127));if(event.tick)next.microtiming=int16_t(int(event.tick)-193);Command after{CommandType::SetRecordedStep,event.track,event.value,0},before=after;after.pattern=before.pattern=event.flags;after.recorded_step=next;before.recorded_step=step;if(!edit(after,before)){notify(UiNotice::RecordLost);return;}history_[history_cursor_-1].take=event.recording_take;history_[history_cursor_-1].note_id=event.recording_id;if(event.recording_id)remember_record(event.flags,event.track,event.value,event.recording_id);if(event.flags==project_.active_pattern && event.track==selected_)refresh_steps();}
   if(event.type==EngineEventType::RecordCapacity)notify(UiNotice::RecordLost);
   if(event.type==EngineEventType::RecordStopped)note_finish_pending_=false;
   if(event.type==EngineEventType::CountInState){counting_in_=event.value!=0;count_beat_=event.value;if(event.flags)playing_=false;}
-  if(event.type==EngineEventType::RecordedGate && event.track<16 && event.flags<kPatterns && event.parameter>=1 && event.parameter<=384 && event.recording_id && matches_record(event.flags,event.track,event.value,event.recording_id)){auto& step=track_views_.at(event.flags,event.track).steps[event.value];if(step.enabled && step.gate!=event.parameter){Command after{CommandType::SetGate,event.track,event.value,event.parameter},before=after;after.pattern=before.pattern=event.flags;before.value=step.gate;if(!edit(after,before))notify(UiNotice::RecordLost);}forget_record(event.flags,event.track,event.value);}
+  if(event.type==EngineEventType::RecordedGate)finish_note_gate(event);
   if(event.type==EngineEventType::GestureState){gesture_recording_=event.value==1;gesture_playing_=event.value==2;if(event.value==1){project_.gesture.count=0;project_.gesture.ticks=event.parameter;}if(event.value==3)project_.gesture.count=0;if(event.value==4)notify(UiNotice::GestureFull);}
   if(event.type==EngineEventType::GesturePoint){GesturePoint p{event.tick,event.parameter,event.scalar,event.track,event.value,GestureTarget(event.flags)};auto& g=project_.gesture;if(g.count && g.points[g.count-1].tick==p.tick && g.points[g.count-1].track==p.track && g.points[g.count-1].pattern==p.pattern && g.points[g.count-1].target==p.target && g.points[g.count-1].parameter==p.parameter)g.points[g.count-1]=p;else if(g.count<128)g.points[g.count++]=p;}
   if(event.type==EngineEventType::TempoChanged)project_.tempo=uint16_t(event.scalar);
@@ -164,6 +170,7 @@ auto Performance::accept_event(const EngineEvent& input)  -> void{
   if(event.type==EngineEventType::ProgramChanged && event.track<16 && event.value<kPatterns && event.parameter<128)track_views_.at(event.value,event.track).midi_program=uint8_t(event.parameter);
   if(event.type==EngineEventType::EngineParameterChanged && event.value<kPatterns){set_engine_parameter(track_views_.at(event.value,event.track),event.parameter,event.scalar);dirty_=true;}
   if(event.type==EngineEventType::ParameterChanged && event.value<kPatterns){auto t=track_views_.at(event.value,event.track);{set_track_parameter(t,event.parameter,event.scalar);if(project_.morph_enabled && event.value==project_.clips[event.track].pattern && target_descriptor(event.parameter) && morph_index(event.parameter)<kCommonMorphParameters)project_.morph_a[event.track].values[morph_index(event.parameter)]=project_.morph_b[event.track].values[morph_index(event.parameter)]=event.scalar;}}
+  if(event.type==EngineEventType::ChainFollowChanged)project_.chain.enabled=event.value!=0;
   if(event.type==EngineEventType::SceneLaunched) {if(queued_scene_==event.value)queued_scene_=-1; project_.active_scene=event.value;arrangement_ui_active_=event.flags!=0;arrangement_ui_mute_=event.parameter;arrangement_ui_solo_=0; }
   if(event.type==EngineEventType::Note && event.track<16){trigger_ms_[event.track]=now_ms_;trigger_seen_[event.track]=true;}
   if(event.type==EngineEventType::ClipLaunched){launch_ms_=now_ms_;}
@@ -178,7 +185,7 @@ auto Performance::setting_control(unsigned index)const -> unsigned{static const 
 auto Performance::setting_name(unsigned index)const -> const char*{static const char* names[]={"MOTION","THEME","PIXEL ORDER","STRIP PROFILE","16-BIT VIEW","SCREEN LEVEL","LED LEVEL","VELOCITY","INPUT GAIN","TUNER INPUT","LOCAL CONTROL","MULTITIMBRAL","SPACE UNIT","NETWORK MIDI","NET LATENCY"};unsigned id=setting_control(index);return id<15?names[id]:"";}
 auto Performance::setting_text(unsigned index)const -> const char*{switch(setting_control(index)){case 0:return settings_.motion==ui::Motion::Full?"Full":settings_.motion==ui::Motion::Reduced?"Reduced":"Off";case 1:return ui::Theme::name(settings_.theme);case 2:return settings_.pixel_order?"BGR565":"RGB565";case 3:return settings_.strip==ui::StripProfile::Uncalibrated?"Off":settings_.strip==ui::StripProfile::PaletteHypothesis?"Palette":"Mono";case 4:return settings_.preview565?"On":"Off";case 5:format_device_number(device_.screen," %");return device_text_;case 6:return device_.led==3?"High":device_.led==2?"Medium":"Low";case 7:return device_.velocity==0?"Linear":device_.velocity==1?"Soft":"Hard";case 8:format_device_number(device_.input_db," dB");return device_text_;case 9:return device_.tuner_source==0?"Input L":device_.tuner_source==1?"Input R":"Input L+R";case 10:return device_.local?"On":"Off";case 11:return multitimbral()?"On":"Off";case 12:return system_space_unit_?"MiB":"GiB";case 13:return device_.network_midi?"On":"Off";case 14:format_device_number(device_.net_latency_ms," ms");return device_text_;default:return "";}}
 auto Performance::format_device_number(int n,const char* unit)const -> void{unsigned at=0;if(n<0){device_text_[at++]='-';n=-n;}if(n>=100)device_text_[at++]=char('0'+n/100);if(n>=10)device_text_[at++]=char('0'+n/10%10);device_text_[at++]=char('0'+n%10);while(*unit)device_text_[at++]=*unit++;device_text_[at]=0;}
-auto Performance::service_help() -> void{bool was=help_shown_;if(!modal_active() && help_button_down()){if(!help_down_ || help_mode_!=mode_){help_down_=true;help_mode_=mode_;help_since_=now_ms_;}}else help_down_=false;help_shown_=help_visible();if(was!=help_shown_)dirty_=true;unsigned bit=1u<<unsigned(mode_);if(!(help_seen_&bit) && !modal_active() && notice()==UiNotice::None){help_seen_|=bit;notify(UiNotice::HintAvailable);}}
+auto Performance::service_help() -> void{bool was=help_shown_;if(!modal_active() && help_button_down()){if(!help_down_ || help_mode_!=mode_){help_down_=true;help_mode_=mode_;help_since_=now_ms_;}}else help_down_=false;help_shown_=help_visible();if(was!=help_shown_){help_page_=0;dirty_=true;}unsigned bit=1u<<unsigned(mode_);if(!(help_seen_&bit) && !modal_active() && notice()==UiNotice::None){help_seen_|=bit;notify(UiNotice::HintAvailable);}}
 auto Performance::display_bar_phase()const -> float{float phase=visual_.bar_phase;if(playing_ && visual_.playing && visual_.rate)phase+=float(visual_elapsed_samples())*project_.tempo/(240.f*visual_.rate);return phase-floorf(phase);}
 auto Performance::animate(uint64_t ms) -> void{bool overlay=knob_overlay();unsigned turning=knob_turning_mask();auto old_notice=notice();if(ms>now_ms_)now_ms_=ms;if(sn_ref_armed_ && !sn_ref_confirmation()){sn_ref_armed_=false;dirty_=true;}if(extend_pending_ && now_ms_-extend_time_>5000){extend_pending_=false;dirty_=true;}if(overlay!=knob_overlay() || turning!=knob_turning_mask() || old_notice!=notice())dirty_=true;if(modal_active()){page_left_pending_=page_right_pending_=page_left_down_=page_right_down_=false;step_down_=step_reentry_=false;}else{service_page_buttons();service_step_button();}service_track_shortcut();service_help();file_notice_.observe(browser_.status,now_ms_);
  if(history_trim_notice_==HistoryTrimNotice::Pending && notice()==UiNotice::None && !file_notice_.active(now_ms_) && !modal_active() && !help_visible()){
@@ -187,7 +194,7 @@ auto Performance::animate(uint64_t ms) -> void{bool overlay=knob_overlay();unsig
  if(mode_==UiMode::Settings && settings_page_==4 && visual_.sample!=tuner_sample_){tuner_=tune_input(visual_.tuner_samples,float(visual_.rate)/4);tuner_sample_=visual_.sample;}}
 auto Performance::sync_ui_settings() -> void{project_.ui.theme=0;project_.ui.motion=uint8_t(settings_.motion);project_.ui.order=settings_.pixel_order;project_.ui.strip=uint8_t(settings_.strip);project_.ui.preview565=settings_.preview565;}
 auto Performance::notify_recovery(RecoverySource source) -> void{if(source.kind==RecoveryKind::None || source.kind==RecoveryKind::Main){notify(UiNotice::Loaded);return;}copy_text(recovery_message_,sizeof recovery_message_,"Recovered .tmp");recovery_warning_=true;notify(UiNotice::Recovered);}
-auto Performance::notice_text()const -> const char*{switch(notice()){case UiNotice::HistoryTrimmed:return "UNDO LIMIT / OLDEST EDITS REMOVED";case UiNotice::CompositionChanged:case UiNotice::CompositionFailed:return composition_message_;case UiNotice::TwinChanged:case UiNotice::TwinFailed:return twin_message_;case UiNotice::ModuleEntered:return "MODULE ON / SEQUENCER STOPPED / MIDI IN PLAYS TRACKS";case UiNotice::ModuleExited:return "MODULE OFF / PLAY TO RESUME";case UiNotice::ModuleTransport:return "LIVE TOOLS > MIDI MODULE > EXIT / THEN PLAY";case UiNotice::LayerRefused:return layer_reason(notice_layer_reason_);case UiNotice::ControllerReconnect:return "CONTROLLER RECONNECT / PLAYBACK STOPPED";case UiNotice::PartialApplied:return "PARTIALLY APPLIED / UNDO TO REVERT";case UiNotice::HintAvailable:return "HOLD PAGE / ENTRY BUTTON FOR HELP";case UiNotice::RestartQueued:return "RESTART AT NEXT BAR";case UiNotice::MemoryFull:return "Not enough memory / sound kept";case UiNotice::AssetReload:return "SF2 not resident / reload preset";case UiNotice::SavedLocationFailed:return "Saved / startup project preference failed";case UiNotice::StripUnavailable:return "Strip mode unavailable / use PERFORM";case UiNotice::SnRefConfirm:return "Confirm REF / SN voices will stop";case UiNotice::SnRefQueued:return "REF command queued / no readback";case UiNotice::Recovered:return recovery_message_;case UiNotice::ProjectUnsynced:return "State lost / reload before saving";case UiNotice::ProjectPending:return "Changes pending / retry save";case UiNotice::SaveQueued:return "Changes pending / save queued";case UiNotice::Saving:return "Saving snapshot";case UiNotice::SnapshotSaved:return "Snapshot saved";case UiNotice::LoopPrecision:return "WAV loop boundary cannot be represented";case UiNotice::LoopUnsupported:return "No forward loop / clear slices and reverse";case UiNotice::LoopImported:return "WAV loop applied / Undo available";case UiNotice::ScaleRequired:return "Scale needs at least one note";case UiNotice::GrooveClipped:return "Groove limited / reduce timing or velocity";case UiNotice::ChordLiveMono:return "Mono instrument / lowest note only";case UiNotice::ChordRepeat:return "Disable note repeat for chords";case UiNotice::RecordLost:return "Recording incomplete / check edits";case UiNotice::ChordFull:return "Step chord full / maximum eight notes";case UiNotice::ChordVoiceLimit:return "Chord stored / engine voice limit";case UiNotice::ChordMono:return "Chord stored / selected engine is mono";case UiNotice::OverdubDone:return "Overdub ready / Undo restores source";case UiNotice::OverdubFailed:return "Overdub failed / source retained";case UiNotice::LoopConfirm:return "Shift + LOOP TAKE again / replaces track steps";case UiNotice::LoopReady:return "Loop prepared / Undo restores steps";case UiNotice::LoopInvalid:return "Select a 1-4 bar sample at current tempo";case UiNotice::GestureClear:return "Shift + CLEAR to erase gesture";case UiNotice::GestureFull:return "Gesture full / recording stopped";case UiNotice::Saved:return "Project saved";case UiNotice::SampleRecorded:return "Input take assigned / existing steps play it";case UiNotice::MidiSaved:return "MIDI file saved";case UiNotice::MidiImported:return "MIDI events imported";case UiNotice::SaveFailed:return "Save failed / check storage";case UiNotice::Loaded:return playing_?"Project loaded / playing":"Project loaded / press Play";case UiNotice::KitLoaded:return playing_?"Kit loaded / playing":"Kit loaded / ready";case UiNotice::NewProject:return "Empty project ready";case UiNotice::Failed:return "Operation failed / state retained";case UiNotice::Copied:return "Pattern copied";case UiNotice::StepCopied:return "Step copied";case UiNotice::StepPasted:return "Step pasted / Undo available";case UiNotice::StepRhythmPasted:return "Rhythm pasted / other settings kept";case UiNotice::ChopPhrase:return "Chop phrase ready / Undo available";case UiNotice::KitPadSwapped:return "Sounds swapped / step lanes unchanged";case UiNotice::ExtendConfirm:return "Press DOUBLE TRACK again / replaces later steps";case UiNotice::Extended:return "Track doubled / Undo available";case UiNotice::SceneStored:return "Scene stored / pads launch scenes";case UiNotice::SceneWait:return "Wait for queued launch before storing";case UiNotice::LocksFull:return "Four locks used / clear a lock";case UiNotice::FilesBusy:return "File transfer busy / finish the current file job";case UiNotice::HostFileTools:return "File transfer: use instrument Wi-Fi";case UiNotice::HostUpdateTools:return "Updates: use host update tools";default:return "";}}
+auto Performance::notice_text()const -> const char*{switch(notice()){case UiNotice::HistoryTrimmed:return "UNDO LIMIT / OLDEST EDITS REMOVED";case UiNotice::CompositionChanged:case UiNotice::CompositionFailed:return composition_message_;case UiNotice::TwinChanged:case UiNotice::TwinFailed:return twin_message_;case UiNotice::ModuleEntered:return "MODULE ON / SEQUENCER STOPPED / MIDI IN PLAYS TRACKS";case UiNotice::ModuleExited:return "MODULE OFF / PLAY TO RESUME";case UiNotice::ModuleTransport:return "LIVE TOOLS > MIDI MODULE > EXIT / THEN PLAY";case UiNotice::LayerRefused:return layer_reason(notice_layer_reason_);case UiNotice::ControllerReconnect:return "CONTROLLER RECONNECT / PLAYBACK STOPPED";case UiNotice::PartialApplied:return "PARTIALLY APPLIED / UNDO TO REVERT";case UiNotice::SceneReplaced:return "CLIP REPLACES QUEUED SCENE";case UiNotice::HintAvailable:return "SHIFT + PAGE RIGHT: HELP";case UiNotice::RestartQueued:return "RESTART AT NEXT BAR";case UiNotice::MemoryFull:return "Not enough memory / sound kept";case UiNotice::AssetReload:return "SF2 not resident / reload preset";case UiNotice::SavedLocationFailed:return "Saved / startup project preference failed";case UiNotice::StripUnavailable:return "Strip mode unavailable / use PERFORM";case UiNotice::SnRefConfirm:return "Confirm REF / SN voices will stop";case UiNotice::SnRefQueued:return "REF command queued / no readback";case UiNotice::Recovered:return recovery_message_;case UiNotice::ProjectUnsynced:return "State lost / reload before saving";case UiNotice::ProjectPending:return "Changes pending / retry save";case UiNotice::SaveQueued:return "Changes pending / save queued";case UiNotice::Saving:return "Saving snapshot";case UiNotice::SnapshotSaved:return "Snapshot saved";case UiNotice::LoopPrecision:return "WAV loop boundary cannot be represented";case UiNotice::LoopUnsupported:return "No forward loop / clear slices and reverse";case UiNotice::LoopImported:return "WAV loop applied / Undo available";case UiNotice::ScaleRequired:return "Scale needs at least one note";case UiNotice::GrooveClipped:return "Groove limited / reduce timing or velocity";case UiNotice::ChordLiveMono:return "Mono instrument / lowest note only";case UiNotice::ChordRepeat:return "Disable note repeat for chords";case UiNotice::RecordLost:return "Recording incomplete / check edits";case UiNotice::ChordFull:return "Step chord full / maximum eight notes";case UiNotice::ChordVoiceLimit:return "Chord stored / engine voice limit";case UiNotice::ChordMono:return "Chord stored / selected engine is mono";case UiNotice::OverdubDone:return "Overdub ready / Undo restores source";case UiNotice::OverdubFailed:return "Overdub failed / source retained";case UiNotice::LoopConfirm:return "Shift + LOOP TAKE again / replaces track steps";case UiNotice::LoopReady:return "Loop prepared / Undo restores steps";case UiNotice::LoopInvalid:return "Select a 1-4 bar sample at current tempo";case UiNotice::GestureClear:return "Shift + CLEAR to erase gesture";case UiNotice::GestureFull:return "Gesture full / recording stopped";case UiNotice::Saved:return "Project saved";case UiNotice::SampleRecorded:return "Input take assigned / existing steps play it";case UiNotice::MidiSaved:return "MIDI file saved";case UiNotice::MidiImported:return "MIDI events imported";case UiNotice::SaveFailed:return "Save failed / check storage";case UiNotice::Loaded:return playing_?"Project loaded / playing":"Project loaded / press Play";case UiNotice::KitLoaded:return playing_?"Kit loaded / playing":"Kit loaded / ready";case UiNotice::NewProject:return "Empty project ready";case UiNotice::Failed:return "Operation failed / state retained";case UiNotice::Copied:return "Pattern copied";case UiNotice::StepCopied:return "Step copied";case UiNotice::StepPasted:return "Step pasted / Undo available";case UiNotice::StepRhythmPasted:return "Rhythm pasted / other settings kept";case UiNotice::ChopPhrase:return "Chop phrase ready / Undo available";case UiNotice::KitPadSwapped:return "Sounds swapped / step lanes unchanged";case UiNotice::ExtendConfirm:return "Press DOUBLE TRACK again / replaces later steps";case UiNotice::Extended:return "Track doubled / Undo available";case UiNotice::SceneStored:return "Scene stored / pads launch scenes";case UiNotice::SceneWait:return "Wait for queued launch before storing";case UiNotice::LocksFull:return "Four locks used / clear a lock";case UiNotice::FilesBusy:return "File transfer busy / finish the current file job";case UiNotice::HostFileTools:return "File transfer: use instrument Wi-Fi";case UiNotice::HostUpdateTools:return "Updates: use host update tools";default:return "";}}
 auto Performance::notice_error()const -> bool{return notice()==UiNotice::CompositionFailed || notice()==UiNotice::TwinFailed || notice()==UiNotice::LayerRefused || notice()==UiNotice::ModuleTransport || notice()==UiNotice::PartialApplied || notice()==UiNotice::MemoryFull || notice()==UiNotice::AssetReload || notice()==UiNotice::SnRefConfirm || notice()==UiNotice::ProjectUnsynced || notice()==UiNotice::ProjectPending || notice()==UiNotice::SaveFailed || notice()==UiNotice::Failed || notice()==UiNotice::LocksFull || notice()==UiNotice::LoopInvalid || notice()==UiNotice::OverdubFailed || notice()==UiNotice::SceneWait || notice()==UiNotice::ChordFull || notice()==UiNotice::RecordLost || notice()==UiNotice::LoopUnsupported || notice()==UiNotice::LoopPrecision;}
 auto Performance::warning()const -> bool{return recovery_warning_ || warning_ || notice_error() || dropped_ || engine_.event_dropped() || engine_.repeat_dropped() || visual_.invalid_audio || visual_.limiter_main>0.01f || visual_.limiter_cue>0.01f;}
 auto Performance::visual_source()const -> unsigned{return mode_==UiMode::Browser?2:mode_==UiMode::Routing && routing_fx_page_?53+group_cursor_:audio_page()?(live_recording_?audio_lane().source:255):mode_==UiMode::Sampler?recording_source():255;}
@@ -201,9 +208,23 @@ auto Performance::service_visual_analysis() -> void{
   unsigned interval=analysis_backoff_<2?50:analysis_backoff_<4?100:200;analysis_due_ms_=now_ms_+interval;
   if(slot->submit(visual_.taps)){analysis_requested_sample_=visual_.taps.sample;analysis_backoff_=0;}else if(analysis_backoff_<4)++analysis_backoff_;
  }
+VoiceRefusal Performance::layer_chimera_warning(unsigned* talk_slots)const{
+ const auto t=track_const(selected_);
+ if(t.instrument!=Instrument::Layer)return VoiceRefusal::None;
+ const auto& mix=visual_.chimera_mix;
+ for(unsigned k=0;k<t.layer.count;++k)for(unsigned v=0;v<t.layer.count;++v){
+  uint8_t selected=0;layer_note_cost(t.layer,t.layer.parts[k].key_low,t.layer.parts[v].velocity_low,&selected);
+  unsigned talk=mix.talk;const unsigned need=layer_chimera_tracts(t.layer,selected,talk);
+  const auto reason=chimera_refusal(need,talk,visual_.sample?visual_.chimera_available:true);
+  if(reason!=VoiceRefusal::None){if(talk_slots)*talk_slots=talk;return reason;}
+  if(need && mix.tracts && need+mix.tracts>chimera_capacity(talk))return VoiceRefusal::Busy;
+ }
+ return VoiceRefusal::None;
+}
 auto Performance::layer_warning(bool runtime)const -> LayerReason{
  const auto t=track_const(selected_);if(t.instrument!=Instrument::Layer)return LayerReason::Ready;
  auto reason=layer_status(t.layer);if(reason!=LayerReason::Ready)return reason;
+ if(layer_chimera_warning()!=VoiceRefusal::None)return LayerReason::Voices;
  // Declared overlap is available immediately on mount, before a note fires.
  for(unsigned k=0;k<t.layer.count;++k)for(unsigned v=0;v<t.layer.count;++v){
   unsigned slots[unsigned(VoiceResource::Count)]{},cost[unsigned(VoiceResource::Count)]{};uint8_t selected=0;
@@ -223,7 +244,7 @@ auto Performance::effects_controls()const -> EffectsContext{return {shifted(),fx
 auto Performance::perform_controls()const -> PerformContext{
  return {shifted(),performance_page_,performance_fx_quantize_,performance_fx_tail_,performance_fx_bank_!=0,
   track_const(selected_).mutation.frozen,gesture_recording_,gesture_playing_,control_all_,
-  history_cursor_>0,history_cursor_<history_size_,multitimbral(),recording_controls()};
+  history_cursor_>0,history_cursor_<history_size_,multitimbral(),recording_controls(),selected_group()};
 }
 auto Performance::layer_use(bool remove) -> bool{if(track_const(selected_).instrument!=Instrument::Layer)return false;Command after{CommandType::ApplySound,selected_,0,0},before=after;snapshot_sound(before.sound(),track_const(selected_));after.sound()=before.sound();auto& layer=after.sound().layer;unsigned at=layer_cursor_<layer.count?layer_cursor_:layer.count;
   if(remove){if(at>=layer.count)return false;for(unsigned i=at+1;i<layer.count;++i)layer.parts[i-1]=layer.parts[i];if(layer.count)--layer.count;}
@@ -286,6 +307,12 @@ auto Performance::release_all() -> void{step_down_=false;page_left_pending_=page
 auto Performance::control(unsigned byte,uint8_t value)  -> bool{NavigationScope navigation_scope(*this);struct HelpScope{Performance& ui;~HelpScope(){ui.service_help();}} help_scope{*this};
   if(byte<1 || byte>10) return false;
   uint8_t old=controls_[byte-1]; controls_[byte-1]=value; uint8_t rising=value & uint8_t(~old);
+  if(byte==7 && ((old^value)&0x04)){
+   if(help_chord_ && !(value&0x04)){help_chord_=false;dirty_=true;return true;}
+   if((rising&0x04) && shifted() && !modal_active() && !transfer_view_.active && !page_left_down_){
+    help_chord_=true;help_page_=0;dirty_=true;return true;
+   }
+  }
   if(transfer_view_.active){if(byte==1 && (rising&0x80))return soft_key(7);if(byte==9)for(unsigned i=0;i<7;++i)if(rising&(1u<<i))return soft_key(i);return true;}
   if(old!=value){dirty_=true;if(!help_down_ && help_button_down()){help_down_=true;help_mode_=mode_;help_since_=now_ms_;}}
   if(byte==10 && old!=value)for(unsigned i=0;i<8;++i)if((old^value)&(0x80>>i))knob_overlay_until_[i]=now_ms_+1200;
@@ -306,14 +333,41 @@ auto Performance::control(unsigned byte,uint8_t value)  -> bool{NavigationScope 
   if(byte==7 && (rising&0x02) && !(controls_[0]&0x40)){set_mode(UiMode::Settings);return true;}
   if(byte==8 && (rising&0x04))return open_preset_library(false);
   if(byte==8 && (rising&0x20)){set_mode(UiMode::Modulation);return true;}
-  if(byte==8 && (rising&0x10)){if(shifted()){request_save();return true;}set_mode(UiMode::Browser);return request_file(FileAction::Refresh);}
+  if(byte==8 && (rising&0x10)){
+   if(shifted()){request_save();return true;}
+   const bool recording=recording_page() || audio_page();
+   const unsigned asset=audio_page()?audio_lane().clips[on_perform_page(PerformTimeline)?audio_clip_cursor_:0].asset:kSampleAssets;
+   if(recording && file_action_pending())return false;
+   set_mode(UiMode::Browser);
+   if(recording){
+    browser_.favorites_only=false;browser_.cursor=0;browser_.reveal_file[0]=0;
+    if(asset>=kSampleAssets || !project_.assets[asset].path[0])return request_file(FileAction::OpenRecordings);
+    const auto* path=project_.assets[asset].path;
+    copy_text(browser_.reveal_file,sizeof browser_.reveal_file,filename(path));
+    copy_text(browser_.directory,sizeof browser_.directory,path);parent_path(browser_.directory);
+   }
+   return request_file(FileAction::Refresh);
+  }
   if(byte==7 && (rising&0x02) && (controls_[0]&0x40)){if(playing_){notify(UiNotice::Failed);return false;}set_mode(UiMode::Settings);update_confirm_=true;dirty_=true;return true;}
   // Mapping follows encdr's pinned JSON descriptor; its prose table differs.
   // Physical mappings remain provisional until captured on the actual MK3.
   if(byte==4 && (rising&0x10)){fixed_velocity_=!fixed_velocity_;return true;}
   if(byte==5 && (rising&0x04))return shifted()?double_pattern():(mode_==UiMode::Step?duplicate_step():duplicate_pattern());
   if(byte==4 && ((old^value)&0x08))step_button_edge((value&0x08)!=0);
-  if(byte==4) { if(rising&0x01)set_mode(UiMode::Pad); if(rising&0x02)set_mode(UiMode::Keyboard); if(rising&0x04)set_mode(UiMode::Chord); if(rising&0x08){note_edit_=false;set_mode(UiMode::Step);} if(rising&0x20)set_mode(UiMode::Scene); if(rising&0x40)set_mode(UiMode::Clip); if(rising&0x80){if(pending_project_==ProjectAction::None && !update_confirm_ && !freeze_modal_ && !stretch_modal_){if(shifted())redo();else undo();}} }
+  if(byte==4) {
+   if((rising&0x02) && select_held()){
+    if(keyboard_pinned())pinned_keyboard_=kTracks;
+    else if(audio_lane().kind==TrackKind::Instrument && track_const(selected_).instrument!=Instrument::Empty)pinned_keyboard_=selected_;
+    dirty_=true;return true;
+   }
+   if(rising&0x6f)pinned_keyboard_=kTracks;
+   if(rising&0x01)set_mode(UiMode::Pad);
+   if(rising&0x02)set_mode(UiMode::Keyboard);
+   if(rising&0x04)set_mode(UiMode::Chord);
+   if(rising&0x08){note_edit_=false;set_mode(UiMode::Step);}
+   if(rising&0x20)set_mode(UiMode::Scene);
+   if(rising&0x40)set_mode(UiMode::Clip);
+   if(rising&0x80){if(pending_project_==ProjectAction::None && !update_confirm_ && !freeze_modal_ && !stretch_modal_){if(shifted())redo(select_held());else undo(select_held());}} }
   if(byte==5 && (rising&0x02))set_mode(UiMode::Generate);
   if(byte==6 && (rising&0x40)){if(mode_==UiMode::Sampler)return request_file(shifted()?FileAction::SampleRecordToggle:FileAction::RecordToggle);if(shifted())return start_count_in_record();return arm_note_record(!note_recording_);}
   if(byte==6 && (rising&0x02))return restart_transport(shifted());
@@ -363,7 +417,10 @@ auto Performance::pad(uint8_t hardware,uint8_t tag,uint16_t pressure)  -> bool{
 auto Performance::vowel_ready()const -> bool{return vowel_voice() || vocoder_ready();}
 auto Performance::vowel_target(unsigned field)const -> uint16_t{
  if(field>2)return 0;
- if(vowel_voice())return engine_target(Instrument::Chimera,field==2?ChimeraPressure:field);
+ if(vowel_voice()){
+  const bool animal=chimera_model(track_const(selected_).chimera)>=3;
+  return engine_target(Instrument::Chimera,field==2?(animal?ChimeraBreath:ChimeraPressure):field);
+ }
  return field==2?261:uint16_t(95+vocoder_slot_*4+field);
 }
 auto Performance::vowel_value(unsigned field)const -> float{
@@ -380,7 +437,10 @@ auto Performance::vowel_pad(unsigned pad,unsigned pressure,bool move) -> bool{
  const bool record=lock_path() || (note_recording_ && playing_);
  if(step>=kSteps || engine_.command_space()<3 || (note_recording_ && playing_ && project_.clips[selected_].pattern!=project_.active_pattern))return false;
  float force=float(pressure)/4095;
- float values[]={float(pad%4)/3,float(pad/4)/3,vowel_voice()?force*12-4:float(unsigned(force*127+.5f))};
+ const auto* range=target_descriptor(vowel_target(2));
+ if(!range)return false;
+ float intensity=range->minimum+force*(range->maximum-range->minimum);
+ float values[]={float(pad%4)/3,float(pad/4)/3,vowel_voice()?intensity:float(unsigned(intensity+.5f))};
  unsigned first=move?0:2;
  if(record){
   unsigned needed=0,free=0;
@@ -411,18 +471,23 @@ auto Performance::pad_input(uint8_t hardware,uint8_t tag,uint16_t pressure)  -> 
   if(duplicate)return true;
   if(release && hardware==held_step_hardware_)held_step_hardware_=255;
   dirty_=true; unsigned p=(3-hardware/4)*4+hardware%4;
+  if(release && notes_held_[hardware]){Command c{CommandType::NoteOff,held_tracks_[hardware],hardware,held_notes_[hardware]};c.parameter=held_kind_[hardware];bool ok=send(c);if(ok)notes_held_[hardware]=false;else pending_release_[hardware]=true;return ok;}
+  if((tag==0x40 || tag==0) && held_[hardware] && notes_held_[hardware]){Command c{CommandType::MidiInput,held_tracks_[hardware],held_notes_[hardware],0xa0};c.scalar=float(pressure)*127/4095;c.parameter=held_kind_[hardware]==3?uint16_t(0x300|hardware):0x100;return send(c);}
+  if(release && hardware==held_stutter_pad_){held_stutter_pad_=255;bool ok=stutter(false);if(!ok)release_stutter_=true;return ok;}
+  if(release && hardware==held_fill_pad_){held_fill_pad_=255;bool ok=set_fill(false);if(!ok)release_fill_=true;return ok;}
+  if(release && hardware==held_performance_pad_){held_performance_pad_=255;if(!performance_fx_latched_){release_performance_fx_=true;retry_releases();}return true;}
+  if(keyboard_pinned() && !(controls_[4]&0x38) && !release){
+   if(tag!=0x10)return true;
+   int note=keyboard_note(p);
+   return note>=0 && trigger_held_pad(hardware,pinned_keyboard_,unsigned(note),pressure,2);
+  }
   if(vowel_page() && !notes_held_[hardware] && !(controls_[4]&0x30)){
    if(select_held() && tag==0x10)return select_track(p);
    if(!select_held() && (tag==0x10 || (!release && held_[hardware])))return vowel_pad(p,pressure,tag==0x10);
    return true;
   }
-  if(release && hardware==held_stutter_pad_){held_stutter_pad_=255;bool ok=stutter(false);if(!ok)release_stutter_=true;return ok;}
-  if(release && hardware==held_fill_pad_){held_fill_pad_=255;bool ok=set_fill(false);if(!ok)release_fill_=true;return ok;}
-  if(release && hardware==held_performance_pad_){held_performance_pad_=255;if(!performance_fx_latched_){release_performance_fx_=true;retry_releases();}return true;}
   if(audio_page() && tag==0x10 && !(controls_[4]&0x30))return select_track(p);
   if(mode_==UiMode::Song && tag==0x10){if(!project_.song.length || song_cursor_>=project_.song.length)return false;auto sec=project_.song.sections[song_cursor_];if(sec.ticks && shifted()){sec.playing_mask^=uint16_t(1u<<p);sec.restart_mask|=uint16_t(1u<<p);}else sec.mute_mask^=uint16_t(1u<<p);return song_section_send(song_cursor_,sec);}   if(mode_==UiMode::Perform && performance_page_<PerformTools && tag==0x10 && !(controls_[4]&0x30)){if(performance_page_==4 && live_fx_pad_effect(p,performance_fx_bank_)){PerformanceFx effect=PerformanceFx(live_fx_pad_effect(p,performance_fx_bank_));if(shifted() && performance_fx_mode_==effect && performance_fx_latched_){release_performance_fx_=true;retry_releases();return true;}if(!set_performance_fx(effect,performance_fx_amount_,shifted()))return false;held_performance_pad_=shifted()?255:hardware;return true;}if(p>=2 && (p<=11 || (performance_page_==4 && p==12)))return true;if(p>=12)return morph(performance_page_==4?float(p-13)/2:float(p-12)/3);if(p==0){if(release_stutter_ || !stutter(true))return false;held_stutter_pad_=hardware;return true;}if(p==1){if(release_fill_ || !set_fill(true))return false;held_fill_pad_=hardware;return true;}}
-  if(release && notes_held_[hardware]){Command c{CommandType::NoteOff,held_tracks_[hardware],hardware,held_notes_[hardware]};c.parameter=held_kind_[hardware];bool ok=send(c);if(ok)notes_held_[hardware]=false;else pending_release_[hardware]=true;return ok;}
-  if((tag==0x40 || tag==0) && held_[hardware] && notes_held_[hardware]){Command c{CommandType::MidiInput,held_tracks_[hardware],held_notes_[hardware],0xa0};c.scalar=float(pressure)*127/4095;c.parameter=held_kind_[hardware]==3?uint16_t(0x300|hardware):0x100;return send(c);}
   if(tag!=0x10) return true;
   if(controls_[4]&0x30){if(!audio_page() && audio_lane().kind==TrackKind::Instrument && track_const(selected_).instrument==Instrument::DrumKit){select_kit_pad(p);if(controls_[4]&0x10){Command after{CommandType::SetKitSolo,selected_,0,uint16_t(track_const(selected_).kit.solo_mask^(1u<<p))},before=after;before.value=track_const(selected_).kit.solo_mask;return edit(after,before);}auto pad=track_const(selected_).kit.pads[p];pad.muted=!pad.muted;return set_kit_pad(p,pad);}bool solo=(controls_[4]&0x10)!=0;return mute_or_solo(p,solo,!solo && shifted());}
   if(mode_==UiMode::Step && select_held() && track_const(selected_).instrument==Instrument::DrumKit)return select_kit_pad(p);
@@ -448,7 +513,16 @@ auto Performance::pad_input(uint8_t hardware,uint8_t tag,uint16_t pressure)  -> 
    case UiMode::Sampler:if(track_const(selected_).instrument==Instrument::DrumKit)return trigger_kit_pad(hardware,p,pressure);if(pending_release_[hardware]){held_[hardware]=false;return false;}if(!set_sample_region((track(selected_).sample_edit.pads[p]%(track(selected_).sample_edit.slice_count?track(selected_).sample_edit.slice_count:track(selected_).sample_slices)),(track(selected_).sample_edit.slice_count?track(selected_).sample_edit.slice_count:track(selected_).sample_slices),track(selected_).sample_loop,track(selected_).sample_reverse)){held_[hardware]=false;return false;}return trigger_held_pad(hardware,selected_,track(selected_).sample_edit.zone_count?track(selected_).sample_edit.zones[track(selected_).sample_edit.pads[p]%track(selected_).sample_edit.zone_count].root:track(selected_).root_note,pressure,2,int(track(selected_).sample_edit.pads[p]));
    case UiMode::Step:if(tracker_view_)follow_display_=false;if(tag==0x10)held_step_hardware_=hardware;selected_step_=uint8_t(page_*16+p);if(shifted() || (controls_[4]&0x08))return true;if(track_const(selected_).instrument==Instrument::DrumKit){auto step=track_const(selected_).kit.steps[selected_kit_pad_][selected_step_];step.enabled=(controls_[5]&0x04)?0:!step.enabled;return set_kit_step(selected_kit_pad_,selected_step_,step);}return set_step(selected_step_,(controls_[5]&0x04)?false:!track(selected_).steps[selected_step_].enabled);
    case UiMode::Clip:if(controls_[4]&0x08)return select_pattern(p);return shifted()?stop_clip(selected_,launch_quantized_):launch_clip(selected_,p,launch_quantized_);
-   case UiMode::Scene:scene_slot_=uint8_t(p);if(controls_[4]&0x08)return store_scene(p);return shifted()?append_chain(p):launch_scene(p,launch_quantized_);
+   case UiMode::Scene:
+    scene_slot_=uint8_t(p);
+    if(select_held())return store_scene(p);
+    if(shifted())return append_chain(p);
+    if(playing_ && launch_quantized_ && queued_scene_==int(p)){
+     if(!send({CommandType::LaunchScene,0,2,uint16_t(p)}))return false;
+     clear_launches();
+     return true;
+    }
+    return launch_scene(p,launch_quantized_);
    case UiMode::Mixer:return mute_or_solo(p,false);
    case UiMode::Modulation:if(modulation_page_==2 && !shifted()){auto route=project_.macros[macro_index_].routes[macro_route_];uint16_t mask=uint16_t(route.tracks^(1u<<p));if(!mask){notify(UiNotice::Failed);return false;}route.tracks=mask;return macro_route(macro_index_,macro_route_,route);}if(modulation_page_==1){automation_cell_=uint8_t((automation_cell_/16)*16+p);dirty_=true;return true;}if(modulation_page_==3 && shifted()){if(p>=12)return false;const auto& t=track_const(selected_);uint16_t mask=uint16_t(t.scale_mask^(1u<<p));if(!mask){notify(UiNotice::ScaleRequired);return false;}Command after{CommandType::SetScale,selected_,t.scale_root,mask},before=after;before.value=t.scale_mask;return edit(after,before);}return select_track(p);
    case UiMode::Generate: if(gen_page_){gen_cell_=uint8_t(p);selected_step_=uint8_t(page_*16+p);return true;}return euclidean(p+1);
@@ -490,7 +564,8 @@ auto Performance::modal_accept() -> bool{
 auto Performance::modal_cancel() -> bool{if(browser_editing()){cancel_browser_edit();return true;}switch(modal_.owner){case ModalOwner::Twin:if(twin_modal_==2)return request_file(FileAction::CancelTwin);twin_modal_=0;dirty_=true;return true;case ModalOwner::MidiImport:if(file_action_==FileAction::MidiImport)file_action_=FileAction::None;if(midi_import_ticket_)midi_import_cancel_ticket_=midi_import_ticket_;midi_import_ticket_=0;midi_import_request_={};modal_.owner=ModalOwner::None;modal_.value=0;modal_.sync();break;case ModalOwner::Project:cancel_project();break;case ModalOwner::Stretch:if(stretch_modal()==2)return request_file(FileAction::CancelStretch);stretch_modal_=0;break;case ModalOwner::Freeze:return request_file(FileAction::CancelFreeze);default:modal_.owner=ModalOwner::None;modal_.value=0;modal_.sync();break;}dirty_=true;return true;}
 auto Performance::pad_role()const -> ui::PadRole{
   using R=ui::PadRole;
-  if(browser_editing())return R::Disabled;
+  if(modal_active() || transfer_view_.active)return R::Disabled;
+  if(keyboard_pinned() && !(controls_[4]&0x38))return R::Notes;
   const bool kit=track_const(selected_).instrument==Instrument::DrumKit;
   if(mode_==UiMode::Song)return R::SongMute; // Song owns pad input before modifiers.
   if(controls_[4]&0x30){bool kit_target=!audio_page() && audio_lane().kind==TrackKind::Instrument && kit;return controls_[4]&0x10?(kit_target?R::KitSolo:R::Solo):(kit_target?R::KitMute:R::Mute);}
@@ -524,12 +599,15 @@ auto Performance::pad_role()const -> ui::PadRole{
  }
 auto Performance::pad_feedback_context()const -> uint64_t{
   const auto role=pad_role();uint64_t key=uint64_t(generation_)+1;
-  key=key*37+unsigned(role);key=key*37+unsigned(mode_);
+  key=key*37+unsigned(role);
+  if(keyboard_pinned() && role==ui::PadRole::Notes)return (key*37+pinned_keyboard_)*37+project_.clips[pinned_keyboard_].pattern;
+  key=key*37+unsigned(mode_);
   if(role==ui::PadRole::Kit || role==ui::PadRole::Slices || role==ui::PadRole::Notes || role==ui::PadRole::Chords){key=key*37+selected_;key=key*131+track_const(selected_).root_note;key=key*37+project_.active_pattern;}
   return key;
  }
 auto Performance::pad_color_object(unsigned n)const -> ui::PadGround{
   using R=ui::PadRole;
+  if(keyboard_pinned() && pad_role()==R::Notes)return {ui::track_engine_kind(project_,pinned_keyboard_)};
   if(library_catalog_controls() && browser_.previewing)return {ui::engine_kind(browser_.preview_instrument)};
   switch(pad_role()){
    case R::Tracks:case R::TrackSelect:case R::Mute:case R::Solo:case R::SongMute:case R::Routes:return {ui::track_engine_kind(project_,n)};
@@ -541,7 +619,7 @@ auto Performance::pad_feedback(unsigned n)const -> ui::LedState{
   using S=ui::LedState;using R=ui::PadRole;
   if(n>=16)return S::Off;
   const auto role=pad_role();const auto& t=track_const(selected_);S state=S::Idle;
-  if(library_catalog_controls()){if(!browser_.previewing)return S::Off;if(browser_.preview_instrument==Instrument::DrumKit)return browser_.preview_kit_mask&(1u<<n)?S::Assigned:S::Off;return S::Assigned;}
+  if(library_catalog_controls() && !keyboard_pinned()){if(!browser_.previewing)return S::Off;if(browser_.preview_instrument==Instrument::DrumKit)return browser_.preview_kit_mask&(1u<<n)?S::Assigned:S::Off;return S::Assigned;}
   switch(role){
    case R::Disabled:return S::Off;
    case R::Steps:{unsigned step=page_*16+n;bool kit=t.instrument==Instrument::DrumKit;
@@ -695,14 +773,14 @@ auto Performance::extend_track() -> bool{
   Command c{CommandType::ApplyPattern,0,1,uint16_t(pattern)};c.parameter=mask;push_history(c,c,before,after);install_pattern(project_,pattern,*after,mask);refresh_steps();notify(UiNotice::Extended);return true;
  }
 auto Performance::copy_pattern() -> bool{if(copy_track_only_){if(!phrase_clipboard_)phrase_clipboard_=alloc_new<PhraseState>();if(!phrase_clipboard_)return memory_refused();*phrase_clipboard_=project_.patterns[project_.active_pattern].tracks[selected_];}else{if(!pattern_clipboard_)pattern_clipboard_=alloc_new<PatternState>();if(!pattern_clipboard_)return memory_refused();snapshot_pattern(*pattern_clipboard_,project_,project_.active_pattern);}clipboard_track_only_=copy_track_only_;clipboard_track_=selected_;pattern_copied_=true;notify(UiNotice::Copied);return true;}
-auto Performance::duplicate_pattern() -> bool{unsigned target=kPatterns;for(unsigned p=project_.active_pattern+1;p<kPatterns;++p)if(pattern_is_empty(p)){target=p;break;}if(target>=kPatterns){notify(UiNotice::Failed);return false;}bool scope=copy_track_only_;copy_track_only_=false;bool copied=copy_pattern();copy_track_only_=scope;if(!copied)return false;if(!select_pattern(target))return false;return paste_pattern();}
+auto Performance::duplicate_pattern() -> bool{unsigned target=unused_pattern(project_.active_pattern);if(target>=kPatterns){notify(UiNotice::Failed);return false;}bool scope=copy_track_only_;copy_track_only_=false;bool copied=copy_pattern();copy_track_only_=scope;if(!copied)return false;if(!select_pattern(target))return false;return paste_pattern();}
 auto Performance::double_pattern() -> bool{const auto& cur=project_.patterns[project_.active_pattern];for(const auto& t:cur.tracks)if(t.length>kSteps/2){notify(UiNotice::Failed);return false;}auto* after=new PatternState(project_,project_.active_pattern);for(auto& t:after->tracks){unsigned len=t.length;repeat_sequence_steps(t,len);t.length=uint16_t(len*2);for(auto& lane:t.automation)if(lane.enabled && lane.length && lane.length<=kAutomationSteps/2){for(unsigned s=0;s<lane.length;++s)lane.values[lane.length+s]=lane.values[s];lane.length=uint16_t(lane.length*2);}}return commit_pattern(after);}
 auto Performance::set_click_setting(unsigned bit) -> bool{unsigned old=(project_.ui.metronome?1:0)|(project_.ui.count_in?2:0)|(project_.ui.click_main?4:0);Command after{CommandType::SetClickSettings,0,0,uint16_t(old^bit)},before=after;before.value=old;return edit(after,before);}
 auto Performance::synth_controls()const  -> SynthControlContext{
   return {track_const(selected_).instrument,shifted(),wave_profile(),wave_clock(),
           sn_ref_confirmation(),history_cursor_>0,history_cursor_<history_size_,project_.sounds[sound_slot_].instrument!=Instrument::Empty};
  }
-auto Performance::trigger_held_pad(uint8_t hardware,unsigned target,unsigned note,uint16_t pressure,uint8_t kind,int slice) -> bool{if(pending_release_[hardware]){held_[hardware]=false;return false;}Command c{CommandType::Trigger,uint8_t(target),hardware,uint16_t(fixed_velocity_?127:pad_velocity(pressure,device_.velocity))};c.parameter=kind;c.scalar=float(note);c.scalar2=kind==3?float(project_.ui.chord_shape):0;c.scalar3=kind==3?float(project_.ui.chord_inversion):0;if(slice>=0){c.pattern=254;c.scalar3=float(slice);}if(!send(c)){held_[hardware]=false;return false;}held_notes_[hardware]=uint8_t(note);held_tracks_[hardware]=uint8_t(target);held_kind_[hardware]=kind;notes_held_[hardware]=true;return true;}
+auto Performance::trigger_held_pad(uint8_t hardware,unsigned target,unsigned note,uint16_t pressure,uint8_t kind,int slice) -> bool{if(pending_release_[hardware]){held_[hardware]=false;return false;}Command c{CommandType::Trigger,uint8_t(target),hardware,uint16_t(fixed_velocity_?127:pad_velocity(pressure,device_.velocity))};if(keyboard_pinned() && kind==2)c.pattern=project_.clips[target].pattern;c.parameter=kind;c.scalar=float(note);c.scalar2=kind==3?float(project_.ui.chord_shape):0;c.scalar3=kind==3?float(project_.ui.chord_inversion):0;if(slice>=0){c.pattern=254;c.scalar3=float(slice);}if(!send(c)){held_[hardware]=false;return false;}held_notes_[hardware]=uint8_t(note);held_tracks_[hardware]=uint8_t(target);held_kind_[hardware]=kind;notes_held_[hardware]=true;return true;}
 auto Performance::retry_releases()  -> void{
   if(strip_release_pending_ && !release_strip())return;
   if(repeat_release_pending_){if(!note_repeat(0,repeat_rate_))return;repeat_release_pending_=false;}

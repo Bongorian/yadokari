@@ -531,6 +531,12 @@ bool build_preset(const Json& def, ProjectState& p, std::string& err) {
   auto idit = g_identities.find(namej->str);
   if (idit == g_identities.end()) { err = ctx + ": no identity allocated in the manifest"; return false; }
   t.preset_identity = idit->second;
+  if (const Json* trim = def.find("output_trim")) {
+    if (trim->type != Json::Num || !valid_output_trim(float(trim->num))) {
+      err = ctx + ": invalid output_trim"; return false;
+    }
+    t.output_trim = float(trim->num);
+  }
 
   if (const Json* layer = def.find("layer")) {
     t.instrument = Instrument::Layer;
@@ -830,6 +836,10 @@ bool verify_one(const Json& def, const std::string& path, std::string& err, std:
     }
   }
   auto dt = track_at(*decoded, 0, 0);
+  const auto* trim = def.find("output_trim");
+  if (dt.output_trim != (trim ? float(trim->num) : 1.f)) {
+    delete decoded; err = ctx + ": decoded output trim mismatch"; return false;
+  }
   if (name != dt.preset_name) { delete decoded; err = ctx + ": decoded preset name mismatch"; return false; }
   // (i) identity: the decoded standalone IDEN must equal the manifest
   // allocation for this preset name-for-name (guid bytes, revision,

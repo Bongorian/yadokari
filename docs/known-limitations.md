@@ -77,10 +77,9 @@ story, kept current per release.
 ## Content and formats
 
 - **SoundFont content.** The factory image includes FluidR3 GM for its factory presets. Other banks are user-supplied. Large-bank load time depends on the card and board.
-- **No bundled demo song yet.** The default and recovery song
-  slot (FACTORY/DEMOS/Startup.mgxs) is in place, but the official
-  demo song has not been supplied yet; until it is, a card with
-  no saved song boots to an empty project.
+- **Startup demo.** Since 1.0.27 the factory image includes the composed song
+  `FACTORY/DEMOS/Startup.mgxs`. Startup loads it when the saved song reference
+  is missing or invalid.
 - **Current formats only.** Project/preset/kit files use the
   current format family (.mgxs/.mgxk/.mgxp). Files written for
   earlier, pre-release format revisions are not migrated; the
@@ -96,6 +95,17 @@ story, kept current per release.
   to audio) and TWIN (sample a heavy track in advance) exist
   precisely for that.
 
+- At 48 kHz, Pi 5 admits one CHIMERA tract with up to four TALK inserts.
+  UNISON settings above one are refused as a whole. Track and group inserts,
+  sounding kit pads and Layer parts share the TALK reservation, including
+  a slot fading out of TALK. At the limit a new standalone note can replace
+  the existing standalone voice. Enabling additional TALK on a held note can
+  retire CHIMERA and its Layer siblings. With a sounding CHIMERA and four
+  TALK carriers, a multi-track scene restart can exceed the 500 µs audio
+  worker deadline. The Pi 4 budget is derived from the
+  Pi 5 measurements and the board speed ratio of 2.984. It admits zero
+  CHIMERA tracts. Saved patches and TALK-only processing remain available.
+
 - WAVETABLE uses additional DSP when WARP AMT or PM AMT is nonzero.
   The legacy path costs 2 units per oscillator and the extended path costs 11.
   The Pi 4 track allows four oscillators in total, including at most two extended
@@ -107,8 +117,8 @@ story, kept current per release.
   Pi 4 estimate with two 25% margins. The registry rounds up to 68.75 µs
   (11 units). The 2-unit dry price also applies to continuous table morphs.
   Their cost depends on the assigned modulation and active oscillator count.
-  Pi 4 distribution remains blocked pending mixed-load measurements on that
-  board against the 500 µs deadline.
+  Pi 4 releases resumed in 1.0.23. Its extended oscillator limit is derived
+  from Pi 5 measurements and awaits mixed-load verification on Pi 4.
 
 - High-register WAVETABLE patches with warp or PM use a band-limited sum of
   carrier harmonics and PM sidebands. Existing projects retain their settings;

@@ -36,13 +36,33 @@ static void live_surface_regressions(){
  ui->set_shift(false);flush();
  assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
  assert(ui->soft_key(7) && ui->performance_page()==5);flush();
- assert(!ui->performance_fx_latched() && engine->performance_fx_current()==PerformanceFx::Off);
+ assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
  assert(ui->control(6,1) && ui->control(6,0) && ui->soft_key(6));
  assert(ui->set_performance_fx(PerformanceFx::Gate,.75f,true));flush();
  assert(ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
  assert(ui->set_control_all(true));flush();
- assert(ui->on_perform_page(PerformMorph) && !ui->performance_fx_latched() && engine->performance_fx_current()==PerformanceFx::Off);
+ assert(ui->on_perform_page(PerformMorph) && ui->performance_fx_latched() && engine->performance_fx_current()!=PerformanceFx::Off);
  assert(ui->set_control_all(false));
+ // Peek and return across tracks while an effect remains latched.
+ assert(ui->select_track(0));ui->set_mode(UiMode::Synth);
+ ui->animate(3000);assert(ui->control(2,2));ui->animate(3450);
+ assert(ui->mode()==UiMode::Mixer && ui->selected_track()==1);
+ assert(ui->control(2,0) && ui->mode()==UiMode::Synth && ui->selected_track()==0);
+ assert(ui->performance_fx_latched());
+ assert(ui->control(5,8) && ui->control(4,2) && ui->control(4,0) && ui->control(5,0));
+ assert(ui->keyboard_pinned() && ui->select_track(1));
+ assert(ui->keyboard_track()==0 && ui->pad_role()==ui::PadRole::Notes);
+ assert(ui->pad(12,0x10,4095));ui->set_mode(UiMode::Effects);
+ assert(ui->pad(12,0x40,1200) && ui->pad(12,0x20,0));
+ assert(ui->control(4,0x20) && ui->control(4,0) && !ui->keyboard_pinned());
+ // The same queued Scene pad withdraws its launch. A different Clip replaces it.
+ assert(ui->launch_scene(2,true));flush();
+ assert(ui->pad(14,0x10,4000) && ui->pad(14,0x20,0) && ui->pending_scene()<0);
+ flush(16000);assert(project->active_scene!=2);
+ project->scenes[2].pattern_for_track[1]=7;
+ assert(ui->selected_track()==1 && ui->launch_scene(2,true) && ui->editing_pattern()==7);
+ assert(ui->launch_clip(0,3) && ui->editing_pattern()==project->clips[1].pattern);
+ assert(ui->notice()==UiNotice::SceneReplaced && ui->pending_scene()<0);flush();
  assert(ui->launch_scene(2,true));flush();
  assert(ui->pending_scene()==2);
  MidiInputRouter router;
@@ -64,6 +84,22 @@ static void live_surface_regressions(){
  assert(ui->play());flush();
  ui->set_mode(UiMode::Mixer);
  assert(ui->audible_muted(0) && ui->pad_feedback(0)==LedState::Muted);
+ assert(ui->stop());flush();
+ make_empty_project(*project);
+ project->tracks[0].instrument=project->tracks[1].instrument=Instrument::ExternalMidi;
+ project->tracks[0].midi_channel=3;project->tracks[1].midi_channel=6;
+ assert(engine->stage_project(*project));ui->project_loaded();flush();
+ assert(ui->control(5,8) && ui->control(4,2) && ui->control(4,0) && ui->control(5,0));
+ assert(ui->select_track(1));ui->set_mode(UiMode::Effects);
+ MidiEvent msg;while(engine->pop_midi(msg)){}
+ assert(ui->pad(12,0x10,3900));flush();ui->set_mode(UiMode::Routing);
+ assert(ui->pad(12,0x20,0));flush();
+ bool on=false,off=false;
+ while(engine->pop_midi(msg)){
+  if((msg.bytes[0]&0xf0)==0x90 && msg.bytes[2]){assert(msg.bytes[0]==0x93);on=true;}
+  if((msg.bytes[0]&0xf0)==0x80 || ((msg.bytes[0]&0xf0)==0x90 && !msg.bytes[2])){assert((msg.bytes[0]&15)==3);off=true;}
+ }
+ assert(on && off);
 }
 int main(){
  auto project=std::make_unique<ProjectState>();make_empty_project(*project);

@@ -88,5 +88,23 @@ int main() {
   assert(last5 >= 23000 && last5 <= 34000 && last5 - first5 < 12000);
   assert(saw_base_early && saw_base_late); // base type before and after
  }
+ // A one-step clip following itself clears its live locks at every launch.
+ // The first step has the same parameter fingerprint on consecutive launches.
+ {
+  auto p=std::make_unique<ProjectState>();make_empty_project(*p);
+  auto t=track_at(*p,0,0);t.instrument=Instrument::Acid;t.length=1;
+  p->clips[0]={0,true};
+  t.clip_follow={ClipFollowAction::Target,1,0,100};
+  t.insert_fx[0]=1;t.steps[0].lock_only=true;t.steps[0].locks[0]={94,5,true};
+  Engine engine(48000);assert(engine.stage_project(*p));
+  assert(engine.submit({CommandType::Start,0,0,0}));
+  float pcm[48];AudioVisualFrame visual;EngineEvent event;unsigned launches=0,observed=0;
+  for(unsigned block=0;block<900;++block){
+   engine.render(pcm,24);
+   while(engine.pop_event(event))if(event.type==EngineEventType::ClipLaunched && event.track==0)++launches;
+   while(engine.pop_visual(visual))if(visual.sample>6000){assert(visual.track_insert[0][0]==5);++observed;}
+  }
+  assert(launches>=3 && observed>=3);
+ }
  std::puts("fx type locks: UI creation, per-step engine switching and clickless slot verified");
 }

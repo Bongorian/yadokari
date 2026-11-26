@@ -6,13 +6,15 @@
 #include "instrument_math.h"
 #include <math.h>
 namespace groove {
-void Engine::reset_track(unsigned t,bool reset_position) {
+void Engine::reset_track(unsigned t,bool reset_position,bool refresh_controls) {
  clear_kit_early(t);
  cancel_step_anticipation(t);
  auto& r=runtime_[t]; const auto& state=track(t); r.retriggers=0;for(auto& repeat:kit_repeat_[t])repeat.remaining=0;kit_repeat_pads_[t]=0;kit_repeat_tracks_&=uint16_t(~(1u<<t)); for(auto& lock:r.active_locks)lock.enabled=false;
  if(reset_position) { r.position=state.direction==PlaybackDirection::Reverse?uint8_t(state.length-1):0; r.backward=false; r.cycle=0;r.follow_due=false; r.automation_live=false;r.lane_triggers=r.automation_tick=r.automation_cell=0;event_seed_tick_valid_[t]=false;r.arp_random=project_->random_seed^(0x9e3779b9u*(t+1));if(!r.arp_random)r.arp_random=1;r.last_step=r.position;r.grid=r.last_grid=sample_count_;r.last_period_q32=0; r.fraction=0; }
  else r.position%=state.length;
- refresh_parameters(t);update_timing(t);
+ r.step_fp_valid=false; // Reset discarded the previous step locks.
+ if(refresh_controls)refresh_parameters(t);
+ update_timing(t);
 }
 uint64_t Engine::step_period(unsigned t) const {return runtime_[t].period_q32;}
 // Keep an absolute integer and a fractional component so long sessions do not

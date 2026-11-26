@@ -39,9 +39,12 @@ bool Engine::refresh_group_effects(){
  for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];for(const auto& lock:r.active_locks)if(lock.enabled)mark(lock.id);if(r.automation_live)for(const auto& lane:track(t).automation)if(lane.enabled)mark(lane.parameter);}
  bool morph=project_->morph_enabled || gesture_overlay_.morph_active;float position=gesture_overlay_.morph_active?gesture_overlay_.morph:project_->morph_position;
  for(unsigned i=0;i<88;++i){uint16_t id=uint16_t(384+i);unsigned group=i<64?group_fx_group(id):i<80?(i-64)/2:i-80,field=i<64?group_fx_field(id):i<80?8+(i-64)%2:10;float base=i<64?project_->routing.groups[group].insert_fx[field]:i<80?project_->routing.groups[group].send[field-8]:project_->routing.groups[group].parallel;float value=morph?interpolate_parameter(id,project_->morph_a[0].values[morph_index(uint16_t(384+i))],project_->morph_b[0].values[morph_index(uint16_t(384+i))],position):base;
-  if(layered[i/64]&(uint64_t(1)<<(i%64))){unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){value=v.value;priority=rank;}}}
+  ControlOrigin origin{morph?uint8_t(FromMorph):uint8_t(0),0,0};
+  if(layered[i/64]&(uint64_t(1)<<(i%64))){unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){value=v.value;priority=rank;origin={uint8_t(v.sources),r.last_step,uint8_t(t)};}}}
+  group_origin_[i]=origin;
   group_fx_target_[group][field]=value;
  }
+ chimera_load_dirty_=true;
  refresh_performance_fx(uint8_t((layered[1]>>24)&3));
  return master_layered;
 }
@@ -54,8 +57,9 @@ void Engine::refresh_performance_fx(uint8_t layered){
  for(unsigned i=0;i<2;++i){uint16_t id=uint16_t(472+i);
   // Descriptor lookup can return the sentinel; never use it as an array index.
   const unsigned index=morph?morph_index(id):kCommonMorphParameters;
+  performance_fx_origin_[i]={uint8_t(morph && index<kCommonMorphParameters?unsigned(FromMorph):0u),0,0};
   float value=index<kCommonMorphParameters?interpolate_parameter(id,project_->morph_a[0].values[index],project_->morph_b[0].values[index],position):parameter_base(*project_,track(0),id);
-  if(layered & (1u<<i)){unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){value=v.value;priority=rank;}}}values[i]=value;
+  if(layered & (1u<<i)){unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){value=v.value;priority=rank;performance_fx_origin_[i]={uint8_t(v.sources),r.last_step,uint8_t(t)};}}}values[i]=value;
  }
  performance_fx_auto_mode_=PerformanceFx(unsigned(values[0]));performance_fx_auto_amount_=values[1];
  if(performance_fx_manual_mode_==PerformanceFx::Off){performance_fx_applied_=performance_fx_auto_mode_;performance_fx_.set(performance_fx_auto_mode_,performance_fx_auto_amount_);}
@@ -63,10 +67,18 @@ void Engine::refresh_performance_fx(uint8_t layered){
 void Engine::refresh_effects(){
  // The same bounded scan discovers all master, group and live-FX layers.
  bool layered=refresh_group_effects();
- if(!layered){for(unsigned i=0;i<13;++i)effects_target_[i]=parameter_base(*project_,track(0),uint16_t(64+i));return;}
- for(unsigned i=0;i<13;++i){uint16_t id=uint16_t(64+i);effects_target_[i]=parameter_base(*project_,track(0),id);unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){effects_target_[i]=v.value;priority=rank;}}}}
-ModRuntime Engine::mod_runtime(unsigned t) const {const auto& r=runtime_[t];ModRuntime m;m.lfo=0.5f+0.5f*sinf(r.lfo_phase*6.2831853f);m.pressure=r.pressure<0?0:r.pressure>1?1:r.pressure;m.envelope=voices_[t].env;for(const auto& p:poly_voices_)if(p.owner==t && p.voice.env>m.envelope)m.envelope=p.voice.env;m.envelope=m.envelope<0?0:m.envelope>1?1:m.envelope;m.velocity=r.last_velocity;return m;}
-bool Engine::refresh_expression(unsigned t){bool sent=true;auto& r=runtime_[t];ModRuntime mod=mod_runtime(t);const auto& state=track(t);auto bend=resolve_parameter(*project_,state,t,260,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod);auto pressure=resolve_parameter(*project_,state,t,261,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod);int bend_raw=int(bend.value)+r.strip_pitch;unsigned raw=unsigned(bend_raw<0?0:bend_raw>16383?16383:bend_raw);r.pressure_target=pressure.value/127.0f;if(r.expression_bend!=raw){r.expression_bend=uint16_t(raw);float shift=(float(raw)-8192)/4096;auto tune=[&](Voice& v){v.pitch_bend=shift+v.layer_detune;v.frequency=440*powf(2,(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend-69)/12);float hz=v.frequency<float(rate_)*0.45f?v.frequency:float(rate_)*0.45f;v.saw.set_frequency(hz);v.daisy.set_note_float(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend);if(auto* dsp=plaits_dsp(t,v))dsp->set_note_float(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend);};tune(voices_[t]);for(auto& p:poly_voices_)if(p.owner==t)tune(p.voice);}
+ if(!layered){for(unsigned i=0;i<13;++i){effects_origin_[i]={};effects_target_[i]=parameter_base(*project_,track(0),uint16_t(64+i));}return;}
+ for(unsigned i=0;i<13;++i){uint16_t id=uint16_t(64+i);effects_origin_[i]={};effects_target_[i]=parameter_base(*project_,track(0),id);unsigned priority=0;for(unsigned t=0;t<16;++t){const auto& r=runtime_[t];auto v=resolve_parameter(*project_,track(t),t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern);unsigned rank=v.sources&FromControlAll?6:v.sources&FromLock?5:v.sources&FromMacro?4:v.sources&FromGesture?3:v.sources&FromAutomation?2:v.sources&FromMorph?1:0;if(rank>priority){effects_target_[i]=v.value;effects_origin_[i]={uint8_t(v.sources),r.last_step,uint8_t(t)};priority=rank;}}}}
+ModRuntime Engine::mod_runtime(unsigned t) const {const auto& r=runtime_[t];ModRuntime m;m.lfo=0.5f+0.5f*sinf(r.lfo_phase*6.2831853f);m.pressure=r.pressure<0?0:r.pressure>1?1:r.pressure;m.envelope=voices_[t].env;for(uint32_t mask=poly_track_mask_[t];mask;mask&=mask-1){const auto& voice=poly_voices_[unsigned(__builtin_ctz(mask))].voice;if(voice.env>m.envelope)m.envelope=voice.env;}m.envelope=m.envelope<0?0:m.envelope>1?1:m.envelope;m.velocity=r.last_velocity;return m;}
+bool Engine::refresh_expression(unsigned t,bool base_only){
+ bool sent=true;auto& r=runtime_[t];const auto& state=track(t);
+ ParameterValue bend{float(state.pitch_bend),0},pressure{float(state.pressure),0};
+ if(!base_only){
+  const auto mod=mod_runtime(t);
+  bend=resolve_target_value(*project_,state,t,260,bend.value,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod);
+  pressure=resolve_target_value(*project_,state,t,261,pressure.value,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod);
+ }
+ int bend_raw=int(bend.value)+r.strip_pitch;unsigned raw=unsigned(bend_raw<0?0:bend_raw>16383?16383:bend_raw);r.pressure_target=pressure.value/127.0f;if(r.expression_bend!=raw){r.expression_bend=uint16_t(raw);float shift=(float(raw)-8192)/4096;auto tune=[&](Voice& v){v.pitch_bend=shift+v.layer_detune;v.frequency=440*powf(2,(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend-69)/12);float hz=v.frequency<float(rate_)*0.45f?v.frequency:float(rate_)*0.45f;v.saw.set_frequency(hz);v.daisy.set_note_float(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend);if(auto* dsp=plaits_dsp(t,v))dsp->set_note_float(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend);};tune(voices_[t]);for(auto& p:poly_voices_)if(p.owner==t)tune(p.voice);}
  if(midi_capture_active_ && midi_capture_internal_ && capture_internal_track(t)){if(capture_bend_[t]!=raw){if(capture_bend_[t]==65535 && raw==8192)capture_bend_[t]=8192;else if(capture_internal(uint8_t(0xe0|t),uint8_t(raw&127),uint8_t(raw>>7)))capture_bend_[t]=uint16_t(raw);}capture_pressure(t,uint8_t(pressure.value));}
  if(state.instrument==Instrument::ExternalMidi){if(r.expression_channel!=state.midi_channel){r.expression_channel=state.midi_channel;r.expression_sent_bend=65535;r.expression_sent_pressure=255;}bool want_bend=r.strip_pitch_active||(state.expression_used&1)||bend.sources,want_pressure=(state.expression_used&2)||pressure.sources;if((want_bend||r.expression_held_bend) && r.expression_sent_bend!=raw){if(midi(uint8_t(0xe0|state.midi_channel),uint8_t(raw&127),uint8_t(raw>>7)))r.expression_sent_bend=uint16_t(raw);else sent=false;}if((want_pressure||r.expression_held_pressure) && r.expression_sent_pressure!=unsigned(pressure.value)){if(midi(uint8_t(0xd0|state.midi_channel),uint8_t(pressure.value),0,2))r.expression_sent_pressure=uint8_t(pressure.value);else sent=false;}if(r.expression_sent_bend==raw)r.expression_held_bend=want_bend;if(r.expression_sent_pressure==unsigned(pressure.value))r.expression_held_pressure=want_pressure;}else r.expression_channel=255;return sent;}
 float Engine::sampler_speed(unsigned t,Voice& voice,const ModRuntime& modulation){
@@ -79,8 +91,7 @@ float Engine::sampler_speed(unsigned t,Voice& voice,const ModRuntime& modulation
  return voice.sample_speed;
 }
 void Engine::refresh_parameters(unsigned t,const StepState* step) {
- const auto& state=track(t);auto& r=runtime_[t];ModRuntime mod=mod_runtime(t);if(step)for(unsigned i=0;i<kLocks;++i)r.active_locks[i]=step->locks[i];
- refresh_expression(t);
+ const ConstTrackView state=track(t);auto& r=runtime_[t];ModRuntime mod=mod_runtime(t);if(step)for(unsigned i=0;i<kLocks;++i)r.active_locks[i]=step->locks[i];
  // A bounded dry overdub assumes an unchanged, full-length source at unity
  // pitch/speed. Check resolved layers on the audio owner, so a change that
  // occurs and is restored between task-side polls cannot be missed.
@@ -88,11 +99,26 @@ void Engine::refresh_parameters(unsigned t,const StepState* step) {
   const ParameterTarget ids[]={engine_target(Instrument::Sampler,0),engine_target(Instrument::Sampler,1),engine_target(Instrument::Sampler,2),260};const float expected[]={1,0,1,8192};
   for(unsigned i=0;i<4;++i)if(resolve_target_value(*project_,state,t,ids[i],parameter_base(*project_,state,ids[i]),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value!=expected[i]){__atomic_store_n(&live_record_conflict_,1,__ATOMIC_RELEASE);break;}
  }
- for(unsigned i=0;i<kTrackParameters;++i)r.target[i]=resolve_parameter(*project_,state,t,track_parameter_id(i),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value;
+ // Scene launches refresh every strip on the same sample. With no dynamic
+ // source the common controls already hold their validated effective values.
+ // Sound-local routes address engine parameters and are resolved below.
+ bool layered=project_->morph_enabled || gesture_overlay_.morph_active || gesture_overlay_.count || control_all_;
+ for(unsigned m=0;m<8 && !layered;++m)layered=project_->macros[m].active || gesture_overlay_.macro_active[m];
+ for(const auto& lock:r.active_locks)layered|=lock.enabled;
+ if(r.automation_live)for(const auto& lane:state.automation)layered|=lane.enabled;
+ refresh_expression(t,!layered);
+ auto common=[&](uint16_t id,float base){
+  if(!layered)return base;
+  return resolve_target_value(*project_,state,t,id,base,r.active_locks,unsigned(r.automation_cell),
+    control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;
+ };
+ const float strip[]={state.level,state.pan,state.cutoff,state.drive,state.delay_send,state.crusher,state.lfo_depth,state.lfo_rate};
+ static_assert(sizeof(strip)/sizeof(strip[0])==kTrackParameters,"track parameter order");
+ for(unsigned i=0;i<kTrackParameters;++i)r.target[i]=common(track_parameter_id(i),strip[i]);
  if(audio_lane_mask_&(1u<<t)){r.target[0]=project_->audio[t].gain;r.target[1]=project_->audio[t].pan;}
- r.tempo_lfo.request(resolve_parameter(*project_,state,t,11,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value,resolve_parameter(*project_,state,t,12,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value);
- r.reverb_target=resolve_parameter(*project_,state,t,10,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value;
- r.pressure_depth_target=resolve_parameter(*project_,state,t,9,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value;
+ r.tempo_lfo.request(common(11,state.lfo_sync),common(12,state.lfo_division));
+ r.reverb_target=common(10,state.reverb_send);
+ r.pressure_depth_target=common(9,state.aftertouch_depth);
  auto& voice=voices_[t];if(state.instrument!=Instrument::DrumKit || voice.instrument!=unsigned(Instrument::Empty) || voice.env>0){if(!voice.sound_locked)for(unsigned i=0;i<5;++i)voice.base_parameters[i]=state.engine_parameters[i];
  for(unsigned i=0;i<5;++i){voice.targets[i]=(i<macro_controls(voice.instrument)?resolve_target_value(*project_,state,t,engine_target(Instrument(voice.instrument),i),voice.base_parameters[i],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,voice.route_override()).value:voice.base_parameters[i]);if(plaits_ && voice.instrument==unsigned(Instrument::PlaitsMacro))plaits_[t].set_parameter(i,voice.targets[i]);}}
  if(voice.instrument==unsigned(Instrument::Sampler) && voice.sampler.active()){float speed=sampler_speed(t,voice,mod);float pitch=powf(2,(float(voice.note)+project_->tuning[voice.note%12]/100+voice.pitch_bend-voice.sample_root)/12);voice.sampler.speed(float(voice.sample.rate)/rate_*pitch*speed);}
@@ -100,7 +126,7 @@ void Engine::refresh_parameters(unsigned t,const StepState* step) {
  for(unsigned m=0;m<8 && !pad_fx_layered;++m)pad_fx_layered=project_->macros[m].active || gesture_overlay_.macro_active[m];
  for(const auto& lock:r.active_locks)if(lock.enabled && ((lock.id>=320 && lock.id<384) || (lock.id>=474 && lock.id<554)))pad_fx_layered=true;
  if(r.automation_live)for(const auto& lane:state.automation)if(lane.enabled && ((lane.parameter>=320 && lane.parameter<384) || (lane.parameter>=474 && lane.parameter<554)))pad_fx_layered=true;
- for(auto& p:poly_voices_)if(p.owner==t){auto& v=p.voice;if(v.kit_pad<16 && !v.sound_locked && v.sampler_source_epoch==sampler_source_epoch_[t]){const auto source=track_views_.at(v.source_pattern,t);for(unsigned n=0;n<4;++n)v.kit_insert_target[n]=(pad_fx_layered || v.kit_fx_locked)?resolve_parameter(*project_,source,t,uint16_t(320+v.kit_pad*4+n),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,v.kit_fx_locks,&mod).value:source.kit.pads[v.kit_pad].insert_fx[n];for(unsigned n=0;n<5;++n){uint16_t id=kit_mix_parameter_id(v.kit_pad,n);v.kit_mix_target[n]=(pad_fx_layered || v.kit_mix_locked)?resolve_parameter(*project_,source,t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,v.kit_mix_locks,&mod).value:track_parameter(source,id);}}
+ for(uint32_t mask=poly_track_mask_[t];mask;mask&=mask-1){auto& v=poly_voices_[unsigned(__builtin_ctz(mask))].voice;if(v.kit_pad<16 && !v.sound_locked && v.sampler_source_epoch==sampler_source_epoch_[t]){const auto source=track_views_.at(v.source_pattern,t);for(unsigned n=0;n<4;++n)v.kit_insert_target[n]=(pad_fx_layered || v.kit_fx_locked)?resolve_parameter(*project_,source,t,uint16_t(320+v.kit_pad*4+n),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,v.kit_fx_locks,&mod).value:source.kit.pads[v.kit_pad].insert_fx[n];for(unsigned n=0;n<5;++n){uint16_t id=kit_mix_parameter_id(v.kit_pad,n);v.kit_mix_target[n]=(pad_fx_layered || v.kit_mix_locked)?resolve_parameter(*project_,source,t,id,r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,v.kit_mix_locks,&mod).value:track_parameter(source,id);}}
   // Held CHIMERA notes live in the shared pool, including MONO/LEGATO.
   const bool follow_chimera=v.instrument==unsigned(Instrument::Chimera) && state.instrument==Instrument::Chimera;
   if(!v.sound_locked && (v.instrument==unsigned(Instrument::PlaitsMacro) || follow_chimera)){
@@ -109,13 +135,10 @@ void Engine::refresh_parameters(unsigned t,const StepState* step) {
   if(v.kit_pad>=16){for(unsigned i=0;i<5;++i)v.targets[i]=(i<macro_controls(v.instrument)?resolve_target_value(*project_,state,t,engine_target(Instrument(v.instrument),i),v.base_parameters[i],r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod,v.route_override()).value:v.base_parameters[i]);}
   if(auto* dsp=plaits_dsp(t,v)){for(unsigned i=0;i<5;++i)dsp->set_parameter(i,v.targets[i]);}
   if(v.kit_pad<16 && v.instrument==unsigned(Instrument::Sampler) && v.sampler.active()){float speed=!v.sound_locked && v.sampler_source_epoch==sampler_source_epoch_[t]?track(t).kit.pads[v.kit_pad].edit.speed:v.kit_speed_value,tuning=project_->tuning[v.note%12];if(v.pitch_bend!=v.kit_speed_bend || tuning!=v.kit_speed_tuning || speed!=v.kit_speed_value){float pitch=powf(2,(float(v.note)+tuning/100+v.pitch_bend-v.sample_root)/12);v.sampler.speed(float(v.sample.rate)/rate_*pitch*speed);v.kit_speed_bend=v.pitch_bend;v.kit_speed_tuning=tuning;v.kit_speed_value=speed;}}else if(v.kit_pad>=16 && v.instrument==unsigned(Instrument::Sampler) && v.sampler.active()){float speed=sampler_speed(t,v,mod);float pitch=powf(2,(float(v.note)+project_->tuning[v.note%12]/100+v.pitch_bend-v.sample_root)/12);v.sampler.speed(float(v.sample.rate)/rate_*pitch*speed);}}
- for(unsigned i=0;i<7;++i)r.compressor_target[i]=resolve_parameter(*project_,state,t,uint16_t(87+i),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value;
- bool insert_layered=project_->morph_enabled || gesture_overlay_.morph_active || gesture_overlay_.count || (control_all_ && control_all_id_>=94 && control_all_id_<=101);
- for(unsigned m=0;m<8 && !insert_layered;++m)insert_layered=project_->macros[m].active || gesture_overlay_.macro_active[m];
- for(const auto& lock:r.active_locks)if(lock.enabled && lock.id>=94 && lock.id<=101)insert_layered=true;
- if(r.automation_live)for(const auto& lane:state.automation)if(lane.enabled && lane.parameter>=94 && lane.parameter<=101)insert_layered=true;
- for(unsigned i=0;i<8;++i)r.insert_target[i]=insert_layered?resolve_parameter(*project_,state,t,uint16_t(94+i),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,nullptr,r.automation_live,&gesture_overlay_,r.pattern,nullptr,nullptr,&mod).value:state.insert_fx[i];
+ for(unsigned i=0;i<7;++i)r.compressor_target[i]=common(uint16_t(87+i),state.compressor[i]);
+ for(unsigned i=0;i<8;++i)r.insert_target[i]=common(uint16_t(94+i),state.insert_fx[i]);
  if(state.instrument==Instrument::DaisySynth){const auto& descriptor=*engine_descriptor(unsigned(Instrument::DaisySynth));float values[4],adsr[4];for(unsigned i=0;i<4;++i)values[i]=resolve_target_value(*project_,state,t,engine_target(Instrument::DaisySynth,i),engine_parameter_value(state,i),r.active_locks,unsigned(r.automation_cell),control_all_,control_all_id_,control_all_delta_,r.automation_live,&gesture_overlay_,r.pattern,nullptr,&mod).value;descriptor.bind(descriptor.parameters,values,4,{nullptr,nullptr,nullptr,adsr});if(!voices_[t].sound_locked)voices_[t].daisy.set_adsr(adsr[0],adsr[1],adsr[2],adsr[3]);for(auto& p:poly_voices_)if(p.owner==t && !p.voice.sound_locked)p.voice.daisy.set_adsr(adsr[0],adsr[1],adsr[2],adsr[3]);}
+ chimera_load_dirty_=true;
  refresh_cc(t);
 }
 }

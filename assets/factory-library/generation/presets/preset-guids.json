@@ -29,7 +29,7 @@
   },
   "TB-303 Acid": {
     "guid": "bongorian.preset.tb-303-acid",
-    "revision": 1,
+    "revision": 3,
     "guid128": "f023efc76fdc1b3699d330c266c47d13",
     "guid128_source": "repo:assets/factory-library/identities.json",
     "origin": "factory"
@@ -456,7 +456,7 @@
   },
   "Psy Squelch": {
     "guid": "bongorian.preset.psy-squelch",
-    "revision": 1,
+    "revision": 3,
     "guid128": "f02f06f2eea64c42cfb32d0be44a8c37",
     "guid128_source": "repo:assets/factory-library/identities.json",
     "origin": "factory"

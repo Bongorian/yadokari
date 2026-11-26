@@ -25,7 +25,11 @@ static void live_tools(){
  auto renderer=std::make_unique<UiRenderer>();
  std::string words;
  renderer->text_observer=[](const SoftwareCanvas::TextPlacement& item,void* data){
-  auto& out=*static_cast<std::string*>(data);out+=item.text;out+='\n';
+  auto& out=*static_cast<std::string*>(data);
+  if(!std::strcmp(item.text,"ATTACHED SNAPSHOT") || !std::strcmp(item.text,"ENTER STOPS THE SEQUENCER AND RELEASES HELD NOTES"))
+   CHECK(item.y>=ui::Layout::body_y && item.y+10<=ui::Layout::legend_y);
+  if(!std::strcmp(item.text,"TOP BUTTONS"))out.clear(); // Discard the page drawn under HELP.
+  out+=item.text;out+='\n';
  };
  renderer->text_observer_context=&words;
  auto draw=[&]{words.clear();renderer->invalidate();renderer->draw(*p,*u);};
@@ -53,8 +57,15 @@ static void live_tools(){
  tools();CHECK(u->soft_key(5) && u->soft_key(6) && u->on_perform_page(PerformLiveFx));
  tools();CHECK(u->soft_key(5) && u->soft_key(7) && u->browser_editing());
  CHECK(!std::strcmp(u->knob_label(2),"INCLUDE FX"));u->cancel_browser_edit();
+ CHECK(u->on_perform_page(PerformFxMap));
+ CHECK(u->select_track(1) && !std::strcmp(u->soft_label(4),"ROUTING"));
+ CHECK(u->soft_key(4) && u->mode()==UiMode::Routing && !u->routing_fx_page());
+ CHECK(u->select_track(0));
  tools();CHECK(u->soft_key(4) && u->recording_page());grammar(*u);
  CHECK(!std::strcmp(u->knob_label(0),"RECORD BUS"));
+ CHECK(u->control(8,0x10) && u->control(8,0) && u->mode()==UiMode::Browser);
+ CHECK(u->take_file_action()==FileAction::OpenRecordings);
+ CHECK(u->page_back() && u->recording_page());
  CHECK(u->soft_key(4) && u->take_file_action()==FileAction::Capture);
  CHECK(u->play());tick();
  tools();CHECK(u->soft_key(6) && u->playing() && !u->multitimbral());grammar(*u);
@@ -71,8 +82,34 @@ static void live_tools(){
  CHECK(seen("PERFORMANCE PAUSED / CLOSE TO RESUME"));
  u->transfer_view({});
  CHECK(u->pad(12,0x10,4095) && u->pad(12,0x20,0));tick();
+ auto inspect_help=[&]{
+  const auto original=u->navigation();
+  u->set_shift(true);CHECK(u->control(7,4));u->set_shift(false);
+  CHECK(u->help_visible());draw();CHECK(seen("PAGE HELP"));
+  CHECK(u->encoder(-1));
+  for(bool shift:{false,true}){
+   u->set_shift(shift);draw();CHECK(seen("TOP BUTTONS") && seen("KNOBS"));
+   for(unsigned key=0;key<8;++key){
+    if(*u->soft_label(key))CHECK(seen(u->soft_label(key)));
+    if(*u->knob_label(key))CHECK(seen(u->knob_label(key)));
+   }
+  }
+  u->set_shift(false);
+  CHECK(u->soft_key(4) && u->encoder_push() && u->knob(0,100));
+  CHECK(u->control(7,0) && !u->help_visible() && u->navigation()==original);
+ };
  for(unsigned i=0;i<kPageDescriptorCount;++i){
-  u->set_mode(UiMode(i));draw();CHECK(seen(page_family_name(UiMode(i))));
+  u->set_mode(UiMode(i));draw();CHECK(seen(page_family_name(UiMode(i))));inspect_help();
+ }
+ for(unsigned face=0;face<PerformPageCount;++face){
+  CHECK(u->control(6,1) && u->control(6,0));
+  if(face==PerformTimeline){CHECK(u->soft_key(7) && u->soft_key(1));}
+  else if(face==PerformVocoder){CHECK(u->soft_key(5));}
+  else if(face>=PerformTools){
+   tools();
+   if(face!=PerformTools)CHECK(u->soft_key(face==PerformVowel?3:face==PerformRecording?4:face==PerformFxMap?5:6));
+  }else if(face!=PerformMorph)CHECK(u->soft_key(face==PerformLiveFx?6:face==PerformLooper?7:face));
+  CHECK(u->performance_page()==face);inspect_help();
  }
 }
 int main(){
@@ -81,8 +118,19 @@ int main(){
  auto advance=[&](unsigned frames=4800){float audio[128]{};while(frames){unsigned n=frames>64?64:frames;e->render(audio,n);samples+=n;u.animate(5000+samples/48);u.poll();frames-=n;}};
  advance();u.set_mode(UiMode::Synth);CHECK(u.soft_key(0));auto id=engine_target(Instrument::PlaitsMacro,0);unsigned edit_knob=0;while(edit_knob<8 && u.knob_parameter(edit_knob)!=id)++edit_knob;CHECK(edit_knob<8);CHECK(engine_target(id));CHECK(std::strcmp(u.knob_label(0),"TEMPO"));
  float base=parameter_base(*p,track_at(*p,0,0),id);MacroRoute route{};route.enabled=true;route.tracks=1;route.parameter=id;route.low=.15f;route.high=.85f;route.mode=LayerMode::Replace;
- CHECK(u.macro_route(0,0,route) && u.macro_value(0,1,true));advance();CHECK(u.knob_display_value(edit_knob)>.8f);CHECK(parameter_base(*p,track_at(*p,0,0),id)==base);
- CHECK(u.set_parameter(id,.5f));CHECK(u.set_lock(0,id,.2f));u.set_mode(UiMode::Step);CHECK(u.pad(12,0x10,4000));CHECK(u.pad(12,0x20,0));u.set_mode(UiMode::Synth);CHECK(u.play());advance(1000);advance(2400);CHECK(fabsf(u.knob_display_value(edit_knob)-.2f)<.02f);u.stop();advance(64);
+ CHECK(u.macro_route(0,0,route) && u.macro_value(0,1,true));advance();CHECK(u.knob_display_value(edit_knob)>.8f && (u.knob_origin(edit_knob).sources&FromMacro));CHECK(parameter_base(*p,track_at(*p,0,0),id)==base);
+ CHECK(u.set_parameter(id,.5f));CHECK(u.set_lock(0,id,.2f));u.set_mode(UiMode::Step);CHECK(u.pad(12,0x10,4000));CHECK(u.pad(12,0x20,0));u.set_mode(UiMode::Synth);CHECK(u.play());advance(1000);advance(2400);CHECK(fabsf(u.knob_display_value(edit_knob)-.2f)<.02f);CHECK((u.knob_origin(edit_knob).sources&FromLock) && u.knob_origin(edit_knob).step==0);
+ {
+  auto renderer=std::make_unique<UiRenderer>();std::string words;
+  renderer->text_observer=[](const SoftwareCanvas::TextPlacement& item,void* context){
+   if(item.y>=ui::Layout::overlay_y){auto& output=*static_cast<std::string*>(context);output+=item.text;output+='\n';}
+  };
+  renderer->text_observer_context=&words;
+  CHECK(u.control(10,0x80>>edit_knob));renderer->draw(*p,u);
+  CHECK(words.find("SET ")!=std::string::npos && words.find("LOCK 1 ")!=std::string::npos);
+  CHECK(u.control(10,0));
+ }
+ u.stop();advance(64);
  u.set_mode(UiMode::Perform);CHECK(u.soft_key(3) && u.performance_page()==3);CHECK(u.soft_key(2) && u.performance_page()==2);CHECK(u.soft_key(0) && u.performance_page()==0);CHECK(u.soft_key(1) && u.performance_page()==1);
  for(unsigned shift=0;shift<2;++shift){u.set_shift(shift);CHECK(!std::strcmp(u.soft_label(7),shift?"LIVE TOOLS":"LOOPER"));}u.set_shift(false);CHECK(u.soft_key(7) && u.audio_page());u.soft_key(7);CHECK(!u.audio_page());
  u.set_mode(UiMode::Settings);for(unsigned page=0;page<7;++page){while(u.settings_page()<page)CHECK(u.encoder_direction(0x08));CHECK(*u.knob_label(0));for(unsigned k=1;k<8;++k){CHECK(!*u.knob_label(k));CHECK(!u.knob(k,1000));}if(u.settings_count()>1){const char* name=u.knob_label(0);CHECK(u.encoder(1));CHECK(std::strcmp(name,u.knob_label(0)));CHECK(u.encoder(-1));}}

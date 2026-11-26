@@ -585,10 +585,16 @@ public:
  bool audition_preset(const char* path){
   content_error_[0]=0;
   if(project_read_)return start_kit_load(path,false,true);
-  auto* p=alloc_new<ProjectState>();if(!p)return false;auto validate=[&](ProjectState& candidate,unsigned){return validate_audition(candidate,path) && resolve_assets(candidate) && verify_project_assets(fs_,candidate);};auto* views=alloc_array<WavView>(kSampleAssets);bool ok=views && load_recoverable_checked(fs_,path,*p,nullptr,nullptr,validate) && library_.prepare(*p,views) && publish_preset_audition(*p,views,path);delete[] views;delete p;return ok;
+  ProjectState* preset=nullptr;
+  auto validate=[&](ProjectState& candidate,unsigned){return validate_audition(candidate,path) && resolve_assets(candidate) && verify_project_assets(fs_,candidate);};
+  auto* views=alloc_array<WavView>(kSampleAssets);
+  bool ok=views && load_recoverable_candidate_checked(fs_,path,preset,nullptr,nullptr,validate) && library_.prepare(*preset,views) && publish_preset_audition(*preset,views,path);
+  delete[] views;delete preset;return ok;
  }
  void service_preset_audition(){
-  if(!preset_audition_active_){return;}auto& b=ui_.browser();uint32_t state=engine_.preview_state();if((state>>1)==preview_ticket_ && !(state&1)){preset_audition_active_=false;b.previewing=false;b.audition_path[0]=0;ui_.mark_dirty();return;}
+  if(!preset_audition_active_){return;}auto& b=ui_.browser();uint32_t state=engine_.preview_state();const unsigned detail=engine_.preview_refusal(preview_ticket_);if(detail || ((state>>1)==preview_ticket_ && !(state&1))){preset_audition_active_=false;b.previewing=false;b.audition_path[0]=0;
+   if(detail&255){char text[64];voice_refusal_text(text,VoiceRefusal(detail&255),detail>>8);copy_text(b.status,sizeof b.status,text);}
+   ui_.mark_dirty();return;}
   if(!audition_selection(b.audition_path,preset_audition_track_,preset_audition_generation_) && engine_.submit({CommandType::StopPreview,0,0,0})){preset_audition_active_=false;b.previewing=false;b.audition_path[0]=0;ui_.mark_dirty();}
  }
  bool commit_prepared_preset(ProjectState& preset,PresetAuditionPlan& plan,const char* path,const PreservedStore& imported){
@@ -600,11 +606,11 @@ public:
  }
  bool load_preset(const char* path){
   content_error_[0]=0;
-  if(!supported_container(path) || !allocation_admitted(sizeof(ProjectState),3))return false;
-  auto* preset=alloc_new<ProjectState>();auto* plan=alloc_new<PresetAuditionPlan>();auto* views=alloc_array<WavView>(kSampleAssets);RecoverySource source;unsigned version=0;uint64_t mask=0;PreservedOwner imported;
+  if(!supported_container(path) || !allocation_admitted(sizeof(ProjectState)))return false;
+  ProjectState* preset=nullptr;auto* plan=alloc_new<PresetAuditionPlan>();auto* views=alloc_array<WavView>(kSampleAssets);RecoverySource source;unsigned version=0;uint64_t mask=0;PreservedOwner imported;
   auto validate=[&](ProjectState& p,unsigned){return validate_audition(p,path) && resolve_assets(p) && verify_project_assets(fs_,p);};
   const char* decode_error=nullptr;
-  bool ok=preset && plan && views && imported && load_recoverable_checked(fs_,path,*preset,&version,&source,validate,imported.get(),&decode_error) && library_.prepare(*preset,views) && plan_preset_assets(*plan,*preset,views,mask) && commit_prepared_preset(*preset,*plan,path,*imported);
+  bool ok=plan && views && imported && load_recoverable_candidate_checked(fs_,path,preset,&version,&source,validate,imported.get(),&decode_error) && library_.prepare(*preset,views) && plan_preset_assets(*plan,*preset,views,mask) && commit_prepared_preset(*preset,*plan,path,*imported);
   if(ok)ui_.notify_recovery(source);else{copy_text(ui_.browser().status,96,decode_error?decode_error:content_error_[0]?content_error_:"Preset unavailable / sound kept");ui_.notify(UiNotice::Failed);}delete[] views;delete plan;delete preset;return ok;
  }
 
@@ -650,7 +656,7 @@ public:
   if(fs_.exists(path) && !overwrite){if(edit.duplicate){copy_text(b.status,96,"Duplicate needs a new filename");ui_.notify(UiNotice::SaveFailed);return false;}ui_.confirm_preset_overwrite(path);return true;}
   char parent[160];copy_text(parent,sizeof parent,path);parent_path(parent);
   bool ok=(!parent[0] || fs_.directory(parent)) && save_preset(path,ui_.preset_save_track(),edit.include_fx,edit.duplicate);
-  if(ok){ui_.bake_saved(path);}
+  if(ok){ui_.cancel_browser_edit();ui_.bake_saved(path);}
   copy_text(b.status,sizeof b.status,ok?path:"Preset save failed / sound kept");ui_.notify(ok?UiNotice::Saved:UiNotice::SaveFailed);return ok;
  }
  static bool collect_directory(char* output,unsigned capacity,const char* root,const char* source){
@@ -806,6 +812,12 @@ public:
   GrooveTemplate groove;char saved[24];
   if(!ui_.export_groove(groove) || !save_groove_template(fs_,groove,saved))return ui_.composition_notice("GROOVE SAVE FAILED",true);
   return ui_.composition_notice(saved);
+ }
+ if(action==FileAction::OpenRecordings){
+  copy_text(b.directory,sizeof b.directory,capture_directory_);
+  refresh();
+  if(!b.count && !fs_.exists(capture_directory_))copy_text(b.status,sizeof b.status,"No recordings yet");
+  return true;
  }
  if(action==FileAction::NewProjectMenu)return refresh_new_project(true);
  if(b.new_project_list && action==FileAction::Open)return open_new_project();

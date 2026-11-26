@@ -4,4 +4,4 @@
   void number(float value,unsigned precision){char number[24];SoftwareCanvas::format_value(number,value,precision);bool first=!text[0];append(number);if(first)copy_text(digits,sizeof digits,number);}
  };
 
- KnobValue formatted_knob(const ProjectState& p,const Performance& perf,unsigned i);
+ KnobValue formatted_knob(const ProjectState& p,const Performance& perf,unsigned i,bool base=false);

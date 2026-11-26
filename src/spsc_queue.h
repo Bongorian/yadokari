@@ -22,6 +22,7 @@ public:
  // (one slot always stays reserved), so the reference stays valid until
  // pop_advance(). Consumer thread only, like pop().
  const T* peek_front() const { unsigned r=__atomic_load_n(&read_,__ATOMIC_RELAXED); if(r==__atomic_load_n(&write_,__ATOMIC_ACQUIRE)) return nullptr; return &data_.values[r]; }
+ bool front_is_last()const{return (__atomic_load_n(&read_,__ATOMIC_RELAXED)+1)%N==__atomic_load_n(&write_,__ATOMIC_ACQUIRE);}
  void pop_advance() { unsigned r=__atomic_load_n(&read_,__ATOMIC_RELAXED); __atomic_store_n(&read_,(r+1)%N,__ATOMIC_RELEASE); }
  // Consumer-only fence: entries enqueued after this snapshot remain beyond
  // the boundary even when the producer wraps, because unread slots cannot be overwritten.
